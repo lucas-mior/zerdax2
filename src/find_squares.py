@@ -84,11 +84,11 @@ def w_lines(img):
                 lv = len(vert)
                 lh = len(hori)
                 if lv >= minlines and lh >= minlines:
-                    aux.logprint(img, "{0} lines [{1}][{2}] @ {3:1=.3f}º, {4}, {5}, {6}".format(len(lines), lv, lh, th, h_thrv, h_minl, h_maxg))
+                    aux.logprint(img, f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
                     got_hough = True
                     break
             if th > random.uniform(0, th*1):
-                aux.logprint(img, "{0} lines [{1}][{2}] @ {3:1=.3f}º, {4}, {5}, {6}".format(len(lines), lv, lh, th, h_thrv, h_minl, h_maxg))
+                aux.logprint(img, f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
         h_angl += np.pi / 3600
         if h_angl >= (np.pi / 360):
             if passed == 0:
@@ -114,7 +114,7 @@ def w_lines(img):
         aux.save(img, "lastcanny14", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
-            print("FAILED @ {}, {}, {}, {}".format(180*(h_angl/np.pi), h_thrv, h_minl, h_maxg))
+            print(f"FAILED @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{h_maxg}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 8")

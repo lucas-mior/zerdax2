@@ -67,7 +67,7 @@ def bound_region(img):
     print("cropping image to fit only board region...")
     x, y, w, h = cv2.boundingRect(img.hullxy)
     margin = 10
-    print("adding {} pixels margin...".format(margin))
+    print(f"adding {margin} pixels margin...")
     x0 = max(y-margin, 0)
     x1 = min(y+h+margin, img.width)+1
     y0 = max(x-margin, 0)
@@ -97,7 +97,7 @@ def reduce_box(img):
     nsh = (img.hwidth, img.hheigth)
     innsh = (img.hwidth - 10, img.hheigth - 10)
 
-    print("reducing all images to {} width".format(img.hwidth))
+    print(f"reducing all images to {img.hwidth} width")
     img.G = cv2.resize(img.G, nsh)
     img.V = cv2.resize(img.V, nsh)
     img.claheG = cv2.resize(img.claheG, nsh)
@@ -145,8 +145,8 @@ def find_region(img):
     img.cg0 = 200
     img.cv0 = 200
     while Wc <= W0 or Amin >= A0:
-        aux.logprint(img, "Área mínima: {}".format(Amin))
-        aux.logprint(img, "Canny Wc: {}".format(Wc))
+        aux.logprint(img, f"Área mínima: {Amin}")
+        aux.logprint(img, f"Canny Wc: {Wc}")
         if Wc >= 9:
             h = True
         img = create_cannys(img, w=Wc, c_thrhg=img.cg0, c_thrhv=img.cv0)
@@ -160,11 +160,11 @@ def find_region(img):
         img.help = cv2.bitwise_or(canvas5[:, :, 0], canvas5[:, :, 1])
 
         if a > Amin:
-            aux.logprint(img, "{} > {} : {}".format(a, Amin, a/Amin))
+            aux.logprint(img, f"{a} > {Amin} : {a/Amin}")
             got_hull = True
             break
         else:
-            aux.logprint(img, "{} < {} : {}".format(a, Amin, a/Amin))
+            aux.logprint(img, f"{a} < {Amin} : {a/Amin}")
 
         Amin = max(A0, round(Amin - 0.02*img.area))
         Wc = min(W0, Wc + 0.5)
@@ -226,7 +226,7 @@ def select_lines(img):
             h_angl = min(np.pi/180, h_angl + np.pi/1800)
             continue
         if len(lines) >= 22:
-            aux.logprint(img, "{0} lines @ {1:1=.4f}º, {2}, {3}, {4}".format(len(lines), th, h_thrv, h_minl, h_maxg))
+            aux.logprint(img, f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
             lines = aux.radius_theta(lines)
             lines = filter_lines(img, lines)
             angles = lines_kmeans(img, lines)
@@ -234,7 +234,7 @@ def select_lines(img):
             got_hough = True
             break
 
-        aux.logprint(img, "{0} lines @ {1:1=.4f}º, {2}, {3}, {4}".format(len(lines), th, h_thrv, h_minl, h_maxg))
+        aux.logprint(img, f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
         if h_angl >= (np.pi/180) and h_minl <= (h_minl0/1.3):
             break
         h_minl = max(h_minl0 / 1.3, h_minl - 4)
@@ -322,7 +322,7 @@ def magic_lines(img):
 
     def _update_magic(force):
         nonlocal h_minl, h_thrv
-        print("force: {0:1=.3f}".format(force))
+        print(f"force: {force:1=.3f}")
         h_minl = h_minl0
         h_thrv = round(h_minl / force)
         return
@@ -358,7 +358,7 @@ def magic_lines(img):
             l1 = len(dir1)
             l2 = len(dir2)
             if 22 <= ll <= 24 and (11 <= l1 <= 13 and 11 <= l2 <= 13):
-                aux.logprint(img, "{0} # [{1}][{2}] @ {3:1=.3f}º,{4},{5},{6}".format(len(lines), l1, l2, h_a, h_thrv, h_minl, h_maxg))
+                aux.logprint(img, f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break
             if ll >= 25 and (l1 >= 14 or l2 >= 14):
@@ -367,7 +367,7 @@ def magic_lines(img):
                 incr = 8
                 continue
 
-        aux.logprint(img, "{0} # [{1}][{2}] @ {3:1=.3f}º,{4},{5},{6}".format(len(lines), l1, l2, h_a, h_thrv, h_minl, h_maxg))
+        aux.logprint(img, f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
         h_minl -= incr
         h_thrv = round(h_minl / force)
         if h_minl <= (img.slen/1.4):
@@ -387,7 +387,7 @@ def magic_lines(img):
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print("magic_lines() failed @ {}, {}, {}, {}".format(180*(h_angl/np.pi), h_thrv, h_minl, h_maxg))
+            print(f"magic_lines() failed @ {180*(h_angl/np.pi)}, {h_thrv}, {h_minl}, {h_maxg}")
             aux.save(img, "last_test", img.test)
             exit(1)
         else:

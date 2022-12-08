@@ -20,7 +20,7 @@ def main():
     args = parseargs()
     image = args.image
     log = args.log
-    print("============ zerdax {} ============".format(image))
+    print("============ zerdax {image} ============")
     fen = algorithm(image, log)
     print("FEN:", fen)
 

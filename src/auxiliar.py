@@ -20,13 +20,13 @@ def determinant(a, b):
 
 def save(img, filename, image):
     global i
-    cv2.imwrite("{}{:02d}_{}.png".format(img.basename, i, filename), image)
+    cv2.imwrite(f"{img.basename}{i:02d}_{filename}.png", image)
     i += 1
 
 
 def savefig(img, filename, fig):
     global i
-    fig.savefig("{}{:02d}_{}.png".format(img.basename, i, filename))
+    fig.savefig(f"{img.basename}{i:02d}_{filename}.png")
     i += 1
 
 
@@ -44,7 +44,7 @@ def theta(x1, y1, x2, y2, absol=False):
         orientation = math.atan2(y1-y2, x2-x1)
     orientation = math.degrees(orientation)
     if abs(orientation) > 90:
-        print("theta({},{},{},{})".format(x1, y1, x2, y2))
+        print(f"theta({x1}, {y1}, {x2}, {y2})")
         print("orientation:", orientation)
         exit(1)
     return round(orientation)
@@ -98,12 +98,10 @@ def save_lines(img, name, vert, hori, warp=True):
 
 
 def find_canny(img, image, wmin=5, c_thrh=220):
-    logprint(img, "finding edges with Canny until mean"
-                  ">= {0:0=.1f}...".format(wmin))
+    logprint(img, f"finding edges with Canny until mean" ">= {wmin:0=.1f}...")
 
     def lp(sign):
-        logprint(img, "{0:0=.2f} {1} {2:0=.1f}, @ {3}, {4}".format(
-                       w, sign, wmin, c_thrl, c_thrh))
+        logprint(img, f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {c_thrl}, {c_thrh}")
         return
 
     got_canny = False
@@ -137,10 +135,10 @@ def find_canny(img, image, wmin=5, c_thrh=220):
 
     if not got_canny:
         if diff > 2:
-            print("Canny failed @ {},{}".format(c_thrl, c_thrh))
+            print(f"Canny failed @ {c_thrl}, {c_thrh}")
             exit(1)
         else:
-            print("Canny failed, but trying anyway")
+            print(f"Canny failed, but trying anyway")
 
     return canny, c_thrh
 

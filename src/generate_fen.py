@@ -1,6 +1,5 @@
 import cv2
-import numpy as np
-from zerdax2 import COLORS, SYMBOLS, NAMES, PIECES, CLASSES
+from zerdax2 import SYMBOLS
 
 
 def generate_fen(img):

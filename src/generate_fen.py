@@ -1,4 +1,6 @@
 import cv2
+import numpy as np
+from zerdax2 import COLORS, SYMBOLS, NAMES, PIECES, CLASSES
 
 
 def generate_fen(img):
@@ -15,9 +17,11 @@ def create_fen(img):
             sq = img.sqback[j, i]
             got_piece = False
             for piece in img.pieces:
-                p = (round(float(piece[4])), round(float(piece[2])) - 15)
+                xm = round((piece[2] + piece[0])/2)
+                y = round(piece[3]) - 15
+                p = (xm, y)
                 if cv2.pointPolygonTest(sq, p, True) >= 0:
-                    fen += piece[6].split(" ")[0]
+                    fen += SYMBOLS[str(int(piece[5]))]
                     got_piece = True
                     img.pieces.remove(piece)
                     break

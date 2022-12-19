@@ -84,6 +84,8 @@ def bound_region(img):
     img.dcont = _crop(img.dcont)
     img.gray = _crop(img.gray)
     img.BGR = _crop(img.BGR)
+    img.BGR_name = f"{img.basename}BGR.png"
+    cv2.imwrite(img.BGR_name, img.BGR)
     img.gray3ch = _crop(img.gray3ch)
     return img
 
@@ -106,6 +108,8 @@ def reduce_box(img):
     img.fedges = cv2.resize(img.fedges, nsh)
     img.gray = cv2.resize(img.gray, nsh)
     img.BGR = cv2.resize(img.BGR, nsh)
+    img.BGR_name = f"{img.basename}BGR.png"
+    cv2.imwrite(img.BGR_name, img.BGR)
     img.gray3ch = cv2.resize(img.gray3ch, nsh)
     img.inside = cv2.resize(img.inside, innsh)
 
@@ -128,6 +132,8 @@ def black_space(img):
     img.gray = _mk_border(img.gray)
     img.gray3ch = _mk_border(img.gray3ch)
     img.BGR = _mk_border(img.BGR)
+    img.BGR_name = f"{img.basename}BGR.png"
+    cv2.imwrite(img.BGR_name, img.BGR)
     img.inside = _mk_border(img.inside, dx=25)
 
     return img

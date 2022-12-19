@@ -4,6 +4,7 @@ import re
 
 from find_board import find_board
 from find_squares import find_squares
+from find_pieces import find_pieces
 from generate_fen import generate_fen
 import auxiliar as aux
 
@@ -31,12 +32,11 @@ def algorithm(filename, log):
 
     img = find_board(img)
     img = find_squares(img)
-    # img = find_pieces(img)
+    img = find_pieces(img)
     # aux.save(img, "yolo", img.yolopieces)
-    # img = generate_fen(img)
-    img.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+    img = generate_fen(img)
 
-    # draw_fen_terminal(img.longfen)
+    draw_fen_terminal(img.longfen)
 
     return img.fen
 

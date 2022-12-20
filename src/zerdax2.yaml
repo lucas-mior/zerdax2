@@ -1,0 +1,15 @@
+# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# Example usage: python train.py --data zerdax2.yaml
+
+path: ../datasets/zerdax2 # dataset root dir
+train: images/train/ # train images (relative to 'path')
+val: images/val/       # val images (relative to 'path')
+test: images/test/     # test images (relative to 'path')
+
+names:
+  0: King
+  1: Queen
+  2: Rook
+  3: Bishop
+  4: Knight
+  5: Pawn

@@ -13,7 +13,10 @@ def get_piece(line, width, heigth):
     a = line.strip().split(" ")
     xc, yc = float(a[1]), float(a[2])
     dx, dy = float(a[3]), float(a[4])
-    conf = round(float(a[5]), 2)
+    try:
+        conf = round(float(a[5]), 2)
+    except Exception:
+        conf = 0
     x0, y0 = xc - dx/2, yc - dy/2
     x1, y1 = x0 + dx, y0 + dy
     x0 = round(x0*width)
@@ -49,8 +52,13 @@ def draw_boxes(img_name, txt_name):
         p, x0, y0, x1, y1 = piece
         color = COLORS[p['number']]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
-        cv2.putText(canvas, f"{p['symbol']} {p['conf']}", (x0-5, y0-7),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
+        conf = p['conf']
+        if conf != 0:
+            cv2.putText(canvas, f"{p['symbol']} {conf}", (x0-5, y0-7),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
+        else:
+            cv2.putText(canvas, f"{p['symbol']}", (x0-5, y0-7),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
         canvas2 = cv2.addWeighted(img, 0.6, canvas, 0.8, 1)
     cv2.imwrite(output, canvas2)
 

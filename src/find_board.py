@@ -53,9 +53,9 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
     img.cg0 += 5
     img.cv0 += 5
-    if saveny:
-        aux.save(img, "cannyG", cannyG)
-        aux.save(img, "cannyV", cannyV)
+    # if saveny:
+    #     aux.save(img, "cannyG", cannyG)
+    #     aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
@@ -177,8 +177,8 @@ def find_region(img):
 
     img.dcont = canvas5[:, :, 0]
     canvas5 = cv2.addWeighted(img.gray3ch, 0.5, canvas5, 0.5, 1)
-    aux.save(img, "edges", img.edges)
-    aux.save(img, "contours", canvas5)
+    # aux.save(img, "edges", img.edges)
+    # aux.save(img, "contours", canvas5)
 
     if not got_hull:
         print("finding board region failed")
@@ -258,7 +258,7 @@ def select_lines(img):
                                color=(0, 255, 255), thickness=3)
     img.select = canvas2[:, :, 2]
     canvas2 = cv2.addWeighted(img.gray3ch, 0.5, canvas2, 0.5, 1)
-    aux.save(img, "select", canvas2)
+    # aux.save(img, "select", canvas2)
 
     img.select_lines = lines
     img.angles = angles
@@ -308,7 +308,7 @@ def calc_intersections(img, lines):
         canvas4 = cv2.circle(canvas4, p, radius=7,
                              color=(0, 0, 255), thickness=-1)
     canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
-    aux.save(img, "intersections", canvas4)
+    # aux.save(img, "intersections", canvas4)
 
     return inter
 
@@ -384,8 +384,8 @@ def magic_lines(img):
                 force += 0.1
                 _update_magic(force)
 
-    if l1 > 0 and l2 > 0:
-        aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
+    # if l1 > 0 and l2 > 0:
+    #     aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
 
     dummy = np.copy(img.select_lines[:, :, 0:6])
     lines = np.append(lines, dummy, axis=0)
@@ -394,11 +394,11 @@ def magic_lines(img):
     if not got_hough:
         if l1 < 10 or l2 < 10:
             print(f"magic_lines() failed @ {180*(h_angl/np.pi)}, {h_thrv}, {h_minl}, {h_maxg}")
-            aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             exit(1)
         else:
             broadcorners = True
-            aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
@@ -532,7 +532,7 @@ def calc_corners(img, inter):
                          color=(255, 255, 255), thickness=-1)
 
     canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
-    aux.save(img, "corners2", canvas4)
+    # aux.save(img, "corners2", canvas4)
 
     corners = np.array([BR, BL, TR, TL])
     print("board corners:\n", corners, sep='')
@@ -606,8 +606,8 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    aux.save(img, "canny9", img.canny)
-    aux.save(img, "fedges", img.fedges)
+    # aux.save(img, "canny9", img.canny)
+    # aux.save(img, "fedges", img.fedges)
 
     mid = round(img.hheigth/2)
     end = img.hheigth + 1
@@ -617,12 +617,12 @@ def magic_prepare(img):
     down = cv2.bitwise_and(down, downf)
     down = cv2.morphologyEx(down, cv2.MORPH_DILATE, k_dil)
     img.test = np.concatenate((up, down), axis=0)
-    aux.save(img, "andfedges", img.test)
+    # aux.save(img, "andfedges", img.test)
 
     img.test = cv2.bitwise_or(img.test, img.select)
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.test, cv2.MORPH_CLOSE, k_clo)
-    aux.save(img, "ny+select-closed", img.test)
+    # aux.save(img, "ny+select-closed", img.test)
     return img
 
 
@@ -632,7 +632,7 @@ def select_prepare(img):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_dil)
-    aux.save(img, "canny7_select", img.canny)
+    # aux.save(img, "canny7_select", img.canny)
 
     return img
 

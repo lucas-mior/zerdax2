@@ -33,7 +33,7 @@ def algorithm(filename, log):
     img = find_board(img)
     img = find_squares(img)
     img = find_pieces(img)
-    # aux.save(img, "yolo", img.yolopieces)
+    aux.save(img, "yolo", img.yolopieces)
     img = generate_fen(img)
 
     draw_fen_terminal(img.longfen)

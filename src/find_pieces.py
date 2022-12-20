@@ -1,12 +1,34 @@
 import yolov5.detect as yolo
 import cv2
 import numpy as np
+from zerdax2 import COLORS, SYMBOLS
+
+
+def draw_boxes(img):
+    i = img.BGR
+    canvas = np.zeros(i.shape, dtype='uint8')
+    thick = round(2.4 * (i.shape[0] / 1280))
+    for piece in img.pieces:
+        x0, y0, x1, y1, conf, num, _ = piece
+        x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
+        conf = round(float(conf), 2)
+        num = int(num)
+        color = COLORS[str(num)]
+        symbol = SYMBOLS[str(num)]
+        cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
+        cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
+        canvas2 = cv2.addWeighted(i, 0.6, canvas, 0.8, 1)
+
+    img.yolopieces = canvas2
+    return img
 
 
 def find_pieces(img):
-    pieces = yolo.run(weights="yolov5/runs/train/exp1/weights/best.pt",
+    pieces = yolo.run(weights="best.pt",
                       source=img.BGR_name,
                       data="yolov5/zerdax2.yaml",
+                      nosave=True,  # do not save images/videos
                       conf_thres=0.7,  # confidence threshold
                       iou_thres=0.45,  # NMS IOU threshold
                       max_det=32,  # maximum detections per image
@@ -18,6 +40,7 @@ def find_pieces(img):
     print(pieces)
     img.pieces = pieces.tolist()
     img = determine_colors(img)
+    img = draw_boxes(img)
     return img
 
 

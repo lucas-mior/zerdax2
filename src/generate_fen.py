@@ -1,5 +1,6 @@
 import cv2
 from zerdax2 import SYMBOLS
+import sys
 
 
 def generate_fen(img):
@@ -40,3 +41,11 @@ def compress_fen(fen):
         fen = fen.replace(length * '1', str(length))
 
     return fen
+
+
+if __name__ == "__main__":
+    f = open(sys.argv[1])
+    fen = compress_fen(f.readline())
+    f.close()
+    f = open(sys.argv[2], 'w')
+    f.write(fen)

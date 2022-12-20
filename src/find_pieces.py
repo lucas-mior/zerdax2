@@ -51,14 +51,12 @@ def determine_colors(img):
     compact, labels, centers = cv2.kmeans(pcolors[:, 6], 2, None,
                                           criteria, 10, flags)
     if centers[0] < centers[1]:
-        wlabel = 1
-        blabel = 0
+        blacklabel = 0
     else:
-        wlabel = 0
-        blabel = 1
+        blacklabel = 1
 
     for i, p in enumerate(pcolors):
-        if labels[i] == blabel:
+        if labels[i] == blacklabel:
             p[5] += 6
 
     print(pcolors)

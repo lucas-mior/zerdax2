@@ -216,7 +216,7 @@ def calc_intersections(img, vert, hori):
                     last = (x, y)
         i += 1
 
-    canvas4 = np.empty(img.warped3ch.shape, dtype='uint8') * 0
+    canvas4 = np.zeros(img.warped3ch.shape, dtype='uint8')
     for p in inter:
         cv2.circle(canvas4, p, radius=5, color=(60, 60, 255), thickness=-1)
     canvas4 = cv2.addWeighted(img.warped3ch, 0.5, canvas4, 0.5, 1)
@@ -246,8 +246,7 @@ def mean_dist(distv, disth):
 
 
 def wrong_lines(dist, med):
-    rem = np.empty(dist.shape[0], dtype='uint8')
-    rem[:] = 0
+    rem = np.zeros(dist.shape[0], dtype='uint8')
 
     i = 0
     for d in dist:
@@ -261,8 +260,7 @@ def wrong_lines(dist, med):
 
 
 def right_lines(dist, med):
-    cer = np.empty(dist.shape[0], dtype='uint8')
-    cer[:] = 0
+    cer = np.zeros(dist.shape[0], dtype='uint8')
 
     i = 0
     for d in dist:
@@ -351,7 +349,7 @@ def calc_squares(img, inter):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas2 = np.empty(img.warped3ch.shape, dtype='uint8') * 0
+    canvas2 = np.zeros(img.warped3ch.shape, dtype='uint8')
     cv2.drawContours(canvas2, [squares[0, 0]], -1,  # A1
                      color=(255, 0, 0), thickness=2)
     cv2.drawContours(canvas2, [squares[4, 3]], -1,  # E4

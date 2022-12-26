@@ -406,7 +406,7 @@ def magic_lines(img):
 
 
 def filter_lines(img, lines):
-    rem = np.empty(lines.shape[0], dtype='uint8')
+    rem = np.zeros(lines.shape[0], dtype='uint8')
 
     i = 0
     for line in lines:
@@ -429,7 +429,7 @@ def filter_lines(img, lines):
 
 
 def filter_angles(img, lines, tol=15):
-    rem = np.empty(lines.shape[0], dtype='uint8')
+    rem = np.zeros(lines.shape[0], dtype='uint8')
 
     i = 0
     for line in lines:
@@ -494,8 +494,8 @@ def lines_kmeans(img, lines):
 
 def calc_corners(img, inter):
     print("calculating 4 corners of board...")
-    psum = np.empty((inter.shape[0], 3), dtype='int32')
-    psub = np.empty((inter.shape[0], 3), dtype='int32')
+    psum = np.zeros((inter.shape[0], 3), dtype='int32')
+    psub = np.zeros((inter.shape[0], 3), dtype='int32')
 
     psum[:, 0] = inter[:, 0]
     psum[:, 1] = inter[:, 1]

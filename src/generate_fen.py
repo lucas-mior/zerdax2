@@ -1,5 +1,5 @@
 import cv2
-from zerdax2 import SYMBOLS
+from zerdax2_misc import SYMBOLS
 import sys
 
 

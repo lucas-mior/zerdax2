@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import sys
 
-from zerdax2 import COLORS, SYMBOLS
+from zerdax2_misc import COLORS, SYMBOLS
 
 
 def get_piece(line, width, heigth):

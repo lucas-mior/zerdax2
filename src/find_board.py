@@ -11,7 +11,9 @@ WARPED_LEN = 640
 
 def find_board(img):
     print("finding select best lines...")
+    print(f"img: {img}...")
     img = select_prepare(img)
+    print(f"img: {img}...")
     img = select_lines(img)
     lines, img.broadcorners = magic_lines(img)
     inter = calc_intersections(img, lines[:, 0, :])
@@ -22,18 +24,16 @@ def find_board(img):
 
 
 def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
-    aux.logprint(img, "finding edges for gray, S, V images...")
+    print("finding edges for gray, S, V images...")
     cannyG, img.cg0 = aux.find_canny(img, img.claheG, wmin=w, c_thrh=c_thrhg)
     cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
     img.cg0 += 5
     img.cv0 += 5
-    if saveny:
-        aux.save(img, "cannyG", cannyG)
-        aux.save(img, "cannyV", cannyV)
+    aux.save(img, "cannyG", cannyG)
+    aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
-    img.canny = cv2.bitwise_and(img.canny, img.inside)
     return img
 
 
@@ -55,7 +55,7 @@ def select_lines(img):
             h_angl = min(np.pi/180, h_angl + np.pi/1800)
             continue
         if len(lines) >= 22:
-            aux.logprint(img, f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
+            print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
             lines = aux.radius_theta(lines)
             lines = filter_lines(img, lines)
             angles = lines_kmeans(img, lines)
@@ -63,7 +63,7 @@ def select_lines(img):
             got_hough = True
             break
 
-        aux.logprint(img, f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
+        print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
         if h_angl >= (np.pi/180) and h_minl <= (h_minl0/1.3):
             break
         h_minl = max(h_minl0 / 1.3, h_minl - 4)
@@ -187,7 +187,7 @@ def magic_lines(img):
             l1 = len(dir1)
             l2 = len(dir2)
             if 22 <= ll <= 24 and (11 <= l1 <= 13 and 11 <= l2 <= 13):
-                aux.logprint(img, f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
+                print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break
             if ll >= 25 and (l1 >= 14 or l2 >= 14):
@@ -196,7 +196,7 @@ def magic_lines(img):
                 incr = 8
                 continue
 
-        aux.logprint(img, f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
+        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
         h_minl -= incr
         h_thrv = round(h_minl / force)
         if h_minl <= (img.slen/1.4):

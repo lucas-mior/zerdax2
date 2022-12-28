@@ -41,13 +41,13 @@ def pre_process(img):
 
     print("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    aux.save(img, "gray_board", img.gray)
+    # aux.save(img, "gray_board", img.gray)
 
     print("applying gaussian blur...")
     img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
     img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
-    aux.save(img, "Gblur", img.G)
-    aux.save(img, "Vblur", img.V)
+    # aux.save(img, "Gblur", img.G)
+    # aux.save(img, "Vblur", img.V)
     # img.G = lf.ffilter(img.gray)
     # img.V = lf.ffilter(img.V)
 
@@ -55,12 +55,12 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
     img.claheG = clahe.apply(img.G)
     img.claheV = clahe.apply(img.V)
-    aux.save(img, "Gclahe", img.claheG)
-    aux.save(img, "Vclahe", img.claheV)
+    # aux.save(img, "Gclahe", img.claheG)
+    # aux.save(img, "Vclahe", img.claheV)
 
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
-    return
+    return img
 
 
 def algorithm(filename, log):

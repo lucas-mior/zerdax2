@@ -33,7 +33,7 @@ def find_squares(img):
 
 
 def create_wcannys(img, w=12, c_thrhg=220, c_thrhv=220):
-    aux.logprint(img, "finding edges for gray, V warped images...")
+    print("finding edges for gray, V warped images...")
     cannyG, img.cg0 = aux.find_canny(img, img.wg, wmin=w, c_thrh=c_thrhg)
     cannyV, img.cv0 = aux.find_canny(img, img.wv, wmin=w, c_thrh=c_thrhv)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
@@ -84,11 +84,11 @@ def w_lines(img):
                 lv = len(vert)
                 lh = len(hori)
                 if lv >= minlines and lh >= minlines:
-                    aux.logprint(img, f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
+                    print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
                     got_hough = True
                     break
             if th > random.uniform(0, th*1):
-                aux.logprint(img, f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
+                print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {h_maxg}")
         h_angl += np.pi / 3600
         if h_angl >= (np.pi / 360):
             if passed == 0:

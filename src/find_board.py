@@ -5,7 +5,6 @@ import math
 import auxiliar as aux
 
 from bundle_lines import bundle_lines
-import lffilter as lf
 
 
 def find_board(img):

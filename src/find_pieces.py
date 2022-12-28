@@ -24,9 +24,9 @@ def draw_boxes(img):
     return img
 
 
-def find_pieces(img):
+def detect_objects(img):
     pieces = yolo.run(weights="best.pt",
-                      source=img.BGR_name,
+                      source=img.filename,
                       data="yolov5/zerdax2.yaml",
                       nosave=True,  # do not save images/videos
                       conf_thres=0.7,  # confidence threshold
@@ -39,6 +39,10 @@ def find_pieces(img):
                       )
     print(pieces)
     img.pieces = pieces.tolist()
+    img.board = img.pieces[img.pieces[5] == 0][0]
+    img.pieces = img.pieces[img.pieces[5] != 0]
+    print(f"board: {img.board}")
+    print(f"pieces: {img.pieces}")
     img = determine_colors(img)
     img = draw_boxes(img)
     return img

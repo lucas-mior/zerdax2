@@ -9,10 +9,6 @@ import lffilter as lf
 
 
 def find_board(img):
-    img = pre_process(img)
-    img = find_region(img)
-    img = bound_region(img)
-    img = reduce_box(img)
     img = black_space(img)
 
     img = select_lines(img)
@@ -20,29 +16,6 @@ def find_board(img):
     inter = calc_intersections(img, lines[:, 0, :])
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)
-
-    return img
-
-
-def pre_process(img):
-    print("pre processing image...")
-    print("applying filter to image...")
-    img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
-    img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
-    # img.G = lf.ffilter(img.gray)
-    # img.V = lf.ffilter(img.V)
-
-    print("applying distributed histogram equalization to image...")
-    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
-    img.claheG = clahe.apply(img.G)
-    img.claheV = clahe.apply(img.V)
-
-    print("applying filter again...")
-    img.claheG = lf.ffilter(img.claheG)
-    img.claheV = lf.ffilter(img.claheV)
-
-    print("creating insider...")
-    img.inside = np.ones(img.G.shape, dtype='uint8') * 255
 
     return img
 
@@ -60,59 +33,6 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
     img.canny = cv2.bitwise_and(img.canny, img.inside)
-    return img
-
-
-def bound_region(img):
-    print("cropping image to fit only board region...")
-    x, y, w, h = cv2.boundingRect(img.hullxy)
-    margin = 10
-    print(f"adding {margin} pixels margin...")
-    x0 = max(y-margin, 0)
-    x1 = min(y+h+margin, img.width)+1
-    y0 = max(x-margin, 0)
-    y1 = max(x+w+margin, img.heigth)+1
-
-    def _crop(image):
-        return image[x0:x1, y0:y1]
-
-    img.G = _crop(img.G)
-    img.V = _crop(img.V)
-    img.claheG = _crop(img.claheG)
-    img.claheV = _crop(img.claheV)
-    img.fedges = _crop(img.fedges)
-    img.dcont = _crop(img.dcont)
-    img.gray = _crop(img.gray)
-    img.BGR = _crop(img.BGR)
-    img.BGR_name = f"{img.basename}BGR.png"
-    cv2.imwrite(img.BGR_name, img.BGR)
-    img.gray3ch = _crop(img.gray3ch)
-    return img
-
-
-def reduce_box(img):
-    print("reducing images to default size...")
-    img.hwidth = 900
-    img.hfact = img.hwidth / img.gray.shape[1]
-    img.hheigth = round(img.hfact * img.gray.shape[0])
-    img.harea = img.hwidth * img.hheigth
-    nsh = (img.hwidth, img.hheigth)
-    innsh = (img.hwidth - 10, img.hheigth - 10)
-
-    print(f"reducing all images to {img.hwidth} width")
-    img.G = cv2.resize(img.G, nsh)
-    img.V = cv2.resize(img.V, nsh)
-    img.claheG = cv2.resize(img.claheG, nsh)
-    img.claheV = cv2.resize(img.claheV, nsh)
-    img.dcont = cv2.resize(img.dcont, nsh)
-    img.fedges = cv2.resize(img.fedges, nsh)
-    img.gray = cv2.resize(img.gray, nsh)
-    img.BGR = cv2.resize(img.BGR, nsh)
-    img.BGR_name = f"{img.basename}BGR.png"
-    cv2.imwrite(img.BGR_name, img.BGR)
-    img.gray3ch = cv2.resize(img.gray3ch, nsh)
-    img.inside = cv2.resize(img.inside, innsh)
-
     return img
 
 
@@ -135,54 +55,6 @@ def black_space(img):
     img.BGR_name = f"{img.basename}BGR.png"
     cv2.imwrite(img.BGR_name, img.BGR)
     img.inside = _mk_border(img.inside, dx=25)
-
-    return img
-
-
-def find_region(img):
-    print("finding region containing chess board...")
-    got_hull = False
-    h = False
-    Wc = 5
-    W0 = 12
-    Amin = round(0.5 * img.area)
-    A0 = round(0.1 * img.area)
-    img.help = np.copy(img.G) * 0
-    img.cg0 = 200
-    img.cv0 = 200
-    while Wc <= W0 or Amin >= A0:
-        aux.logprint(img, f"Área mínima: {Amin}")
-        aux.logprint(img, f"Canny Wc: {Wc}")
-        if Wc >= 9:
-            h = True
-        img = create_cannys(img, w=Wc, c_thrhg=img.cg0, c_thrhv=img.cv0)
-        img, a = find_morph(img, h)
-
-        canvas5 = np.zeros(img.gray3ch.shape, dtype='uint8')
-        canvas5 = cv2.drawContours(canvas5, img.cont, -1,
-                                   color=(255, 0, 0), thickness=1)
-        canvas5 = cv2.drawContours(canvas5, [img.hullxy], -1,
-                                   color=(0, 255, 0), thickness=1)
-        img.help = cv2.bitwise_or(canvas5[:, :, 0], canvas5[:, :, 1])
-
-        if a > Amin:
-            aux.logprint(img, f"{a} > {Amin} : {a/Amin}")
-            got_hull = True
-            break
-        else:
-            aux.logprint(img, f"{a} < {Amin} : {a/Amin}")
-
-        Amin = max(A0, round(Amin - 0.02*img.area))
-        Wc = min(W0, Wc + 0.5)
-
-    img.dcont = canvas5[:, :, 0]
-    canvas5 = cv2.addWeighted(img.gray3ch, 0.5, canvas5, 0.5, 1)
-    # aux.save(img, "edges", img.edges)
-    # aux.save(img, "contours", canvas5)
-
-    if not got_hull:
-        print("finding board region failed")
-        exit(1)
 
     return img
 

@@ -69,22 +69,9 @@ def algorithm(filename, log):
     aux.save(img, "yolo", img.yolopieces)
     img = generate_fen(img)
 
-    draw_fen_terminal(img.longfen)
+    aux.draw_fen_terminal(img.longfen)
 
     return img.fen
-
-
-def draw_fen_terminal(fen):
-    print("―"*19)
-
-    print("| ", end='')
-    fen = re.sub(r'/', "|\n| ", fen)
-    fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
-    fen = re.sub(r'(1)', r'· ', fen)
-    print(fen, end='')
-    print("|")
-
-    print("―"*19)
 
 
 def reduce_box(img):

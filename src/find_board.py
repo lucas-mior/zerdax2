@@ -41,7 +41,7 @@ def select_lines(img):
 
     got_hough = False
     h_maxg = 50
-    h_minl = h_minl0 = round((img.hwidth + img.hheigth)*0.21) - 40
+    h_minl = h_minl0 = round((img.bwidth + img.bheigth)*0.21) - 40
     h_thrv = round(h_minl0 / 1.8)
     h_angl = np.pi / 360
 
@@ -117,7 +117,7 @@ def calc_intersections(img, lines):
             x = round(aux.determinant(d, xdiff) / div)
             y = round(aux.determinant(d, ydiff) / div)
 
-            if x > img.hwidth or y > img.hheigth or x < 0 or y < 0:
+            if x > img.bwidth or y > img.bheigth or x < 0 or y < 0:
                 j += 1
                 continue
             else:
@@ -236,11 +236,11 @@ def filter_lines(img, lines):
         for x1, y1, x2, y2, r, t in line:
             if x1 < 28 and x2 < 28 or y1 < 28 and y2 < 28:
                 rem[i] = 1
-            elif (img.hwidth - x1) < 28 and (img.hwidth - x2) < 28 or (img.hheigth - y1) < 28 and (img.hheigth - y2) < 28:
+            elif (img.bwidth - x1) < 28 and (img.bwidth - x2) < 28 or (img.bheigth - y1) < 28 and (img.bheigth - y2) < 28:
                 rem[i] = 1
-            elif (x1 < 28 or (img.hwidth - x1) < 28) and (y2 < 28 or (img.hheigth - y2) < 28):
+            elif (x1 < 28 or (img.bwidth - x1) < 28) and (y2 < 28 or (img.bheigth - y2) < 28):
                 rem[i] = 1
-            elif (x2 < 28 or (img.hwidth - x2) < 28) and (y1 < 28 or (img.hheigth - y1) < 28):
+            elif (x2 < 28 or (img.bwidth - x2) < 28) and (y1 < 28 or (img.bheigth - y1) < 28):
                 rem[i] = 1
             else:
                 rem[i] = 0
@@ -432,8 +432,8 @@ def magic_prepare(img):
     aux.save(img, "canny9", img.canny)
     aux.save(img, "fedges", img.fedges)
 
-    mid = round(img.hheigth/2)
-    end = img.hheigth + 1
+    mid = round(img.bheigth/2)
+    end = img.bheigth + 1
     up = img.canny[0:mid, :]
     down = img.canny[mid:end, :]
     downf = img.fedges[mid:end, :]
@@ -462,11 +462,11 @@ def select_prepare(img):
 
 def broad_corners(img, BR, BL, TR, TL):
     print("adding margin for corners...")
-    BR[0] = min(img.hwidth-1,  BR[0]+5)
-    BR[1] = min(img.hheigth-1, BR[1]+5)
+    BR[0] = min(img.bwidth-1,  BR[0]+5)
+    BR[1] = min(img.bheigth-1, BR[1]+5)
     BL[0] = max(0,             BL[0]-5)
-    BL[1] = min(img.hheigth-1, BL[1]+5)
-    TR[0] = min(img.hwidth-1,  TR[0]+5)
+    BL[1] = min(img.bheigth-1, BL[1]+5)
+    TR[0] = min(img.bwidth-1,  TR[0]+5)
     TR[1] = max(0,             TR[1]-5)
     TL[0] = max(0,             TL[0]-5)
     TL[1] = max(0,             TL[1]-5)

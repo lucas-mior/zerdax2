@@ -430,17 +430,13 @@ def magic_prepare(img):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
     aux.save(img, "canny9", img.canny)
-    aux.save(img, "fedges", img.fedges)
 
     mid = round(img.bheigth/2)
     end = img.bheigth + 1
     up = img.canny[0:mid, :]
     down = img.canny[mid:end, :]
-    downf = img.fedges[mid:end, :]
-    down = cv2.bitwise_and(down, downf)
     down = cv2.morphologyEx(down, cv2.MORPH_DILATE, k_dil)
     img.test = np.concatenate((up, down), axis=0)
-    aux.save(img, "andfedges", img.test)
 
     img.test = cv2.bitwise_or(img.test, img.select)
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))

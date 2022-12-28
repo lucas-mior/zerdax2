@@ -6,10 +6,12 @@ import auxiliar as aux
 
 from bundle_lines import bundle_lines
 
+WARPED_LEN = 640
+
 
 def find_board(img):
-    img = black_space(img)
-
+    print("finding select best lines...")
+    img = select_prepare(img)
     img = select_lines(img)
     lines, img.broadcorners = magic_lines(img)
     inter = calc_intersections(img, lines[:, 0, :])
@@ -35,57 +37,7 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     return img
 
 
-def black_space(img):
-    def _mk_border(image, dx=20):
-        return cv2.copyMakeBorder(image, dx, dx, dx, dx,
-                                  cv2.BORDER_CONSTANT, None, value=0)
-    print("adding black space around images...")
-    img.hwidth += 40
-    img.hheigth += 40
-    img.G = _mk_border(img.G)
-    img.V = _mk_border(img.V)
-    img.claheG = _mk_border(img.claheG)
-    img.claheV = _mk_border(img.claheV)
-    img.dcont = _mk_border(img.dcont)
-    img.fedges = _mk_border(img.fedges)
-    img.gray = _mk_border(img.gray)
-    img.gray3ch = _mk_border(img.gray3ch)
-    img.BGR = _mk_border(img.BGR)
-    img.BGR_name = f"{img.basename}BGR.png"
-    cv2.imwrite(img.BGR_name, img.BGR)
-    img.inside = _mk_border(img.inside, dx=25)
-
-    return img
-
-
-def find_morph(img, h=False):
-    ko = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    kd = 10
-    kx = kd+round(kd/3)
-    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (kd, kx))
-    img.dilate = cv2.morphologyEx(img.claheG, cv2.MORPH_DILATE, k_dil)
-    img.divide = cv2.divide(img.claheG, img.dilate, scale=255)
-    edges = cv2.threshold(img.divide, 0, 255, cv2.THRESH_OTSU)[1]
-    edges = cv2.bitwise_not(edges)
-    edges = cv2.morphologyEx(edges, cv2.MORPH_ERODE, ko, iterations=1)
-    img.fedges = np.copy(edges)
-    edges = cv2.bitwise_or(edges, img.canny)
-    if h:
-        edges = cv2.bitwise_or(edges, img.help)
-    contours, _ = cv2.findContours(edges,
-                                   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    areas = [cv2.contourArea(c) for c in contours]
-    img.cont = contours[np.argmax(areas)]
-    img.hullxy = cv2.convexHull(img.cont)
-    a = cv2.contourArea(img.hullxy)
-    img.edges = edges
-
-    return img, a
-
-
 def select_lines(img):
-    print("finding select best lines...")
-    img = select_prepare(img)
 
     got_hough = False
     h_maxg = 50
@@ -420,8 +372,8 @@ def perspective_transform(img):
     orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
                             (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
 
-    width = 512
-    height = 512
+    width = WARPED_LEN
+    height = WARPED_LEN
     img.wwidth = width
     img.wheigth = width
 

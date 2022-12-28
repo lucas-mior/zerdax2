@@ -92,7 +92,3 @@ def determine_colors(img):
     img.pieces = pcolors.tolist()
 
     return img
-
-
-if __name__ == "__main__":
-    find_pieces()

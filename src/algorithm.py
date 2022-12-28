@@ -33,7 +33,7 @@ def crop_board(img):
     b = img.board
     x0, y0 = int(b[0]), int(b[1])
     x1, y1 = int(b[2]), int(b[3])
-    img.BGR = img.BGR[y0:y1, x0:x1]
+    img.BGR = img.BGR[y0-10:y1+10, x0-10:x1+10]
     aux.save(img, "board_box", img.BGR)
 
     return img
@@ -76,25 +76,5 @@ def algorithm(filename, log):
 
 def reduce_box(img):
     print("reducing images to default size...")
-    img.hwidth = BOARD_WIDTH
-    img.hfact = img.hwidth / img.gray.shape[1]
-    img.hheigth = round(img.hfact * img.gray.shape[0])
-    img.harea = img.hwidth * img.hheigth
-    nsh = (img.hwidth, img.hheigth)
-    innsh = (img.hwidth - 10, img.hheigth - 10)
-
-    print(f"reducing all images to {img.hwidth} width")
-    img.G = cv2.resize(img.G, nsh)
-    img.V = cv2.resize(img.V, nsh)
-    img.claheG = cv2.resize(img.claheG, nsh)
-    img.claheV = cv2.resize(img.claheV, nsh)
-    img.dcont = cv2.resize(img.dcont, nsh)
-    img.fedges = cv2.resize(img.fedges, nsh)
-    img.gray = cv2.resize(img.gray, nsh)
-    img.BGR = cv2.resize(img.BGR, nsh)
-    img.BGR_name = f"{img.basename}BGR.png"
-    cv2.imwrite(img.BGR_name, img.BGR)
-    img.gray3ch = cv2.resize(img.gray3ch, nsh)
-    img.inside = cv2.resize(img.inside, innsh)
 
     return img

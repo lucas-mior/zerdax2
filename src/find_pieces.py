@@ -41,9 +41,9 @@ def detect_objects(img):
     img.pieces = pieces.tolist()
     for obj in img.pieces:
         if obj[5] == 0:
-            img.board = obj
+            img.boardbox = obj
             img.pieces.remove(obj)
-    print(f"board: {img.board}")
+    print(f"board: {img.boardbox}")
     print(f"pieces: {img.pieces}")
     # img = determine_colors(img)
     # img = draw_boxes(img)

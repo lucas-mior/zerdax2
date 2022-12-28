@@ -8,8 +8,8 @@ from find_pieces import detect_objects
 from generate_fen import generate_fen
 import auxiliar as aux
 
-WIDTH = 1280
-BOARD_WIDTH = 960
+# WIDTH = 1280
+BWIDTH = 640
 
 
 class Image:
@@ -18,36 +18,30 @@ class Image:
         self.basename = Path(self.filename).stem
 
 
-def reduce(img):
-    img.width = 1000
-    img.fact = img.width / img.BGR.shape[1]
-    img.heigth = round(img.fact * img.BGR.shape[0])
-
-    img.BGR = cv2.resize(img.BGR, (img.width, img.heigth))
-    img.area = img.heigth * img.width
-    return img
-
-
 def crop_board(img):
     print("cropping image to board box...")
-    b = img.board
+    b = img.boardbox
     x0, y0 = int(b[0]), int(b[1])
     x1, y1 = int(b[2]), int(b[3])
-    img.BGR = img.BGR[y0-10:y1+10, x0-10:x1+10]
-    aux.save(img, "board_box", img.BGR)
+    img.x0, img.y0 = x0 - 10, y0 - 10
+    img.x1, img.y1 = x1 + 10, y1 + 10
+
+    img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
+    aux.save(img, "board_box", img.board)
 
     return img
 
 
 def pre_process(img):
     print("creating HSV representation of image...")
-    img.HSV = cv2.cvtColor(img.BGR, cv2.COLOR_BGR2HSV)
+    img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
     img.H = img.HSV[:, :, 0]
     img.S = img.HSV[:, :, 1]
     img.V = img.HSV[:, :, 2]
 
     print("converting image to grayscale...")
-    img.gray = cv2.cvtColor(img.BGR, cv2.COLOR_BGR2GRAY)
+    img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
+    aux.save(img, "gray_board", img.gray)
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
     return
@@ -61,8 +55,8 @@ def algorithm(filename, log):
 
     img = detect_objects(img)
     img = crop_board(img)
-    img = pre_process(img)
     img = reduce_box(img)
+    img = pre_process(img)
 
     img = find_board(img)
     img = find_squares(img)
@@ -75,6 +69,11 @@ def algorithm(filename, log):
 
 
 def reduce_box(img):
-    print("reducing images to default size...")
+    print("reduce cropped image to default size...")
+    img.bwidth = BWIDTH
+    img.bfact = img.bwidth / img.board.shape[1]
+    img.bheigth = round(img.bfact * img.board.shape[0])
 
+    img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
+    aux.save(img, "board_reduce", img.board)
     return img

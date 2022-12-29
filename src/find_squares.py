@@ -46,7 +46,7 @@ def create_wcannys(img, w=8, c_thrhg=220, c_thrhv=220):
 
 def w_lines(img):
     print("finding vertical and horizontal lines...")
-    img = create_wcannys(img, w=13)
+    img = create_wcannys(img, w=8)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
@@ -100,7 +100,7 @@ def w_lines(img):
             elif passed == 3 and (lv < 8 or lh < 8) and not newcanny:
                 _update_wlines(2, 0.8)
                 newcanny = True
-                img = create_wcannys(img, w=14)
+                img = create_wcannys(img, w=10)
                 img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
                 img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
                 passed = 0

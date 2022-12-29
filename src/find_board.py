@@ -57,7 +57,7 @@ def select_lines(img):
         if len(lines) >= 22:
             print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
             lines = aux.radius_theta(lines)
-            lines = filter_lines(img, lines)
+            # lines = filter_lines(img, lines)
             angles = lines_kmeans(img, lines)
             print("lines angles means:\n", angles, sep='')
             got_hough = True
@@ -78,7 +78,7 @@ def select_lines(img):
     for line in lines:
         for x1, y1, x2, y2, r, t in line:
             canvas2 = cv2.line(canvas2, (x1, y1), (x2, y2),
-                               color=(0, 255, 255), thickness=3)
+                               color=(0, 255, 255), thickness=2)
     img.select = canvas2[:, :, 2]
     canvas2 = cv2.addWeighted(img.gray3ch, 0.5, canvas2, 0.5, 1)
     aux.save(img, "select", canvas2)
@@ -172,7 +172,7 @@ def magic_lines(img):
             continue
 
         lines = aux.radius_theta(lines)
-        lines = filter_lines(img, lines)
+        # lines = filter_lines(img, lines)
         lines = filter_angles(img, lines)
         if len(lines) < 16:
             h_minl = max(img.slen/1.4, h_minl - incr/2)

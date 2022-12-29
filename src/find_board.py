@@ -81,7 +81,7 @@ def select_lines(img):
             canvas2 = cv2.line(canvas2, (x1, y1), (x2, y2),
                                color=(0, 255, 255), thickness=2)
     img.select = canvas2[:, :, 2]
-    canvas2 = cv2.addWeighted(img.gray3ch, 0.5, canvas2, 0.5, 1)
+    canvas2 = cv2.addWeighted(img.gray3ch, 0.6, canvas2, 0.4, 0)
     aux.save(img, "select", canvas2)
 
     img.select_lines = lines
@@ -132,9 +132,9 @@ def calc_intersections(img, lines):
     inter = np.int32(np.round(inter))
     canvas4 = np.zeros(img.gray3ch.shape, dtype='uint8')
     for p in inter:
-        canvas4 = cv2.circle(canvas4, p, radius=5,
+        canvas4 = cv2.circle(canvas4, p, radius=3,
                              color=(0, 0, 255), thickness=-1)
-    canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
+    canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
     aux.save(img, "intersections", canvas4)
 
     return inter
@@ -354,7 +354,7 @@ def calc_corners(img, inter):
     canvas4 = cv2.circle(canvas4, TL, radius=7,
                          color=(255, 255, 255), thickness=-1)
 
-    canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
+    canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
     aux.save(img, "corners2", canvas4)
 
     corners = np.array([BR, BL, TR, TL])

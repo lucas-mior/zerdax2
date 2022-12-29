@@ -32,7 +32,7 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=12, c_thrhg=220, c_thrhv=220):
+def create_wcannys(img, w=8, c_thrhg=220, c_thrhv=220):
     print("finding edges for gray, V warped images...")
     cannyG, img.cg0 = aux.find_canny(img, img.wg, wmin=w, c_thrh=c_thrhg)
     cannyV, img.cv0 = aux.find_canny(img, img.wv, wmin=w, c_thrh=c_thrhv)
@@ -219,7 +219,7 @@ def calc_intersections(img, vert, hori):
     canvas4 = np.zeros(img.warped3ch.shape, dtype='uint8')
     for p in inter:
         cv2.circle(canvas4, p, radius=5, color=(60, 60, 255), thickness=-1)
-    canvas4 = cv2.addWeighted(img.warped3ch, 0.5, canvas4, 0.5, 1)
+    canvas4 = cv2.addWeighted(img.warped3ch, 0.6, canvas4, 0.4, 0)
     aux.save(img, "interboard", canvas4)
 
     inter = np.int32(np.round(inter))
@@ -356,7 +356,7 @@ def calc_squares(img, inter):
                      color=(0, 255, 0), thickness=2)
     cv2.drawContours(canvas2, [squares[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=2)
-    canvas5 = cv2.addWeighted(img.warped3ch, 0.5, canvas2, 0.5, 1)
+    canvas5 = cv2.addWeighted(img.warped3ch, 0.6, canvas2, 0.4, 0)
     aux.save(img, "A1E4C5", canvas5)
 
     return squares

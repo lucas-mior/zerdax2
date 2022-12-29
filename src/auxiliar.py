@@ -87,14 +87,14 @@ def save_lines(img, name, vert, hori, warp=True):
                  color=(0, 255, 0), thickness=3)
 
     if warp:
-        canvas2 = cv2.addWeighted(img.warped3ch, 0.5, canvas1, 0.5, 1)
+        canvas2 = cv2.addWeighted(img.warped3ch, 0.6, canvas1, 0.4, 0)
     else:
-        canvas2 = cv2.addWeighted(img.gray3ch, 0.5, canvas1, 0.5, 1)
+        canvas2 = cv2.addWeighted(img.gray3ch, 0.6, canvas1, 0.4, 0)
     save(img, name, canvas2)
 
 
 def find_canny(img, image, wmin=5, c_thrh=220):
-    print(f"finding edges with Canny until mean" ">= {wmin:0=.1f}...")
+    print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     def lp(sign):
         print(f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {c_thrl}, {c_thrh}")

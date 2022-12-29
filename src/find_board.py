@@ -30,8 +30,8 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
     img.cg0 += 5
     img.cv0 += 5
-    aux.save(img, "cannyG", cannyG)
-    aux.save(img, "cannyV", cannyV)
+    # aux.save(img, "cannyG", cannyG)
+    # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
@@ -103,7 +103,9 @@ def calc_intersections(img, lines):
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
 
-            if abs(t - tt) < 20 or abs(t - tt) > 160:
+            dtheta = abs(t - tt)
+            if dtheta < 20 or dtheta > 160:
+                # print(f"t - tt: {dtheta)")
                 continue
 
             xdiff = (l1[0][0] - l1[1][0], l2[0][0] - l2[1][0])
@@ -111,6 +113,7 @@ def calc_intersections(img, lines):
 
             div = aux.determinant(xdiff, ydiff)
             if div == 0:
+                print("div == 0")
                 j += 1
                 continue
 
@@ -129,7 +132,7 @@ def calc_intersections(img, lines):
     inter = np.int32(np.round(inter))
     canvas4 = np.zeros(img.gray3ch.shape, dtype='uint8')
     for p in inter:
-        canvas4 = cv2.circle(canvas4, p, radius=7,
+        canvas4 = cv2.circle(canvas4, p, radius=5,
                              color=(0, 0, 255), thickness=-1)
     canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
     aux.save(img, "intersections", canvas4)
@@ -204,6 +207,7 @@ def magic_lines(img):
                 _update_magic(force)
 
     if l1 > 0 and l2 > 0:
+        aux.save(img, "last_test", img.test)
         aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
 
     dummy = np.copy(img.select_lines[:, :, 0:6])
@@ -230,13 +234,13 @@ def filter_lines(img, lines):
     i = 0
     for line in lines:
         for x1, y1, x2, y2, r, t in line:
-            if x1 < 28 and x2 < 28 or y1 < 28 and y2 < 28:
+            if x1 < 20 and x2 < 20 or y1 < 20 and y2 < 20:
                 rem[i] = 1
-            elif (img.bwidth - x1) < 28 and (img.bwidth - x2) < 28 or (img.bheigth - y1) < 28 and (img.bheigth - y2) < 28:
+            elif (img.bwidth - x1) < 20 and (img.bwidth - x2) < 20 or (img.bheigth - y1) < 20 and (img.bheigth - y2) < 20:
                 rem[i] = 1
-            elif (x1 < 28 or (img.bwidth - x1) < 28) and (y2 < 28 or (img.bheigth - y2) < 28):
+            elif (x1 < 20 or (img.bwidth - x1) < 20) and (y2 < 20 or (img.bheigth - y2) < 20):
                 rem[i] = 1
-            elif (x2 < 28 or (img.bwidth - x2) < 28) and (y1 < 28 or (img.bheigth - y1) < 28):
+            elif (x2 < 20 or (img.bwidth - x2) < 20) and (y1 < 20 or (img.bheigth - y1) < 20):
                 rem[i] = 1
             else:
                 rem[i] = 0
@@ -341,13 +345,13 @@ def calc_corners(img, inter):
         BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
     canvas4 = np.copy(img.gray3ch) * 0
-    canvas4 = cv2.circle(canvas4, BR, radius=9,
+    canvas4 = cv2.circle(canvas4, BR, radius=7,
                          color=(255, 0, 0), thickness=-1)
-    canvas4 = cv2.circle(canvas4, BL, radius=9,
+    canvas4 = cv2.circle(canvas4, BL, radius=7,
                          color=(0, 255, 0), thickness=-1)
-    canvas4 = cv2.circle(canvas4, TR, radius=9,
+    canvas4 = cv2.circle(canvas4, TR, radius=7,
                          color=(0, 0, 255), thickness=-1)
-    canvas4 = cv2.circle(canvas4, TL, radius=9,
+    canvas4 = cv2.circle(canvas4, TL, radius=7,
                          color=(255, 255, 255), thickness=-1)
 
     canvas4 = cv2.addWeighted(img.gray3ch, 0.5, canvas4, 0.5, 1)
@@ -381,6 +385,7 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.gray, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
+    aux.save(img, "warped", img.wg)
 
     return img
 
@@ -425,11 +430,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    aux.save(img, "canny9", img.canny)
+    # aux.save(img, "canny9", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    aux.save(img, "ny+select-closed", img.test)
+    # aux.save(img, "ny+select-closed", img.test)
     return img
 
 
@@ -439,7 +444,7 @@ def select_prepare(img):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_dil)
-    aux.save(img, "canny7_select", img.canny)
+    # aux.save(img, "canny7_select", img.canny)
 
     return img
 
@@ -465,11 +470,11 @@ def make_border(image):
 
 def black_space(img):
     img.board = make_border(img.board)
-    img.G = make_border(img.board)
-    img.V = make_border(img.board)
-    img.claheG = make_border(img.board)
-    img.claheV = make_border(img.board)
-    img.canny = make_border(img.canny)
+    img.G = make_border(img.G)
+    img.V = make_border(img.V)
+    img.claheG = make_border(img.claheG)
+    img.claheV = make_border(img.claheV)
     img.gray3ch = make_border(img.gray3ch)
-    img.select = make_border(img.select)
+    img.bwidth += 40
+    img.bheigth += 40
     return img

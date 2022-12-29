@@ -17,6 +17,7 @@ def find_board(img):
     img = black_space(img)
     img = select_lines(img)
     lines, img.broadcorners = magic_lines(img)
+    print("lines:", lines.shape)
     inter = calc_intersections(img, lines[:, 0, :])
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)
@@ -208,10 +209,9 @@ def magic_lines(img):
 
     if l1 > 0 and l2 > 0:
         aux.save(img, "last_test", img.test)
-        aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
 
-    dummy = np.copy(img.select_lines[:, :, 0:6])
-    lines = np.append(lines, dummy, axis=0)
+    # dummy = np.copy(img.select_lines[:, :, 0:6])
+    # lines = np.append(lines, dummy, axis=0)
     lines = filter_angles(img, lines)
 
     if not got_hough:
@@ -225,6 +225,10 @@ def magic_lines(img):
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
+    aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
+    print("=========================")
+    print("lines:", lines.shape)
+    print("=========================")
     return lines, broadcorners
 
 

@@ -10,11 +10,6 @@ import re
 i = 1
 
 
-def logprint(img, text):
-    if img.log:
-        print(text)
-
-
 def determinant(a, b):
     return a[0]*b[1] - a[1]*b[0]
 
@@ -99,10 +94,10 @@ def save_lines(img, name, vert, hori, warp=True):
 
 
 def find_canny(img, image, wmin=5, c_thrh=220):
-    logprint(img, f"finding edges with Canny until mean" ">= {wmin:0=.1f}...")
+    print(f"finding edges with Canny until mean" ">= {wmin:0=.1f}...")
 
     def lp(sign):
-        logprint(img, f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {c_thrl}, {c_thrh}")
+        print(f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {c_thrl}, {c_thrh}")
         return
 
     got_canny = False
@@ -139,7 +134,7 @@ def find_canny(img, image, wmin=5, c_thrh=220):
             print(f"Canny failed @ {c_thrl}, {c_thrh}")
             exit(1)
         else:
-            print(f"Canny failed, but trying anyway")
+            print("Canny failed, but trying anyway")
 
     return canny, c_thrh
 

@@ -14,6 +14,7 @@ def find_board(img):
     print(f"img: {img}...")
     img = select_prepare(img)
     print(f"img: {img}...")
+    img = black_space(img)
     img = select_lines(img)
     lines, img.broadcorners = magic_lines(img)
     inter = calc_intersections(img, lines[:, 0, :])
@@ -57,7 +58,7 @@ def select_lines(img):
         if len(lines) >= 22:
             print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
             lines = aux.radius_theta(lines)
-            # lines = filter_lines(img, lines)
+            lines = filter_lines(img, lines)
             angles = lines_kmeans(img, lines)
             print("lines angles means:\n", angles, sep='')
             got_hough = True
@@ -172,7 +173,7 @@ def magic_lines(img):
             continue
 
         lines = aux.radius_theta(lines)
-        # lines = filter_lines(img, lines)
+        lines = filter_lines(img, lines)
         lines = filter_angles(img, lines)
         if len(lines) < 16:
             h_minl = max(img.slen/1.4, h_minl - incr/2)
@@ -186,15 +187,10 @@ def magic_lines(img):
             dir1, dir2 = split_lines(img, lines)
             l1 = len(dir1)
             l2 = len(dir2)
-            if 22 <= ll <= 24 and (11 <= l1 <= 13 and 11 <= l2 <= 13):
+            if 20 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break
-            if ll >= 25 and (l1 >= 14 or l2 >= 14):
-                h_minl += 30
-                h_thrv = round(h_minl / force)
-                incr = 8
-                continue
 
         print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
         h_minl -= incr
@@ -431,16 +427,8 @@ def magic_prepare(img):
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
     aux.save(img, "canny9", img.canny)
 
-    mid = round(img.bheigth/2)
-    end = img.bheigth + 1
-    up = img.canny[0:mid, :]
-    down = img.canny[mid:end, :]
-    down = cv2.morphologyEx(down, cv2.MORPH_DILATE, k_dil)
-    img.test = np.concatenate((up, down), axis=0)
-
-    img.test = cv2.bitwise_or(img.test, img.select)
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.test = cv2.morphologyEx(img.test, cv2.MORPH_CLOSE, k_clo)
+    img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
     aux.save(img, "ny+select-closed", img.test)
     return img
 
@@ -467,3 +455,21 @@ def broad_corners(img, BR, BL, TR, TL):
     TL[0] = max(0,             TL[0]-5)
     TL[1] = max(0,             TL[1]-5)
     return BR, BL, TR, TL
+
+
+def make_border(image):
+    dx = 20
+    return cv2.copyMakeBorder(image, dx, dx, dx, dx,
+                              cv2.BORDER_CONSTANT, None, value=0)
+
+
+def black_space(img):
+    img.board = make_border(img.board)
+    img.G = make_border(img.board)
+    img.V = make_border(img.board)
+    img.claheG = make_border(img.board)
+    img.claheV = make_border(img.board)
+    img.canny = make_border(img.canny)
+    img.gray3ch = make_border(img.gray3ch)
+    img.select = make_border(img.select)
+    return img

@@ -2,6 +2,7 @@ import yolov5.detect as yolo
 import cv2
 import numpy as np
 from zerdax2_misc import COLORS, SYMBOLS
+import auxiliar as aux
 
 
 def draw_boxes(img):
@@ -9,7 +10,7 @@ def draw_boxes(img):
     canvas = np.zeros(i.shape, dtype='uint8')
     thick = round(2.4 * (i.shape[0] / 1280))
     for piece in img.pieces:
-        x0, y0, x1, y1, conf, num, _ = piece
+        x0, y0, x1, y1, conf, num = piece
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
         conf = round(float(conf), 2)
         num = int(num)
@@ -29,7 +30,7 @@ def detect_objects(img):
                       source=img.filename,
                       data="yolov5/zerdax2.yaml",
                       nosave=True,  # do not save images/videos
-                      conf_thres=0.7,  # confidence threshold
+                      conf_thres=0.5,  # confidence threshold
                       iou_thres=0.45,  # NMS IOU threshold
                       max_det=32,  # maximum detections per image
                       save_txt=False,  # save results to *.txt
@@ -46,8 +47,8 @@ def detect_objects(img):
     print(f"board: {img.boardbox}")
     print(f"pieces: {img.pieces}")
     # img = determine_colors(img)
-    # img = draw_boxes(img)
-    # aux.save(img, "yolo", img.yolopieces)
+    img = draw_boxes(img)
+    aux.save(img, "yolo", img.yolopieces)
     return img
 
 

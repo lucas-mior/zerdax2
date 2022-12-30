@@ -42,16 +42,15 @@ def find_squares(img):
     cv2.addWeighted(img.board, 0.6, canvas, 0.4, 0, canvas)
     # aux.save(img, "A1E4C5", canvas)
 
-    print(f"sqback: {sqback}")
+    # remove black border
     sqback[:, :, :, 0] -= DX
     sqback[:, :, :, 1] -= DX
-
+    # scale to input size
     sqback[:, :, :, 0] /= img.bfact
     sqback[:, :, :, 1] /= img.bfact
-
+    # position board bounding box
     sqback[:, :, :, 0] += img.x0
     sqback[:, :, :, 1] += img.y0
-    print(f"sqback: {sqback}")
 
     img.sqback = np.int32(np.round(sqback))
 
@@ -63,7 +62,7 @@ def find_squares(img):
     cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
     cv2.addWeighted(img.BGR, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "A1E4C5", canvas)
+    aux.save(img, "A1E4C5", canvas)
 
     return img
 

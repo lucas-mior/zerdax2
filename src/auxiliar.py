@@ -93,20 +93,20 @@ def save_lines(img, name, vert, hori, warp=True):
     return
 
 
-def find_canny(img, image, wmin=5, threshigh=220):
+def find_canny(img, image, wmin=5, thigh=220):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     def lp(sign):
-        print(f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {threslow}, {threshigh}")
+        print(f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {tlow}, {thigh}")
         return
 
     got_canny = False
     ctmin = 30
-    while threshigh >= ctmin:
-        threslow = max(10, round(threshigh*0.8))
+    while thigh >= ctmin:
+        tlow = max(10, round(thigh*0.8))
         clmin = 10
-        while threslow >= clmin:
-            canny = cv2.Canny(image, threslow, threshigh)
+        while tlow >= clmin:
+            canny = cv2.Canny(image, tlow, thigh)
             w = canny.mean()
             if w > wmin:
                 lp("<")
@@ -117,19 +117,19 @@ def find_canny(img, image, wmin=5, threshigh=220):
 
             gain = wmin - w
             diff = round(max(8, gain*10))
-            if threslow <= clmin:
+            if tlow <= clmin:
                 break
-            threslow = max(clmin, threslow - diff)
+            tlow = max(clmin, tlow - diff)
 
         if got_canny:
             break
 
-        if threshigh <= ctmin:
+        if thigh <= ctmin:
             break
-        diff = round(max(5, gain*(threshigh/15)))
-        threshigh = max(ctmin, threshigh - diff)
+        diff = round(max(5, gain*(thigh/15)))
+        thigh = max(ctmin, thigh - diff)
 
     if not got_canny:
         print("Canny failed, but trying anyway")
 
-    return canny, threshigh
+    return canny, thigh

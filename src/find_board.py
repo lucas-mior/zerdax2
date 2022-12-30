@@ -20,10 +20,10 @@ def find_board(img):
     return img
 
 
-def create_cannys(img, w=5, threshighg=220, threshighv=220, saveny=False):
+def create_cannys(img, w=5, thighg=220, thighv=220, saveny=False):
     print("finding edges for gray, S, V images...")
-    cannyG, img.cg0 = aux.find_canny(img, img.claheG, wmin=w, threshigh=threshighg)
-    cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, threshigh=threshighv)
+    cannyG, img.cg0 = aux.find_canny(img, img.claheG, wmin=w, thigh=thighg)
+    cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, thigh=thighv)
     img.cg0 += 5
     img.cv0 += 5
     # aux.save(img, "cannyG", cannyG)

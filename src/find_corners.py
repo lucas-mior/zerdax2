@@ -174,8 +174,7 @@ def magic_lines(img):
 def filter_lines(img, lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
-    i = 0
-    for line in lines:
+    for i, line in enumerate(lines):
         for x1, y1, x2, y2, r, t in line:
             if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
                 rem[i] = 1
@@ -191,7 +190,6 @@ def filter_lines(img, lines):
                     rem[i] = 1
             else:
                 rem[i] = 0
-        i += 1
 
     A = lines[rem == 0]
     lines = A
@@ -201,8 +199,7 @@ def filter_lines(img, lines):
 def filter_angles(img, lines, tol=15):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
-    i = 0
-    for line in lines:
+    for i, line in enumerate(lines):
         for x1, y1, x2, y2, r, t in line:
             if abs(t - img.angles[0]) > tol and abs(t - img.angles[1]) > tol:
                 if len(img.angles) == 2:
@@ -213,7 +210,6 @@ def filter_angles(img, lines, tol=15):
                     rem[i] = 0
             else:
                 rem[i] = 0
-        i += 1
 
     A = lines[rem == 0]
     lines = A

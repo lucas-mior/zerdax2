@@ -161,8 +161,7 @@ def w_lines(img):
 def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
-    i = 0
-    for line in lines:
+    for i, line in enumerate(lines):
         for x1, y1, x2, y2, r, t in line:
             if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
                 rem[i] = 1
@@ -283,27 +282,23 @@ def mean_dist(distv, disth):
 def wrong_lines(dist, med):
     rem = np.zeros(dist.shape[0], dtype='uint8')
 
-    i = 0
-    for d in dist:
+    for i, d in enumerate(dist):
         if abs(d[0] - med) > 8:
             if abs(d[1] - med) > 8:
                 rem[i] = 1
             else:
                 rem[i] = 0
-        i += 1
     return rem
 
 
 def right_lines(dist, med):
     cer = np.zeros(dist.shape[0], dtype='uint8')
 
-    i = 0
-    for d in dist:
+    for i, d in enumerate(dist):
         if abs(d[0] - med) < 8 and abs(d[1] - med) < 8:
             cer[i] = 1
         else:
             cer[i] = 0
-        i += 1
     return cer
 
 

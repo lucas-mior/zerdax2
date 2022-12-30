@@ -53,8 +53,7 @@ def detect_objects(img):
 
 def determine_colors(img):
     pcolors = []
-    i = 0
-    for p in img.pieces:
+    for i, p in enumerate(img.pieces):
         avg = 0
         w = 0
         x0, y0 = int(p[0]), int(p[1])
@@ -69,7 +68,6 @@ def determine_colors(img):
             w += weight
             avg += pixel * weight
         avg = round(avg/w, 2)
-        i += 1
         p.append(avg)
         pcolors.append(p)
 

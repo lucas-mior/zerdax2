@@ -87,6 +87,7 @@ def algorithm(filename, log):
 def reduce_box(img):
     print("reduce cropped image to default size...")
     img.bwidth = BWIDTH
+    img.thick = 3
     img.bfact = img.bwidth / img.board.shape[1]
     img.bheigth = round(img.bfact * img.board.shape[0])
 

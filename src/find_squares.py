@@ -33,11 +33,11 @@ def find_squares(img):
 
     canvas2 = np.zeros(img.board.shape, dtype='uint8')
     cv2.drawContours(canvas2, [img.sqback[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=2)
+                     color=(255, 0, 0), thickness=img.thick)
     cv2.drawContours(canvas2, [img.sqback[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=2)
+                     color=(0, 255, 0), thickness=img.thick)
     cv2.drawContours(canvas2, [img.sqback[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=2)
+                     color=(0, 0, 255), thickness=img.thick)
     canvas5 = cv2.addWeighted(img.board, 0.6, canvas2, 0.4, 0)
     aux.save(img, "A1E4C5", canvas5)
 
@@ -363,11 +363,11 @@ def calc_squares(img, inter):
 
     canvas2 = np.zeros(img.warped3ch.shape, dtype='uint8')
     cv2.drawContours(canvas2, [squares[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=2)
+                     color=(255, 0, 0), thickness=img.thick)
     cv2.drawContours(canvas2, [squares[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=2)
+                     color=(0, 255, 0), thickness=img.thick)
     cv2.drawContours(canvas2, [squares[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=2)
+                     color=(0, 0, 255), thickness=img.thick)
     canvas5 = cv2.addWeighted(img.warped3ch, 0.6, canvas2, 0.4, 0)
     aux.save(img, "A1E4C5", canvas5)
 

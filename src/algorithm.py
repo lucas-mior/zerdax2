@@ -27,7 +27,7 @@ def crop_board(img):
     img.x1, img.y1 = x1 + 10, y1 + 10
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    aux.save(img, "board_box", img.board)
+    # aux.save(img, "board_box", img.board)
 
     return img
 
@@ -46,8 +46,8 @@ def pre_process(img):
     print("applying gaussian blur...")
     img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
     img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
-    aux.save(img, "Gblur", img.G)
-    aux.save(img, "Vblur", img.V)
+    # aux.save(img, "Gblur", img.G)
+    # aux.save(img, "Vblur", img.V)
     # img.G = lf.ffilter(img.gray)
     # img.V = lf.ffilter(img.V)
 
@@ -55,8 +55,8 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
     img.claheG = clahe.apply(img.G)
     img.claheV = clahe.apply(img.V)
-    aux.save(img, "Gclahe", img.claheG)
-    aux.save(img, "Vclahe", img.claheV)
+    # aux.save(img, "Gclahe", img.claheG)
+    # aux.save(img, "Vclahe", img.claheV)
 
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)

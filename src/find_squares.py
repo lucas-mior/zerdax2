@@ -62,7 +62,7 @@ def w_lines(img):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-    aux.save(img, "wcanny13", img.wcanny)
+    aux.save(img, "wcanny", img.wcanny)
     got_hough = False
 
     def _update_wlines(force, le):
@@ -123,7 +123,7 @@ def w_lines(img):
                 passed = 0
 
     if not got_hough:
-        aux.save(img, "lastcanny14", img.wcanny)
+        aux.save(img, "lastcanny", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
             print(f"FAILED @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{h_maxg}")
@@ -300,7 +300,7 @@ def magic_vert_hori(img, vert, hori):
     remh = wrong_lines(disth, medh)
     vert = vert[remv == 0]
     hori = hori[remh == 0]
-    aux.save_lines(img, "remwrong", vert, hori)
+    # aux.save_lines(img, "remwrong", vert, hori)
 
     print("updating median distances...")
     distv, disth = get_distances(vert, hori)
@@ -311,16 +311,16 @@ def magic_vert_hori(img, vert, hori):
     cerh = right_lines(disth, medh)
     vert = vert[cerv == 1]
     hori = hori[cerh == 1]
-    aux.save_lines(img, "right_lines", vert, hori)
+    # aux.save_lines(img, "right_lines", vert, hori)
 
     vert, hori = add_outer(vert, hori, medv, medh)
-    aux.save_lines(img, "add_outer", vert, hori)
+    # aux.save_lines(img, "add_outer", vert, hori)
     vert, hori = add_middle(vert, hori, medv, medh)
-    aux.save_lines(img, "add_middle", vert, hori)
+    # aux.save_lines(img, "add_middle", vert, hori)
     vert, hori = remove_extras(vert, hori)
-    aux.save_lines(img, "rem_extras", vert, hori)
+    # aux.save_lines(img, "rem_extras", vert, hori)
     vert, hori = add_last_outer(vert, hori, medv, medh)
-    aux.save_lines(img, "last_outer", vert, hori)
+    # aux.save_lines(img, "last_outer", vert, hori)
 
     aux.save_lines(img, "verthori1", vert, hori)
     if len(vert) != 9 or len(hori) != 9:

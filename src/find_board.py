@@ -27,8 +27,8 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
     img.cg0 += 5
     img.cv0 += 5
-    aux.save(img, "cannyG", cannyG)
-    aux.save(img, "cannyV", cannyV)
+    # aux.save(img, "cannyG", cannyG)
+    # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
@@ -92,11 +92,11 @@ def magic_lines(img):
     got_hough = False
     force = 1.2
     h_maxg = 100
-    img.slen = (img.bwidth + img.bheigth) * 0.3
+    img.slen = (img.bwidth + img.bheigth) * 0.25
     h_minl = h_minl0 = img.slen
     h_thrv = round(h_minl / force)
     h_angl = np.pi / 480
-    h_a = math.degrees(h_angl)
+    h_a = round(math.degrees(h_angl), 3)
 
     def _update_magic(force):
         nonlocal h_minl, h_thrv
@@ -136,12 +136,12 @@ def magic_lines(img):
             dir1, dir2 = split_lines(img, lines)
             l1 = len(dir1)
             l2 = len(dir2)
-            if 20 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
+            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
+                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break
 
-        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a:1=.3f}º,{h_thrv},{h_minl},{h_maxg}")
+        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
         h_minl -= incr
         h_thrv = round(h_minl / force)
         if h_minl <= (img.slen/1.4):
@@ -155,11 +155,9 @@ def magic_lines(img):
     if l1 > 0 and l2 > 0:
         aux.save(img, "last_test", img.test)
 
-    lines = filter_angles(img, lines)
-
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print(f"magic_lines() failed @ {180*(h_angl/np.pi)}, {h_thrv}, {h_minl}, {h_maxg}")
+            print(f"magic_lines() failed @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{h_maxg}")
             aux.save(img, "last_test", img.test)
             exit(1)
         else:
@@ -168,9 +166,7 @@ def magic_lines(img):
                   "Trying with 10 on both sides.")
 
     aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
-    print("=========================")
     print("lines:", lines.shape)
-    print("=========================")
     return lines
 
 
@@ -300,7 +296,7 @@ def calc_corners(img, inter):
                          color=(255, 255, 0), thickness=-1)
 
     canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
-    aux.save(img, "corners2", canvas4)
+    aux.save(img, "corners", canvas4)
 
     corners = np.array([BR, BL, TR, TL])
     print("board corners:\n", corners, sep='')
@@ -375,11 +371,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    aux.save(img, "canny9", img.canny)
+    aux.save(img, "canny_dil", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    aux.save(img, "ny_closed", img.test)
+    aux.save(img, "canny_clo", img.test)
     return img
 
 

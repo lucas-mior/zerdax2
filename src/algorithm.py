@@ -5,7 +5,6 @@ from find_corners import find_corners
 from find_squares import find_squares
 from find_pieces import detect_objects
 import fen as fen
-import auxiliar as aux
 
 # WIDTH = 1280
 BWIDTH = 640

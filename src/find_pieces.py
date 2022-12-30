@@ -2,7 +2,6 @@ import yolov5.detect as yolo
 import cv2
 import numpy as np
 from zerdax2_misc import COLORS, SYMBOLS
-import auxiliar as aux
 
 
 def draw_boxes(img):

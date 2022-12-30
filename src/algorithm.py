@@ -23,8 +23,8 @@ def crop_board(img):
     b = img.boardbox
     x0, y0 = int(b[0]), int(b[1])
     x1, y1 = int(b[2]), int(b[3])
-    img.x0, img.y0 = x0 - 10, y0 - 10
-    img.x1, img.y1 = x1 + 10, y1 + 10
+    img.x0, img.y0 = x0 - 2, y0 - 2
+    img.x1, img.y1 = x1 + 2, y1 + 2
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
     # aux.save(img, "board_box", img.board)

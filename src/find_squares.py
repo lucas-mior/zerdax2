@@ -44,7 +44,7 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=8, c_thrhg=220, c_thrhv=220):
+def create_wcannys(img, w=10, c_thrhg=220, c_thrhv=220):
     print("finding edges for gray, V warped images...")
     cannyG, img.cg0 = aux.find_canny(img, img.wg, wmin=w, c_thrh=c_thrhg)
     cannyV, img.cv0 = aux.find_canny(img, img.wv, wmin=w, c_thrh=c_thrhv)
@@ -58,7 +58,7 @@ def create_wcannys(img, w=8, c_thrhg=220, c_thrhv=220):
 
 def w_lines(img):
     print("finding vertical and horizontal lines...")
-    img = create_wcannys(img, w=8)
+    img = create_wcannys(img, w=10)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
@@ -112,7 +112,7 @@ def w_lines(img):
             elif passed == 3 and (lv < 8 or lh < 8) and not newcanny:
                 _update_wlines(2, 0.8)
                 newcanny = True
-                img = create_wcannys(img, w=10)
+                img = create_wcannys(img, w=11)
                 img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
                 img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
                 passed = 0

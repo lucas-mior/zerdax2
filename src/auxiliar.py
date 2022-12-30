@@ -81,10 +81,10 @@ def save_lines(img, name, vert, hori, warp=True):
 
     for x1, y1, x2, y2, r, t in vert:
         cv2.line(canvas1, (x1, y1), (x2, y2),
-                 color=(255, 0, 0), thickness=3)
+                 color=(255, 0, 0), thickness=img.thick)
     for x1, y1, x2, y2, r, t in hori:
         cv2.line(canvas1, (x1, y1), (x2, y2),
-                 color=(0, 255, 0), thickness=3)
+                 color=(0, 255, 0), thickness=img.thick)
 
     if warp:
         canvas2 = cv2.addWeighted(img.warped3ch, 0.6, canvas1, 0.4, 0)

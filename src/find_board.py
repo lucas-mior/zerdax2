@@ -136,7 +136,7 @@ def magic_lines(img):
             dir1, dir2 = split_lines(img, lines)
             l1 = len(dir1)
             l2 = len(dir2)
-            if 20 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
+            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break
@@ -328,6 +328,11 @@ def perspective_transform(img):
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
     aux.save(img, "warped", img.wg)
 
+    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
+    img.wg = clahe.apply(img.wg)
+    img.wv = clahe.apply(img.wv)
+    aux.save(img, "warpedclahe", img.wg)
+
     return img
 
 
@@ -381,14 +386,14 @@ def magic_prepare(img):
 
 def broad_corners(img, BR, BL, TR, TL):
     print("adding margin for corners...")
-    BR[0] = min(img.bwidth-1,  BR[0]+5)
-    BR[1] = min(img.bheigth-1, BR[1]+5)
-    BL[0] = max(0,             BL[0]-5)
-    BL[1] = min(img.bheigth-1, BL[1]+5)
-    TR[0] = min(img.bwidth-1,  TR[0]+5)
-    TR[1] = max(0,             TR[1]-5)
-    TL[0] = max(0,             TL[0]-5)
-    TL[1] = max(0,             TL[1]-5)
+    BR[0] = min(img.bwidth-1,  BR[0]+8)
+    BR[1] = min(img.bheigth-1, BR[1]+8)
+    BL[0] = max(0,             BL[0]-8)
+    BL[1] = min(img.bheigth-1, BL[1]+8)
+    TR[0] = min(img.bwidth-1,  TR[0]+8)
+    TR[1] = max(0,             TR[1]-8)
+    TL[0] = max(0,             TL[0]-8)
+    TL[1] = max(0,             TL[1]-8)
     return BR, BL, TR, TL
 
 

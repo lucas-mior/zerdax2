@@ -136,7 +136,7 @@ def magic_lines(img):
             dir1, dir2 = split_lines(img, lines)
             l1 = len(dir1)
             l2 = len(dir2)
-            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
+            if 20 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
                 got_hough = True
                 break

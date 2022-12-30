@@ -149,16 +149,3 @@ def auto_canny(image, sigma=0.6):
 
     # return the edged image
     return edged
-
-
-def draw_fen_terminal(fen):
-    print("―"*19)
-
-    print("| ", end='')
-    fen = re.sub(r'/', "|\n| ", fen)
-    fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
-    fen = re.sub(r'(1)', r'· ', fen)
-    print(fen, end='')
-    print("|")
-
-    print("―"*19)

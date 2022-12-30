@@ -4,7 +4,7 @@ from pathlib import Path
 from find_board import find_board
 from find_squares import find_squares
 from find_pieces import detect_objects
-from generate_fen import generate_fen
+from fen import fen
 import auxiliar as aux
 
 # WIDTH = 1280
@@ -76,9 +76,8 @@ def algorithm(filename, log):
     img = find_board(img)
     img = find_squares(img)
     aux.save(img, "yolo", img.yolopieces)
-    img = generate_fen(img)
-
-    aux.draw_fen_terminal(img.longfen)
+    img = fen.generate_fen(img)
+    fen.print_fen(img.longfen)
 
     return img.fen
 

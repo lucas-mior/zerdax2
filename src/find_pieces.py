@@ -19,8 +19,8 @@ def draw_boxes(img):
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
-        cv2.addWeighted(i, 0.6, canvas, 0.8, 0, canvas)
 
+    cv2.addWeighted(i, 0.6, canvas, 0.4, 0, canvas)
     img.yolopieces = canvas
     return img
 

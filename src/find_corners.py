@@ -179,12 +179,16 @@ def filter_lines(img, lines):
         for x1, y1, x2, y2, r, t in line:
             if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
                 rem[i] = 1
-            elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5) or (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
+            elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5):
                 rem[i] = 1
-            elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)) and (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
+            elif (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
                 rem[i] = 1
-            elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)) and (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
-                rem[i] = 1
+            elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)):
+                if (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
+                    rem[i] = 1
+            elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)):
+                if (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
+                    rem[i] = 1
             else:
                 rem[i] = 0
         i += 1

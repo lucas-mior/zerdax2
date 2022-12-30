@@ -101,7 +101,7 @@ def find_canny(img, image, wmin=5, thigh=220):
         clmin = 10
         while tlow >= clmin:
             canny = cv2.Canny(image, tlow, thigh)
-            w = canny.mean()
+            w = np.mean(canny)
             if w > wmin:
                 lp("<")
                 got_canny = True

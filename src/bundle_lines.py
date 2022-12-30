@@ -17,7 +17,7 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
 
 def get_orientation(line):
     orient = math.atan2(abs((line[3] - line[1])), abs((line[2] - line[0])))
-    return math.degrees(orient)
+    return np.rad2deg(orient)
 
 
 def check_is_line_different(line_1, groups, min_dist, min_angle):
@@ -39,7 +39,7 @@ def distance_point_to_line(point, line):
     x1, y1, x2, y2 = line[0:4]
 
     def line_magnitude(x1, y1, x2, y2):
-        line_mag = math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))
+        line_mag = np.sqrt(np.power((x2 - x1), 2) + np.power((y2 - y1), 2))
         return line_mag
 
     lmag = line_magnitude(x1, y1, x2, y2)
@@ -146,13 +146,13 @@ def minDistance(A, B, E):
         # Finding the magnitude
         y = E[1] - B[1]
         x = E[0] - B[0]
-        reqAns = math.sqrt(x * x + y * y)
+        reqAns = np.sqrt(x * x + y * y)
 
     # Case 2
     elif (AB_AE < 0):
         y = E[1] - A[1]
         x = E[0] - A[0]
-        reqAns = math.sqrt(x * x + y * y)
+        reqAns = np.sqrt(x * x + y * y)
 
     # Case 3
     else:
@@ -162,7 +162,7 @@ def minDistance(A, B, E):
         y1 = AB[1]
         x2 = AE[0]
         y2 = AE[1]
-        mod = math.sqrt(x1 * x1 + y1 * y1)
+        mod = np.sqrt(x1 * x1 + y1 * y1)
         reqAns = abs(x1 * y2 - y1 * x2) / mod
 
     return reqAns

@@ -463,7 +463,7 @@ def remove_extras(vert, hori):
 
     if h == 10:
         d1 = abs(hori[0, 1]-0)
-        d2 = abs(hori[-1, 1]-WARPED_LEN)
+        d2 = abs(hori[-1, 1] - WARPED_LEN)
         if d1 < d2:
             hori = hori[1:]
         else:

@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import math
 
 import auxiliar as aux
 
@@ -77,8 +76,8 @@ def calc_intersections(img, lines):
     inter = np.int32(np.round(inter))
     canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
     for i, p in enumerate(inter):
-        canvas = cv2.circle(canvas, p, radius=4,
-                            color=(i*2, 0, 255-i*2), thickness=-1)
+        cv2.circle(canvas, p, radius=5,
+                   color=(i*2, 0, 255-i*2), thickness=-1)
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
     aux.save(img, "intersections", canvas)
 
@@ -96,7 +95,7 @@ def magic_lines(img):
     h_minl = h_minl0 = img.slen
     h_thrv = round(h_minl / force)
     h_angl = np.pi / 480
-    h_a = round(math.degrees(h_angl), 3)
+    h_a = round(np.rad2deg(h_angl), 3)
 
     def _update_magic(force):
         nonlocal h_minl, h_thrv

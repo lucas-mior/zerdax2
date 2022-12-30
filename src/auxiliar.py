@@ -28,7 +28,7 @@ def savefig(img, filename, fig):
 def radius(x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
-    radius = math.sqrt(dx*dx + dy*dy)
+    radius = np.sqrt(dx*dx + dy*dy)
     return round(radius)
 
 
@@ -37,7 +37,7 @@ def theta(x1, y1, x2, y2, absol=False):
         orientation = math.atan2(abs(y1-y2), abs(x2-x1))
     else:
         orientation = math.atan2(y1-y2, x2-x1)
-    orientation = math.degrees(orientation)
+    orientation = np.rad2deg(orientation)
     if abs(orientation) > 90:
         print(f"theta({x1}, {y1}, {x2}, {y2})")
         print("orientation:", orientation)
@@ -133,18 +133,3 @@ def find_canny(img, image, wmin=5, c_thrh=220):
         print("Canny failed, but trying anyway")
 
     return canny, c_thrh
-
-
-def auto_canny(image, sigma=0.6):
-    """
-    Canny edge detection with automatic thresholds.
-    """
-    # compute the median of the single channel pixel intensities
-    v = np.median(image)
-
-    # apply automatic Canny edge detection using the computed median
-    lower = int(max(0, (1.0 - sigma) * v))
-    upper = int(min(255, (1.0 + sigma) * v))
-    edged = cv2.Canny(image, lower, upper)
-
-    return edged

@@ -5,7 +5,7 @@ import auxiliar as aux
 
 from bundle_lines import bundle_lines
 
-WARPED_LEN = 640
+WARP_LEN = 640
 DX = 40
 
 
@@ -20,10 +20,10 @@ def find_board(img):
     return img
 
 
-def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
+def create_cannys(img, w=5, threshighg=220, threshighv=220, saveny=False):
     print("finding edges for gray, S, V images...")
-    cannyG, img.cg0 = aux.find_canny(img, img.claheG, wmin=w, c_thrh=c_thrhg)
-    cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
+    cannyG, img.cg0 = aux.find_canny(img, img.claheG, wmin=w, threshigh=threshighg)
+    cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, threshigh=threshighv)
     img.cg0 += 5
     img.cv0 += 5
     # aux.save(img, "cannyG", cannyG)
@@ -312,8 +312,8 @@ def perspective_transform(img):
     orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
                             (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
 
-    width = WARPED_LEN
-    height = WARPED_LEN
+    width = WARP_LEN
+    height = WARP_LEN
     img.wwidth = width
     img.wheigth = width
 
@@ -325,12 +325,12 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.gray, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    aux.save(img, "warped", img.wg)
+    aux.save(img, "warp", img.wg)
 
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
     img.wg = clahe.apply(img.wg)
     img.wv = clahe.apply(img.wv)
-    aux.save(img, "warpedclahe", img.wg)
+    aux.save(img, "warpclahe", img.wg)
 
     return img
 

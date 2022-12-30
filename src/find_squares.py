@@ -11,9 +11,9 @@ WARPED_LEN = 640
 
 
 def find_squares(img):
-    print("generating 3 channel gray warped image for drawings...")
-    img.warped3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
-    print("filtering warped image...")
+    print("generating 3 channel gray warp image for drawings...")
+    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
+    print("filtering warp image...")
     img.wg = lf.ffilter(img.wg)
     img.wv = lf.ffilter(img.wv)
 
@@ -45,7 +45,7 @@ def find_squares(img):
 
 
 def create_wcannys(img, w=10, c_thrhg=220, c_thrhv=220):
-    print("finding edges for gray, V warped images...")
+    print("finding edges for gray, V warp images...")
     cannyG, img.cg0 = aux.find_canny(img, img.wg, wmin=w, c_thrh=c_thrhg)
     cannyV, img.cv0 = aux.find_canny(img, img.wv, wmin=w, c_thrh=c_thrhv)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
@@ -228,10 +228,10 @@ def calc_intersections(img, vert, hori):
                     last = (x, y)
         i += 1
 
-    canvas = np.zeros(img.warped3ch.shape, dtype='uint8')
+    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
     for i, p in enumerate(inter):
         cv2.circle(canvas, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
-    cv2.addWeighted(img.warped3ch, 0.6, canvas, 0.4, 0, canvas)
+    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
     aux.save(img, "interboard", canvas)
 
     inter = np.int32(np.round(inter))
@@ -361,14 +361,14 @@ def calc_squares(img, inter):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas = np.zeros(img.warped3ch.shape, dtype='uint8')
+    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
     cv2.drawContours(canvas, [squares[0, 0]], -1,  # A1
                      color=(255, 0, 0), thickness=img.thick)
     cv2.drawContours(canvas, [squares[4, 3]], -1,  # E4
                      color=(0, 255, 0), thickness=img.thick)
     cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
-    cv2.addWeighted(img.warped3ch, 0.6, canvas, 0.4, 0, canvas)
+    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
     aux.save(img, "A1E4C5", canvas)
 
     return squares

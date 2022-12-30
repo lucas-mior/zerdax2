@@ -74,7 +74,7 @@ def geo_lines(lines):
 
 def save_lines(img, name, vert, hori, warp=True):
     if warp:
-        canvas = np.zeros(img.warped3ch.shape, dtype='uint8')
+        canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
     else:
         canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
 
@@ -86,7 +86,7 @@ def save_lines(img, name, vert, hori, warp=True):
                  color=(0, 255, 0), thickness=img.thick)
 
     if warp:
-        cv2.addWeighted(img.warped3ch, 0.6, canvas, 0.4, 0, canvas)
+        cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
     else:
         cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
     save(img, name, canvas)

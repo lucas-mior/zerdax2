@@ -7,7 +7,7 @@ import auxiliar as aux
 from bundle_lines import bundle_lines
 
 WARPED_LEN = 640
-DX = 30
+DX = 40
 
 
 def find_board(img):

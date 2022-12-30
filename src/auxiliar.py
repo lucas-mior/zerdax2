@@ -166,4 +166,3 @@ def draw_fen_terminal(fen):
     print("|")
 
     print("―"*19)
-

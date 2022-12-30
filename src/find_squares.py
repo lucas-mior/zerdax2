@@ -333,7 +333,7 @@ def calc_squares(img, inter):
     print("calculating squares corners...")
     inter = inter[inter[:, 0].argsort()]
     intersq = np.zeros((9, 9, 2), dtype='int32')
-    interA = inter[00:9]   # A
+    interA = inter[0:9]   # A
     interB = inter[9:18]   # B
     interC = inter[18:27]  # C
     interD = inter[27:36]  # D

@@ -297,7 +297,7 @@ def calc_corners(img, inter):
     canvas4 = cv2.circle(canvas4, TR, radius=7,
                          color=(0, 0, 255), thickness=-1)
     canvas4 = cv2.circle(canvas4, TL, radius=7,
-                         color=(255, 255, 255), thickness=-1)
+                         color=(255, 255, 0), thickness=-1)
 
     canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
     aux.save(img, "corners2", canvas4)

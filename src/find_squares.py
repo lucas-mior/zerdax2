@@ -229,8 +229,8 @@ def calc_intersections(img, vert, hori):
         i += 1
 
     canvas4 = np.zeros(img.warped3ch.shape, dtype='uint8')
-    for p in inter:
-        cv2.circle(canvas4, p, radius=5, color=(60, 60, 255), thickness=-1)
+    for i, p in enumerate(inter):
+        cv2.circle(canvas4, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
     canvas4 = cv2.addWeighted(img.warped3ch, 0.6, canvas4, 0.4, 0)
     aux.save(img, "interboard", canvas4)
 

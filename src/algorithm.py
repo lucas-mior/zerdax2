@@ -1,6 +1,5 @@
 import cv2
 from pathlib import Path
-import re
 
 from find_board import find_board
 from find_squares import find_squares

@@ -39,7 +39,7 @@ def distance_point_to_line(point, line):
     x1, y1, x2, y2 = line[0:4]
 
     def line_magnitude(x1, y1, x2, y2):
-        line_mag = np.sqrt(np.power((x2 - x1), 2) + np.power((y2 - y1), 2))
+        line_mag = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
         return line_mag
 
     lmag = line_magnitude(x1, y1, x2, y2)

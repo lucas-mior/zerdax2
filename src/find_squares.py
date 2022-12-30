@@ -7,6 +7,8 @@ from bundle_lines import bundle_lines
 import lffilter as lf
 import random
 
+WARPED_LEN = 640
+
 
 def find_squares(img):
     print("generating 3 channel gray warped image for drawings...")
@@ -372,7 +374,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
         vert = vert[vert[:, 0].argsort()]
-    while abs(vert[-1, 0] - 512) > (medv + 5):
+    while abs(vert[-1, 0] - WARPED_LEN) > (medv + 5):
         x1 = vert[-1, 0] + medv
         y1 = vert[-1, 1]
         x2 = vert[-1, 2] + medv
@@ -388,7 +390,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
         hori = hori[hori[:, 1].argsort()]
-    while abs(hori[-1, 1] - 512) > (medh + 5):
+    while abs(hori[-1, 1] - WARPED_LEN) > (medh + 5):
         x1 = hori[-1, 0]
         y1 = hori[-1, 1] + medh
         x2 = hori[-1, 2]
@@ -438,7 +440,7 @@ def remove_extras(vert, hori):
 
     if v == 10:
         d1 = abs(vert[0, 0] - 0)
-        d2 = abs(vert[-1, 0] - 512)
+        d2 = abs(vert[-1, 0] - WARPED_LEN)
         if d1 < d2:
             vert = vert[1:]
         else:
@@ -451,7 +453,7 @@ def remove_extras(vert, hori):
 
     if h == 10:
         d1 = abs(hori[0, 1]-0)
-        d2 = abs(hori[-1, 1]-512)
+        d2 = abs(hori[-1, 1]-WARPED_LEN)
         if d1 < d2:
             hori = hori[1:]
         else:
@@ -476,7 +478,7 @@ def add_last_outer(vert, hori, medv, medh):
         print("7 or less vertical lines, there should be at least 8")
     elif v == 8:
         d1 = abs(vert[0, 0] - 0)
-        d2 = abs(vert[-1, 0] - 512)
+        d2 = abs(vert[-1, 0] - WARPED_LEN)
         if d1 > d2:
             if d1 >= medv:
                 x1 = vert[0, 0]-medv
@@ -505,7 +507,7 @@ def add_last_outer(vert, hori, medv, medh):
         print("7 or less horizontal lines, there should be at least 8")
     elif h == 8:
         d1 = abs(hori[0, 0] - 0)
-        d2 = abs(hori[-1, 0] - 512)
+        d2 = abs(hori[-1, 0] - WARPED_LEN)
         if d1 > d2:
             if d1 >= medh:
                 x1 = hori[0, 0]

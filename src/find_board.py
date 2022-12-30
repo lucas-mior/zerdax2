@@ -7,16 +7,12 @@ import auxiliar as aux
 from bundle_lines import bundle_lines
 
 WARPED_LEN = 640
+DX = 30
 
 
 def find_board(img):
-    print("finding select best lines...")
-    print(f"img: {img}...")
-    img = select_prepare(img)
-    print(f"img: {img}...")
     img = black_space(img)
-    img = select_lines(img)
-    lines, img.broadcorners = magic_lines(img)
+    lines = magic_lines(img)
     print("lines:", lines.shape)
     inter = calc_intersections(img, lines[:, 0, :])
     img.corners = calc_corners(img, inter)
@@ -31,63 +27,11 @@ def create_cannys(img, w=5, c_thrhg=220, c_thrhv=220, saveny=False):
     cannyV, img.cv0 = aux.find_canny(img, img.claheV, wmin=w, c_thrh=c_thrhv)
     img.cg0 += 5
     img.cv0 += 5
-    # aux.save(img, "cannyG", cannyG)
-    # aux.save(img, "cannyV", cannyV)
+    aux.save(img, "cannyG", cannyG)
+    aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
-    return img
-
-
-def select_lines(img):
-
-    got_hough = False
-    h_maxg = 50
-    h_minl = h_minl0 = round((img.bwidth + img.bheigth)*0.21) - 40
-    h_thrv = round(h_minl0 / 1.8)
-    h_angl = np.pi / 360
-
-    while h_angl <= (np.pi / 180) or h_minl >= (h_minl0 / 1.3):
-        th = math.degrees(h_angl)
-        lines = cv2.HoughLinesP(img.canny, 1,
-                                h_angl, h_thrv, None, h_minl, h_maxg)
-        if lines is None:
-            h_minl = max(h_minl0 / 1.3, h_minl - 8)
-            h_thrv = round(h_minl / 1.8)
-            h_angl = min(np.pi/180, h_angl + np.pi/1800)
-            continue
-        if len(lines) >= 22:
-            print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
-            lines = aux.radius_theta(lines)
-            lines = filter_lines(img, lines)
-            angles = lines_kmeans(img, lines)
-            print("lines angles means:\n", angles, sep='')
-            got_hough = True
-            break
-
-        print(f"{len(lines)} lines @ {th:1=.4f}º, {h_thrv}, {h_minl}, {h_maxg}")
-        if h_angl >= (np.pi/180) and h_minl <= (h_minl0/1.3):
-            break
-        h_minl = max(h_minl0 / 1.3, h_minl - 4)
-        h_thrv = round(h_minl / 1.8)
-        h_angl = min(np.pi/180, h_angl + np.pi/3600)
-
-    if not got_hough:
-        print("select_lines failed")
-        exit(1)
-
-    canvas2 = np.zeros(img.gray3ch.shape, dtype='uint8')
-    for line in lines:
-        for x1, y1, x2, y2, r, t in line:
-            canvas2 = cv2.line(canvas2, (x1, y1), (x2, y2),
-                               color=(0, 255, 255), thickness=2)
-    img.select = canvas2[:, :, 2]
-    canvas2 = cv2.addWeighted(img.gray3ch, 0.6, canvas2, 0.4, 0)
-    aux.save(img, "select", canvas2)
-
-    img.select_lines = lines
-    img.angles = angles
-    img.slen = round(img.select_lines[:, 0, 4].min())
     return img
 
 
@@ -145,10 +89,10 @@ def magic_lines(img):
     print("finding all lines of board...")
     img = magic_prepare(img)
 
-    broadcorners = False
     got_hough = False
     force = 1.2
     h_maxg = 100
+    img.slen = (img.bwidth + img.bheigth) * 0.3
     h_minl = h_minl0 = img.slen
     h_thrv = round(h_minl / force)
     h_angl = np.pi / 480
@@ -178,6 +122,7 @@ def magic_lines(img):
 
         lines = aux.radius_theta(lines)
         lines = filter_lines(img, lines)
+        img.angles = lines_kmeans(img, lines)
         lines = filter_angles(img, lines)
         if len(lines) < 16:
             h_minl = max(img.slen/1.4, h_minl - incr/2)
@@ -210,8 +155,6 @@ def magic_lines(img):
     if l1 > 0 and l2 > 0:
         aux.save(img, "last_test", img.test)
 
-    # dummy = np.copy(img.select_lines[:, :, 0:6])
-    # lines = np.append(lines, dummy, axis=0)
     lines = filter_angles(img, lines)
 
     if not got_hough:
@@ -220,7 +163,6 @@ def magic_lines(img):
             aux.save(img, "last_test", img.test)
             exit(1)
         else:
-            broadcorners = True
             aux.save(img, "last_test", img.test)
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
@@ -229,7 +171,7 @@ def magic_lines(img):
     print("=========================")
     print("lines:", lines.shape)
     print("=========================")
-    return lines, broadcorners
+    return lines
 
 
 def filter_lines(img, lines):
@@ -238,13 +180,13 @@ def filter_lines(img, lines):
     i = 0
     for line in lines:
         for x1, y1, x2, y2, r, t in line:
-            if x1 < 20 and x2 < 20 or y1 < 20 and y2 < 20:
+            if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
                 rem[i] = 1
-            elif (img.bwidth - x1) < 20 and (img.bwidth - x2) < 20 or (img.bheigth - y1) < 20 and (img.bheigth - y2) < 20:
+            elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5) or (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
                 rem[i] = 1
-            elif (x1 < 20 or (img.bwidth - x1) < 20) and (y2 < 20 or (img.bheigth - y2) < 20):
+            elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)) and (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
                 rem[i] = 1
-            elif (x2 < 20 or (img.bwidth - x2) < 20) and (y1 < 20 or (img.bheigth - y1) < 20):
+            elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)) and (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
                 rem[i] = 1
             else:
                 rem[i] = 0
@@ -345,8 +287,7 @@ def calc_corners(img, inter):
     TR = BL
     BL = dummy
 
-    if img.broadcorners:
-        BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
+    BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
     canvas4 = np.copy(img.gray3ch) * 0
     canvas4 = cv2.circle(canvas4, BR, radius=7,
@@ -434,22 +375,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    # aux.save(img, "canny9", img.canny)
+    aux.save(img, "canny9", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    # aux.save(img, "ny+select-closed", img.test)
-    return img
-
-
-def select_prepare(img):
-    print("finding edges for selecting lines...")
-    img = create_cannys(img, w=7, saveny=False)
-    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_dil)
-    # aux.save(img, "canny7_select", img.canny)
-
+    aux.save(img, "ny_closed", img.test)
     return img
 
 
@@ -467,18 +397,18 @@ def broad_corners(img, BR, BL, TR, TL):
 
 
 def make_border(image):
-    dx = 20
-    return cv2.copyMakeBorder(image, dx, dx, dx, dx,
+    return cv2.copyMakeBorder(image, DX, DX, DX, DX,
                               cv2.BORDER_CONSTANT, None, value=0)
 
 
 def black_space(img):
     img.board = make_border(img.board)
+    img.gray = make_border(img.gray)
     img.G = make_border(img.G)
     img.V = make_border(img.V)
     img.claheG = make_border(img.claheG)
     img.claheV = make_border(img.claheV)
     img.gray3ch = make_border(img.gray3ch)
-    img.bwidth += 40
-    img.bheigth += 40
+    img.bwidth += (DX*2)
+    img.bheigth += (DX*2)
     return img

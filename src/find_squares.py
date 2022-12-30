@@ -8,6 +8,7 @@ import lffilter as lf
 import random
 
 WARPED_LEN = 640
+DX = 40
 
 
 def find_squares(img):
@@ -39,6 +40,29 @@ def find_squares(img):
     cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
     cv2.addWeighted(img.board, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "A1E4C5", canvas)
+
+    print(f"sqback: {sqback}")
+    sqback[:, :, :, 0] -= DX
+    sqback[:, :, :, 1] -= DX
+
+    sqback[:, :, :, 0] /= img.bfact
+    sqback[:, :, :, 1] /= img.bfact
+
+    sqback[:, :, :, 0] += img.x0
+    sqback[:, :, :, 1] += img.y0
+    print(f"sqback: {sqback}")
+
+    img.sqback = np.int32(np.round(sqback))
+
+    canvas = np.zeros(img.BGR.shape, dtype='uint8')
+    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
+                     color=(255, 0, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
+                     color=(0, 255, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
+                     color=(0, 0, 255), thickness=img.thick)
+    cv2.addWeighted(img.BGR, 0.6, canvas, 0.4, 0, canvas)
     aux.save(img, "A1E4C5", canvas)
 
     return img

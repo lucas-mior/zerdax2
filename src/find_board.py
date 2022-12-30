@@ -412,4 +412,5 @@ def black_space(img):
     img.gray3ch = make_border(img.gray3ch)
     img.bwidth += (DX*2)
     img.bheigth += (DX*2)
+
     return img

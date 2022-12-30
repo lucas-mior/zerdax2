@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import math
-import re
 
 # import matplotlib as mpl
 # mpl.use('Agg')
@@ -43,6 +42,7 @@ def theta(x1, y1, x2, y2, absol=False):
         print(f"theta({x1}, {y1}, {x2}, {y2})")
         print("orientation:", orientation)
         exit(1)
+
     return round(orientation)
 
 
@@ -57,6 +57,7 @@ def radius_theta(lines, absol=False):
             lines[i, 0, 4] = radius(x1, y1, x2, y2)
             lines[i, 0, 5] = theta(x1, y1, x2, y2, absol=absol)
             i += 1
+
     return lines
 
 
@@ -91,6 +92,7 @@ def save_lines(img, name, vert, hori, warp=True):
     else:
         canvas2 = cv2.addWeighted(img.gray3ch, 0.6, canvas1, 0.4, 0)
     save(img, name, canvas2)
+    return
 
 
 def find_canny(img, image, wmin=5, c_thrh=220):
@@ -147,5 +149,4 @@ def auto_canny(image, sigma=0.6):
     upper = int(min(255, (1.0 + sigma) * v))
     edged = cv2.Canny(image, lower, upper)
 
-    # return the edged image
     return edged

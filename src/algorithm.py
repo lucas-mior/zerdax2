@@ -4,7 +4,7 @@ from pathlib import Path
 from find_board import find_board
 from find_squares import find_squares
 from find_pieces import detect_objects
-from fen import fen
+import fen as fen
 import auxiliar as aux
 
 # WIDTH = 1280

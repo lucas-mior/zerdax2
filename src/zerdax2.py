@@ -16,14 +16,10 @@ def parseargs():
     return args
 
 
-def main():
+if __name__ == '__main__':
     args = parseargs()
     image = args.image
     log = args.log
     print(f"============ zerdax {image} ============")
     fen = algorithm(image, log)
     print("FEN:", fen)
-
-
-if __name__ == '__main__':
-    main()

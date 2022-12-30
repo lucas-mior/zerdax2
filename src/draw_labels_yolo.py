@@ -62,6 +62,7 @@ def draw_boxes(img_name, txt_name):
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
         canvas2 = cv2.addWeighted(img, 0.6, canvas, 0.8, 0)
     cv2.imwrite(output, canvas2)
+    return
 
 
 if __name__ == "__main__":

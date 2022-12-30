@@ -230,8 +230,8 @@ def calc_intersections(img, vert, hori):
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
 
-            xdiff = (l1[0][0] - l1[1][0], l2[0][0] - l2[1][0])
-            ydiff = (l1[0][1] - l1[1][1], l2[0][1] - l2[1][1])
+            xdiff = (x1 - x2, xx1 - xx2)
+            ydiff = (y1 - y2, yy1 - yy2)
 
             div = aux.determinant(xdiff, ydiff)
             if div == 0:

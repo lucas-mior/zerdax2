@@ -52,8 +52,8 @@ def calc_intersections(img, lines):
                 # print(f"t - tt: {dtheta)")
                 continue
 
-            xdiff = (l1[0][0] - l1[1][0], l2[0][0] - l2[1][0])
-            ydiff = (l1[0][1] - l1[1][1], l2[0][1] - l2[1][1])
+            xdiff = (x1 - x2, xx1 - xx2)
+            ydiff = (y1 - y2, yy1 - yy2)
 
             div = aux.determinant(xdiff, ydiff)
             if div == 0:
@@ -79,7 +79,7 @@ def calc_intersections(img, lines):
         cv2.circle(canvas, p, radius=5,
                    color=(i*2, 0, 255-i*2), thickness=-1)
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "intersections", canvas)
+    aux.save(img, "intersections", canvas)
 
     return inter
 
@@ -152,7 +152,7 @@ def magic_lines(img):
                 _update_magic(force)
 
     if l1 > 0 and l2 > 0:
-        # aux.save(img, "last_test", img.test)
+        aux.save(img, "last_test", img.test)
 
     if not got_hough:
         if l1 < 10 or l2 < 10:

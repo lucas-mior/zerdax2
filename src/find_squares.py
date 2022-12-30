@@ -223,10 +223,8 @@ def calc_intersections(img, vert, hori):
 
     i = 0
     for x1, y1, x2, y2, r, t in vert:
-        l1 = [(x1, y1), (x2, y2)]
         j = 0
         for xx1, yy1, xx2, yy2, rr, tt in hori:
-            l2 = [(xx1, yy1), (xx2, yy2)]
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
 
@@ -238,7 +236,8 @@ def calc_intersections(img, vert, hori):
                 j += 1
                 continue
 
-            d = (aux.determinant(*l1), aux.determinant(*l2))
+            d = (aux.determinant((x1, y1), (x2, y2)),
+                 aux.determinant((xx1, yy1), (xx2, yy2)))
             x = round(aux.determinant(d, xdiff) / div)
             y = round(aux.determinant(d, ydiff) / div)
 

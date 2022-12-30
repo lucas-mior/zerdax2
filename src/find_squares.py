@@ -102,7 +102,7 @@ def w_lines(img):
     tvotes = round(minlen0 / 2)
     maxgap = 60
     passed = 0
-    newcanny = newgap = False
+    newgap = False
     vert = hori = None
     minlines = 9
     while tangle <= (np.pi / 350):
@@ -120,11 +120,13 @@ def w_lines(img):
                 lv = len(vert)
                 lh = len(hori)
                 if lv >= minlines and lh >= minlines:
-                    print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
+                    print(f"{len(lines)} lines [{lv}][{lh}] ",
+                          f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
                     got_hough = True
                     break
             if th > random.uniform(0, th*1):
-                print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
+                print(f"{len(lines)} lines [{lv}][{lh}] ",
+                      f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
         tangle += np.pi / 3600
         if tangle >= (np.pi / 360):
             if passed == 0:
@@ -133,13 +135,6 @@ def w_lines(img):
                 _update_wlines(2.3, 0.70)
             elif passed == 2:
                 _update_wlines(2.3, 0.65)
-            elif passed == 3 and (lv < 8 or lh < 8) and not newcanny:
-                _update_wlines(2, 0.8)
-                newcanny = True
-                img = create_wcannys(img, w=11)
-                img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
-                img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-                passed = 0
             elif passed == 3 and (lv < 8 or lh < 8) and not newgap:
                 _update_wlines(2, 0.80)
                 maxgap = 80

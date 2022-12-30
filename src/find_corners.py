@@ -135,11 +135,13 @@ def magic_lines(img):
             l1 = len(dir1)
             l2 = len(dir2)
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{tvotes},{minlen},{maxgap}")
+                print(f"{ll} # [{l1}][{l2}] ",
+                      f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
                 got_hough = True
                 break
 
-        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{tvotes},{minlen},{maxgap}")
+        print(f"{len(lines)} # [{l1}][{l2}] ",
+              f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         minlen -= incr
         tvotes = round(minlen / force)
         if minlen <= (img.slen/1.4):
@@ -155,7 +157,8 @@ def magic_lines(img):
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print(f"magic_lines() failed @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
+            print("magic_lines() failed ",
+                  f"@ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             # aux.save(img, "last_test", img.test)
             exit(1)
         else:

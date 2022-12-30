@@ -130,11 +130,7 @@ def find_canny(img, image, wmin=5, c_thrh=220):
         c_thrh = max(ctmin, c_thrh - diff)
 
     if not got_canny:
-        if diff > 2:
-            print(f"Canny failed @ {c_thrl}, {c_thrh}")
-            exit(1)
-        else:
-            print("Canny failed, but trying anyway")
+        print("Canny failed, but trying anyway")
 
     return canny, c_thrh
 

@@ -66,16 +66,16 @@ def w_lines(img):
     got_hough = False
 
     def _update_wlines(force, le):
-        nonlocal passed, tangle, minlen, h_thrv
+        nonlocal passed, tangle, minlen, tvotes
         passed += 1
         print("passed:", passed)
         tangle = tangle0
         minlen = round((img.wwidth) * le)
-        h_thrv = round(minlen0 / force)
+        tvotes = round(minlen0 / force)
 
     tangle = tangle0 = np.pi / 720
     minlen = minlen0 = round((img.wwidth)*0.8)
-    h_thrv = round(minlen0 / 2)
+    tvotes = round(minlen0 / 2)
     maxgap = 60
     passed = 0
     newcanny = newgap = False
@@ -85,7 +85,7 @@ def w_lines(img):
         lv = lh = 0
         th = 180*(tangle/np.pi)
         lines = cv2.HoughLinesP(img.wcanny, 1,
-                                tangle, h_thrv, None, minlen, maxgap)
+                                tangle, tvotes, None, minlen, maxgap)
         if lines is not None:
             lines = aux.radius_theta(lines)
             lines = filter_90(lines)
@@ -96,11 +96,11 @@ def w_lines(img):
                 lv = len(vert)
                 lh = len(hori)
                 if lv >= minlines and lh >= minlines:
-                    print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {minlen}, {maxgap}")
+                    print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
                     got_hough = True
                     break
             if th > random.uniform(0, th*1):
-                print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {minlen}, {maxgap}")
+                print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
         tangle += np.pi / 3600
         if tangle >= (np.pi / 360):
             if passed == 0:
@@ -126,7 +126,7 @@ def w_lines(img):
         aux.save(img, "lastcanny", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
-            print(f"FAILED @ {180*(tangle/np.pi)},{h_thrv},{minlen},{maxgap}")
+            print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 8")

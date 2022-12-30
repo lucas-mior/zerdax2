@@ -1,7 +1,7 @@
 import cv2
 from pathlib import Path
 
-from find_board import find_board
+from find_corners import find_corners
 from find_squares import find_squares
 from find_pieces import detect_objects
 import fen as fen
@@ -73,7 +73,7 @@ def algorithm(filename, log):
     img = reduce_box(img)
     img = pre_process(img)
 
-    img = find_board(img)
+    img = find_corners(img)
     img = find_squares(img)
     img = fen.generate_fen(img)
     fen.print_fen(img.longfen)

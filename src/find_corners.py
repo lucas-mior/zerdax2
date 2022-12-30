@@ -9,7 +9,7 @@ WARP_LEN = 640
 DX = 40
 
 
-def find_board(img):
+def find_corners(img):
     img = black_space(img)
     lines = magic_lines(img)
     print("lines:", lines.shape)

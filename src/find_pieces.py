@@ -10,7 +10,7 @@ def draw_boxes(img):
     canvas = np.zeros(i.shape, dtype='uint8')
     thick = round(2.4 * (i.shape[0] / 1280))
     for piece in img.pieces:
-        x0, y0, x1, y1, conf, num = piece
+        x0, y0, x1, y1, conf, num, _ = piece
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
         conf = round(float(conf), 2)
         num = int(num)
@@ -46,7 +46,7 @@ def detect_objects(img):
             img.pieces.remove(obj)
     print(f"board: {img.boardbox}")
     print(f"pieces: {img.pieces}")
-    # img = determine_colors(img)
+    img = determine_colors(img)
     img = draw_boxes(img)
     aux.save(img, "yolo", img.yolopieces)
     return img

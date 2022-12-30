@@ -90,7 +90,7 @@ def magic_lines(img):
 
     got_hough = False
     force = 1.2
-    h_maxg = 100
+    maxgap = 100
     img.slen = (img.bwidth + img.bheigth) * 0.25
     h_minl = h_minl0 = img.slen
     h_thrv = round(h_minl / force)
@@ -108,7 +108,7 @@ def magic_lines(img):
     while h_minl >= (img.slen/1.5):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.test, 1,
-                                h_angl, h_thrv, None, h_minl, h_maxg)
+                                h_angl, h_thrv, None, h_minl, maxgap)
         if lines is None:
             h_minl = max(img.slen/1.4, h_minl - incr)
             h_thrv = round(h_minl / force)
@@ -136,11 +136,11 @@ def magic_lines(img):
             l1 = len(dir1)
             l2 = len(dir2)
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
+                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{maxgap}")
                 got_hough = True
                 break
 
-        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{h_maxg}")
+        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{maxgap}")
         h_minl -= incr
         h_thrv = round(h_minl / force)
         if h_minl <= (img.slen/1.4):
@@ -156,7 +156,7 @@ def magic_lines(img):
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print(f"magic_lines() failed @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{h_maxg}")
+            print(f"magic_lines() failed @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{maxgap}")
             aux.save(img, "last_test", img.test)
             exit(1)
         else:

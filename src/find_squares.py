@@ -31,15 +31,15 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     img.sqback = np.int32(np.round(sqback))
 
-    canvas2 = np.zeros(img.board.shape, dtype='uint8')
-    cv2.drawContours(canvas2, [img.sqback[0, 0]], -1,  # A1
+    canvas = np.zeros(img.board.shape, dtype='uint8')
+    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
                      color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas2, [img.sqback[4, 3]], -1,  # E4
+    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
                      color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas2, [img.sqback[2, 4]], -1,  # C5
+    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
-    canvas5 = cv2.addWeighted(img.board, 0.6, canvas2, 0.4, 0)
-    aux.save(img, "A1E4C5", canvas5)
+    cv2.addWeighted(img.board, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "A1E4C5", canvas)
 
     return img
 
@@ -228,11 +228,11 @@ def calc_intersections(img, vert, hori):
                     last = (x, y)
         i += 1
 
-    canvas4 = np.zeros(img.warped3ch.shape, dtype='uint8')
+    canvas = np.zeros(img.warped3ch.shape, dtype='uint8')
     for i, p in enumerate(inter):
-        cv2.circle(canvas4, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
-    canvas4 = cv2.addWeighted(img.warped3ch, 0.6, canvas4, 0.4, 0)
-    aux.save(img, "interboard", canvas4)
+        cv2.circle(canvas, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
+    cv2.addWeighted(img.warped3ch, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "interboard", canvas)
 
     inter = np.int32(np.round(inter))
     if len(inter) != 81:
@@ -361,15 +361,15 @@ def calc_squares(img, inter):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas2 = np.zeros(img.warped3ch.shape, dtype='uint8')
-    cv2.drawContours(canvas2, [squares[0, 0]], -1,  # A1
+    canvas = np.zeros(img.warped3ch.shape, dtype='uint8')
+    cv2.drawContours(canvas, [squares[0, 0]], -1,  # A1
                      color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas2, [squares[4, 3]], -1,  # E4
+    cv2.drawContours(canvas, [squares[4, 3]], -1,  # E4
                      color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas2, [squares[2, 4]], -1,  # C5
+    cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
-    canvas5 = cv2.addWeighted(img.warped3ch, 0.6, canvas2, 0.4, 0)
-    aux.save(img, "A1E4C5", canvas5)
+    cv2.addWeighted(img.warped3ch, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "A1E4C5", canvas)
 
     return squares
 

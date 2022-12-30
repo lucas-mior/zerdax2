@@ -75,7 +75,6 @@ def algorithm(filename, log):
 
     img = find_board(img)
     img = find_squares(img)
-    aux.save(img, "yolo", img.yolopieces)
     img = fen.generate_fen(img)
     fen.print_fen(img.longfen)
 

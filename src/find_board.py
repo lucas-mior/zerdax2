@@ -75,12 +75,12 @@ def calc_intersections(img, lines):
         i += 1
 
     inter = np.int32(np.round(inter))
-    canvas4 = np.zeros(img.gray3ch.shape, dtype='uint8')
+    canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
     for i, p in enumerate(inter):
-        canvas4 = cv2.circle(canvas4, p, radius=4,
-                             color=(i*2, 0, 255-i*2), thickness=-1)
-    canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
-    aux.save(img, "intersections", canvas4)
+        canvas = cv2.circle(canvas, p, radius=4,
+                            color=(i*2, 0, 255-i*2), thickness=-1)
+    cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "intersections", canvas)
 
     return inter
 
@@ -285,18 +285,18 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    canvas4 = np.zeros(img.gray3ch.shape, dtype='uint8')
-    canvas4 = cv2.circle(canvas4, BR, radius=7,
-                         color=(255, 0, 0), thickness=-1)
-    canvas4 = cv2.circle(canvas4, BL, radius=7,
-                         color=(0, 255, 0), thickness=-1)
-    canvas4 = cv2.circle(canvas4, TR, radius=7,
-                         color=(0, 0, 255), thickness=-1)
-    canvas4 = cv2.circle(canvas4, TL, radius=7,
-                         color=(255, 255, 0), thickness=-1)
+    canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
+    cv2.circle(canvas, BR, radius=7,
+               color=(255, 0, 0), thickness=-1)
+    cv2.circle(canvas, BL, radius=7,
+               color=(0, 255, 0), thickness=-1)
+    cv2.circle(canvas, TR, radius=7,
+               color=(0, 0, 255), thickness=-1)
+    cv2.circle(canvas, TL, radius=7,
+               color=(255, 255, 0), thickness=-1)
 
-    canvas4 = cv2.addWeighted(img.gray3ch, 0.6, canvas4, 0.4, 0)
-    aux.save(img, "corners", canvas4)
+    cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
+    aux.save(img, "corners", canvas)
 
     corners = np.array([BR, BL, TR, TL])
     print("board corners:\n", corners, sep='')

@@ -18,9 +18,9 @@ def draw_boxes(img):
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
-        canvas2 = cv2.addWeighted(i, 0.6, canvas, 0.8, 0)
+        cv2.addWeighted(i, 0.6, canvas, 0.8, 0, canvas)
 
-    img.yolopieces = canvas2
+    img.yolopieces = canvas
     return img
 
 
@@ -47,6 +47,7 @@ def detect_objects(img):
     print(f"pieces: {img.pieces}")
     # img = determine_colors(img)
     # img = draw_boxes(img)
+    # aux.save(img, "yolo", img.yolopieces)
     return img
 
 

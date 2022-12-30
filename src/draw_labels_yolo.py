@@ -60,8 +60,8 @@ def draw_boxes(img_name, txt_name):
         else:
             cv2.putText(canvas, f"{p['symbol']}", (x0-5, y0-8),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
-        canvas2 = cv2.addWeighted(img, 0.6, canvas, 0.8, 0)
-    cv2.imwrite(output, canvas2)
+        cv2.addWeighted(img, 0.6, canvas, 0.8, 0, canvas)
+    cv2.imwrite(output, canvas)
     return
 
 

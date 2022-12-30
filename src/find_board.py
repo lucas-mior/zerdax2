@@ -92,31 +92,31 @@ def magic_lines(img):
     force = 1.2
     maxgap = 100
     img.slen = (img.bwidth + img.bheigth) * 0.25
-    h_minl = h_minl0 = img.slen
-    h_thrv = round(h_minl / force)
+    minlen = minlen0 = img.slen
+    h_thrv = round(minlen / force)
     tangle = np.pi / 480
     h_a = round(np.rad2deg(tangle), 3)
 
     def _update_magic(force):
-        nonlocal h_minl, h_thrv
+        nonlocal minlen, h_thrv
         print(f"force: {force:1=.3f}")
-        h_minl = h_minl0
-        h_thrv = round(h_minl / force)
+        minlen = minlen0
+        h_thrv = round(minlen / force)
         return
 
     incr = 32
-    while h_minl >= (img.slen/1.5):
+    while minlen >= (img.slen/1.5):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.test, 1,
-                                tangle, h_thrv, None, h_minl, maxgap)
+                                tangle, h_thrv, None, minlen, maxgap)
         if lines is None:
-            h_minl = max(img.slen/1.4, h_minl - incr)
-            h_thrv = round(h_minl / force)
+            minlen = max(img.slen/1.4, minlen - incr)
+            h_thrv = round(minlen / force)
             continue
 
         if len(lines) < 18:
-            h_minl = max(img.slen/1.4, h_minl - incr)
-            h_thrv = round(h_minl / force)
+            minlen = max(img.slen/1.4, minlen - incr)
+            h_thrv = round(minlen / force)
             continue
 
         lines = aux.radius_theta(lines)
@@ -124,8 +124,8 @@ def magic_lines(img):
         img.angles = lines_kmeans(img, lines)
         lines = filter_angles(img, lines)
         if len(lines) < 16:
-            h_minl = max(img.slen/1.4, h_minl - incr/2)
-            h_thrv = round(h_minl / force)
+            minlen = max(img.slen/1.4, minlen - incr/2)
+            h_thrv = round(minlen / force)
             continue
 
         lines = bundle_lines(lines)
@@ -136,14 +136,14 @@ def magic_lines(img):
             l1 = len(dir1)
             l2 = len(dir2)
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{maxgap}")
+                print(f"{ll} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{minlen},{maxgap}")
                 got_hough = True
                 break
 
-        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{h_minl},{maxgap}")
-        h_minl -= incr
-        h_thrv = round(h_minl / force)
-        if h_minl <= (img.slen/1.4):
+        print(f"{len(lines)} # [{l1}][{l2}] @ {h_a}º,{h_thrv},{minlen},{maxgap}")
+        minlen -= incr
+        h_thrv = round(minlen / force)
+        if minlen <= (img.slen/1.4):
             if force <= 1.5:
                 force += 0.1
                 _update_magic(force)
@@ -156,7 +156,7 @@ def magic_lines(img):
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print(f"magic_lines() failed @ {180*(tangle/np.pi)},{h_thrv},{h_minl},{maxgap}")
+            print(f"magic_lines() failed @ {180*(tangle/np.pi)},{h_thrv},{minlen},{maxgap}")
             aux.save(img, "last_test", img.test)
             exit(1)
         else:

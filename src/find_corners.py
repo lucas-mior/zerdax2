@@ -79,7 +79,7 @@ def calc_intersections(img, lines):
         cv2.circle(canvas, p, radius=5,
                    color=(i*2, 0, 255-i*2), thickness=-1)
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "intersections", canvas)
+    # aux.save(img, "intersections", canvas)
 
     return inter
 
@@ -152,19 +152,19 @@ def magic_lines(img):
                 _update_magic(force)
 
     if l1 > 0 and l2 > 0:
-        aux.save(img, "last_test", img.test)
+        # aux.save(img, "last_test", img.test)
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
             print(f"magic_lines() failed @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
-            aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             exit(1)
         else:
-            aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
+    # aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
     print("lines:", lines.shape)
     return lines
 
@@ -295,7 +295,7 @@ def calc_corners(img, inter):
                color=(255, 255, 0), thickness=-1)
 
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "corners", canvas)
+    # aux.save(img, "corners", canvas)
 
     corners = np.array([BR, BL, TR, TL])
     print("board corners:\n", corners, sep='')
@@ -325,12 +325,12 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.gray, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    aux.save(img, "warp", img.wg)
+    # aux.save(img, "warp", img.wg)
 
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
     img.wg = clahe.apply(img.wg)
     img.wv = clahe.apply(img.wv)
-    aux.save(img, "warpclahe", img.wg)
+    # aux.save(img, "warpclahe", img.wg)
 
     return img
 
@@ -375,11 +375,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    aux.save(img, "canny_dil", img.canny)
+    # aux.save(img, "canny_dil", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    aux.save(img, "canny_clo", img.test)
+    # aux.save(img, "canny_clo", img.test)
     return img
 
 

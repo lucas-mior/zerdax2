@@ -19,7 +19,7 @@ def find_squares(img):
     img.wv = lf.ffilter(img.wv)
 
     vert, hori = w_lines(img)
-    aux.save_lines(img, "verthori0", vert, hori)
+    # aux.save_lines(img, "verthori0", vert, hori)
     vert, hori = magic_vert_hori(img, vert, hori)
 
     inter = calc_intersections(img, vert, hori)
@@ -40,7 +40,7 @@ def find_squares(img):
     cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
     cv2.addWeighted(img.board, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "A1E4C5", canvas)
+    # aux.save(img, "A1E4C5", canvas)
 
     print(f"sqback: {sqback}")
     sqback[:, :, :, 0] -= DX
@@ -63,7 +63,7 @@ def find_squares(img):
     cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
     cv2.addWeighted(img.BGR, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "A1E4C5", canvas)
+    # aux.save(img, "A1E4C5", canvas)
 
     return img
 
@@ -86,7 +86,7 @@ def w_lines(img):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-    aux.save(img, "wcanny", img.wcanny)
+    # aux.save(img, "wcanny", img.wcanny)
     got_hough = False
 
     def _update_wlines(force, le):
@@ -147,8 +147,8 @@ def w_lines(img):
                 passed = 0
 
     if not got_hough:
-        aux.save(img, "lastcanny", img.wcanny)
-        aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
+        # aux.save(img, "lastcanny", img.wcanny)
+        # aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
             print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -256,7 +256,7 @@ def calc_intersections(img, vert, hori):
     for i, p in enumerate(inter):
         cv2.circle(canvas, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
     cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "interboard", canvas)
+    # aux.save(img, "interboard", canvas)
 
     inter = np.int32(np.round(inter))
     if len(inter) != 81:
@@ -346,7 +346,7 @@ def magic_vert_hori(img, vert, hori):
     vert, hori = add_last_outer(vert, hori, medv, medh)
     # aux.save_lines(img, "last_outer", vert, hori)
 
-    aux.save_lines(img, "verthori1", vert, hori)
+    # aux.save_lines(img, "verthori1", vert, hori)
     if len(vert) != 9 or len(hori) != 9:
         print("There should be exactly 9 vertical and 9 horizontal lines")
         exit(1)
@@ -393,7 +393,7 @@ def calc_squares(img, inter):
     cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
     cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "A1E4C5", canvas)
+    # aux.save(img, "A1E4C5", canvas)
 
     return squares
 

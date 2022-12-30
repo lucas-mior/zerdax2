@@ -19,12 +19,6 @@ def save(img, filename, image):
     i += 1
 
 
-def savefig(img, filename, fig):
-    global i
-    fig.savefig(f"{img.basename}{i:02d}_{filename}.png")
-    i += 1
-
-
 def radius(x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1

@@ -66,14 +66,14 @@ def w_lines(img):
     got_hough = False
 
     def _update_wlines(force, le):
-        nonlocal passed, h_angl, h_minl, h_thrv
+        nonlocal passed, tangle, h_minl, h_thrv
         passed += 1
         print("passed:", passed)
-        h_angl = h_angl0
+        tangle = tangle0
         h_minl = round((img.wwidth) * le)
         h_thrv = round(h_minl0 / force)
 
-    h_angl = h_angl0 = np.pi / 720
+    tangle = tangle0 = np.pi / 720
     h_minl = h_minl0 = round((img.wwidth)*0.8)
     h_thrv = round(h_minl0 / 2)
     maxgap = 60
@@ -81,11 +81,11 @@ def w_lines(img):
     newcanny = newgap = False
     vert = hori = None
     minlines = 9
-    while h_angl <= (np.pi / 350):
+    while tangle <= (np.pi / 350):
         lv = lh = 0
-        th = 180*(h_angl/np.pi)
+        th = 180*(tangle/np.pi)
         lines = cv2.HoughLinesP(img.wcanny, 1,
-                                h_angl, h_thrv, None, h_minl, maxgap)
+                                tangle, h_thrv, None, h_minl, maxgap)
         if lines is not None:
             lines = aux.radius_theta(lines)
             lines = filter_90(lines)
@@ -101,8 +101,8 @@ def w_lines(img):
                     break
             if th > random.uniform(0, th*1):
                 print(f"{len(lines)} lines [{lv}][{lh}] @ {th:1=.3f}º, {h_thrv}, {h_minl}, {maxgap}")
-        h_angl += np.pi / 3600
-        if h_angl >= (np.pi / 360):
+        tangle += np.pi / 3600
+        if tangle >= (np.pi / 360):
             if passed == 0:
                 _update_wlines(2.2, 0.75)
             elif passed == 1:
@@ -126,7 +126,7 @@ def w_lines(img):
         aux.save(img, "lastcanny", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
-            print(f"FAILED @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{maxgap}")
+            print(f"FAILED @ {180*(tangle/np.pi)},{h_thrv},{h_minl},{maxgap}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 8")

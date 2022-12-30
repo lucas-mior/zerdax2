@@ -94,8 +94,8 @@ def magic_lines(img):
     img.slen = (img.bwidth + img.bheigth) * 0.25
     h_minl = h_minl0 = img.slen
     h_thrv = round(h_minl / force)
-    h_angl = np.pi / 480
-    h_a = round(np.rad2deg(h_angl), 3)
+    tangle = np.pi / 480
+    h_a = round(np.rad2deg(tangle), 3)
 
     def _update_magic(force):
         nonlocal h_minl, h_thrv
@@ -108,7 +108,7 @@ def magic_lines(img):
     while h_minl >= (img.slen/1.5):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.test, 1,
-                                h_angl, h_thrv, None, h_minl, maxgap)
+                                tangle, h_thrv, None, h_minl, maxgap)
         if lines is None:
             h_minl = max(img.slen/1.4, h_minl - incr)
             h_thrv = round(h_minl / force)
@@ -156,7 +156,7 @@ def magic_lines(img):
 
     if not got_hough:
         if l1 < 10 or l2 < 10:
-            print(f"magic_lines() failed @ {180*(h_angl/np.pi)},{h_thrv},{h_minl},{maxgap}")
+            print(f"magic_lines() failed @ {180*(tangle/np.pi)},{h_thrv},{h_minl},{maxgap}")
             aux.save(img, "last_test", img.test)
             exit(1)
         else:

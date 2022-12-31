@@ -423,30 +423,23 @@ def add_outer(vert, hori, medv, medh):
 
 def add_middle(vert, hori, medv, medh):
     print("adding missing middle lines...")
-    i = 0
-    while i < (len(vert) - 1):
-        if abs(vert[i, 0] - vert[i+1, 0]) > (medv*1.5):
-            x1 = vert[i, 0]+medv
-            y1 = vert[i, 1]
-            x2 = vert[i, 2]+medv
-            y2 = vert[i, 3]
-            new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-            vert = np.append(vert, new, axis=0)
-            vert = vert[vert[:, 0].argsort()]
-        i += 1
 
-    i = 0
-    while i < (len(hori) - 1):
-        if abs(hori[i, 1] - hori[i+1, 1]) > (medh*1.5):
-            x1 = hori[i, 0]
-            y1 = hori[i, 1]+medh
-            x2 = hori[i, 2]
-            y2 = hori[i, 3]+medh
-            new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-            hori = np.append(hori, new, axis=0)
-            hori = hori[hori[:, 1].argsort()]
-        i += 1
+    def _add_middle(lines, med, kind):
+        i = 0
+        while i < (len(vert) - 1):
+            if abs(lines[i, kind] - lines[i+1, kind]) > (med*1.5):
+                x1 = lines[i, 0]+med
+                y1 = lines[i, 1]
+                x2 = lines[i, 2]+med
+                y2 = lines[i, 3]
+                new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+                lines = np.append(lines, new, axis=0)
+                lines = lines[lines[:, kind].argsort()]
+            i += 1
+        return lines
 
+    vert = _add_middle(vert, medv, 0)
+    hori = _add_middle(hori, medh, 1)
     return vert, hori
 
 
@@ -474,7 +467,6 @@ def remove_extras(vert, hori):
 
     vert = _rem_extras(vert, v, 0)
     hori = _rem_extras(hori, h, 1)
-
     return vert, hori
 
 
@@ -518,5 +510,4 @@ def add_last_outer(vert, hori, medv, medh):
 
     vert = _add_last_outer(vert, v, medv, 0)
     hori = _add_last_outer(hori, h, medh, 1)
-
     return vert, hori

@@ -457,31 +457,23 @@ def remove_extras(vert, hori):
     if v <= 9 and h <= 9:
         return vert, hori
 
-    if v == 10:
-        d1 = abs(vert[0, 0] - 0)
-        d2 = abs(vert[-1, 0] - WARPED_LEN)
-        if d1 < d2:
-            vert = vert[1:]
-        else:
-            vert = vert[0:-1]
-    elif v == 11:
-        vert = vert[1:-1]
-    elif v >= 12:
-        print("There are 12 or more vertical lines")
-        exit(1)
+    def _rem_extras(lines, num):
+        if num == 10:
+            d1 = abs(lines[0, 0] - 0)
+            d2 = abs(lines[-1, 0] - WARPED_LEN)
+            if d1 < d2:
+                lines = lines[1:]
+            else:
+                lines = lines[0:-1]
+        elif num == 11:
+            lines = lines[1:-1]
+        elif num >= 12:
+            print("There are 12 or more vertical lines")
+            exit(1)
+        return lines
 
-    if h == 10:
-        d1 = abs(hori[0, 1]-0)
-        d2 = abs(hori[-1, 1] - WARPED_LEN)
-        if d1 < d2:
-            hori = hori[1:]
-        else:
-            hori = hori[0:-1]
-    elif h == 11:
-        hori = hori[1:-1]
-    elif h >= 12:
-        print("There are 12 or more horizontal lines")
-        exit(1)
+    vert = _rem_extras(vert, v)
+    hori = _rem_extras(hori, h)
 
     return vert, hori
 

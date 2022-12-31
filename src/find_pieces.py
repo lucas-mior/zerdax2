@@ -1,6 +1,7 @@
 import yolov5.detect as yolo
 import cv2
 import numpy as np
+import auxiliar as aux
 from zerdax2_misc import COLORS, SYMBOLS
 
 
@@ -47,7 +48,7 @@ def detect_objects(img):
     print(f"pieces: {img.pieces}")
     img = determine_colors(img)
     img = draw_boxes(img)
-    # aux.save(img, "yolo", img.yolopieces)
+    aux.save(img, "yolo", img.yolopieces)
     return img
 
 

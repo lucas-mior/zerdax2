@@ -16,20 +16,6 @@ class Image:
         self.basename = Path(self.filename).stem
 
 
-def crop_board(img):
-    print("cropping image to board box...")
-    b = img.boardbox
-    x0, y0 = int(b[0]), int(b[1])
-    x1, y1 = int(b[2]), int(b[3])
-    img.x0, img.y0 = x0 - 2, y0 - 2
-    img.x1, img.y1 = x1 + 2, y1 + 2
-
-    img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    # aux.save(img, "board_box", img.board)
-
-    return img
-
-
 def pre_process(img):
     print("creating HSV representation of image...")
     img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
@@ -78,6 +64,20 @@ def algorithm(filename, log):
     fen.print_fen(img.longfen)
 
     return img.fen
+
+
+def crop_board(img):
+    print("cropping image to board box...")
+    b = img.boardbox
+    x0, y0 = int(b[0]), int(b[1])
+    x1, y1 = int(b[2]), int(b[3])
+    img.x0, img.y0 = x0 - 2, y0 - 2
+    img.x1, img.y1 = x1 + 2, y1 + 2
+
+    img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
+    # aux.save(img, "board_box", img.board)
+
+    return img
 
 
 def reduce_box(img):

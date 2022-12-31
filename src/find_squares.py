@@ -457,10 +457,10 @@ def remove_extras(vert, hori):
     if v <= 9 and h <= 9:
         return vert, hori
 
-    def _rem_extras(lines, num):
+    def _rem_extras(lines, num, kind):
         if num == 10:
-            d1 = abs(lines[0, 0] - 0)
-            d2 = abs(lines[-1, 0] - WARPED_LEN)
+            d1 = abs(lines[0, kind] - 0)
+            d2 = abs(lines[-1, kind] - WARPED_LEN)
             if d1 < d2:
                 lines = lines[1:]
             else:
@@ -472,8 +472,8 @@ def remove_extras(vert, hori):
             exit(1)
         return lines
 
-    vert = _rem_extras(vert, v)
-    hori = _rem_extras(hori, h)
+    vert = _rem_extras(vert, v, 0)
+    hori = _rem_extras(hori, h, 1)
 
     return vert, hori
 
@@ -485,62 +485,38 @@ def add_last_outer(vert, hori, medv, medh):
     if v == 9 and h == 9:
         return vert, hori
 
-    if v < 8:
-        print("7 or less vertical lines, there should be at least 8")
-    elif v == 8:
-        d1 = abs(vert[0, 0] - 0)
-        d2 = abs(vert[-1, 0] - WARPED_LEN)
-        if d1 > d2:
-            if d1 >= medv:
-                x1 = vert[0, 0]-medv
-                y1 = vert[0, 1]
-                x2 = vert[0, 2]-medv
-                y2 = vert[0, 3]
-                new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+    def _add_last_outer(lines, num, med, kind):
+        if num < 8:
+            print("7 or less lines, there should be at least 8")
+        elif num == 8:
+            d1 = abs(lines[0, 0] - 0)
+            d2 = abs(lines[-1, 0] - WARPED_LEN)
+            if d1 > d2:
+                if d1 >= med:
+                    x1 = lines[0, 0]-med
+                    y1 = lines[0, 1]
+                    x2 = lines[0, 2]-med
+                    y2 = lines[0, 3]
+                    new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+                else:
+                    print("not enough space for inserting missing 9th line")
+                    exit(1)
             else:
-                print("not enough space for inserting missing 9th line")
-                exit(1)
-        else:
-            if d2 >= medv:
-                x1 = vert[-1, 0]+medv
-                y1 = vert[-1, 1]
-                x2 = vert[-1, 2]+medv
-                y2 = vert[-1, 3]
-                new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-            else:
-                print("not enough space for inserting missing 9th line")
-                exit(1)
+                if d2 >= med:
+                    x1 = lines[-1, 0]+med
+                    y1 = lines[-1, 1]
+                    x2 = lines[-1, 2]+med
+                    y2 = lines[-1, 3]
+                    new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+                else:
+                    print("not enough space for inserting missing 9th line")
+                    exit(1)
 
-        vert = np.append(vert, new, axis=0)
-        vert = vert[vert[:, 0].argsort()]
+            lines = np.append(lines, new, axis=0)
+            lines = lines[lines[:, kind].argsort()]
+        return lines
 
-    if h < 8:
-        print("7 or less horizontal lines, there should be at least 8")
-    elif h == 8:
-        d1 = abs(hori[0, 0] - 0)
-        d2 = abs(hori[-1, 0] - WARPED_LEN)
-        if d1 > d2:
-            if d1 >= medh:
-                x1 = hori[0, 0]
-                y1 = hori[0, 1]-medh
-                x2 = hori[0, 2]
-                y2 = hori[0, 3]-medh
-                new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-            else:
-                print("not enough space for inserting missing 9th line")
-                exit(1)
-        else:
-            if d2 >= medh:
-                x1 = hori[-1, 0]
-                y1 = hori[-1, 1]+medh
-                x2 = hori[-1, 2]
-                y2 = hori[-1, 3]+medh
-                new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-            else:
-                print("not enough space for inserting missing 9th line")
-                exit(1)
-
-        hori = np.append(hori, new, axis=0)
-        hori = hori[hori[:, 1].argsort()]
+    vert = _add_last_outer(vert, v, medv, 0)
+    hori = _add_last_outer(hori, h, medh, 1)
 
     return vert, hori

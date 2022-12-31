@@ -11,6 +11,18 @@ WARPED_LEN = 640
 DX = 40
 
 
+def draw_squares(img, image):
+    canvas = np.zeros(image.shape, dtype='uint8')
+    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
+                     color=(255, 0, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
+                     color=(0, 255, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
+                     color=(0, 0, 255), thickness=img.thick)
+    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
+    return canvas
+
+
 def find_squares(img):
     print("generating 3 channel gray warp image for drawings...")
     img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
@@ -32,15 +44,8 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     img.sqback = np.int32(np.round(sqback))
 
-    canvas = np.zeros(img.board.shape, dtype='uint8')
-    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.addWeighted(img.board, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "A1E4C5", canvas)
+    squares_drawn = draw_squares(img, img.board)
+    aux.save(img, "A1E4C5", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -53,16 +58,8 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.sqback = np.int32(np.round(sqback))
-
-    canvas = np.zeros(img.BGR.shape, dtype='uint8')
-    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.addWeighted(img.BGR, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "A1E4C5", canvas)
+    squares_drawn = draw_squares(img, img.BGR)
+    aux.save(img, "A1E4C5", squares_drawn)
 
     return img
 

@@ -45,7 +45,7 @@ def find_squares(img):
     img.sqback = np.int32(np.round(sqback))
 
     squares_drawn = draw_squares(img, img.board)
-    aux.save(img, "A1E4C5", squares_drawn)
+    # aux.save(img, "A1E4C5", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX

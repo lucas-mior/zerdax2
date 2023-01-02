@@ -11,20 +11,20 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
     return np.array(merged_lines)
 
 
-def get_orientation(line):
-    dy = abs((line[3] - line[1]))
-    dx = abs((line[2] - line[0]))
-    orient = np.arctan2(dy, dx)
-    return np.rad2deg(orient)
-
-
 def check_is_line_different(line_1, groups, min_dist, min_angle):
+
+    def _get_orientation(line):
+        dy = abs((line[3] - line[1]))
+        dx = abs((line[2] - line[0]))
+        orient = np.arctan2(dy, dx)
+        return np.rad2deg(orient)
+
     for group in groups:
         for line_2 in group:
-            d = get_distance(line_2, line_1)
+            d = get_dist(line_2, line_1)
             if d < min_dist:
-                orientation_1 = get_orientation(line_1)
-                orientation_2 = get_orientation(line_2)
+                orientation_1 = _get_orientation(line_1)
+                orientation_2 = _get_orientation(line_2)
                 phi = abs(orientation_1 - orientation_2)
                 if phi < min_angle or (d <= 1 and phi <= (min_angle+2)):
                     group.append(line_1)
@@ -32,7 +32,7 @@ def check_is_line_different(line_1, groups, min_dist, min_angle):
     return True
 
 
-def distance_point_to_line(point, line):
+def dist_point_to_line(point, line):
     px, py = point
     x1, y1, x2, y2 = line[0:4]
 
@@ -42,8 +42,8 @@ def distance_point_to_line(point, line):
 
     lmag = _line_mag(x1, y1, x2, y2)
     if lmag < 0.00000001:
-        distance_point_to_line = 9999
-        return distance_point_to_line
+        dist_point_to_line = 9999
+        return dist_point_to_line
 
     u1 = (((px - x1) * (x2 - x1)) + ((py - y1) * (y2 - y1)))
     u = u1 / (lmag * lmag)
@@ -54,20 +54,20 @@ def distance_point_to_line(point, line):
         ix = _line_mag(px, py, x1, y1)
         iy = _line_mag(px, py, x2, y2)
         if ix > iy:
-            distance_point_to_line = iy
+            dist_point_to_line = iy
         else:
-            distance_point_to_line = ix
+            dist_point_to_line = ix
     else:
         # Intersecting point is on the line, use the formula
         # ix = x1 + u * (x2 - x1)
         # iy = y1 + u * (y2 - y1)
-        # distance_point_to_line = _line_mag(px, py, ix, iy)
-        distance_point_to_line = 0
+        # dist_point_to_line = _line_mag(px, py, ix, iy)
+        dist_point_to_line = 0
 
-    return distance_point_to_line
+    return dist_point_to_line
 
 
-def get_distance(a_line, b_line):
+def get_dist(a_line, b_line):
     dist1 = min_dist(b_line[0:2], b_line[2:4], a_line[0:2])
     dist2 = min_dist(b_line[0:2], b_line[2:4], a_line[2:4])
     dist3 = min_dist(a_line[0:2], a_line[2:4], b_line[0:2])

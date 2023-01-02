@@ -191,7 +191,7 @@ def get_distances(vert, hori):
 def calc_intersections(img, vert, hori):
     print("calculating intersections...")
     inter = []
-    last = (0, 0)
+    last = (100000, 100000)
 
     i = 0
     for x1, y1, x2, y2, r, t in vert:

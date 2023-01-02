@@ -230,18 +230,16 @@ def calc_intersections(img, vert, hori):
 
 
 def mean_dist(distv, disth):
-    medv1 = np.median(distv[:, 0])
-    medv2 = np.median(distv[:, 1])
-    print("medv1:", medv1)
-    print("medv2:", medv2)
-    medv = round((medv1 + medv2)/2)
+    def _mean_dist(dist):
+        med1 = np.median(dist[:, 0])
+        med2 = np.median(dist[:, 1])
+        print("medv1:", med1)
+        print("medv2:", med2)
+        med = round((med1 + med2)/2)
+        return med
 
-    medh1 = np.median(disth[:, 0])
-    medh2 = np.median(disth[:, 1])
-    print("medh1:", medh1)
-    print("medh2:", medh2)
-    medh = round((medh1 + medh2)/2)
-
+    medv = _mean_dist(distv)
+    medh = _mean_dist(disth)
     return medv, medh
 
 

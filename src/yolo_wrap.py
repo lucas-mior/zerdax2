@@ -89,7 +89,7 @@ def determine_colors(img):
         for (x, y), pixel in np.ndenumerate(b):
             w = 1/max(abs(x-xc), 1) + 1/max(abs(y-yc), 1)
             weight += w
-            avg += pixel * w
+            avg += (pixel * w)
         avg = round(avg/weight, 2)
         p.append(avg)
         pcolors.append(p)

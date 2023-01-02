@@ -89,19 +89,12 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
 
 
 def merge_line_segments(lines):
-    auxlines = np.copy(lines)
-
     if len(lines) == 1:
         return np.block([lines[0][0:2], lines[0][2:4]])
 
     if len(lines) % 2 == 0:
-        shortest = min(auxlines[:, 4])
-        i = 0
-        for line in lines:
-            if line[4] == shortest:
-                break
-            i += 1
-        del lines[i]
+        lines = sorted(lines, key=lambda x: x[4])
+        lines = lines[1:]
 
     lines = np.array(lines)
     theta = np.median(lines[:, 5])

@@ -38,7 +38,6 @@ def find_squares(img):
 
     inter = calc_intersections(img, vert, hori)
     squares = calc_squares(img, inter)
-    squares = np.float32(squares)
 
     print("transforming squares corners to original coordinate system...")
     sqback = np.zeros(squares.shape, dtype='float32')
@@ -481,4 +480,4 @@ def calc_squares(img, inter):
     cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
     # aux.save(img, "A1E4C5", canvas)
 
-    return squares
+    return np.float32(squares)

@@ -143,27 +143,25 @@ def min_dist(A, B, E):
 
     # Case 1
     if (AB_BE > 0):
-
         # Finding the magnitude
         y = E[1] - B[1]
         x = E[0] - B[0]
-        reqAns = np.sqrt(x * x + y * y)
+        reqAns = np.sqrt(x*x + y*y)
 
     # Case 2
     elif (AB_AE < 0):
         y = E[1] - A[1]
         x = E[0] - A[0]
-        reqAns = np.sqrt(x * x + y * y)
+        reqAns = np.sqrt(x*x + y*y)
 
     # Case 3
     else:
-
         # Finding the perpendicular distance
         x1 = AB[0]
         y1 = AB[1]
         x2 = AE[0]
         y2 = AE[1]
-        mod = np.sqrt(x1 * x1 + y1 * y1)
-        reqAns = abs(x1 * y2 - y1 * x2) / mod
+        mod = np.sqrt(x1*x1 + y1*y1)
+        reqAns = abs(x1*y2 - y1*x2) / mod
 
     return reqAns

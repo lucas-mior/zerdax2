@@ -36,9 +36,7 @@ def calc_intersections(img, lines):
     print("calculating intersections...")
     inter = []
 
-    i = 0
     for x1, y1, x2, y2, r, t in lines:
-        j = 0
         for xx1, yy1, xx2, yy2, rr, tt in lines:
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
@@ -54,7 +52,6 @@ def calc_intersections(img, lines):
             div = aux.determinant(xdiff, ydiff)
             if div == 0:
                 print("div == 0")
-                j += 1
                 continue
 
             d = (aux.determinant((x1, y1), (x2, y2)),
@@ -63,18 +60,15 @@ def calc_intersections(img, lines):
             y = round(aux.determinant(d, ydiff) / div)
 
             if x > img.bwidth or y > img.bheigth or x < 0 or y < 0:
-                j += 1
                 continue
             else:
-                j += 1
                 inter.append((x, y))
-        i += 1
 
-    inter = np.int32(np.round(inter))
+    inter = np.int32(inter)
     canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
     for i, p in enumerate(inter):
         cv2.circle(canvas, p, radius=5,
-                   color=(i*2, 0, 255-i*2), thickness=-1)
+                   color=(30+i*2, 0, 225-i*2), thickness=-1)
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
     aux.save(img, "intersections", canvas)
 

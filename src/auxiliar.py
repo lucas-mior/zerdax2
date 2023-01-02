@@ -89,10 +89,6 @@ def save_lines(img, name, vert, hori, warp=True):
 def find_canny(img, image, wmin=5, thigh=220):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
-    def lp(sign):
-        print(f"{w} {sign} {wmin:0=.1f}, @ {tlow}, {thigh}")
-        return
-
     got_canny = False
     thighmin = 30
     while thigh >= thighmin:
@@ -102,24 +98,22 @@ def find_canny(img, image, wmin=5, thigh=220):
             canny = cv2.Canny(image, tlow, thigh)
             w = round(np.mean(canny), 2)
             if w >= wmin:
-                lp(">=")
+                print(f"{w} >= {wmin:0=.1f}, @ {tlow}, {thigh}")
                 got_canny = True
                 break
             else:
-                lp("<")
+                print(f"{w} < {wmin:0=.1f}, @ {tlow}, {thigh}")
                 gain = wmin - w
                 diff = round(max(8, gain*10))
                 if tlow <= tlowmin:
                     break
                 tlow = max(tlowmin, tlow - diff)
 
-        if got_canny:
+        if got_canny or (thigh <= thighmin):
             break
-
-        if thigh <= thighmin:
-            break
-        diff = round(max(5, gain*(thigh/15)))
-        thigh = max(thighmin, thigh - diff)
+        else:
+            diff = round(max(5, gain*(thigh/15)))
+            thigh = max(thighmin, thigh - diff)
 
     if not got_canny:
         print("Canny failed, but trying anyway")

@@ -37,7 +37,7 @@ def theta(x1, y1, x2, y2, absol=False):
 
 def radius_theta(lines, absol=False):
     dummy = np.zeros((lines.shape[0], 6), dtype='int32')
-    dummy[:, 0:4] = np.copy(lines[:, 0:4])
+    dummy[:, 0:4] = lines[:, 0:4]
     lines = dummy
     lines = lines[np.argsort(lines[:, 0])]
 

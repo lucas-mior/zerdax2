@@ -5,7 +5,6 @@ import auxiliar as aux
 
 from bundle_lines import bundle_lines
 import lffilter as lf
-import random
 
 WARPED_LEN = 640
 DX = 40
@@ -121,9 +120,8 @@ def w_lines(img):
                           f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
                     got_hough = True
                     break
-            if th > random.uniform(0, th*1):
-                print(f"{len(lines)} lines [{lv}][{lh}] ",
-                      f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
+            print(f"{len(lines)} lines [{lv}][{lh}] ",
+                  f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
         tangle += np.pi / 3600
         if tangle >= (np.pi / 360):
             if passed == 0:

@@ -81,7 +81,7 @@ def magic_lines(img):
     img.slen = (img.bwidth + img.bheigth) * 0.25
     minlen = minlen0 = img.slen
     tvotes = round(minlen / force)
-    tangle = np.pi / 480
+    tangle = np.pi / 360
     h_a = round(np.rad2deg(tangle), 3)
 
     def _update_magic(force):

@@ -33,7 +33,7 @@ def find_squares(img):
 
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
-    # aux.save_lines(img, "verthori0", vert, hori)
+    aux.save_lines(img, "verthori0", vert, hori)
     vert, hori = magic_vert_hori(img, vert, hori)
 
     inter = calc_intersections(img, vert, hori)
@@ -60,7 +60,7 @@ def find_squares(img):
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
     squares_drawn = draw_squares(img, img.BGR)
-    # aux.save(img, "A1E4C5H8", squares_drawn)
+    aux.save(img, "A1E4C5H8", squares_drawn)
 
     return img
 
@@ -69,6 +69,8 @@ def create_wcannys(img, w=10, thighg=220, thighv=220):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)
+    aux.save(img, "wcannyG", cannyG)
+    aux.save(img, "wcannyV", cannyV)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
 
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -77,7 +79,7 @@ def create_wcannys(img, w=10, thighg=220, thighv=220):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-    # aux.save(img, "wcanny", img.wcanny)
+    aux.save(img, "wcanny", img.wcanny)
     return img
 
 
@@ -86,14 +88,13 @@ def w_lines(img):
     got_hough = False
 
     def _update_wlines(force, le):
-        nonlocal passed, tangle, minlen, tvotes
+        nonlocal passed, minlen, tvotes
         passed += 1
         print("passed:", passed)
-        tangle = tangle0
         minlen = round((img.wwidth) * le)
         tvotes = round(minlen0 / force)
 
-    tangle = tangle0 = np.pi / 720
+    tangle = np.pi / 360
     minlen = minlen0 = round((img.wwidth)*0.8)
     tvotes = round(minlen0 / 2)
     maxgap = 60
@@ -101,7 +102,7 @@ def w_lines(img):
     newgap = False
     vert = hori = None
     minlines = 9
-    while tangle <= (np.pi / 350):
+    while True:
         lv = lh = 0
         th = 180*(tangle/np.pi)
         lines = cv2.HoughLinesP(img.wcanny, 1,
@@ -122,19 +123,17 @@ def w_lines(img):
                     break
             print(f"{len(lines)} lines [{lv}][{lh}] ",
                   f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
-        tangle += np.pi / 3600
-        if tangle >= (np.pi / 360):
-            if passed == 0:
-                _update_wlines(2.2, 0.75)
-            elif passed == 1:
-                _update_wlines(2.3, 0.70)
-            elif passed == 2:
-                _update_wlines(2.3, 0.65)
-            elif passed == 3 and (lv < 8 or lh < 8) and not newgap:
-                _update_wlines(2, 0.80)
-                maxgap = 80
-                newgap = True
-                passed = 0
+        if passed == 0:
+            _update_wlines(2.2, 0.75)
+        elif passed == 1:
+            _update_wlines(2.3, 0.70)
+        elif passed == 2:
+            _update_wlines(2.3, 0.65)
+        elif passed == 3 and (lv < 8 or lh < 8) and not newgap:
+            _update_wlines(2, 0.80)
+            maxgap = 80
+            newgap = True
+            passed = 0
 
     if not got_hough:
         # aux.save(img, "lastcanny", img.wcanny)
@@ -276,7 +275,7 @@ def magic_vert_hori(img, vert, hori):
     remh = wrong_lines(disth, medh)
     vert = vert[remv == 0]
     hori = hori[remh == 0]
-    # aux.save_lines(img, "remwrong", vert, hori)
+    aux.save_lines(img, "remwrong", vert, hori)
 
     print("updating median distances...")
     distv, disth = get_distances(vert, hori)

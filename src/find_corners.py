@@ -141,7 +141,7 @@ def magic_lines(img):
                 _update_magic(force)
 
     if l1 > 0 and l2 > 0:
-        # aux.save(img, "last_test", img.test)
+        aux.save(img, "last_test", img.test)
 
     if not got_hough:
         if l1 < 10 or l2 < 10:

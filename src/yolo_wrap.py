@@ -29,8 +29,9 @@ def process_pieces(img):
     new_pieces = []
     img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
-    for p in img.pieces:
-        new_pieces.append(p)
+    for piece in img.pieces:
+        x0, y0, x1, y1, conf, num, _ = piece
+        new_pieces.append(piece)
 
     img.pieces = new_pieces
     return img

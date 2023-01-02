@@ -363,11 +363,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    # aux.save(img, "canny_dil", img.canny)
+    # aux.save(img, "canny_dilate", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    # aux.save(img, "canny_clo", img.test)
+    # aux.save(img, "canny_closed", img.test)
     return img
 
 

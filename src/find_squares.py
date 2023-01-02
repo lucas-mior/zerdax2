@@ -163,43 +163,27 @@ def filter_90(lines):
 
 
 def get_distances(vert, hori):
-    distv = np.zeros((vert.shape[0], 2), dtype='int32')
-    x1 = (vert[1, 0] + vert[1, 2])/2
-    x2 = (vert[0, 0] + vert[0, 2])/2
-    distv[0, 0] = abs(x1 - x2)
-    distv[0, 1] = abs(x1 - x2)
-    i = 0
-    for i in range(1, len(vert) - 1):
-        x1 = (vert[i-1, 0]+vert[i-1, 2])/2
-        x2 = (vert[i+0, 0]+vert[i+0, 2])/2
-        x3 = (vert[i+1, 0]+vert[i+1, 2])/2
-        distv[i, 0] = abs(x1 - x2)
-        distv[i, 1] = abs(x2 - x3)
-    i += 1
-    x1 = (vert[i-1, 0]+vert[i-1, 2])/2
-    x2 = (vert[i+0, 0]+vert[i+0, 2])/2
-    distv[i, 0] = abs(x1 - x2)
-    distv[i, 1] = abs(x1 - x2)
+    def _get_dist(lines, kind):
+        dist = np.zeros((lines.shape[0], 2), dtype='int32')
+        x1 = (lines[1, kind] + lines[1, kind+2])/2
+        x2 = (lines[0, kind] + lines[0, kind+2])/2
+        dist[0, 0] = abs(x1 - x2)
+        dist[0, 1] = abs(x1 - x2)
+        i = 0
+        for i in range(1, len(lines) - 1):
+            x1 = (lines[i-1, kind]+lines[i-1, kind+2])/2
+            x2 = (lines[i+0, kind]+lines[i+0, kind+2])/2
+            x3 = (lines[i+1, kind]+lines[i+1, kind+2])/2
+            dist[i, 0] = abs(x1 - x2)
+            dist[i, 1] = abs(x2 - x3)
+        i += 1
+        x1 = (lines[i-1, kind]+lines[i-1, kind+2])/2
+        x2 = (lines[i+0, kind]+lines[i+0, kind+2])/2
+        dist[i, 0] = abs(x1 - x2)
+        dist[i, 1] = abs(x1 - x2)
 
-    disth = np.zeros((hori.shape[0], 2), dtype='int32')
-    x1 = (hori[1, 1]+hori[1, 3])/2
-    x2 = (hori[0, 1]+hori[0, 3])/2
-    disth[0, 0] = abs(x1 - x2)
-    disth[0, 1] = abs(x1 - x2)
-
-    i = 0
-    for i in range(1, len(hori)-1):
-        x1 = (hori[i-1, 1]+hori[i-1, 3])/2
-        x2 = (hori[i+0, 1]+hori[i+0, 3])/2
-        x3 = (hori[i+1, 1]+hori[i+1, 3])/2
-        disth[i, 0] = abs(x1 - x2)
-        disth[i, 1] = abs(x2 - x3)
-    i += 1
-    x1 = (hori[i-1, 1]+hori[i-1, 3])/2
-    x2 = (hori[i+0, 1]+hori[i+0, 3])/2
-    disth[i, 0] = abs(x1 - x2)
-    disth[i, 1] = abs(x1 - x2)
-
+    distv = _get_dist(vert, 0)
+    disth = _get_dist(hori, 1)
     return distv, disth
 
 

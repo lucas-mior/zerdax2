@@ -40,12 +40,11 @@ def radius_theta(lines, absol=False):
     dummy[:, 0, 0:4] = np.copy(lines[:, 0, 0:4])
     lines = dummy
     lines = lines[lines[:, 0, 0].argsort()]
-    i = 0
-    for line in lines:
+
+    for i, line in enumerate(lines):
         for x1, y1, x2, y2, r, t in line:
             lines[i, 0, 4] = radius(x1, y1, x2, y2)
             lines[i, 0, 5] = theta(x1, y1, x2, y2, absol=absol)
-            i += 1
 
     return lines
 

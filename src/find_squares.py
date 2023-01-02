@@ -181,6 +181,7 @@ def get_distances(vert, hori):
         x2 = (lines[i+0, kind]+lines[i+0, kind+2])/2
         dist[i, 0] = abs(x1 - x2)
         dist[i, 1] = abs(x1 - x2)
+        return dist
 
     distv = _get_dist(vert, 0)
     disth = _get_dist(hori, 1)

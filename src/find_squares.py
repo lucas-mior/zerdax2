@@ -470,14 +470,4 @@ def calc_squares(img, inter):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
-    cv2.drawContours(canvas, [squares[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [squares[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "A1E4C5", canvas)
-
     return np.float32(squares)

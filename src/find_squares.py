@@ -314,7 +314,7 @@ def add_outer(vert, hori, medv, medh):
         y2 = vert[0, 3]
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
-        vert = vert[vert[:, 0].argsort()]
+        vert = vert[np.argsort(vert[:, 0])]
     while abs(vert[-1, 0] - WARPED_LEN) > (medv + 5):
         x1 = vert[-1, 0] + medv
         y1 = vert[-1, 1]
@@ -322,7 +322,7 @@ def add_outer(vert, hori, medv, medh):
         y2 = vert[-1, 3]
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
-        vert = vert[vert[:, 0].argsort()]
+        vert = vert[np.argsort(vert[:, 0])]
     while abs(hori[0, 1] - 0) > (medh + 5):
         x1 = hori[0, 0]
         y1 = hori[0, 1] - medh
@@ -330,7 +330,7 @@ def add_outer(vert, hori, medv, medh):
         y2 = hori[0, 3] - medh
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
-        hori = hori[hori[:, 1].argsort()]
+        hori = hori[np.argsort(hori[:, 1])]
     while abs(hori[-1, 1] - WARPED_LEN) > (medh + 5):
         x1 = hori[-1, 0]
         y1 = hori[-1, 1] + medh
@@ -338,7 +338,7 @@ def add_outer(vert, hori, medv, medh):
         y2 = hori[-1, 3] + medh
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
-        hori = hori[hori[:, 1].argsort()]
+        hori = hori[np.argsort(hori[:, 1])]
 
     return vert, hori
 
@@ -362,7 +362,7 @@ def add_middle(vert, hori, medv, medh):
                     y2 = lines[i, 3] + med
                 new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
-                lines = lines[lines[:, kind].argsort()]
+                lines = lines[np.argsort(lines[:, kind])]
             i += 1
         return lines
 
@@ -433,7 +433,7 @@ def add_last_outer(vert, hori, medv, medh):
                     exit(1)
 
             lines = np.append(lines, new, axis=0)
-            lines = lines[lines[:, kind].argsort()]
+            lines = lines[np.argsort(lines[:, kind])]
         return lines
 
     vert = _add_last_outer(vert, v, medv, 0)
@@ -443,7 +443,7 @@ def add_last_outer(vert, hori, medv, medh):
 
 def calc_squares(img, inter):
     print("calculating squares corners...")
-    inter = inter[inter[:, 0].argsort()]
+    inter = inter[np.argsort(inter[:, 0])]
     intersq = np.zeros((9, 9, 2), dtype='int32')
     interA = inter[0:9]   # A
     interB = inter[9:18]   # B
@@ -455,15 +455,15 @@ def calc_squares(img, inter):
     interH = inter[63:72]  # H
     interZ = inter[72:81]  # right
 
-    intersq[0, :] = interA[interA[:, 1].argsort()[::-1]]  # A
-    intersq[1, :] = interB[interB[:, 1].argsort()[::-1]]  # B
-    intersq[2, :] = interC[interC[:, 1].argsort()[::-1]]  # C
-    intersq[3, :] = interD[interD[:, 1].argsort()[::-1]]  # D
-    intersq[4, :] = interE[interE[:, 1].argsort()[::-1]]  # E
-    intersq[5, :] = interF[interF[:, 1].argsort()[::-1]]  # F
-    intersq[6, :] = interG[interG[:, 1].argsort()[::-1]]  # G
-    intersq[7, :] = interH[interH[:, 1].argsort()[::-1]]  # H
-    intersq[8, :] = interZ[interZ[:, 1].argsort()[::-1]]  # right
+    intersq[0, :] = interA[np.argsort(interA[:, 1])[::-1]]  # A
+    intersq[1, :] = interB[np.argsort(interB[:, 1])[::-1]]  # B
+    intersq[2, :] = interC[np.argsort(interC[:, 1])[::-1]]  # C
+    intersq[3, :] = interD[np.argsort(interD[:, 1])[::-1]]  # D
+    intersq[4, :] = interE[np.argsort(interE[:, 1])[::-1]]  # E
+    intersq[5, :] = interF[np.argsort(interF[:, 1])[::-1]]  # F
+    intersq[6, :] = interG[np.argsort(interG[:, 1])[::-1]]  # G
+    intersq[7, :] = interH[np.argsort(interH[:, 1])[::-1]]  # H
+    intersq[8, :] = interZ[np.argsort(interZ[:, 1])[::-1]]  # right
 
     squares = np.zeros((8, 8, 4, 2), dtype='int32')
     for i in range(0, 8):

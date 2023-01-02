@@ -39,7 +39,7 @@ def radius_theta(lines, absol=False):
     dummy = np.zeros((lines.shape[0], 6), dtype='int32')
     dummy[:, 0:4] = np.copy(lines[:, 0:4])
     lines = dummy
-    lines = lines[lines[:, 0].argsort()]
+    lines = lines[np.argsort(lines[:, 0])]
 
     for i, line in enumerate(lines):
         x1, y1, x2, y2, r, t = line
@@ -54,8 +54,8 @@ def geo_lines(lines):
     vert = lines[abs(lines[:, 5]) > 45]
     hori = lines[abs(lines[:, 5]) < 45]
 
-    vert = vert[vert[:, 0].argsort()]
-    hori = hori[hori[:, 1].argsort()]
+    vert = vert[np.argsort(vert[:, 0])]
+    hori = hori[np.argsort(hori[:, 1])]
 
     return vert, hori
 

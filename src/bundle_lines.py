@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 
@@ -16,7 +15,9 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
 
 
 def get_orientation(line):
-    orient = math.atan2(abs((line[3] - line[1])), abs((line[2] - line[0])))
+    dy = abs((line[3] - line[1]))
+    dx = abs((line[2] - line[0]))
+    orient = np.arctan2(dy, dx)
     return np.rad2deg(orient)
 
 

@@ -347,7 +347,7 @@ def add_middle(vert, hori, medv, medh):
 
     def _add_middle(lines, med, kind):
         i = 0
-        while i < (len(vert) - 1):
+        while i < (len(lines) - 1):
             if abs(lines[i, kind] - lines[i+1, kind]) > (med*1.5):
                 if kind == 0:
                     x1 = lines[i, 0] + med

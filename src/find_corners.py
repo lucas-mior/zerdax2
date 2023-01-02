@@ -12,7 +12,6 @@ DX = 40
 def find_corners(img):
     img = black_space(img)
     lines = magic_lines(img)
-    print("lines:", lines.shape)
     inter = calc_intersections(img, lines)
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)

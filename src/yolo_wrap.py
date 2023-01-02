@@ -81,7 +81,6 @@ def determine_colors(img):
         x1, y1 = int(p[2]), int(p[3])
         xc = round((x1+x0)/2)
         yc = round((y1+y0)/2)
-        print(x0, y0, x1, y1)
         a = img.BGR[y0:y1, x0:x1]
         b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
         for (x, y), pixel in np.ndenumerate(b):
@@ -93,7 +92,6 @@ def determine_colors(img):
         pcolors.append(p)
 
     pcolors = np.array(pcolors, dtype='float32')
-    print(pcolors)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
@@ -108,7 +106,6 @@ def determine_colors(img):
         if labels[i] == blacklabel:
             p[5] += 6
 
-    print(pcolors)
     img.pieces = pcolors.tolist()
 
     return img

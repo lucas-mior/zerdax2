@@ -228,8 +228,6 @@ def mean_dist(distv, disth):
     def _mean_dist(dist):
         med1 = np.median(dist[:, 0])
         med2 = np.median(dist[:, 1])
-        print("med1:", med1)
-        print("med2:", med2)
         med = round((med1 + med2)/2)
         return med
 

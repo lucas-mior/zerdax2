@@ -179,9 +179,7 @@ def filter_lines(img, lines):
             else:
                 rem[i] = 0
 
-    A = lines[rem == 0]
-    lines = A
-    return lines
+    return lines[rem == 0]
 
 
 def filter_angles(img, lines, tol=15):
@@ -305,7 +303,7 @@ def perspective_transform(img):
     width = WARP_LEN
     height = WARP_LEN
     img.wwidth = width
-    img.wheigth = width
+    img.wheigth = height
 
     newshape = np.array([[0, 0], [width-1, 0],
                         [width-1, height-1], [0, height-1]], dtype="float32")

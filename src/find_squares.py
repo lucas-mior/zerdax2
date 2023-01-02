@@ -110,12 +110,11 @@ def w_lines(img):
         if lines is not None:
             lines = aux.radius_theta(lines)
             lines = filter_90(lines)
-            if len(lines) > 16:
+            if len(lines) > (minlines-2):
                 lines = bundle_lines(lines)
                 lines = aux.radius_theta(lines)
                 vert, hori = aux.geo_lines(lines)
-                lv = len(vert)
-                lh = len(hori)
+                lv, lh = len(vert), len(hori)
                 if lv >= minlines and lh >= minlines:
                     print(f"{len(lines)} lines [{lv}][{lh}] ",
                           f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")

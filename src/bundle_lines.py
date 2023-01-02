@@ -7,7 +7,6 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
     for group in groups:
         merged_lines.append(merge_line_segments(group))
 
-    # merged_lines_all = np.array(merged_lines_all)
     return np.array(merged_lines)
 
 

@@ -138,10 +138,10 @@ def w_lines(img):
         aux.save(img, "lastcanny", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert, hori)
         if lv < 7 or lh < 7:
-            print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
+            print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
-            print("failed to find at least 9 lines, trying with 7")
+            print("failed to find at least 9 lines, trying with 7 or 8")
 
     return vert, hori
 
@@ -394,7 +394,8 @@ def remove_extras(vert, hori):
             lines = lines[1:-1]
         elif num >= 12:
             print("There are 12 or more vertical lines")
-            exit(1)
+            lines = lines[1:-1]
+            lines = _rem_extras(lines, len(lines), kind)
         return lines
 
     vert = _rem_extras(vert, v, 0)

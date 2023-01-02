@@ -28,7 +28,6 @@ def draw_boxes(img):
 def process_pieces(img):
     new_pieces = []
     got = AMOUNT
-    print("GOT before: ", got)
     img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
     for piece in img.pieces:
@@ -37,8 +36,6 @@ def process_pieces(img):
         if got[SYMBOLS[num]][0] < got[SYMBOLS[num]][1]:
             got[SYMBOLS[num]][0] += 1
             new_pieces.append(piece)
-
-    print("GOT after: ", got)
 
     img.pieces = new_pieces
     return img

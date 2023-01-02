@@ -65,12 +65,8 @@ def calc_intersections(img, lines):
                 inter.append((x, y))
 
     inter = np.int32(inter)
-    canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
-    for i, p in enumerate(inter):
-        cv2.circle(canvas, p, radius=5,
-                   color=(30+i*2, 0, 225-i*2), thickness=-1)
-    cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    aux.save(img, "intersections", canvas)
+    drawn_inter = aux.draw_intersections(img.gray3ch, inter)
+    aux.save(img, "intersections", drawn_inter)
 
     return inter
 

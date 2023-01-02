@@ -242,13 +242,10 @@ def calc_intersections(img, vert, hori):
                     last = (x, y)
         i += 1
 
-    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
-    for i, p in enumerate(inter):
-        cv2.circle(canvas, p, radius=5, color=(i*2, 0, 255-i*2), thickness=-1)
-    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "interboard", canvas)
+    inter = np.int32(inter)
+    drawn_inter = aux.draw_intersections(img.warp3ch, inter)
+    aux.save(img, "interboard", drawn_inter)
 
-    inter = np.int32(np.round(inter))
     if len(inter) != 81:
         print("There should be exacly 81 intersections")
         exit(1)

@@ -115,7 +115,6 @@ def merge_line_segments(lines):
 
 
 def min_dist(A, B, E):
-
     # vector AB
     AB = [None, None]
     AB[0] = B[0] - A[0]

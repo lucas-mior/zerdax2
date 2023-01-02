@@ -47,7 +47,7 @@ def find_squares(img):
     img.sqback = np.int32(np.round(sqback))
 
     squares_drawn = draw_squares(img, img.board)
-    # aux.save(img, "A1E4C5", squares_drawn)
+    # aux.save(img, "A1E4C5H8", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -61,7 +61,7 @@ def find_squares(img):
 
     img.sqback = np.int32(np.round(sqback))
     squares_drawn = draw_squares(img, img.BGR)
-    aux.save(img, "A1E4C5", squares_drawn)
+    aux.save(img, "A1E4C5H8", squares_drawn)
 
     return img
 
@@ -153,17 +153,13 @@ def w_lines(img):
 def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
-    for i, line in enumerate(lines):
-        for x1, y1, x2, y2, r, t in line:
-            if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
-                rem[i] = 1
-            else:
-                rem[i] = 0
-        i += 1
+    for i, t in enumerate(lines[:, :, 5]):
+        if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
+            rem[i] = 1
+        else:
+            rem[i] = 0
 
-    A = lines[rem == 0]
-    lines = A
-    return lines
+    return lines[rem == 0]
 
 
 def get_distances(vert, hori):

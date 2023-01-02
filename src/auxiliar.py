@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import math
 
 # import matplotlib as mpl
 # mpl.use('Agg')
@@ -28,9 +27,9 @@ def radius(x1, y1, x2, y2):
 
 def theta(x1, y1, x2, y2, absol=False):
     if absol:
-        orientation = math.atan2(abs(y1-y2), abs(x2-x1))
+        orientation = np.arctan2(abs(y1-y2), abs(x2-x1))
     else:
-        orientation = math.atan2(y1-y2, x2-x1)
+        orientation = np.arctan2(y1-y2, x2-x1)
     orientation = np.rad2deg(orientation)
     if abs(orientation) > 90:
         print(f"theta({x1}, {y1}, {x2}, {y2})")

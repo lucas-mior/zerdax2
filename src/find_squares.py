@@ -33,7 +33,6 @@ def find_squares(img):
 
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
-    aux.save_lines(img, "verthori0", vert, hori)
     vert, hori = magic_vert_hori(img, vert, hori)
 
     inter = calc_intersections(img, vert, hori)
@@ -260,7 +259,17 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
+
+    def _check_save(title):
+        nonlocal lv, lh, vert, hori
+        if lv != len(vert) or lh != len(hori):
+            aux.save_lines(img, title, vert, hori)
+            lv, lh = len(vert), len(hori)
+        return
+
     print("adjusting vertical and horizontal lines...")
+    aux.save_lines(img, "verthori0", vert, hori)
+    lv, lh = len(vert), len(hori)
 
     print("calculating median distances...")
     distv, disth = get_distances(vert, hori)
@@ -273,7 +282,7 @@ def magic_vert_hori(img, vert, hori):
     remh = wrong_lines(disth, medh)
     vert = vert[remv == 0]
     hori = hori[remh == 0]
-    aux.save_lines(img, "remwrong", vert, hori)
+    _check_save("rem_wrong")
 
     print("updating median distances...")
     distv, disth = get_distances(vert, hori)
@@ -284,18 +293,17 @@ def magic_vert_hori(img, vert, hori):
     cerh = right_lines(disth, medh)
     vert = vert[cerv == 1]
     hori = hori[cerh == 1]
-    aux.save_lines(img, "right_lines", vert, hori)
+    _check_save("right_lines")
 
     vert, hori = add_outer(vert, hori, medv, medh)
-    aux.save_lines(img, "add_outer", vert, hori)
+    _check_save("add_outer")
     vert, hori = add_middle(vert, hori, medv, medh)
-    aux.save_lines(img, "add_middle", vert, hori)
+    _check_save("add_middle")
     vert, hori = remove_extras(vert, hori)
-    aux.save_lines(img, "rem_extras", vert, hori)
+    _check_save("rem_extras")
     vert, hori = add_last_outer(vert, hori, medv, medh)
-    aux.save_lines(img, "last_outer", vert, hori)
+    _check_save("last_outer")
 
-    # # aux.save_lines(img, "verthori1", vert, hori)
     if len(vert) != 9 or len(hori) != 9:
         print("There should be exactly 9 vertical and 9 horizontal lines")
         exit(1)

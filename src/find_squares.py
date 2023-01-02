@@ -46,7 +46,7 @@ def find_squares(img):
     img.sqback = np.array(np.round(sqback), dtype='int32')
 
     squares_drawn = draw_squares(img, img.board)
-    # aux.save(img, "A1E4C5H8", squares_drawn)
+    aux.save(img, "A1E4C5H8", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -94,6 +94,7 @@ def w_lines(img):
         tvotes = round(minlen0 / force)
 
     tangle = np.pi / 360
+    th = 180*(tangle/np.pi)
     minlen = minlen0 = round((img.wwidth)*0.8)
     tvotes = round(minlen0 / 2)
     maxgap = img.wwidth / 8
@@ -103,7 +104,6 @@ def w_lines(img):
     minlines = 9
     while True and passed < 10:
         lv = lh = 0
-        th = 180*(tangle/np.pi)
         lines = cv2.HoughLinesP(img.wcanny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         if lines is not None:
@@ -136,8 +136,8 @@ def w_lines(img):
         passed += 1
 
     if not got_hough:
-        # aux.save(img, "lastcanny", img.wcanny)
-        # aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
+        aux.save(img, "lastcanny", img.wcanny)
+        aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
             print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -286,16 +286,16 @@ def magic_vert_hori(img, vert, hori):
     cerh = right_lines(disth, medh)
     vert = vert[cerv == 1]
     hori = hori[cerh == 1]
-    # aux.save_lines(img, "right_lines", vert, hori)
+    aux.save_lines(img, "right_lines", vert, hori)
 
     vert, hori = add_outer(vert, hori, medv, medh)
-    # aux.save_lines(img, "add_outer", vert, hori)
+    aux.save_lines(img, "add_outer", vert, hori)
     vert, hori = add_middle(vert, hori, medv, medh)
-    # aux.save_lines(img, "add_middle", vert, hori)
+    aux.save_lines(img, "add_middle", vert, hori)
     vert, hori = remove_extras(vert, hori)
-    # aux.save_lines(img, "rem_extras", vert, hori)
+    aux.save_lines(img, "rem_extras", vert, hori)
     vert, hori = add_last_outer(vert, hori, medv, medh)
-    # aux.save_lines(img, "last_outer", vert, hori)
+    aux.save_lines(img, "last_outer", vert, hori)
 
     # # aux.save_lines(img, "verthori1", vert, hori)
     if len(vert) != 9 or len(hori) != 9:
@@ -349,10 +349,16 @@ def add_middle(vert, hori, medv, medh):
         i = 0
         while i < (len(vert) - 1):
             if abs(lines[i, kind] - lines[i+1, kind]) > (med*1.5):
-                x1 = lines[i, 0] + med
-                y1 = lines[i, 1]
-                x2 = lines[i, 2] + med
-                y2 = lines[i, 3]
+                if kind == 0:
+                    x1 = lines[i, 0] + med
+                    y1 = lines[i, 1]
+                    x2 = lines[i, 2] + med
+                    y2 = lines[i, 3]
+                else:
+                    x1 = lines[i, 0]
+                    y1 = lines[i, 1] + med
+                    x2 = lines[i, 2]
+                    y2 = lines[i, 3] + med
                 new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
                 lines = lines[lines[:, kind].argsort()]

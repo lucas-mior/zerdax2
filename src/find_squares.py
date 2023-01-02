@@ -193,7 +193,6 @@ def calc_intersections(img, vert, hori):
     inter = []
     last = (100000, 100000)
 
-    i = 0
     for x1, y1, x2, y2, r, t in vert:
         for xx1, yy1, xx2, yy2, rr, tt in hori:
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
@@ -217,7 +216,6 @@ def calc_intersections(img, vert, hori):
                 if aux.radius(last[0], last[1], x, y) > 10:
                     inter.append((x, y))
                     last = (x, y)
-        i += 1
 
     inter = np.int32(inter)
     drawn_inter = aux.draw_intersections(img.warp3ch, inter)

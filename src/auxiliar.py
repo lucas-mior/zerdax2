@@ -94,11 +94,11 @@ def find_canny(img, image, wmin=5, thigh=220):
         return
 
     got_canny = False
-    ctmin = 30
-    while thigh >= ctmin:
+    thighmin = 30
+    while thigh >= thighmin:
         tlow = max(10, round(thigh*0.8))
-        clmin = 10
-        while tlow >= clmin:
+        tlowmin = 10
+        while tlow >= tlowmin:
             canny = cv2.Canny(image, tlow, thigh)
             w = np.mean(canny)
             if w > wmin:
@@ -110,17 +110,17 @@ def find_canny(img, image, wmin=5, thigh=220):
 
             gain = wmin - w
             diff = round(max(8, gain*10))
-            if tlow <= clmin:
+            if tlow <= tlowmin:
                 break
-            tlow = max(clmin, tlow - diff)
+            tlow = max(tlowmin, tlow - diff)
 
         if got_canny:
             break
 
-        if thigh <= ctmin:
+        if thigh <= thighmin:
             break
         diff = round(max(5, gain*(thigh/15)))
-        thigh = max(ctmin, thigh - diff)
+        thigh = max(thighmin, thigh - diff)
 
     if not got_canny:
         print("Canny failed, but trying anyway")

@@ -74,12 +74,11 @@ def crop_board(img):
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
     # aux.save(img, "board_box", img.board)
-
     return img
 
 
 def reduce_box(img):
-    print("reduce cropped image to default size...")
+    print(f"reduce cropped image to default size ({BWIDTH})...")
     img.bwidth = BWIDTH
     img.thick = 3
     img.bfact = img.bwidth / img.board.shape[1]

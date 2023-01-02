@@ -90,7 +90,7 @@ def find_canny(img, image, wmin=5, thigh=220):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     def lp(sign):
-        print(f"{w:0=.2f} {sign} {wmin:0=.1f}, @ {tlow}, {thigh}")
+        print(f"{w} {sign} {wmin:0=.1f}, @ {tlow}, {thigh}")
         return
 
     got_canny = False
@@ -100,19 +100,18 @@ def find_canny(img, image, wmin=5, thigh=220):
         tlowmin = 10
         while tlow >= tlowmin:
             canny = cv2.Canny(image, tlow, thigh)
-            w = np.mean(canny)
-            if w > wmin:
-                lp("<")
+            w = round(np.mean(canny), 2)
+            if w >= wmin:
+                lp(">=")
                 got_canny = True
                 break
-
-            lp("<")
-
-            gain = wmin - w
-            diff = round(max(8, gain*10))
-            if tlow <= tlowmin:
-                break
-            tlow = max(tlowmin, tlow - diff)
+            else:
+                lp("<")
+                gain = wmin - w
+                diff = round(max(8, gain*10))
+                if tlow <= tlowmin:
+                    break
+                tlow = max(tlowmin, tlow - diff)
 
         if got_canny:
             break
@@ -125,4 +124,4 @@ def find_canny(img, image, wmin=5, thigh=220):
     if not got_canny:
         print("Canny failed, but trying anyway")
 
-    return canny, thigh
+    return canny

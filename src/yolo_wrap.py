@@ -26,6 +26,21 @@ def draw_boxes(img):
 
 
 def process_pieces(img):
+    new_pieces = []
+    wkings = bkings = 0
+    img.pieces = sorted(img.pieces, key=lambda x: x[4])
+
+    for p in img.pieces:
+        if p[5] == 1 and wkings == 0:  # WhiteKing
+            new_pieces.append(p)
+            wkings += 1
+        elif p[5] == 7 and bkings == 0:  # BlackKing
+            new_pieces.append(p)
+            bkings += 1
+        else:
+            new_pieces.append(p)
+
+    img.pieces = new_pieces
     return img
 
 
@@ -63,7 +78,7 @@ def determine_colors(img):
     pcolors = []
     for i, p in enumerate(img.pieces):
         avg = 0
-        w = 0
+        weight = 0
         x0, y0 = int(p[0]), int(p[1])
         x1, y1 = int(p[2]), int(p[3])
         xc = round((x1+x0)/2)
@@ -72,10 +87,10 @@ def determine_colors(img):
         a = img.BGR[y0:y1, x0:x1]
         b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
         for (x, y), pixel in np.ndenumerate(b):
-            weight = 1/max(abs(x-xc), 1) + 1/max(abs(y-yc), 1)
-            w += weight
-            avg += pixel * weight
-        avg = round(avg/w, 2)
+            w = 1/max(abs(x-xc), 1) + 1/max(abs(y-yc), 1)
+            weight += w
+            avg += pixel * w
+        avg = round(avg/weight, 2)
         p.append(avg)
         pcolors.append(p)
 

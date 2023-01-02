@@ -116,6 +116,7 @@ def find_canny(image, wmin=5, thigh=220):
 
     return canny
 
+
 def draw_intersections(image, inter):
     canvas = np.zeros(image.shape, dtype='uint8')
     for i, p in enumerate(inter):

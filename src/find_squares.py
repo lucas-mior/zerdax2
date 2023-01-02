@@ -112,7 +112,6 @@ def w_lines(img):
             lines = filter_90(lines)
             if len(lines) > 16:
                 lines = bundle_lines(lines)
-                lines = lines[:, 0, :]
                 lines = aux.radius_theta(lines)
                 vert, hori = aux.geo_lines(lines)
                 lv = len(vert)

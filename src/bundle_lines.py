@@ -10,7 +10,8 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
         merged_lines.append(merge_line_segments(group))
     merged_lines_all.extend(merged_lines)
 
-    return np.array(merged_lines_all)
+    # merged_lines_all = np.array(merged_lines_all)
+    return np.squeeze(merged_lines_all)
 
 
 def get_orientation(line):

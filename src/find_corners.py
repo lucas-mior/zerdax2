@@ -117,7 +117,6 @@ def magic_lines(img):
             continue
 
         lines = bundle_lines(lines)
-        lines = lines[:, 0, :]
         lines = aux.radius_theta(lines)
         ll = len(lines)
         if ll >= 18:

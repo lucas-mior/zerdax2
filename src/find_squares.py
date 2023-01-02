@@ -210,7 +210,7 @@ def calc_intersections(img, vert, hori):
             x = round(aux.determinant(d, xdiff) / div)
             y = round(aux.determinant(d, ydiff) / div)
 
-            if x > img.wwidth or y > img.wheigth or x < 0 or y < 0:
+            if x > (img.wwidth-1) or y > (img.wheigth-1) or x < 0 or y < 0:
                 continue
             else:
                 if aux.radius(last[0], last[1], x, y) > 10:

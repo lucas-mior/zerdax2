@@ -259,6 +259,9 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
+    aux.save_lines(img, "verthori0", vert, hori)
+    print("adjusting vertical and horizontal lines...")
+    lv, lh = len(vert), len(hori)
 
     def _check_save(title):
         nonlocal lv, lh, vert, hori
@@ -266,10 +269,6 @@ def magic_vert_hori(img, vert, hori):
             aux.save_lines(img, title, vert, hori)
             lv, lh = len(vert), len(hori)
         return
-
-    print("adjusting vertical and horizontal lines...")
-    aux.save_lines(img, "verthori0", vert, hori)
-    lv, lh = len(vert), len(hori)
 
     print("calculating median distances...")
     distv, disth = get_distances(vert, hori)
@@ -390,7 +389,7 @@ def remove_extras(vert, hori):
             if d1 < d2:
                 lines = lines[1:]
             else:
-                lines = lines[0:-1]
+                lines = lines[:-1]
         elif num == 11:
             lines = lines[1:-1]
         elif num >= 12:

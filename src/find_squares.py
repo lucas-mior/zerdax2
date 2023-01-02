@@ -43,7 +43,7 @@ def find_squares(img):
     sqback = np.zeros(squares.shape, dtype='float32')
     for i in range(0, 8):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
-    img.sqback = np.int32(np.round(sqback))
+    img.sqback = np.array(np.round(sqback), dtype='int32')
 
     squares_drawn = draw_squares(img, img.board)
     # aux.save(img, "A1E4C5H8", squares_drawn)
@@ -58,7 +58,7 @@ def find_squares(img):
     sqback[:, :, :, 0] += img.x0
     sqback[:, :, :, 1] += img.y0
 
-    img.sqback = np.int32(np.round(sqback))
+    img.sqback = np.array(np.round(sqback), dtype='int32')
     squares_drawn = draw_squares(img, img.BGR)
     # aux.save(img, "A1E4C5H8", squares_drawn)
 
@@ -215,7 +215,7 @@ def calc_intersections(img, vert, hori):
                     inter.append((x, y))
                     last = (x, y)
 
-    inter = np.int32(inter)
+    inter = np.array(inter, dtype='int32')
     drawn_inter = aux.draw_intersections(img.warp3ch, inter)
     aux.save(img, "interboard", drawn_inter)
 
@@ -467,4 +467,4 @@ def calc_squares(img, inter):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    return np.float32(squares)
+    return np.array(squares, dtype='float32')

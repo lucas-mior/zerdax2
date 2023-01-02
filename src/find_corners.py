@@ -64,7 +64,7 @@ def calc_intersections(img, lines):
             else:
                 inter.append((x, y))
 
-    inter = np.int32(inter)
+    inter = np.array(inter, dtype='int32')
     drawn_inter = aux.draw_intersections(img.gray3ch, inter)
     aux.save(img, "intersections", drawn_inter)
 
@@ -203,7 +203,7 @@ def filter_angles(img, lines, tol=15):
 
 
 def lines_kmeans(img, lines):
-    lines = np.float32(lines)
+    lines = np.array(lines, dtype='float32')
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, :, 5], 3, None,
@@ -240,7 +240,7 @@ def lines_kmeans(img, lines):
                     centers = np.append(centers, k)
             break
 
-    centers = np.int32(np.round(centers))
+    centers = np.array(np.round(centers), dtype='int32')
     return centers
 
 
@@ -320,7 +320,7 @@ def perspective_transform(img):
 
 
 def split_lines(img, lines):
-    lines = np.float32(lines)
+    lines = np.array(lines, dtype='float32')
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, :, 5], 3, None,
@@ -345,7 +345,7 @@ def split_lines(img, lines):
 
     if len(centers) == 3:
         # Redo kmeans using absolute inclination
-        lines = np.float32(aux.radius_theta(lines, absol=True))
+        lines = np.array(aux.radius_theta(lines, absol=True), dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, :, 5], 2, None,
                                               criteria, 10, flags)
         A = lines[labels == 0]

@@ -25,6 +25,10 @@ def draw_boxes(img):
     return img
 
 
+def process_pieces(img):
+    return img
+
+
 def detect_objects(img):
     pieces = yolo.run(weights="best.pt",
                       source=img.filename,
@@ -38,7 +42,7 @@ def detect_objects(img):
                       project='.',  # save results to project/name
                       name='exp',  # save results to project/name
                       )
-    print(pieces)
+
     img.pieces = pieces.tolist()
     for obj in img.pieces:
         if obj[5] == 0:
@@ -46,7 +50,10 @@ def detect_objects(img):
             img.pieces.remove(obj)
     print(f"board: {img.boardbox}")
     print(f"pieces: {img.pieces}")
+
     img = determine_colors(img)
+    img = process_pieces(img)
+
     img = draw_boxes(img)
     aux.save(img, "yolo", img.yolopieces)
     return img

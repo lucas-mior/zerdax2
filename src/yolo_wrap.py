@@ -27,20 +27,10 @@ def draw_boxes(img):
 
 def process_pieces(img):
     new_pieces = []
-    wkings = bkings = 0
     img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
     for p in img.pieces:
-        if p[5] == 1:
-            if wkings == 0:  # WhiteKing
-                new_pieces.append(p)
-                wkings += 1
-        elif p[5] == 7:
-            if bkings == 0:  # BlackKing
-                new_pieces.append(p)
-                bkings += 1
-        else:
-            new_pieces.append(p)
+        new_pieces.append(p)
 
     img.pieces = new_pieces
     return img

@@ -95,6 +95,8 @@ def magic_lines(img):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.test, 1,
                                 tangle, tvotes, None, minlen, maxgap)
+        lines = lines[:, 0, :]
+
         if lines is None:
             minlen = max(img.slen/1.4, minlen - incr)
             tvotes = round(minlen / force)
@@ -105,7 +107,6 @@ def magic_lines(img):
             tvotes = round(minlen / force)
             continue
 
-        lines = lines[:, 0, :]
         lines = aux.radius_theta(lines)
         lines = filter_lines(img, lines)
         img.angles = lines_kmeans(img, lines)
@@ -197,9 +198,7 @@ def filter_angles(img, lines, tol=15):
         else:
             rem[i] = 0
 
-    A = lines[rem == 0]
-    lines = A
-    return lines
+    return lines[rem == 0]
 
 
 def lines_kmeans(img, lines):

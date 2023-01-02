@@ -187,7 +187,6 @@ def get_distances(vert, hori):
 def calc_intersections(img, vert, hori):
     print("calculating intersections...")
     inter = []
-    last = (100000, 100000)
 
     for x1, y1, x2, y2, r, t in vert:
         for xx1, yy1, xx2, yy2, rr, tt in hori:
@@ -208,10 +207,11 @@ def calc_intersections(img, vert, hori):
 
             if x > (img.wwidth-1) or y > (img.wheigth-1) or x < 0 or y < 0:
                 continue
-            else:
-                if aux.radius(last[0], last[1], x, y) > 10:
-                    inter.append((x, y))
-                    last = (x, y)
+
+            for p in inter:
+                if aux.radius(x, y, p[0], p[1]) < 10:
+                    continue
+            inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
     drawn_inter = aux.draw_intersections(img.warp3ch, inter)

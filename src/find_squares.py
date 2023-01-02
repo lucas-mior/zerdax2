@@ -138,11 +138,11 @@ def w_lines(img):
     if not got_hough:
         aux.save(img, "lastcanny", img.wcanny)
         aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
-        if lv < 8 or lh < 8:
+        if lv < 7 or lh < 7:
             print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
-            print("failed to find at least 9 lines, trying with 8")
+            print("failed to find at least 9 lines, trying with 7")
 
     return vert[:, 0, :], hori[:, 0, :]
 

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from find_corners import find_corners
 from find_squares import find_squares
-from find_pieces import detect_objects
+import yolo_wrap as yolo
 import fen as fen
 
 # WIDTH = 1280
@@ -14,6 +14,25 @@ class Image:
     def __init__(self, filename):
         self.filename = filename
         self.basename = Path(self.filename).stem
+
+
+def algorithm(filename, log):
+    img = Image(filename)
+    img.log = log
+
+    img.BGR = cv2.imread(img.filename)
+
+    img = yolo.detect_objects(img)
+    img = crop_board(img)
+    img = reduce_box(img)
+    img = pre_process(img)
+
+    img = find_corners(img)
+    img = find_squares(img)
+    img = fen.generate_fen(img)
+    fen.print_fen(img.longfen)
+
+    return img.fen
 
 
 def pre_process(img):
@@ -45,25 +64,6 @@ def pre_process(img):
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
     return img
-
-
-def algorithm(filename, log):
-    img = Image(filename)
-    img.log = log
-
-    img.BGR = cv2.imread(img.filename)
-
-    img = detect_objects(img)
-    img = crop_board(img)
-    img = reduce_box(img)
-    img = pre_process(img)
-
-    img = find_corners(img)
-    img = find_squares(img)
-    img = fen.generate_fen(img)
-    fen.print_fen(img.longfen)
-
-    return img.fen
 
 
 def crop_board(img):

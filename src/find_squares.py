@@ -106,11 +106,13 @@ def w_lines(img):
         lv = lh = 0
         lines = cv2.HoughLinesP(img.wcanny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
+        lines = lines[:, 0, :]
         if lines is not None:
             lines = aux.radius_theta(lines)
             lines = filter_90(lines)
             if len(lines) > 16:
                 lines = bundle_lines(lines)
+                lines = lines[:, 0, :]
                 lines = aux.radius_theta(lines)
                 vert, hori = aux.geo_lines(lines)
                 lv = len(vert)
@@ -137,20 +139,20 @@ def w_lines(img):
 
     if not got_hough:
         aux.save(img, "lastcanny", img.wcanny)
-        aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
+        aux.save_lines(img, "lastverthori0", vert[:, :], hori[:, :])
         if lv < 7 or lh < 7:
             print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 7")
 
-    return vert[:, 0, :], hori[:, 0, :]
+    return vert[:, :], hori[:, :]
 
 
 def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
-    for i, t in enumerate(lines[:, :, 5]):
+    for i, t in enumerate(lines[:, 5]):
         if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
             rem[i] = 1
         else:

@@ -13,7 +13,7 @@ def find_corners(img):
     img = black_space(img)
     lines = magic_lines(img)
     print("lines:", lines.shape)
-    inter = calc_intersections(img, lines[:, 0, :])
+    inter = calc_intersections(img, lines[:, :])
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)
 
@@ -106,6 +106,7 @@ def magic_lines(img):
             tvotes = round(minlen / force)
             continue
 
+        lines = lines[:, 0, :]
         lines = aux.radius_theta(lines)
         lines = filter_lines(img, lines)
         img.angles = lines_kmeans(img, lines)
@@ -116,6 +117,7 @@ def magic_lines(img):
             continue
 
         lines = bundle_lines(lines)
+        lines = lines[:, 0, :]
         lines = aux.radius_theta(lines)
         ll = len(lines)
         if ll >= 18:
@@ -163,21 +165,21 @@ def filter_lines(img, lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, line in enumerate(lines):
-        for x1, y1, x2, y2, r, t in line:
-            if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
+        x1, y1, x2, y2, r, t = line
+        if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
+            rem[i] = 1
+        elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5):
+            rem[i] = 1
+        elif (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
+            rem[i] = 1
+        elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)):
+            if (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
                 rem[i] = 1
-            elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5):
+        elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)):
+            if (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
                 rem[i] = 1
-            elif (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
-                rem[i] = 1
-            elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)):
-                if (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
-                    rem[i] = 1
-            elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)):
-                if (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
-                    rem[i] = 1
-            else:
-                rem[i] = 0
+        else:
+            rem[i] = 0
 
     return lines[rem == 0]
 
@@ -186,16 +188,16 @@ def filter_angles(img, lines, tol=15):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, line in enumerate(lines):
-        for x1, y1, x2, y2, r, t in line:
-            if abs(t - img.angles[0]) > tol and abs(t - img.angles[1]) > tol:
-                if len(img.angles) == 2:
-                    rem[i] = 1
-                elif abs(t - img.angles[2]) > tol:
-                    rem[i] = 1
-                else:
-                    rem[i] = 0
+        x1, y1, x2, y2, r, t = line
+        if abs(t - img.angles[0]) > tol and abs(t - img.angles[1]) > tol:
+            if len(img.angles) == 2:
+                rem[i] = 1
+            elif abs(t - img.angles[2]) > tol:
+                rem[i] = 1
             else:
                 rem[i] = 0
+        else:
+            rem[i] = 0
 
     A = lines[rem == 0]
     lines = A
@@ -206,8 +208,10 @@ def lines_kmeans(img, lines):
     lines = np.array(lines, dtype='float32')
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    compact, labels, centers = cv2.kmeans(lines[:, :, 5], 3, None,
+    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
                                           criteria, 10, flags)
+
+    labels = labels.flatten()
 
     d1 = abs(centers[0] - centers[1])
     d2 = abs(centers[0] - centers[2])
@@ -218,8 +222,10 @@ def lines_kmeans(img, lines):
     dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
 
     if dd1 or dd2 or dd3:
-        compact, labels, centers = cv2.kmeans(lines[:, :, 5], 2, None,
+        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
+
+    labels = labels.flatten()
 
     diff = []
     diff.append((abs(centers[0] - 85), -85))
@@ -323,8 +329,9 @@ def split_lines(img, lines):
     lines = np.array(lines, dtype='float32')
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    compact, labels, centers = cv2.kmeans(lines[:, :, 5], 3, None,
+    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
                                           criteria, 10, flags)
+    labels = labels.flatten()
 
     A = lines[labels == 0]
     B = lines[labels == 1]
@@ -338,16 +345,19 @@ def split_lines(img, lines):
     dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
 
     if dd1 or dd2 or dd3:
-        compact, labels, centers = cv2.kmeans(lines[:, :, 5], 2, None,
+        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
+
+        labels = labels.flatten()
         A = lines[labels == 0]
         B = lines[labels == 1]
 
     if len(centers) == 3:
         # Redo kmeans using absolute inclination
         lines = np.array(aux.radius_theta(lines, absol=True), dtype='float32')
-        compact, labels, centers = cv2.kmeans(lines[:, :, 5], 2, None,
+        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
+        labels = labels.flatten()
         A = lines[labels == 0]
         B = lines[labels == 1]
 

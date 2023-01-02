@@ -36,26 +36,26 @@ def theta(x1, y1, x2, y2, absol=False):
 
 
 def radius_theta(lines, absol=False):
-    dummy = np.zeros((lines.shape[0], 1, 6), dtype='int32')
-    dummy[:, 0, 0:4] = np.copy(lines[:, 0, 0:4])
+    dummy = np.zeros((lines.shape[0], 6), dtype='int32')
+    dummy[:, 0:4] = np.copy(lines[:, 0:4])
     lines = dummy
-    lines = lines[lines[:, 0, 0].argsort()]
+    lines = lines[lines[:, 0].argsort()]
 
     for i, line in enumerate(lines):
-        for x1, y1, x2, y2, r, t in line:
-            lines[i, 0, 4] = radius(x1, y1, x2, y2)
-            lines[i, 0, 5] = theta(x1, y1, x2, y2, absol=absol)
+        x1, y1, x2, y2, r, t = line
+        lines[i, 4] = radius(x1, y1, x2, y2)
+        lines[i, 5] = theta(x1, y1, x2, y2, absol=absol)
 
     return lines
 
 
 def geo_lines(lines):
     lines = radius_theta(lines)
-    vert = lines[abs(lines[:, 0, 5]) > 45]
-    hori = lines[abs(lines[:, 0, 5]) < 45]
+    vert = lines[abs(lines[:, 5]) > 45]
+    hori = lines[abs(lines[:, 5]) < 45]
 
-    vert = vert[vert[:, 0, 0].argsort()]
-    hori = hori[hori[:, 0, 1].argsort()]
+    vert = vert[vert[:, 0].argsort()]
+    hori = hori[hori[:, 1].argsort()]
 
     return vert, hori
 

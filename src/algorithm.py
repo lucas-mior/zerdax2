@@ -6,7 +6,6 @@ from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
 
-# WIDTH = 1280
 BWIDTH = 640
 
 
@@ -54,10 +53,10 @@ def pre_process(img):
 
     print("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
-    img.claheG = clahe.apply(img.G)
-    img.claheV = clahe.apply(img.V)
-    # aux.save(img, "claheG", img.claheG)
-    # aux.save(img, "claheV", img.claheV)
+    img.G = clahe.apply(img.G)
+    img.V = clahe.apply(img.V)
+    # aux.save(img, "claheG", img.G)
+    # aux.save(img, "claheV", img.V)
 
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)

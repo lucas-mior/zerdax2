@@ -22,8 +22,8 @@ def find_corners(img):
 
 def create_cannys(img, w=5, thighg=220, thighv=220, saveny=False):
     print("finding edges for gray, S, V images...")
-    cannyG = aux.find_canny(img.claheG, wmin=w, thigh=thighg)
-    cannyV = aux.find_canny(img.claheV, wmin=w, thigh=thighv)
+    cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
+    cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
     # aux.save(img, "cannyG", cannyG)
     # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
@@ -311,14 +311,10 @@ def perspective_transform(img):
     img.warpMatrix = cv2.getPerspectiveTransform(orig_points, newshape)
     _, img.warpInvMatrix = cv2.invert(img.warpMatrix)
     print("warping image...")
-    img.wg = cv2.warpPerspective(img.gray, img.warpMatrix, (width, height))
+    img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    # aux.save(img, "warp", img.wg)
-
-    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))
-    img.wg = clahe.apply(img.wg)
-    img.wv = clahe.apply(img.wv)
-    # aux.save(img, "warpclahe", img.wg)
+    # aux.save(img, "warpclaheG", img.wg)
+    # aux.save(img, "warpclaheV", img.wv)
 
     return img
 
@@ -394,8 +390,6 @@ def black_space(img):
     img.gray = make_border(img.gray)
     img.G = make_border(img.G)
     img.V = make_border(img.V)
-    img.claheG = make_border(img.claheG)
-    img.claheV = make_border(img.claheV)
     img.gray3ch = make_border(img.gray3ch)
     img.bwidth += (DX*2)
     img.bheigth += (DX*2)

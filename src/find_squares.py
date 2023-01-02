@@ -97,7 +97,7 @@ def w_lines(img):
     tangle = np.pi / 360
     minlen = minlen0 = round((img.wwidth)*0.8)
     tvotes = round(minlen0 / 2)
-    maxgap = 60
+    maxgap = img.wwidth / 8
     passed = 0
     newgap = False
     vert = hori = None
@@ -131,7 +131,7 @@ def w_lines(img):
             _update_wlines(2.3, 0.65)
         elif passed == 3 and (lv < 8 or lh < 8) and not newgap:
             _update_wlines(2, 0.80)
-            maxgap = 80
+            maxgap *= 1.1
             newgap = True
             passed = 0
 

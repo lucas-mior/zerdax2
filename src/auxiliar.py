@@ -82,7 +82,7 @@ def save_lines(img, name, vert, hori, warp=True):
     return
 
 
-def find_canny(img, image, wmin=5, thigh=220):
+def find_canny(image, wmin=5, thigh=220):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False

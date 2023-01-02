@@ -71,10 +71,10 @@ def distance_point_to_line(point, line):
 
 
 def get_distance(a_line, b_line):
-    dist1 = minDistance(b_line[0:2], b_line[2:4], a_line[0:2])
-    dist2 = minDistance(b_line[0:2], b_line[2:4], a_line[2:4])
-    dist3 = minDistance(a_line[0:2], a_line[2:4], b_line[0:2])
-    dist4 = minDistance(a_line[0:2], a_line[2:4], b_line[2:4])
+    dist1 = min_dist(b_line[0:2], b_line[2:4], a_line[0:2])
+    dist2 = min_dist(b_line[0:2], b_line[2:4], a_line[2:4])
+    dist3 = min_dist(a_line[0:2], a_line[2:4], b_line[0:2])
+    dist4 = min_dist(a_line[0:2], a_line[2:4], b_line[2:4])
 
     return min(dist1, dist2, dist3, dist4)
 
@@ -114,7 +114,7 @@ def merge_line_segments(lines):
     return np.block([[P[0:2], P[2:4]]])
 
 
-def minDistance(A, B, E):
+def min_dist(A, B, E):
 
     # vector AB
     AB = [None, None]

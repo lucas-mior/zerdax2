@@ -233,8 +233,8 @@ def mean_dist(distv, disth):
     def _mean_dist(dist):
         med1 = np.median(dist[:, 0])
         med2 = np.median(dist[:, 1])
-        print("medv1:", med1)
-        print("medv2:", med2)
+        print("med1:", med1)
+        print("med2:", med2)
         med = round((med1 + med2)/2)
         return med
 
@@ -312,9 +312,9 @@ def magic_vert_hori(img, vert, hori):
 def add_outer(vert, hori, medv, medh):
     print("adding missing outer lines...")
     while abs(vert[0, 0] - 0) > (medv + 5):
-        x1 = vert[0, 0]-medv
+        x1 = vert[0, 0] - medv
         y1 = vert[0, 1]
-        x2 = vert[0, 2]-medv
+        x2 = vert[0, 2] - medv
         y2 = vert[0, 3]
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
@@ -354,9 +354,9 @@ def add_middle(vert, hori, medv, medh):
         i = 0
         while i < (len(vert) - 1):
             if abs(lines[i, kind] - lines[i+1, kind]) > (med*1.5):
-                x1 = lines[i, 0]+med
+                x1 = lines[i, 0] + med
                 y1 = lines[i, 1]
-                x2 = lines[i, 2]+med
+                x2 = lines[i, 2] + med
                 y2 = lines[i, 3]
                 new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
@@ -411,9 +411,9 @@ def add_last_outer(vert, hori, medv, medh):
             d2 = abs(lines[-1, 0] - WARPED_LEN)
             if d1 > d2:
                 if d1 >= med:
-                    x1 = lines[0, 0]-med
+                    x1 = lines[0, 0] - med
                     y1 = lines[0, 1]
-                    x2 = lines[0, 2]-med
+                    x2 = lines[0, 2] - med
                     y2 = lines[0, 3]
                     new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 else:
@@ -421,9 +421,9 @@ def add_last_outer(vert, hori, medv, medh):
                     exit(1)
             else:
                 if d2 >= med:
-                    x1 = lines[-1, 0]+med
+                    x1 = lines[-1, 0] + med
                     y1 = lines[-1, 1]
-                    x2 = lines[-1, 2]+med
+                    x2 = lines[-1, 2] + med
                     y2 = lines[-1, 3]
                     new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 else:

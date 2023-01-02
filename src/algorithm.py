@@ -51,15 +51,13 @@ def pre_process(img):
     img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
     # aux.save(img, "Gblur", img.G)
     # aux.save(img, "Vblur", img.V)
-    # img.G = lf.ffilter(img.gray)
-    # img.V = lf.ffilter(img.V)
 
     print("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
     img.claheG = clahe.apply(img.G)
     img.claheV = clahe.apply(img.V)
-    # aux.save(img, "Gclahe", img.claheG)
-    # aux.save(img, "Vclahe", img.claheV)
+    # aux.save(img, "claheG", img.claheG)
+    # aux.save(img, "claheV", img.claheV)
 
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)

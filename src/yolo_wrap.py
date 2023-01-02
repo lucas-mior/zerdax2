@@ -28,7 +28,7 @@ def draw_boxes(img):
 def process_pieces(img):
     new_pieces = []
     wkings = bkings = 0
-    img.pieces = sorted(img.pieces, key=lambda x: x[4])
+    img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
     for p in img.pieces:
         if p[5] == 1:

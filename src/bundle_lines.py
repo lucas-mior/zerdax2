@@ -39,11 +39,11 @@ def distance_point_to_line(point, line):
     px, py = point
     x1, y1, x2, y2 = line[0:4]
 
-    def line_magnitude(x1, y1, x2, y2):
+    def _line_mag(x1, y1, x2, y2):
         line_mag = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
         return line_mag
 
-    lmag = line_magnitude(x1, y1, x2, y2)
+    lmag = _line_mag(x1, y1, x2, y2)
     if lmag < 0.00000001:
         distance_point_to_line = 9999
         return distance_point_to_line
@@ -54,8 +54,8 @@ def distance_point_to_line(point, line):
     if (u < 0.00001) or (u > 1):
         # closest point does not fall within the line segment,
         # take the shorter distance to an endpoint
-        ix = line_magnitude(px, py, x1, y1)
-        iy = line_magnitude(px, py, x2, y2)
+        ix = _line_mag(px, py, x1, y1)
+        iy = _line_mag(px, py, x2, y2)
         if ix > iy:
             distance_point_to_line = iy
         else:
@@ -64,7 +64,7 @@ def distance_point_to_line(point, line):
         # Intersecting point is on the line, use the formula
         # ix = x1 + u * (x2 - x1)
         # iy = y1 + u * (y2 - y1)
-        # distance_point_to_line = line_magnitude(px, py, ix, iy)
+        # distance_point_to_line = _line_mag(px, py, ix, iy)
         distance_point_to_line = 0
 
     return distance_point_to_line

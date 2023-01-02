@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import auxiliar as aux
 from zerdax2_misc import COLORS, SYMBOLS, AMOUNT
+import copy
 
 
 def draw_boxes(img):
@@ -27,7 +28,7 @@ def draw_boxes(img):
 
 def process_pieces(img):
     new_pieces = []
-    got = AMOUNT
+    got = copy.deepcopy(AMOUNT)
     img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
     for piece in img.pieces:

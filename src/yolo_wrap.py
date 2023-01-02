@@ -13,9 +13,9 @@ def draw_boxes(img):
         x0, y0, x1, y1, conf, num, _ = piece
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
         conf = round(float(conf), 2)
-        num = int(num)
-        color = COLORS[str(num)]
-        symbol = SYMBOLS[str(num)]
+        num = str(int(num))
+        color = COLORS[num]
+        symbol = SYMBOLS[num]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)

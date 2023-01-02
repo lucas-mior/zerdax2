@@ -31,12 +31,14 @@ def process_pieces(img):
     img.pieces = sorted(img.pieces, key=lambda x: x[4])
 
     for p in img.pieces:
-        if p[5] == 1 and wkings == 0:  # WhiteKing
-            new_pieces.append(p)
-            wkings += 1
-        elif p[5] == 7 and bkings == 0:  # BlackKing
-            new_pieces.append(p)
-            bkings += 1
+        if p[5] == 1:
+            if wkings == 0:  # WhiteKing
+                new_pieces.append(p)
+                wkings += 1
+        elif p[5] == 7:
+            if bkings == 0:  # BlackKing
+                new_pieces.append(p)
+                bkings += 1
         else:
             new_pieces.append(p)
 

@@ -271,8 +271,6 @@ def magic_vert_hori(img, vert, hori):
 
     print("calculating median distances...")
     distv, disth = get_distances(vert, hori)
-    print("distv:", distv)
-    print("disth:", disth)
     medv, medh = mean_dist(distv, disth)
     print("medv:", medv)
     print("medh:", medh)
@@ -309,51 +307,6 @@ def magic_vert_hori(img, vert, hori):
         print("There should be exactly 9 vertical and 9 horizontal lines")
         exit(1)
     return vert, hori
-
-
-def calc_squares(img, inter):
-    print("calculating squares corners...")
-    inter = inter[inter[:, 0].argsort()]
-    intersq = np.zeros((9, 9, 2), dtype='int32')
-    interA = inter[0:9]   # A
-    interB = inter[9:18]   # B
-    interC = inter[18:27]  # C
-    interD = inter[27:36]  # D
-    interE = inter[36:45]  # E
-    interF = inter[45:54]  # F
-    interG = inter[54:63]  # G
-    interH = inter[63:72]  # H
-    interZ = inter[72:81]  # right
-
-    intersq[0, :] = interA[interA[:, 1].argsort()[::-1]]  # A
-    intersq[1, :] = interB[interB[:, 1].argsort()[::-1]]  # B
-    intersq[2, :] = interC[interC[:, 1].argsort()[::-1]]  # C
-    intersq[3, :] = interD[interD[:, 1].argsort()[::-1]]  # D
-    intersq[4, :] = interE[interE[:, 1].argsort()[::-1]]  # E
-    intersq[5, :] = interF[interF[:, 1].argsort()[::-1]]  # F
-    intersq[6, :] = interG[interG[:, 1].argsort()[::-1]]  # G
-    intersq[7, :] = interH[interH[:, 1].argsort()[::-1]]  # H
-    intersq[8, :] = interZ[interZ[:, 1].argsort()[::-1]]  # right
-
-    squares = np.zeros((8, 8, 4, 2), dtype='int32')
-    for i in range(0, 8):
-        for j in range(0, 8):
-            squares[i, j, 0] = intersq[i, j]
-            squares[i, j, 1] = intersq[i+1, j]
-            squares[i, j, 2] = intersq[i+1, j+1]
-            squares[i, j, 3] = intersq[i, j+1]
-
-    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
-    cv2.drawContours(canvas, [squares[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [squares[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "A1E4C5", canvas)
-
-    return squares
 
 
 def add_outer(vert, hori, medv, medh):
@@ -484,3 +437,48 @@ def add_last_outer(vert, hori, medv, medh):
     vert = _add_last_outer(vert, v, medv, 0)
     hori = _add_last_outer(hori, h, medh, 1)
     return vert, hori
+
+
+def calc_squares(img, inter):
+    print("calculating squares corners...")
+    inter = inter[inter[:, 0].argsort()]
+    intersq = np.zeros((9, 9, 2), dtype='int32')
+    interA = inter[0:9]   # A
+    interB = inter[9:18]   # B
+    interC = inter[18:27]  # C
+    interD = inter[27:36]  # D
+    interE = inter[36:45]  # E
+    interF = inter[45:54]  # F
+    interG = inter[54:63]  # G
+    interH = inter[63:72]  # H
+    interZ = inter[72:81]  # right
+
+    intersq[0, :] = interA[interA[:, 1].argsort()[::-1]]  # A
+    intersq[1, :] = interB[interB[:, 1].argsort()[::-1]]  # B
+    intersq[2, :] = interC[interC[:, 1].argsort()[::-1]]  # C
+    intersq[3, :] = interD[interD[:, 1].argsort()[::-1]]  # D
+    intersq[4, :] = interE[interE[:, 1].argsort()[::-1]]  # E
+    intersq[5, :] = interF[interF[:, 1].argsort()[::-1]]  # F
+    intersq[6, :] = interG[interG[:, 1].argsort()[::-1]]  # G
+    intersq[7, :] = interH[interH[:, 1].argsort()[::-1]]  # H
+    intersq[8, :] = interZ[interZ[:, 1].argsort()[::-1]]  # right
+
+    squares = np.zeros((8, 8, 4, 2), dtype='int32')
+    for i in range(0, 8):
+        for j in range(0, 8):
+            squares[i, j, 0] = intersq[i, j]
+            squares[i, j, 1] = intersq[i+1, j]
+            squares[i, j, 2] = intersq[i+1, j+1]
+            squares[i, j, 3] = intersq[i, j+1]
+
+    canvas = np.zeros(img.warp3ch.shape, dtype='uint8')
+    cv2.drawContours(canvas, [squares[0, 0]], -1,  # A1
+                     color=(255, 0, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [squares[4, 3]], -1,  # E4
+                     color=(0, 255, 0), thickness=img.thick)
+    cv2.drawContours(canvas, [squares[2, 4]], -1,  # C5
+                     color=(0, 0, 255), thickness=img.thick)
+    cv2.addWeighted(img.warp3ch, 0.6, canvas, 0.4, 0, canvas)
+    # aux.save(img, "A1E4C5", canvas)
+
+    return squares

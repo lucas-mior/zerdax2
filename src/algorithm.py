@@ -5,6 +5,7 @@ from find_corners import find_corners
 from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
+import auxiliar as aux
 
 BWIDTH = 640
 
@@ -43,20 +44,20 @@ def pre_process(img):
 
     print("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    # aux.save(img, "gray_board", img.gray)
+    aux.save(img, "gray_board", img.gray)
 
     print("applying gaussian blur...")
     img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
     img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
-    # aux.save(img, "Gblur", img.G)
-    # aux.save(img, "Vblur", img.V)
+    aux.save(img, "Gblur", img.G)
+    aux.save(img, "Vblur", img.V)
 
     print("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
     img.G = clahe.apply(img.G)
     img.V = clahe.apply(img.V)
-    # aux.save(img, "claheG", img.G)
-    # aux.save(img, "claheV", img.V)
+    aux.save(img, "claheG", img.G)
+    aux.save(img, "claheV", img.V)
 
     print("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
@@ -72,7 +73,7 @@ def crop_board(img):
     img.x1, img.y1 = x1 + 2, y1 + 2
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    # aux.save(img, "board_box", img.board)
+    aux.save(img, "board_box", img.board)
     return img
 
 
@@ -84,5 +85,5 @@ def reduce_box(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    # aux.save(img, "board_reduce", img.board)
+    aux.save(img, "board_reduce", img.board)
     return img

@@ -24,8 +24,8 @@ def create_cannys(img, w=5, thighg=220, thighv=220, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
-    # aux.save(img, "cannyG", cannyG)
-    # aux.save(img, "cannyV", cannyV)
+    aux.save(img, "cannyG", cannyG)
+    aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
@@ -154,7 +154,7 @@ def magic_lines(img):
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    # aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
+    aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
     print("lines:", lines.shape)
     return lines
 
@@ -283,7 +283,7 @@ def calc_corners(img, inter):
                color=(255, 255, 0), thickness=-1)
 
     cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "corners", canvas)
+    aux.save(img, "corners", canvas)
 
     corners = np.array([BR, BL, TR, TL])
     print("board corners:\n", corners, sep='')
@@ -313,8 +313,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    # aux.save(img, "warpclaheG", img.wg)
-    # aux.save(img, "warpclaheV", img.wv)
+    aux.save(img, "warpclaheG", img.wg)
+    aux.save(img, "warpclaheV", img.wv)
 
     return img
 
@@ -359,11 +359,11 @@ def magic_prepare(img):
     img = create_cannys(img, w=8.5, saveny=False)
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    # aux.save(img, "canny_dilate", img.canny)
+    aux.save(img, "canny_dilate", img.canny)
 
     k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    # aux.save(img, "canny_closed", img.test)
+    aux.save(img, "canny_closed", img.test)
     return img
 
 

@@ -33,7 +33,7 @@ def find_squares(img):
 
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
-    # aux.save_lines(img, "verthori0", vert, hori)
+    aux.save_lines(img, "verthori0", vert, hori)
     vert, hori = magic_vert_hori(img, vert, hori)
 
     inter = calc_intersections(img, vert, hori)
@@ -46,7 +46,7 @@ def find_squares(img):
     img.sqback = np.int32(np.round(sqback))
 
     squares_drawn = draw_squares(img, img.board)
-    # aux.save(img, "A1E4C5H8", squares_drawn)
+    aux.save(img, "A1E4C5H8", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -77,7 +77,7 @@ def create_wcannys(img, w=10, thighg=220, thighv=220):
     k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-    # aux.save(img, "wcanny", img.wcanny)
+    aux.save(img, "wcanny", img.wcanny)
     return img
 
 
@@ -137,8 +137,8 @@ def w_lines(img):
                 passed = 0
 
     if not got_hough:
-        # aux.save(img, "lastcanny", img.wcanny)
-        # aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
+        aux.save(img, "lastcanny", img.wcanny)
+        aux.save_lines(img, "lastverthori0", vert[:, 0, :], hori[:, 0, :])
         if lv < 8 or lh < 8:
             print(f"FAILED @ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -276,7 +276,7 @@ def magic_vert_hori(img, vert, hori):
     remh = wrong_lines(disth, medh)
     vert = vert[remv == 0]
     hori = hori[remh == 0]
-    # aux.save_lines(img, "remwrong", vert, hori)
+    aux.save_lines(img, "remwrong", vert, hori)
 
     print("updating median distances...")
     distv, disth = get_distances(vert, hori)
@@ -287,16 +287,16 @@ def magic_vert_hori(img, vert, hori):
     cerh = right_lines(disth, medh)
     vert = vert[cerv == 1]
     hori = hori[cerh == 1]
-    # aux.save_lines(img, "right_lines", vert, hori)
+    aux.save_lines(img, "right_lines", vert, hori)
 
     vert, hori = add_outer(vert, hori, medv, medh)
-    # aux.save_lines(img, "add_outer", vert, hori)
+    aux.save_lines(img, "add_outer", vert, hori)
     vert, hori = add_middle(vert, hori, medv, medh)
-    # aux.save_lines(img, "add_middle", vert, hori)
+    aux.save_lines(img, "add_middle", vert, hori)
     vert, hori = remove_extras(vert, hori)
-    # aux.save_lines(img, "rem_extras", vert, hori)
+    aux.save_lines(img, "rem_extras", vert, hori)
     vert, hori = add_last_outer(vert, hori, medv, medh)
-    # aux.save_lines(img, "last_outer", vert, hori)
+    aux.save_lines(img, "last_outer", vert, hori)
 
     # aux.save_lines(img, "verthori1", vert, hori)
     if len(vert) != 9 or len(hori) != 9:

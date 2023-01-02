@@ -85,5 +85,5 @@ def reduce_box(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    # aux.save(img, "board_reduce", img.board)
+    aux.save(img, "board_reduce", img.board)
     return img

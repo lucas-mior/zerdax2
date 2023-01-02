@@ -66,7 +66,7 @@ def calc_intersections(img, lines):
 
     inter = np.int32(inter)
     drawn_inter = aux.draw_intersections(img.gray3ch, inter)
-    # aux.save(img, "intersections", drawn_inter)
+    aux.save(img, "intersections", drawn_inter)
 
     return inter
 
@@ -147,10 +147,10 @@ def magic_lines(img):
         if l1 < 10 or l2 < 10:
             print("magic_lines() failed ",
                   f"@ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
-            # # aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             exit(1)
         else:
-            # # aux.save(img, "last_test", img.test)
+            # aux.save(img, "last_test", img.test)
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 

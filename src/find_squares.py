@@ -217,7 +217,7 @@ def calc_intersections(img, vert, hori):
 
     inter = np.int32(inter)
     drawn_inter = aux.draw_intersections(img.warp3ch, inter)
-    # aux.save(img, "interboard", drawn_inter)
+    aux.save(img, "interboard", drawn_inter)
 
     if len(inter) != 81:
         print("There should be exacly 81 intersections")

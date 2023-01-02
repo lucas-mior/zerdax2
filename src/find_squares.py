@@ -89,7 +89,6 @@ def w_lines(img):
 
     def _update_wlines(force, le):
         nonlocal passed, minlen, tvotes
-        passed += 1
         print("passed:", passed)
         minlen = round((img.wwidth) * le)
         tvotes = round(minlen0 / force)
@@ -102,7 +101,7 @@ def w_lines(img):
     newgap = False
     vert = hori = None
     minlines = 9
-    while True:
+    while True and passed < 10:
         lv = lh = 0
         th = 180*(tangle/np.pi)
         lines = cv2.HoughLinesP(img.wcanny, 1,
@@ -134,6 +133,7 @@ def w_lines(img):
             maxgap *= 1.1
             newgap = True
             passed = 0
+        passed += 1
 
     if not got_hough:
         # aux.save(img, "lastcanny", img.wcanny)

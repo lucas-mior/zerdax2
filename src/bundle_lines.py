@@ -4,12 +4,11 @@ import numpy as np
 def bundle_lines(lines, min_dist=8, min_angle=15):
     merged_lines_all = []
 
-    for i in [lines]:
-        groups = merge_lines_into_groups(i, min_dist, min_angle)
-        merged_lines = []
-        for group in groups:
-            merged_lines.append(merge_line_segments(group))
-        merged_lines_all.extend(merged_lines)
+    groups = merge_lines_into_groups(lines, min_dist, min_angle)
+    merged_lines = []
+    for group in groups:
+        merged_lines.append(merge_line_segments(group))
+    merged_lines_all.extend(merged_lines)
 
     return np.array(merged_lines_all)
 

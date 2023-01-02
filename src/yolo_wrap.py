@@ -2,7 +2,7 @@ import yolov5.detect as yolo
 import cv2
 import numpy as np
 import auxiliar as aux
-from zerdax2_misc import COLORS, SYMBOLS
+from zerdax2_misc import COLORS, SYMBOLS, AMOUNT
 
 
 def draw_boxes(img):
@@ -27,11 +27,18 @@ def draw_boxes(img):
 
 def process_pieces(img):
     new_pieces = []
+    got = AMOUNT
+    print("GOT before: ", got)
     img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
 
     for piece in img.pieces:
         x0, y0, x1, y1, conf, num, _ = piece
-        new_pieces.append(piece)
+        num = str(int(num))
+        if got[SYMBOLS[num]][0] < got[SYMBOLS[num]][1]:
+            got[SYMBOLS[num]][0] += 1
+            new_pieces.append(piece)
+
+    print("GOT after: ", got)
 
     img.pieces = new_pieces
     return img

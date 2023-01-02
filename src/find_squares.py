@@ -19,6 +19,8 @@ def draw_squares(img, image):
                      color=(0, 255, 0), thickness=img.thick)
     cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
                      color=(0, 0, 255), thickness=img.thick)
+    cv2.drawContours(canvas, [img.sqback[7, 7]], -1,  # H8
+                     color=(0, 220, 220), thickness=img.thick)
     cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
     return canvas
 

@@ -8,7 +8,7 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
         merged_lines.append(merge_line_segments(group))
 
     # merged_lines_all = np.array(merged_lines_all)
-    return np.squeeze(merged_lines)
+    return np.array(merged_lines)
 
 
 def get_orientation(line):
@@ -92,7 +92,7 @@ def merge_line_segments(lines):
     auxlines = np.copy(lines)
 
     if len(lines) == 1:
-        return np.block([[lines[0][0:2], lines[0][2:4]]])
+        return np.block([lines[0][0:2], lines[0][2:4]])
 
     if len(lines) % 2 == 0:
         shortest = min(auxlines[:, 4])
@@ -108,7 +108,7 @@ def merge_line_segments(lines):
     P = lines[lines[:, 5] == theta]
     P = P[np.argmax(P[:, 4])]
 
-    return np.block([[P[0:2], P[2:4]]])
+    return np.block([P[0:2], P[2:4]])
 
 
 def min_dist(A, B, E):

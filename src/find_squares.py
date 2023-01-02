@@ -32,6 +32,7 @@ def find_squares(img):
     img.wg = lf.ffilter(img.wg)
     img.wv = lf.ffilter(img.wv)
 
+    img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
     # aux.save_lines(img, "verthori0", vert, hori)
     vert, hori = magic_vert_hori(img, vert, hori)
@@ -73,16 +74,16 @@ def create_wcannys(img, w=10, thighg=220, thighv=220):
 
     k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_close)
+
+    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
+    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
+    # aux.save(img, "wcanny", img.wcanny)
     return img
 
 
 def w_lines(img):
     print("finding vertical and horizontal lines...")
-    img = create_wcannys(img, w=10)
-    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
-    # aux.save(img, "wcanny", img.wcanny)
     got_hough = False
 
     def _update_wlines(force, le):

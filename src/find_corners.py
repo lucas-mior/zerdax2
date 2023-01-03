@@ -94,7 +94,7 @@ def magic_lines(img):
     incr = 32
     while minlen >= (img.slen/1.5):
         l1 = l2 = ll = 0
-        lines = cv2.HoughLinesP(img.test, 1,
+        lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
 

@@ -154,6 +154,9 @@ def magic_lines(img):
 
 
 def filter_lines(img, lines):
+    if (lines.shape[1] < 6):
+        lines = aux.radius_theta(lines)
+
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, line in enumerate(lines):
@@ -196,6 +199,9 @@ def filter_angles(img, lines, tol=15):
 
 def lines_kmeans(img, lines):
     lines = np.array(lines, dtype='float32')
+    if (lines.shape[1] < 6):
+        lines = aux.radius_theta(lines)
+
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,

@@ -5,9 +5,11 @@ from zerdax2_misc import COLORS, SYMBOLS
 
 def intersections(image, inter):
     canvas = np.zeros(image.shape, dtype='uint8')
+
     for i, p in enumerate(inter):
         cv2.circle(canvas, p, radius=5,
                    color=(30+i*2, 0, 225-i*2), thickness=-1)
+
     cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
@@ -28,6 +30,7 @@ def lines(img, image, vert, hori):
 
 def corners(img, image, BR, BL, TR, TL):
     canvas = np.zeros(image.shape, dtype='uint8')
+
     cv2.circle(canvas, BR, radius=7,
                color=(255, 0, 0), thickness=-1)
     cv2.circle(canvas, BL, radius=7,
@@ -64,6 +67,7 @@ def boxes(img):
     i = img.BGR
     canvas = np.zeros(i.shape, dtype='uint8')
     thick = round(2.4 * (i.shape[0] / 1280))
+
     for piece in img.pieces:
         x0, y0, x1, y1, conf, num, _ = piece
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)

@@ -36,6 +36,7 @@ def create_cannys(img, w=5, thighg=200, thighv=200, saveny=False):
 def calc_intersections(img, lines):
     print("calculating intersections...")
     inter = []
+    close = False
 
     for x1, y1, x2, y2, r, t in lines:
         for xx1, yy1, xx2, yy2, rr, tt in lines:
@@ -61,6 +62,13 @@ def calc_intersections(img, lines):
             y = round(aux.determinant(d, ydiff) / div)
 
             if x > img.bwidth or y > img.bheigth or x < 0 or y < 0:
+                continue
+
+            for p in inter:
+                if aux.radius(x, y, p[0], p[1]) < 10:
+                    close = True
+                    break
+            if close:
                 continue
             else:
                 inter.append((x, y))

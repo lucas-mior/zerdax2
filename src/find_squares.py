@@ -199,8 +199,12 @@ def calc_intersections(img, vert, hori):
 
             for p in inter:
                 if aux.radius(x, y, p[0], p[1]) < 10:
-                    continue
-            inter.append((x, y))
+                    close = True
+                    break
+            if close:
+                continue
+            else:
+                inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
     drawn_inter = draw.intersections(img.warp3ch, inter)

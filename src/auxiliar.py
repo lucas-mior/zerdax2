@@ -26,11 +26,8 @@ def theta(x1, y1, x2, y2, abs_angle=False):
         angle = np.arctan2(abs(y1-y2), abs(x2-x1))
     else:
         angle = np.arctan2(y1-y2, x2-x1)
-    angle = np.rad2deg(angle)
-    if abs(angle) > 90:
-        print(f"theta({x1}, {y1}, {x2}, {y2}) = {angle}")
-        exit(1)
 
+    angle = np.rad2deg(angle)
     return round(angle)
 
 

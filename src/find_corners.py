@@ -121,8 +121,7 @@ def magic_lines(img):
         ll = len(lines)
         if ll >= 16:
             dir1, dir2 = split_lines(img, lines)
-            l1 = len(dir1)
-            l2 = len(dir2)
+            l1, l2 = len(dir1), len(dir2)
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{ll} # [{l1}][{l2}] ",
                       f"@ {h_a}º,{tvotes},{minlen},{maxgap}")

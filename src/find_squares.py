@@ -64,7 +64,7 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=10, thighg=220, thighv=220):
+def create_wcannys(img, w=10, thighg=200, thighv=200):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)
@@ -72,12 +72,11 @@ def create_wcannys(img, w=10, thighg=220, thighv=220):
     aux.save(img, "wcannyV", cannyV)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
 
-    k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_close)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
 
-    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, k_dil)
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, k_dil)
+    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
+    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
     aux.save(img, "wcanny", img.wcanny)
     return img
 

@@ -19,15 +19,16 @@ def find_corners(img):
     return img
 
 
-def create_cannys(img, w=5, thighg=220, thighv=220, saveny=False):
+def create_cannys(img, w=5, thighg=200, thighv=200, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
     # aux.save(img, "cannyG", cannyG)
     # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
-    k_close = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_close)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
     return img
 
 
@@ -366,13 +367,12 @@ def split_lines(img, lines):
 def magic_prepare(img):
     print("preparing image for magic...")
     img = create_cannys(img, w=8.5, saveny=False)
-    k_dil = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, k_dil)
-    # aux.save(img, "canny_dilate", img.canny)
 
-    k_clo = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.test = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, k_clo)
-    # aux.save(img, "canny_closed", img.test)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
+    aux.save(img, "canny_dilate", img.canny)
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
+    aux.save(img, "canny_closed", img.canny)
     return img
 
 

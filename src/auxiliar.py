@@ -51,7 +51,7 @@ def radius_theta(lines, absol=False):
 
 def geo_lines(lines):
     if (lines.shape[1] < 6):
-        lines = radius_theta(lines)
+        lines = radius_theta(lines, absol=True)
     vert = lines[abs(lines[:, 5]) > 45]
     hori = lines[abs(lines[:, 5]) < 45]
 
@@ -82,14 +82,14 @@ def save_lines(img, name, vert, hori, warp=True):
     return
 
 
-def find_canny(image, wmin=5, thigh=220):
+def find_canny(image, wmin=5, thigh=200):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False
     thighmin = 30
+    tlowmin = 10
     while thigh >= thighmin:
-        tlow = max(10, round(thigh*0.8))
-        tlowmin = 10
+        tlow = max(tlowmin, round(thigh*0.8))
         while tlow >= tlowmin:
             canny = cv2.Canny(image, tlow, thigh)
             w = round(np.mean(canny), 2)

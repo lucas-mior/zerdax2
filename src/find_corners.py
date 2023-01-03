@@ -87,7 +87,7 @@ def magic_lines(img):
 
     def _update_magic(force):
         nonlocal minlen, tvotes
-        print(f"force: {force:1=.3f}")
+        print(f"force: {force=}")
         minlen = minlen0
         tvotes = round(minlen / force)
         return
@@ -130,7 +130,7 @@ def magic_lines(img):
                 got_hough = True
                 break
 
-        print(f"{len(lines)} # [{l1}][{l2}] ",
+        print(f"{ll} # [{l1}][{l2}] ",
               f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         minlen -= incr
         tvotes = round(minlen / force)

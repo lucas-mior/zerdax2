@@ -95,18 +95,20 @@ def w_lines(img):
         if lines is not None:
             lines = aux.radius_theta(lines)
             lines = filter_90(lines)
+            ll = len(lines)
             if len(lines) > (minlines-2):
                 lines = bundle_lines(lines)
                 lines = aux.radius_theta(lines)
                 vert, hori = aux.geo_lines(lines)
                 lv, lh = len(vert), len(hori)
+                ll = lv + lh
                 if lv >= minlines and lh >= minlines:
-                    print(f"{len(lines)} lines [{lv}][{lh}] ",
-                          f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
+                    print(f"{ll} lines [{lv}][{lh}] ",
+                          f"@ {th:1=.3f}º,{tvotes},{minlen},{maxgap}")
                     got_hough = True
                     break
-            print(f"{len(lines)} lines [{lv}][{lh}] ",
-                  f"@ {th:1=.3f}º, {tvotes}, {minlen}, {maxgap}")
+            print(f"{ll} # [{lv}][{lh}] ",
+                  f"@ {th:1=.3f}º,{tvotes},{minlen},{maxgap}")
         if passed == 0:
             _update_wlines(2.2, 0.75)
         elif passed == 1:

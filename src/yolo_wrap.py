@@ -43,8 +43,8 @@ def detect_objects(img):
         if obj[5] == 0:
             img.boardbox = obj
             img.pieces.remove(obj)
-    print(f"board: {img.boardbox}")
-    print(f"pieces: {img.pieces}")
+    print(f"{img.boardbox=}")
+    print(f"{img.pieces=}")
 
     img = determine_colors(img)
     img = process_pieces(img)

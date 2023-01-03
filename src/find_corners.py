@@ -343,7 +343,8 @@ def split_lines(img, lines):
 
     if len(centers) == 3:
         # redo kmeans using absolute inclination
-        lines = np.array(aux.radius_theta(lines, absol=True), dtype='float32')
+        lines = aux.radius_theta(lines, abs_angle=True)
+        lines = np.array(lines, dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
         labels = labels.flatten()

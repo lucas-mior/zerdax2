@@ -12,19 +12,27 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
 
 def check_is_line_different(line_1, groups, min_dist, min_angle):
 
-    def _get_orientation(line):
+    def _get_angle(line):
         dy = abs((line[3] - line[1]))
         dx = abs((line[2] - line[0]))
         orient = np.arctan2(dy, dx)
         return np.rad2deg(orient)
 
+    def _get_dist(a_line, b_line):
+        dist1 = min_distance(b_line[0:2], b_line[2:4], a_line[0:2])
+        dist2 = min_distance(b_line[0:2], b_line[2:4], a_line[2:4])
+        dist3 = min_distance(a_line[0:2], a_line[2:4], b_line[0:2])
+        dist4 = min_distance(a_line[0:2], a_line[2:4], b_line[2:4])
+
+        return min(dist1, dist2, dist3, dist4)
+
     for group in groups:
         for line_2 in group:
-            d = get_dist(line_2, line_1)
+            d = _get_dist(line_2, line_1)
             if d < min_dist:
-                orientation_1 = _get_orientation(line_1)
-                orientation_2 = _get_orientation(line_2)
-                phi = abs(orientation_1 - orientation_2)
+                angle_1 = _get_angle(line_1)
+                angle_2 = _get_angle(line_2)
+                phi = abs(angle_1 - angle_2)
                 if phi < min_angle or (d <= 1 and phi <= (min_angle+2)):
                     group.append(line_1)
                     return False
@@ -36,7 +44,9 @@ def dist_point_to_line(point, line):
     x1, y1, x2, y2 = line[0:4]
 
     def _line_mag(x1, y1, x2, y2):
-        line_mag = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+        dx = x2 - x1
+        dy = y2 - y1
+        line_mag = np.sqrt(dx*dx + dy*dy)
         return line_mag
 
     lmag = _line_mag(x1, y1, x2, y2)
@@ -64,15 +74,6 @@ def dist_point_to_line(point, line):
         dist_point_to_line = 0
 
     return dist_point_to_line
-
-
-def get_dist(a_line, b_line):
-    dist1 = min_dist(b_line[0:2], b_line[2:4], a_line[0:2])
-    dist2 = min_dist(b_line[0:2], b_line[2:4], a_line[2:4])
-    dist3 = min_dist(a_line[0:2], a_line[2:4], b_line[0:2])
-    dist4 = min_dist(a_line[0:2], a_line[2:4], b_line[2:4])
-
-    return min(dist1, dist2, dist3, dist4)
 
 
 def merge_lines_into_groups(lines, min_dist, min_angle):
@@ -103,7 +104,7 @@ def merge_line_segments(lines):
     return np.block([P[0:2], P[2:4]])
 
 
-def min_dist(A, B, E):
+def min_distance(A, B, E):
     # vector AB
     AB = [None, None]
     AB[0] = B[0] - A[0]

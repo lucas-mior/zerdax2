@@ -21,37 +21,35 @@ def radius(x1, y1, x2, y2):
     return round(radius)
 
 
-def theta(x1, y1, x2, y2, absol=False):
-    if absol:
-        orientation = np.arctan2(abs(y1-y2), abs(x2-x1))
+def theta(x1, y1, x2, y2, abs_angle=False):
+    if abs_angle:
+        angle = np.arctan2(abs(y1-y2), abs(x2-x1))
     else:
-        orientation = np.arctan2(y1-y2, x2-x1)
-    orientation = np.rad2deg(orientation)
-    if abs(orientation) > 90:
-        print(f"theta({x1}, {y1}, {x2}, {y2})")
-        print("orientation:", orientation)
+        angle = np.arctan2(y1-y2, x2-x1)
+    angle = np.rad2deg(angle)
+    if abs(angle) > 90:
+        print(f"theta({x1}, {y1}, {x2}, {y2}) = {angle}")
         exit(1)
 
-    return round(orientation)
+    return round(angle)
 
 
-def radius_theta(lines, absol=False):
+def radius_theta(lines, abs_angle=False):
     dummy = np.zeros((lines.shape[0], 6), dtype='int32')
     dummy[:, 0:4] = lines[:, 0:4]
-    lines = dummy
-    lines = lines[np.argsort(lines[:, 0])]
+    lines = dummy[np.argsort(dummy[:, 0])]
 
     for i, line in enumerate(lines):
         x1, y1, x2, y2, r, t = line
         lines[i, 4] = radius(x1, y1, x2, y2)
-        lines[i, 5] = theta(x1, y1, x2, y2, absol=absol)
+        lines[i, 5] = theta(x1, y1, x2, y2, abs_angle=abs_angle)
 
     return lines
 
 
 def geo_lines(lines):
     if (lines.shape[1] < 6):
-        lines = radius_theta(lines, absol=True)
+        lines = radius_theta(lines, abs_angle=True)
     vert = lines[abs(lines[:, 5]) > 45]
     hori = lines[abs(lines[:, 5]) < 45]
 
@@ -61,7 +59,7 @@ def geo_lines(lines):
     return vert, hori
 
 
-def find_canny(image, wmin=5, thigh=200):
+def find_canny(image, wmin=5, thigh=220):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False
@@ -79,7 +77,7 @@ def find_canny(image, wmin=5, thigh=200):
             else:
                 print(f"{w} < {wmin:0=.1f}, @ {tlow}, {thigh}")
                 gain = wmin - w
-                diff = round(max(8, gain*10))
+                diff = round(max(8, gain*8))
                 if tlow <= tlowmin:
                     break
                 tlow = max(tlowmin, tlow - diff)
@@ -87,7 +85,7 @@ def find_canny(image, wmin=5, thigh=200):
         if got_canny or (thigh <= thighmin):
             break
         else:
-            diff = round(max(5, gain*(thigh/15)))
+            diff = round(max(5, gain*(thigh/20)))
             thigh = max(thighmin, thigh - diff)
 
     if not got_canny:

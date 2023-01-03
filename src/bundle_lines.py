@@ -18,11 +18,11 @@ def check_is_line_different(line1, groups, min_dist, min_angle):
         orient = np.arctan2(dy, dx)
         return np.rad2deg(orient)
 
-    def _get_dist(a_line, b_line):
-        dist1 = min_distance(b_line[0:2], b_line[2:4], a_line[0:2])
-        dist2 = min_distance(b_line[0:2], b_line[2:4], a_line[2:4])
-        dist3 = min_distance(a_line[0:2], a_line[2:4], b_line[0:2])
-        dist4 = min_distance(a_line[0:2], a_line[2:4], b_line[2:4])
+    def _get_dist(line2, line1):
+        dist1 = min_distance(line1[0:2], line1[2:4], line2[0:2])
+        dist2 = min_distance(line1[0:2], line1[2:4], line2[2:4])
+        dist3 = min_distance(line2[0:2], line2[2:4], line1[0:2])
+        dist4 = min_distance(line2[0:2], line2[2:4], line1[2:4])
         return min(dist1, dist2, dist3, dist4)
 
     for group in groups:

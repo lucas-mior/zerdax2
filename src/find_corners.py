@@ -245,8 +245,8 @@ def lines_kmeans(img, lines):
                     centers = np.append(centers, k)
             break
 
-    centers = np.array(np.round(centers), dtype='int32')
-    return centers
+    centers = np.round(centers)
+    return np.array(centers, dtype='int32')
 
 
 def calc_corners(img, inter):

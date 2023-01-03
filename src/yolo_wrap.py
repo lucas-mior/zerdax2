@@ -1,29 +1,11 @@
-import yolov5.detect as yolo
 import cv2
-import numpy as np
-import auxiliar as aux
-from zerdax2_misc import COLORS, SYMBOLS, AMOUNT
 import copy
+import numpy as np
 
-
-def draw_boxes(img):
-    i = img.BGR
-    canvas = np.zeros(i.shape, dtype='uint8')
-    thick = round(2.4 * (i.shape[0] / 1280))
-    for piece in img.pieces:
-        x0, y0, x1, y1, conf, num, _ = piece
-        x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-        conf = round(float(conf), 2)
-        num = str(int(num))
-        color = COLORS[num]
-        symbol = SYMBOLS[num]
-        cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
-        cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
-
-    cv2.addWeighted(i, 0.6, canvas, 0.8, 0, canvas)
-    img.yolopieces = canvas
-    return img
+import auxiliar as aux
+import drawings as draw
+import yolov5.detect as yolo
+from zerdax2_misc import SYMBOLS, AMOUNT
 
 
 def process_pieces(img):
@@ -67,7 +49,7 @@ def detect_objects(img):
     img = determine_colors(img)
     img = process_pieces(img)
 
-    img = draw_boxes(img)
+    img = draw.boxes(img)
     aux.save(img, "yolo", img.yolopieces)
     return img
 

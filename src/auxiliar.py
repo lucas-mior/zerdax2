@@ -50,7 +50,8 @@ def radius_theta(lines, absol=False):
 
 
 def geo_lines(lines):
-    lines = radius_theta(lines)
+    if (lines.shape[1] < 6):
+        lines = radius_theta(lines)
     vert = lines[abs(lines[:, 5]) > 45]
     hori = lines[abs(lines[:, 5]) < 45]
 

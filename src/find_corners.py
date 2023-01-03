@@ -318,6 +318,9 @@ def perspective_transform(img):
 
 def split_lines(img, lines):
     lines = np.array(lines, dtype='float32')
+    if (lines.shape[1] < 6):
+        lines = aux.radius_theta(lines)
+
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
@@ -344,7 +347,7 @@ def split_lines(img, lines):
         B = lines[labels == 1]
 
     if len(centers) == 3:
-        # Redo kmeans using absolute inclination
+        # redo kmeans using absolute inclination
         lines = np.array(aux.radius_theta(lines, absol=True), dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)

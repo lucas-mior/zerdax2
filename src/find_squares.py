@@ -17,6 +17,8 @@ def find_squares(img):
     print("filtering warp image...")
     img.wg = lf.ffilter(img.wg)
     img.wv = lf.ffilter(img.wv)
+    aux.save(img, "wg_filter", img.wg)
+    aux.save(img, "wv_filter", img.wv)
 
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
@@ -179,6 +181,7 @@ def calc_intersections(img, vert, hori):
 
     for x1, y1, x2, y2, r, t in vert:
         for xx1, yy1, xx2, yy2, rr, tt in hori:
+            close = False
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
 

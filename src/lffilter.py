@@ -24,7 +24,5 @@ def ffilter(image):
     lf_filter(f, f.shape[0], f.shape[1], W, N, g)
     lf_filter(g, f.shape[0], f.shape[1], W, N, f)
     lf_filter(f, f.shape[0], f.shape[1], W, N, g)
-    lf_filter(g, f.shape[0], f.shape[1], W, N, f)
-    lf_filter(f, f.shape[0], f.shape[1], W, N, g)
 
     return np.array(g*255, dtype='uint8')

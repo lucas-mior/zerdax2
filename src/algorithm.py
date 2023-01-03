@@ -6,6 +6,7 @@ from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
+import lffilter as lf
 
 BWIDTH = 640
 
@@ -46,11 +47,17 @@ def pre_process(img):
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
     aux.save(img, "gray_board", img.gray)
 
-    print("applying gaussian blur...")
-    img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
-    img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
-    aux.save(img, "Gblur", img.G)
-    aux.save(img, "Vblur", img.V)
+    # print("applying gaussian blur...")
+    # img.G = cv2.GaussianBlur(img.gray, (7, 7), 0.3)
+    # img.V = cv2.GaussianBlur(img.V, (7, 7), 0.3)
+    # aux.save(img, "Gblur", img.G)
+    # aux.save(img, "Vblur", img.V)
+
+    print("filtering warp image...")
+    img.G = lf.ffilter(img.gray)
+    img.V = lf.ffilter(img.V)
+    aux.save(img, "wg_filter", img.G)
+    aux.save(img, "wv_filter", img.V)
 
     print("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))

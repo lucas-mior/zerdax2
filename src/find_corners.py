@@ -36,10 +36,10 @@ def create_cannys(img, w=5, thighg=200, thighv=200, saveny=False):
 def calc_intersections(img, lines):
     print("calculating intersections...")
     inter = []
-    close = False
 
     for x1, y1, x2, y2, r, t in lines:
         for xx1, yy1, xx2, yy2, rr, tt in lines:
+            close = False
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue
 

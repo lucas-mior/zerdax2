@@ -44,26 +44,17 @@ def corners(img, image, BR, BL, TR, TL):
 def squares(img, image):
     canvas = np.zeros(image.shape, dtype='uint8')
     scale = 2.5 * (image.shape[1]/1920)
-    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.putText(canvas, "A1", img.sqback[0, 0, 0]+5,
-                cv2.FONT_HERSHEY_SIMPLEX, scale,
-                color=(255, 0, 0), thickness=2)
-    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.putText(canvas, "E4", img.sqback[4, 3, 0]+5,
-                cv2.FONT_HERSHEY_SIMPLEX, scale,
-                color=(0, 255, 0), thickness=2)
-    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.putText(canvas, "C5", img.sqback[2, 4, 0]+5,
-                cv2.FONT_HERSHEY_SIMPLEX, scale,
-                color=(0, 0, 255), thickness=2)
-    cv2.drawContours(canvas, [img.sqback[7, 7]], -1,  # H8
-                     color=(0, 220, 220), thickness=img.thick)
-    cv2.putText(canvas, "H8", img.sqback[7, 7, 0]+5,
-                cv2.FONT_HERSHEY_SIMPLEX, scale,
-                color=(0, 220, 220), thickness=2)
+
+    def _draw_square(canvas, coord, color, name):
+        cv2.drawContours(canvas, [coord], -1, color=color, thickness=img.thick)
+        cv2.putText(canvas, name, (coord[0, 0]+5, coord[0, 1]-5),
+                    cv2.FONT_HERSHEY_SIMPLEX, scale, color=color, thickness=2)
+        return canvas
+
+    canvas = _draw_square(canvas, img.sqback[0, 0], (255, 0, 0), "A1")
+    canvas = _draw_square(canvas, img.sqback[4, 3], (0, 255, 0), "E4")
+    canvas = _draw_square(canvas, img.sqback[2, 4], (0, 0, 255), "C5")
+    canvas = _draw_square(canvas, img.sqback[7, 7], (0, 255, 255), "H8")
 
     cv2.addWeighted(image, 0.6, canvas, 0.6, 0, canvas)
     return canvas

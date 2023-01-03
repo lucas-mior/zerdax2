@@ -119,7 +119,7 @@ def magic_lines(img):
         lines = bundle_lines(lines)
         lines = aux.radius_theta(lines)
         ll = len(lines)
-        if ll >= 18:
+        if ll >= 16:
             dir1, dir2 = split_lines(img, lines)
             l1 = len(dir1)
             l2 = len(dir2)
@@ -141,22 +141,16 @@ def magic_lines(img):
                 force += 0.1
                 _update_magic(force)
 
-    if l1 > 0 and l2 > 0:
-        aux.save(img, "last_test", img.test)
-
     if not got_hough:
         if l1 < 10 or l2 < 10:
             print("magic_lines() failed ",
                   f"@ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
-            # aux.save(img, "last_test", img.test)
             exit(1)
         else:
-            # aux.save(img, "last_test", img.test)
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    # aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
-    print("lines:", lines.shape)
+    aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
     return lines
 
 

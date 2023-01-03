@@ -150,7 +150,8 @@ def magic_lines(img):
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    aux.save_lines(img, "hough_magic", dir1, dir2, warp=False)
+    drawn_lines = aux.save_lines(img, img.gray3ch, dir1, dir2)
+    aux.save(img, "hough_magic", drawn_lines)
     return lines
 
 

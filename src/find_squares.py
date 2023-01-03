@@ -135,7 +135,8 @@ def w_lines(img):
 
     if not got_hough:
         aux.save(img, "lastcanny", img.wcanny)
-        aux.save_lines(img, "lastverthori0", vert, hori)
+        drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+        aux.save(img, "lastverthori0", drawn_lines)
         if lv < 7 or lh < 7:
             print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -258,14 +259,16 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    aux.save_lines(img, "verthori0", vert, hori)
+    drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+    aux.save(img, "verthori0", drawn_lines)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
 
     def _check_save(title):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
-            aux.save_lines(img, title, vert, hori)
+            drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+            aux.save(img, title, drawn_lines)
             lv, lh = len(vert), len(hori)
         return
 

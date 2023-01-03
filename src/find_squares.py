@@ -11,20 +11,6 @@ WARPED_LEN = 640
 DX = 40
 
 
-def draw_squares(img, image):
-    canvas = np.zeros(image.shape, dtype='uint8')
-    cv2.drawContours(canvas, [img.sqback[0, 0]], -1,  # A1
-                     color=(255, 0, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[4, 3]], -1,  # E4
-                     color=(0, 255, 0), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[2, 4]], -1,  # C5
-                     color=(0, 0, 255), thickness=img.thick)
-    cv2.drawContours(canvas, [img.sqback[7, 7]], -1,  # H8
-                     color=(0, 220, 220), thickness=img.thick)
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
-    return canvas
-
-
 def find_squares(img):
     print("generating 3 channel gray warp image for drawings...")
     img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
@@ -45,7 +31,7 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     img.sqback = np.array(np.round(sqback), dtype='int32')
 
-    squares_drawn = draw_squares(img, img.board)
+    squares_drawn = draw.squares(img, img.board)
     aux.save(img, "A1E4C5H8", squares_drawn)
 
     # remove black border
@@ -59,7 +45,7 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
-    squares_drawn = draw_squares(img, img.BGR)
+    squares_drawn = draw.squares(img, img.BGR)
     aux.save(img, "A1E4C5H8", squares_drawn)
 
     return img

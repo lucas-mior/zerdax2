@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 import auxiliar as aux
+import drawings as draw
 
 from bundle_lines import bundle_lines
 
@@ -65,7 +66,7 @@ def calc_intersections(img, lines):
                 inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
-    drawn_inter = aux.draw_intersections(img.gray3ch, inter)
+    drawn_inter = draw.intersections(img.gray3ch, inter)
     aux.save(img, "intersections", drawn_inter)
 
     return inter
@@ -150,7 +151,7 @@ def magic_lines(img):
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    drawn_lines = aux.save_lines(img, img.gray3ch, dir1, dir2)
+    drawn_lines = draw.lines(img, img.gray3ch, dir1, dir2)
     aux.save(img, "hough_magic", drawn_lines)
     return lines
 
@@ -276,23 +277,10 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    canvas = np.zeros(img.gray3ch.shape, dtype='uint8')
-    cv2.circle(canvas, BR, radius=7,
-               color=(255, 0, 0), thickness=-1)
-    cv2.circle(canvas, BL, radius=7,
-               color=(0, 255, 0), thickness=-1)
-    cv2.circle(canvas, TR, radius=7,
-               color=(0, 0, 255), thickness=-1)
-    cv2.circle(canvas, TL, radius=7,
-               color=(255, 255, 0), thickness=-1)
+    drawn_corners = draw.corners(img, img.gray3ch, BR, BL, TR, TL)
+    aux.save(img, "corners", drawn_corners)
 
-    cv2.addWeighted(img.gray3ch, 0.6, canvas, 0.4, 0, canvas)
-    # aux.save(img, "corners", canvas)
-
-    corners = np.array([BR, BL, TR, TL])
-    print("board corners:\n", corners, sep='')
-
-    return corners
+    return np.array([BR, BL, TR, TL], dtype='int32')
 
 
 def perspective_transform(img):

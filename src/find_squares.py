@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 import auxiliar as aux
+import drawings as draw
 
 from bundle_lines import bundle_lines
 import lffilter as lf
@@ -135,7 +136,7 @@ def w_lines(img):
 
     if not got_hough:
         aux.save(img, "lastcanny", img.wcanny)
-        drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+        drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
         aux.save(img, "lastverthori0", drawn_lines)
         if lv < 7 or lh < 7:
             print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
@@ -214,7 +215,7 @@ def calc_intersections(img, vert, hori):
             inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
-    drawn_inter = aux.draw_intersections(img.warp3ch, inter)
+    drawn_inter = draw.intersections(img.warp3ch, inter)
     aux.save(img, "interboard", drawn_inter)
 
     if len(inter) != 81:
@@ -259,7 +260,7 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+    drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
     aux.save(img, "verthori0", drawn_lines)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
@@ -267,7 +268,7 @@ def magic_vert_hori(img, vert, hori):
     def _check_save(title):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
-            drawn_lines = aux.save_lines(img, img.warp3ch, vert, hori)
+            drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
             aux.save(img, title, drawn_lines)
             lv, lh = len(vert), len(hori)
         return

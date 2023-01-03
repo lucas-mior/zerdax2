@@ -61,20 +61,6 @@ def geo_lines(lines):
     return vert, hori
 
 
-def save_lines(img, image, vert, hori):
-    canvas = np.zeros(image.shape, dtype='uint8')
-
-    for x1, y1, x2, y2, r, t in vert:
-        cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(255, 0, 0), thickness=img.thick)
-    for x1, y1, x2, y2, r, t in hori:
-        cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(0, 255, 0), thickness=img.thick)
-
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
-    return canvas
-
-
 def find_canny(image, wmin=5, thigh=200):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
@@ -108,12 +94,3 @@ def find_canny(image, wmin=5, thigh=200):
         print("Canny failed, but trying anyway")
 
     return canny
-
-
-def draw_intersections(image, inter):
-    canvas = np.zeros(image.shape, dtype='uint8')
-    for i, p in enumerate(inter):
-        cv2.circle(canvas, p, radius=5,
-                   color=(30+i*2, 0, 225-i*2), thickness=-1)
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
-    return canvas

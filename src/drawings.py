@@ -8,7 +8,7 @@ def intersections(image, inter):
     for i, p in enumerate(inter):
         cv2.circle(canvas, p, radius=5,
                    color=(30+i*2, 0, 225-i*2), thickness=-1)
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
+    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
 
@@ -22,7 +22,7 @@ def lines(img, image, vert, hori):
         cv2.line(canvas, (x1, y1), (x2, y2),
                  color=(0, 255, 0), thickness=img.thick)
 
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
+    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
 
@@ -37,7 +37,7 @@ def corners(img, image, BR, BL, TR, TL):
     cv2.circle(canvas, TL, radius=7,
                color=(255, 255, 0), thickness=-1)
 
-    cv2.addWeighted(image, 0.6, canvas, 0.4, 0, canvas)
+    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
 
@@ -56,7 +56,7 @@ def squares(img, image):
     canvas = _draw_square(canvas, img.sqback[2, 4], (0, 0, 255), "C5")
     canvas = _draw_square(canvas, img.sqback[7, 7], (0, 255, 255), "H8")
 
-    cv2.addWeighted(image, 0.6, canvas, 0.6, 0, canvas)
+    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
 
@@ -75,6 +75,6 @@ def boxes(img):
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
-    cv2.addWeighted(i, 0.6, canvas, 0.8, 0, canvas)
+    cv2.addWeighted(i, 0.5, canvas, 0.5, 0, canvas)
     img.yolopieces = canvas
     return img

@@ -10,7 +10,7 @@ def bundle_lines(lines, min_dist=8, min_angle=15):
     return np.array(merged_lines)
 
 
-def check_is_line_different(line_1, groups, min_dist, min_angle):
+def check_is_line_different(line1, groups, min_dist, min_angle):
 
     def _get_angle(line):
         dy = abs((line[3] - line[1]))
@@ -23,18 +23,17 @@ def check_is_line_different(line_1, groups, min_dist, min_angle):
         dist2 = min_distance(b_line[0:2], b_line[2:4], a_line[2:4])
         dist3 = min_distance(a_line[0:2], a_line[2:4], b_line[0:2])
         dist4 = min_distance(a_line[0:2], a_line[2:4], b_line[2:4])
-
         return min(dist1, dist2, dist3, dist4)
 
     for group in groups:
-        for line_2 in group:
-            d = _get_dist(line_2, line_1)
+        for line2 in group:
+            d = _get_dist(line2, line1)
             if d < min_dist:
-                angle_1 = _get_angle(line_1)
-                angle_2 = _get_angle(line_2)
-                phi = abs(angle_1 - angle_2)
+                angle1 = _get_angle(line1)
+                angle2 = _get_angle(line2)
+                phi = abs(angle1 - angle2)
                 if phi < min_angle or (d <= 1 and phi <= (min_angle+2)):
-                    group.append(line_1)
+                    group.append(line1)
                     return False
     return True
 

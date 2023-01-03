@@ -24,8 +24,8 @@ def create_cannys(img, w=5, thighg=200, thighv=200, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
-    # aux.save(img, "cannyG", cannyG)
-    # aux.save(img, "cannyV", cannyV)
+    aux.save(img, "cannyG", cannyG)
+    aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -305,8 +305,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    # aux.save(img, "warpclaheG", img.wg)
-    # aux.save(img, "warpclaheV", img.wv)
+    aux.save(img, "warpclaheG", img.wg)
+    aux.save(img, "warpclaheV", img.wv)
 
     return img
 
@@ -390,7 +390,7 @@ def black_space(img):
     img.G = make_border(img.G)
     img.V = make_border(img.V)
     img.gray3ch = make_border(img.gray3ch)
+
     img.bwidth += (DX*2)
     img.bheigth += (DX*2)
-
     return img

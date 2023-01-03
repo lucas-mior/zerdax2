@@ -226,11 +226,10 @@ def wrong_lines(dist, med):
     rem = np.zeros(dist.shape[0], dtype='uint8')
 
     for i, d in enumerate(dist):
-        if abs(d[0] - med) > 8:
-            if abs(d[1] - med) > 8:
-                rem[i] = 1
-            else:
-                rem[i] = 0
+        if abs(d[0] - med) > 8 and abs(d[1] - med) > 8:
+            rem[i] = 1
+        else:
+            rem[i] = 0
     return rem
 
 

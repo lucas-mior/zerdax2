@@ -8,21 +8,6 @@ import yolov5.detect as yolo
 from zerdax2_misc import SYMBOLS, AMOUNT, NUMBERS
 
 
-def process_pieces(pieces):
-    new_pieces = []
-    rules = copy.deepcopy(AMOUNT)
-
-    for piece in pieces:
-        x0, y0, x1, y1, conf, num, _ = piece
-        num = str(int(num))
-        rule = rules[SYMBOLS[num]]
-        if rule[0] < rule[1]:
-            rule[0] += 1
-            new_pieces.append(piece)
-
-    return new_pieces
-
-
 def detect_objects(img):
     objs = yolo.run(weights="best.pt",
                     source=img.filename,
@@ -41,8 +26,10 @@ def detect_objects(img):
     boardnum = int(NUMBERS['Board'])
     for obj in objs:
         if obj[5] == boardnum:
-            img.boardbox = obj
+            img.boardbox = np.array(obj[:4], dtype='int32')
             break
+
+    print("img.boardbox:\n", img.boardbox)
 
     img.pieces = objs[objs[:, 5] != boardnum].tolist()
     img.pieces = determine_colors(img, img.pieces, img.BGR)
@@ -88,3 +75,18 @@ def determine_colors(img, pieces, image):
             p[5] += 6
 
     return pcolors.tolist()
+
+
+def process_pieces(pieces):
+    new_pieces = []
+    rules = copy.deepcopy(AMOUNT)
+
+    for piece in pieces:
+        x0, y0, x1, y1, conf, num, _ = piece
+        num = str(int(num))
+        rule = rules[SYMBOLS[num]]
+        if rule[0] < rule[1]:
+            rule[0] += 1
+            new_pieces.append(piece)
+
+    return new_pieces

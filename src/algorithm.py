@@ -72,9 +72,7 @@ def pre_process(img):
 
 def crop_board(img):
     print("cropping image to board box...")
-    b = img.boardbox
-    x0, y0 = int(b[0]), int(b[1])
-    x1, y1 = int(b[2]), int(b[3])
+    x0, y0, x1, y1 = img.boardbox
     img.x0, img.y0 = x0 - 2, y0 - 2
     img.x1, img.y1 = x1 + 2, y1 + 2
 

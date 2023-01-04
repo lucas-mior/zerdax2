@@ -56,16 +56,17 @@ def detect_objects(img):
 def determine_colors(pieces, image):
     pcolors = []
     for i, p in enumerate(pieces):
-        avg = 0
-        weight = 0
+        avg = weight = 0
         x0, y0 = int(p[0]), int(p[1])
         x1, y1 = int(p[2]), int(p[3])
-        xc = round((x1+x0)/2)
-        yc = round((y1+y0)/2)
         a = image[y0:y1, x0:x1]
+        xc = round(a.shape[1]/2)
+        yc = round(a.shape[0]/2)
         b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
         for (x, y), pixel in np.ndenumerate(b):
-            w = 1/max(abs(x-xc), 1) + 1/max(abs(y-yc), 1)
+            wx = max(abs(x-xc), 1)
+            wy = max(abs(y-yc), 1)
+            w = 1/wx + 1/wy
             weight += w
             avg += (pixel * w)
         avg = round(avg/weight, 2)

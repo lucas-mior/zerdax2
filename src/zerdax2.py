@@ -9,8 +9,6 @@ def parseargs():
 
     parser.add_argument('image', type=str, default=None,
                         help='Image filename')
-    parser.add_argument('-log', default=False, action='store_true',
-                        help='Detailed log')
 
     args = parser.parse_args()
     return args
@@ -19,7 +17,6 @@ def parseargs():
 if __name__ == '__main__':
     args = parseargs()
     image = args.image
-    log = args.log
     print(f"============ zerdax {image} ============")
-    fen = algorithm(image, log)
+    fen = algorithm(image)
     print("FEN:", fen)

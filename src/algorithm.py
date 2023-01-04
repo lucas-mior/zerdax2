@@ -17,9 +17,8 @@ class Image:
         self.basename = Path(self.filename).stem
 
 
-def algorithm(filename, log):
+def algorithm(filename):
     img = Image(filename)
-    img.log = log
 
     img.BGR = cv2.imread(img.filename)
 

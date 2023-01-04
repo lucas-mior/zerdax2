@@ -8,20 +8,19 @@ import yolov5.detect as yolo
 from zerdax2_misc import SYMBOLS, AMOUNT
 
 
-def process_pieces(img):
+def process_pieces(pieces):
     new_pieces = []
     got = copy.deepcopy(AMOUNT)
-    img.pieces = sorted(img.pieces, key=lambda x: x[4], reverse=True)
+    pieces = sorted(pieces, key=lambda x: x[4], reverse=True)
 
-    for piece in img.pieces:
+    for piece in pieces:
         x0, y0, x1, y1, conf, num, _ = piece
         num = str(int(num))
         if got[SYMBOLS[num]][0] < got[SYMBOLS[num]][1]:
             got[SYMBOLS[num]][0] += 1
             new_pieces.append(piece)
 
-    img.pieces = new_pieces
-    return img
+    return new_pieces
 
 
 def detect_objects(img):
@@ -47,7 +46,7 @@ def detect_objects(img):
     print(f"{img.pieces=}")
 
     img = determine_colors(img)
-    img = process_pieces(img)
+    img.pieces = process_pieces(img.pieces)
 
     img = draw.boxes(img)
     # aux.save(img, "yolo", img.yolopieces)

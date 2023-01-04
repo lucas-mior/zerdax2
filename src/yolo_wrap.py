@@ -48,8 +48,8 @@ def detect_objects(img):
     img.pieces = determine_colors(img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
-    img = draw.boxes(img)
-    # aux.save(img, "yolo", img.yolopieces)
+    drawn_boxes = draw.boxes(img)
+    aux.save(img, "yolo", drawn_boxes)
     return img
 
 

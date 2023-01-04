@@ -80,5 +80,4 @@ def boxes(img):
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
     cv2.addWeighted(i, 0.5, canvas, 0.5, 0, canvas)
-    img.yolopieces = canvas
-    return img
+    return canvas

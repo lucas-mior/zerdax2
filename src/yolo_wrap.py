@@ -10,14 +10,15 @@ from zerdax2_misc import SYMBOLS, AMOUNT
 
 def process_pieces(pieces):
     new_pieces = []
-    got = copy.deepcopy(AMOUNT)
+    rules = copy.deepcopy(AMOUNT)
     pieces = sorted(pieces, key=lambda x: x[4], reverse=True)
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num, _ = piece
         num = str(int(num))
-        if got[SYMBOLS[num]][0] < got[SYMBOLS[num]][1]:
-            got[SYMBOLS[num]][0] += 1
+        rule = rules[SYMBOLS[num]]
+        if rule[0] < rule[1]:
+            rule[0] += 1
             new_pieces.append(piece)
 
     return new_pieces

@@ -100,9 +100,6 @@ def calc_intersections(img, image, lines1, lines2=None):
         corn = True
         lines2 = lines1
 
-    print(f"{lines1=} # {len(lines1)=}")
-    print(f"{lines2=} # {len(lines2)=}")
-
     for x1, y1, x2, y2, r, t in lines1:
         for xx1, yy1, xx2, yy2, rr, tt in lines2:
             close = False
@@ -133,7 +130,6 @@ def calc_intersections(img, image, lines1, lines2=None):
 
             for p in inter:
                 if radius(x, y, p[0], p[1]) < 10:
-                    print("Close=True")
                     close = True
                     break
             if close:

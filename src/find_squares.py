@@ -55,7 +55,7 @@ def find_squares(img):
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
     squares_drawn = draw.squares(img, img.BGR)
-    # aux.save(img, "A1E4C5H8", squares_drawn)
+    aux.save(img, "A1E4C5H8", squares_drawn)
 
     return img
 

@@ -160,7 +160,7 @@ def magic_lines(img):
                   "Trying with 10 on both sides.")
 
     drawn_lines = draw.lines(img, img.gray3ch, dir1, dir2)
-    # aux.save(img, "hough_magic", drawn_lines)
+    aux.save(img, "hough_magic", drawn_lines)
     return lines
 
 

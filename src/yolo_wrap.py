@@ -32,7 +32,7 @@ def detect_objects(img):
     print("img.boardbox:\n", img.boardbox)
 
     img.pieces = objs[objs[:, 5] != boardnum].tolist()
-    img.pieces = determine_colors(img, img.pieces, img.BGR)
+    img.pieces = determine_colors(img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
     canvas = draw.boxes(img.pieces, img.BGR)
@@ -40,7 +40,7 @@ def detect_objects(img):
     return img
 
 
-def determine_colors(img, pieces, image):
+def determine_colors(pieces, image):
     pcolors = []
     for i, p in enumerate(pieces):
         s = avg = weight = 0

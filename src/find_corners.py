@@ -74,8 +74,8 @@ def calc_intersections(img, lines):
                 inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
-    drawn_inter = draw.intersections(img.gray3ch, inter)
-    # aux.save(img, "intersections", drawn_inter)
+    canvas = draw.intersections(img.gray3ch, inter)
+    # aux.save(img, "intersections", canvas)
 
     return inter
 
@@ -159,8 +159,8 @@ def magic_lines(img):
             print("could not find 11 lines in at least one side."
                   "Trying with 10 on both sides.")
 
-    drawn_lines = draw.lines(img, img.gray3ch, dir1, dir2)
-    aux.save(img, "hough_magic", drawn_lines)
+    canvas = draw.lines(img, img.gray3ch, dir1, dir2)
+    aux.save(img, "hough_magic", canvas)
     return lines
 
 
@@ -285,8 +285,8 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    drawn_corners = draw.corners(img, img.gray3ch, BR, BL, TR, TL)
-    # aux.save(img, "corners", drawn_corners)
+    canvas = draw.corners(img, img.gray3ch, BR, BL, TR, TL)
+    # aux.save(img, "corners", canvas)
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 

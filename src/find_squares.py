@@ -40,8 +40,8 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     img.sqback = np.array(np.round(sqback), dtype='int32')
 
-    squares_drawn = draw.squares(img, img.board)
-    # aux.save(img, "A1E4C5H8", squares_drawn)
+    canvas = draw.squares(img, img.board)
+    # aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -54,8 +54,8 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
-    squares_drawn = draw.squares(img, img.BGR)
-    aux.save(img, "A1E4C5H8", squares_drawn)
+    canvas = draw.squares(img, img.BGR)
+    aux.save(img, "A1E4C5H8", canvas)
 
     return img
 
@@ -132,9 +132,6 @@ def w_lines(img):
         passed += 1
 
     if not got_hough:
-        # aux.save(img, "lastcanny", img.wcanny)
-        drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-        # aux.save(img, "lastverthori0", drawn_lines)
         if lv < 7 or lh < 7:
             print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -217,8 +214,8 @@ def calc_intersections(img, vert, hori):
                 inter.append((x, y))
 
     inter = np.array(inter, dtype='int32')
-    drawn_inter = draw.intersections(img.warp3ch, inter)
-    # aux.save(img, "interboard", drawn_inter)
+    canvas = draw.intersections(img.warp3ch, inter)
+    # aux.save(img, "interboard", canvas)
 
     if len(inter) != 81:
         print("There should be exacly 81 intersections")
@@ -261,16 +258,16 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-    # aux.save(img, "verthori0", drawn_lines)
+    canvas = draw.lines(img, img.warp3ch, vert, hori)
+    # aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
 
     def _check_save(title):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
-            drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-            # aux.save(img, title, drawn_lines)
+            canvas = draw.lines(img, img.warp3ch, vert, hori)
+            # aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return
 

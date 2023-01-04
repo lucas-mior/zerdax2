@@ -50,7 +50,7 @@ def detect_objects(img):
     img = process_pieces(img)
 
     img = draw.boxes(img)
-    aux.save(img, "yolo", img.yolopieces)
+    # aux.save(img, "yolo", img.yolopieces)
     return img
 
 

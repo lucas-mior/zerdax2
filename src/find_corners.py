@@ -24,8 +24,8 @@ def create_cannys(img, w=9, thighg=200, thighv=200, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
-    aux.save(img, "cannyG", cannyG)
-    aux.save(img, "cannyV", cannyV)
+    # aux.save(img, "cannyG", cannyG)
+    # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -75,7 +75,7 @@ def calc_intersections(img, lines):
 
     inter = np.array(inter, dtype='int32')
     drawn_inter = draw.intersections(img.gray3ch, inter)
-    aux.save(img, "intersections", drawn_inter)
+    # aux.save(img, "intersections", drawn_inter)
 
     return inter
 
@@ -160,7 +160,7 @@ def magic_lines(img):
                   "Trying with 10 on both sides.")
 
     drawn_lines = draw.lines(img, img.gray3ch, dir1, dir2)
-    aux.save(img, "hough_magic", drawn_lines)
+    # aux.save(img, "hough_magic", drawn_lines)
     return lines
 
 
@@ -286,7 +286,7 @@ def calc_corners(img, inter):
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
     drawn_corners = draw.corners(img, img.gray3ch, BR, BL, TR, TL)
-    aux.save(img, "corners", drawn_corners)
+    # aux.save(img, "corners", drawn_corners)
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 
@@ -313,8 +313,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    aux.save(img, "warpclaheG", img.wg)
-    aux.save(img, "warpclaheV", img.wv)
+    # aux.save(img, "warpclaheG", img.wg)
+    # aux.save(img, "warpclaheV", img.wv)
 
     return img
 
@@ -368,9 +368,9 @@ def magic_prepare(img):
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    aux.save(img, "canny_dilate", img.canny)
+    # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "canny_closed", img.canny)
+    # aux.save(img, "canny_closed", img.canny)
     return img
 
 

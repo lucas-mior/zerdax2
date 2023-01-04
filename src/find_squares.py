@@ -18,14 +18,14 @@ def find_squares(img):
     print("applying gaussian blur...")
     img.wg = cv2.GaussianBlur(img.wg, (5, 5), 0.5)
     img.wv = cv2.GaussianBlur(img.wv, (5, 5), 0.5)
-    aux.save(img, "wGblur", img.wg)
-    aux.save(img, "wVblur", img.wv)
+    # aux.save(img, "wGblur", img.wg)
+    # aux.save(img, "wVblur", img.wv)
 
     # print("filtering warp image...")
     # img.wg = lf.ffilter(img.wg)
     # img.wv = lf.ffilter(img.wv)
-    # aux.save(img, "wg_filter", img.wg)
-    # aux.save(img, "wv_filter", img.wv)
+    # # aux.save(img, "wg_filter", img.wg)
+    # # aux.save(img, "wv_filter", img.wv)
 
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
@@ -41,7 +41,7 @@ def find_squares(img):
     img.sqback = np.array(np.round(sqback), dtype='int32')
 
     squares_drawn = draw.squares(img, img.board)
-    aux.save(img, "A1E4C5H8", squares_drawn)
+    # aux.save(img, "A1E4C5H8", squares_drawn)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -55,7 +55,7 @@ def find_squares(img):
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
     squares_drawn = draw.squares(img, img.BGR)
-    aux.save(img, "A1E4C5H8", squares_drawn)
+    # aux.save(img, "A1E4C5H8", squares_drawn)
 
     return img
 
@@ -64,8 +64,8 @@ def create_wcannys(img, w=10, thighg=200, thighv=200):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)
-    aux.save(img, "wcannyG", cannyG)
-    aux.save(img, "wcannyV", cannyV)
+    # aux.save(img, "wcannyG", cannyG)
+    # aux.save(img, "wcannyV", cannyV)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -73,7 +73,7 @@ def create_wcannys(img, w=10, thighg=200, thighv=200):
 
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "wcanny", img.wcanny)
+    # aux.save(img, "wcanny", img.wcanny)
     return img
 
 
@@ -132,9 +132,9 @@ def w_lines(img):
         passed += 1
 
     if not got_hough:
-        aux.save(img, "lastcanny", img.wcanny)
+        # aux.save(img, "lastcanny", img.wcanny)
         drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-        aux.save(img, "lastverthori0", drawn_lines)
+        # aux.save(img, "lastverthori0", drawn_lines)
         if lv < 7 or lh < 7:
             print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
             exit(1)
@@ -218,7 +218,7 @@ def calc_intersections(img, vert, hori):
 
     inter = np.array(inter, dtype='int32')
     drawn_inter = draw.intersections(img.warp3ch, inter)
-    aux.save(img, "interboard", drawn_inter)
+    # aux.save(img, "interboard", drawn_inter)
 
     if len(inter) != 81:
         print("There should be exacly 81 intersections")
@@ -262,7 +262,7 @@ def right_lines(dist, med):
 
 def magic_vert_hori(img, vert, hori):
     drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-    aux.save(img, "verthori0", drawn_lines)
+    # aux.save(img, "verthori0", drawn_lines)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
 
@@ -270,7 +270,7 @@ def magic_vert_hori(img, vert, hori):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
             drawn_lines = draw.lines(img, img.warp3ch, vert, hori)
-            aux.save(img, title, drawn_lines)
+            # aux.save(img, title, drawn_lines)
             lv, lh = len(vert), len(hori)
         return
 

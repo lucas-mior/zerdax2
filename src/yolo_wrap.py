@@ -38,13 +38,13 @@ def detect_objects(img):
                     )
 
     objs = objs[np.argsort(objs[:, 4])][::-1]
-    nb = int(NUMBERS['Board'])
+    boardnum = int(NUMBERS['Board'])
     for obj in objs:
-        if obj[5] == nb:
+        if obj[5] == boardnum:
             img.boardbox = obj
             break
 
-    img.pieces = objs[objs[:, 5] != nb].tolist()
+    img.pieces = objs[objs[:, 5] != boardnum].tolist()
     img.pieces = determine_colors(img, img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 

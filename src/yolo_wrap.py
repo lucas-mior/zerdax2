@@ -61,18 +61,19 @@ def determine_colors(img, pieces, image):
         x1, y1 = int(p[2]), int(p[3])
         a = image[y0:y1, x0:x1]
         b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
+        aux.save(img, "b", b)
         xc = round(b.shape[1]/2)
         yc = round(b.shape[0]/2)
         for (x, y), pixel in np.ndenumerate(b):
             # wx = max(abs(x-xc), 1)
             # wy = max(abs(y-yc), 1)
-            # w = 1/wx + 1/wy
-            weight += 1
-            # s += (pixel * w)
-            s += pixel
+            # w = round(1/wx + 1/wy)
+            w = 1
+            weight += w
+            s += pixel * w
 
         avg = round(s/weight, 2)
-        print(f"{p[5]=}, {s=}, {weight=}, {avg=}")
+        print(f"{s=}, {weight=}, {avg=}")
         p.append(avg)
         pcolors.append(p)
 

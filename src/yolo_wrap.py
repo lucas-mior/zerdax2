@@ -5,13 +5,12 @@ import numpy as np
 import auxiliar as aux
 import drawings as draw
 import yolov5.detect as yolo
-from zerdax2_misc import SYMBOLS, AMOUNT
+from zerdax2_misc import SYMBOLS, AMOUNT, NUMBERS
 
 
 def process_pieces(pieces):
     new_pieces = []
     rules = copy.deepcopy(AMOUNT)
-    pieces = sorted(pieces, key=lambda x: x[4], reverse=True)
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num, _ = piece
@@ -25,27 +24,27 @@ def process_pieces(pieces):
 
 
 def detect_objects(img):
-    pieces = yolo.run(weights="best.pt",
-                      source=img.filename,
-                      data="yolov5/zerdax2.yaml",
-                      nosave=True,  # do not save images/videos
-                      conf_thres=0.5,  # confidence threshold
-                      iou_thres=0.45,  # NMS IOU threshold
-                      max_det=32,  # maximum detections per image
-                      save_txt=False,  # save results to *.txt
-                      save_conf=True,  # save confidences in --save-txt labels
-                      project='.',  # save results to project/name
-                      name='exp',  # save results to project/name
-                      )
+    objects = yolo.run(weights="best.pt",
+                       source=img.filename,
+                       data="yolov5/zerdax2.yaml",
+                       nosave=True,  # do not save images/videos
+                       conf_thres=0.5,  # confidence threshold
+                       iou_thres=0.45,  # NMS IOU threshold
+                       max_det=32,  # maximum detections per image
+                       save_txt=False,  # save results to *.txt
+                       save_conf=True,  # save confidences in --save-txt labels
+                       project='.',  # save results to project/name
+                       name='exp',  # save results to project/name
+                       )
 
-    img.pieces = pieces.tolist()
-    for obj in img.pieces:
-        if obj[5] == 0:
+    objects = objects[np.argsort(objects[:, 4])][::-1]
+    nb = int(NUMBERS['Board'])
+    for obj in objects:
+        if obj[5] == nb:
             img.boardbox = obj
-            img.pieces.remove(obj)
-    print(f"{img.boardbox=}")
-    print(f"{img.pieces=}")
+            break
 
+    img.pieces = objects[objects[:, 5] != nb].tolist()
     img.pieces = determine_colors(img, img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 

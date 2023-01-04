@@ -20,7 +20,7 @@ def find_corners(img):
     return img
 
 
-def create_cannys(img, w=5, thighg=200, thighv=200, saveny=False):
+def create_cannys(img, w=9, thighg=200, thighv=200, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
@@ -364,7 +364,7 @@ def split_lines(img, lines):
 
 def magic_prepare(img):
     print("preparing image for magic...")
-    img = create_cannys(img, w=8.5, saveny=False)
+    img = create_cannys(img, w=9, saveny=False)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)

@@ -45,7 +45,7 @@ def detect_objects(img):
     print(f"{img.boardbox=}")
     print(f"{img.pieces=}")
 
-    img.pieces = determine_colors(img.pieces, img.BGR)
+    img.pieces = determine_colors(img, img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
     drawn_boxes = draw.boxes(img.pieces, img.BGR)
@@ -53,23 +53,23 @@ def detect_objects(img):
     return img
 
 
-def determine_colors(pieces, image):
+def determine_colors(img, pieces, image):
     pcolors = []
     for i, p in enumerate(pieces):
-        avg = weight = 0
+        s = avg = weight = 0
         x0, y0 = int(p[0]), int(p[1])
         x1, y1 = int(p[2]), int(p[3])
         a = image[y0:y1, x0:x1]
-        xc = round(a.shape[1]/2)
-        yc = round(a.shape[0]/2)
         b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
+        xc = round(b.shape[1]/2)
+        yc = round(b.shape[0]/2)
         for (x, y), pixel in np.ndenumerate(b):
             wx = max(abs(x-xc), 1)
             wy = max(abs(y-yc), 1)
             w = 1/wx + 1/wy
             weight += w
-            avg += (pixel * w)
-        avg = round(avg/weight, 2)
+            s += (pixel * w)
+        avg = round(s/weight, 2)
         p.append(avg)
         pcolors.append(p)
 

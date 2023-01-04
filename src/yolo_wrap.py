@@ -24,27 +24,27 @@ def process_pieces(pieces):
 
 
 def detect_objects(img):
-    objects = yolo.run(weights="best.pt",
-                       source=img.filename,
-                       data="yolov5/zerdax2.yaml",
-                       nosave=True,  # do not save images/videos
-                       conf_thres=0.5,  # confidence threshold
-                       iou_thres=0.45,  # NMS IOU threshold
-                       max_det=32,  # maximum detections per image
-                       save_txt=False,  # save results to *.txt
-                       save_conf=True,  # save confidences in --save-txt labels
-                       project='.',  # save results to project/name
-                       name='exp',  # save results to project/name
-                       )
+    objs = yolo.run(weights="best.pt",
+                    source=img.filename,
+                    data="yolov5/zerdax2.yaml",
+                    nosave=True,  # do not save images/videos
+                    conf_thres=0.5,  # confidence threshold
+                    iou_thres=0.45,  # NMS IOU threshold
+                    max_det=32,  # maximum detections per image
+                    save_txt=False,  # save results to *.txt
+                    save_conf=True,  # save confidences in --save-txt labels
+                    project='.',  # save results to project/name
+                    name='exp',  # save results to project/name
+                    )
 
-    objects = objects[np.argsort(objects[:, 4])][::-1]
+    objs = objs[np.argsort(objs[:, 4])][::-1]
     nb = int(NUMBERS['Board'])
-    for obj in objects:
+    for obj in objs:
         if obj[5] == nb:
             img.boardbox = obj
             break
 
-    img.pieces = objects[objects[:, 5] != nb].tolist()
+    img.pieces = objs[objs[:, 5] != nb].tolist()
     img.pieces = determine_colors(img, img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 

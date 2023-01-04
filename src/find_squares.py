@@ -12,21 +12,7 @@ DX = 40
 
 
 def find_squares(img):
-    print("generating 3 channel gray warp image for drawings...")
-    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
-
-    print("applying gaussian blur...")
-    img.wg = cv2.GaussianBlur(img.wg, (5, 5), 0.5)
-    img.wv = cv2.GaussianBlur(img.wv, (5, 5), 0.5)
-    # aux.save(img, "wGblur", img.wg)
-    # aux.save(img, "wVblur", img.wv)
-
-    # print("filtering warp image...")
-    # img.wg = lf.ffilter(img.wg)
-    # img.wv = lf.ffilter(img.wv)
-    # # aux.save(img, "wg_filter", img.wg)
-    # # aux.save(img, "wv_filter", img.wv)
-
+    img = pre_process(img)
     img = create_wcannys(img, w=10)
     vert, hori = w_lines(img)
     vert, hori = magic_vert_hori(img, vert, hori)
@@ -480,3 +466,21 @@ def calc_squares(img, inter):
             squares[i, j, 3] = intersq[i, j+1]
 
     return np.array(squares, dtype='float32')
+
+
+def pre_process(img):
+    print("generating 3 channel gray warp image for drawings...")
+    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
+
+    print("applying gaussian blur...")
+    img.wg = cv2.GaussianBlur(img.wg, (5, 5), 0.5)
+    img.wv = cv2.GaussianBlur(img.wv, (5, 5), 0.5)
+    # aux.save(img, "wGblur", img.wg)
+    # aux.save(img, "wVblur", img.wv)
+
+    # print("filtering warp image...")
+    # img.wg = lf.ffilter(img.wg)
+    # img.wv = lf.ffilter(img.wv)
+    # # aux.save(img, "wg_filter", img.wg)
+    # # aux.save(img, "wv_filter", img.wv)
+    return img

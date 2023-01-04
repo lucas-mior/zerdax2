@@ -17,7 +17,10 @@ def find_squares(img):
     vert, hori = w_lines(img)
     vert, hori = magic_vert_hori(img, vert, hori)
 
-    inter = calc_intersections(img, vert, hori)
+    inter = aux.calc_intersections(img, img.warp3ch, vert, hori)
+    if len(inter) != 81:
+        print("There should be exacly 81 intersections")
+        exit(1)
     squares = calc_squares(img, inter)
 
     print("transforming squares corners to original coordinate system...")
@@ -165,50 +168,6 @@ def get_distances(vert, hori):
     return distv, disth
 
 
-def calc_intersections(img, vert, hori):
-    print("calculating intersections...")
-    inter = []
-
-    for x1, y1, x2, y2, r, t in vert:
-        for xx1, yy1, xx2, yy2, rr, tt in hori:
-            close = False
-            if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
-                continue
-
-            xdiff = (x1 - x2, xx1 - xx2)
-            ydiff = (y1 - y2, yy1 - yy2)
-
-            div = aux.determinant(xdiff, ydiff)
-            if div == 0:
-                continue
-
-            d = (aux.determinant((x1, y1), (x2, y2)),
-                 aux.determinant((xx1, yy1), (xx2, yy2)))
-            x = round(aux.determinant(d, xdiff) / div)
-            y = round(aux.determinant(d, ydiff) / div)
-
-            if x > (img.wwidth-1) or y > (img.wheigth-1) or x < 0 or y < 0:
-                continue
-
-            for p in inter:
-                if aux.radius(x, y, p[0], p[1]) < 10:
-                    close = True
-                    break
-            if close:
-                continue
-            else:
-                inter.append((x, y))
-
-    inter = np.array(inter, dtype='int32')
-    canvas = draw.intersections(img.warp3ch, inter)
-    # aux.save(img, "interboard", canvas)
-
-    if len(inter) != 81:
-        print("There should be exacly 81 intersections")
-        exit(1)
-    return inter
-
-
 def mean_dist(distv, disth):
     def _mean_dist(dist):
         med1 = np.median(dist[:, 0])
@@ -245,7 +204,7 @@ def right_lines(dist, med):
 
 def magic_vert_hori(img, vert, hori):
     canvas = draw.lines(img, img.warp3ch, vert, hori)
-    # aux.save(img, "verthori0", canvas)
+    aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
 
@@ -253,7 +212,7 @@ def magic_vert_hori(img, vert, hori):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
             canvas = draw.lines(img, img.warp3ch, vert, hori)
-            # aux.save(img, title, canvas)
+            aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return
 

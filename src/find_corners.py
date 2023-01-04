@@ -13,7 +13,7 @@ DX = 40
 def find_corners(img):
     img = black_space(img)
     lines = magic_lines(img)
-    inter = calc_intersections(img, lines)
+    inter = aux.calc_intersections(img, img.gray3ch, lines)
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)
 
@@ -31,53 +31,6 @@ def create_cannys(img, w=9, thighg=200, thighv=200, saveny=False):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
     return img
-
-
-def calc_intersections(img, lines):
-    print("calculating intersections...")
-    inter = []
-
-    for x1, y1, x2, y2, r, t in lines:
-        for xx1, yy1, xx2, yy2, rr, tt in lines:
-            close = False
-            if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
-                continue
-
-            dtheta = abs(t - tt)
-            if dtheta < 20 or dtheta > 160:
-                # print(f"t - tt: {dtheta)")
-                continue
-
-            xdiff = (x1 - x2, xx1 - xx2)
-            ydiff = (y1 - y2, yy1 - yy2)
-
-            div = aux.determinant(xdiff, ydiff)
-            if div == 0:
-                print("div == 0")
-                continue
-
-            d = (aux.determinant((x1, y1), (x2, y2)),
-                 aux.determinant((xx1, yy1), (xx2, yy2)))
-            x = round(aux.determinant(d, xdiff) / div)
-            y = round(aux.determinant(d, ydiff) / div)
-
-            if x > img.bwidth or y > img.bheigth or x < 0 or y < 0:
-                continue
-
-            for p in inter:
-                if aux.radius(x, y, p[0], p[1]) < 10:
-                    close = True
-                    break
-            if close:
-                continue
-            else:
-                inter.append((x, y))
-
-    inter = np.array(inter, dtype='int32')
-    canvas = draw.intersections(img.gray3ch, inter)
-    # aux.save(img, "intersections", canvas)
-
-    return inter
 
 
 def magic_lines(img):

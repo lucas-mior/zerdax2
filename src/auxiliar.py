@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import drawings as draw
 
 i = 1
 
@@ -89,3 +90,59 @@ def find_canny(image, wmin=8, thigh=220):
         print("Canny failed, but trying anyway")
 
     return canny
+
+
+def calc_intersections(img, image, lines1, lines2=None):
+    print("calculating intersections...")
+    inter = []
+    corn = False
+    if lines2 is None:
+        corn = True
+        lines2 = lines1
+
+    print(f"{lines1=} # {len(lines1)=}")
+    print(f"{lines2=} # {len(lines2)=}")
+
+    for x1, y1, x2, y2, r, t in lines1:
+        for xx1, yy1, xx2, yy2, rr, tt in lines2:
+            close = False
+            if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
+                continue
+
+            dtheta = abs(t - tt)
+            if corn and (dtheta < 20 or dtheta > 160):
+                print(f"t - tt: {dtheta}")
+                continue
+
+            xdiff = (x1 - x2, xx1 - xx2)
+            ydiff = (y1 - y2, yy1 - yy2)
+
+            div = determinant(xdiff, ydiff)
+            if div == 0:
+                print("div == 0")
+                continue
+
+            d = (determinant((x1, y1), (x2, y2)),
+                 determinant((xx1, yy1), (xx2, yy2)))
+            x = round(determinant(d, xdiff) / div)
+            y = round(determinant(d, ydiff) / div)
+
+            if x >= image.shape[1] or y >= image.shape[0] or x < 0 or y < 0:
+                print(f"{x} >= {image.shape[1]} or {y} >= {image.shape[0]}")
+                continue
+
+            for p in inter:
+                if radius(x, y, p[0], p[1]) < 10:
+                    print("Close=True")
+                    close = True
+                    break
+            if close:
+                continue
+            else:
+                inter.append((x, y))
+
+    inter = np.array(inter, dtype='int32')
+    canvas = draw.intersections(image, inter)
+    save(img, "intersections", canvas)
+
+    return inter

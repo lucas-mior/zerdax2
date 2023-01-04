@@ -64,12 +64,15 @@ def determine_colors(img, pieces, image):
         xc = round(b.shape[1]/2)
         yc = round(b.shape[0]/2)
         for (x, y), pixel in np.ndenumerate(b):
-            wx = max(abs(x-xc), 1)
-            wy = max(abs(y-yc), 1)
-            w = 1/wx + 1/wy
-            weight += w
-            s += (pixel * w)
+            # wx = max(abs(x-xc), 1)
+            # wy = max(abs(y-yc), 1)
+            # w = 1/wx + 1/wy
+            weight += 1
+            # s += (pixel * w)
+            s += pixel
+
         avg = round(s/weight, 2)
+        print(f"{p[5]=}, {s=}, {weight=}, {avg=}")
         p.append(avg)
         pcolors.append(p)
 

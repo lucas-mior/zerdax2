@@ -4,34 +4,33 @@ from zerdax2_misc import SYMBOLS
 
 
 def generate_fen(img):
-    img = create_fen(img)
+    img.longfen = create_fen(img.sqback, img.pieces)
+    print("long fen:", img.longfen)
     img.fen = compress_fen(img.longfen)
     return img
 
 
-def create_fen(img):
+def create_fen(squares, pieces):
     print("creating fen...")
-    fen = ''
+    fen = ""
     for i in range(7, -1, -1):
         for j in range(0, 8):
-            sq = img.sqback[j, i]
+            sq = squares[j, i]
             got_piece = False
-            for piece in img.pieces:
+            for piece in pieces:
                 xm = round((piece[2] + piece[0])/2)
                 y = round(piece[3]) - 15
                 p = (xm, y)
                 if cv2.pointPolygonTest(sq, p, True) >= 0:
                     fen += SYMBOLS[str(int(piece[5]))]
                     got_piece = True
-                    img.pieces.remove(piece)
+                    pieces.remove(piece)
                     break
             if not got_piece:
                 fen += '1'
         fen += '/'
 
-    img.longfen = fen[:-1]
-    print("long fen:", img.longfen)
-    return img
+    return fen[:-1]
 
 
 def compress_fen(fen):

@@ -66,7 +66,7 @@ def dist_point_to_line(point, line):
         else:
             dist_point_to_line = ix
     else:
-        # Intersecting point is on the line, use the formula
+        # intersecting point is on the line, use the formula
         # ix = x1 + u * (x2 - x1)
         # iy = y1 + u * (y2 - y1)
         # dist_point_to_line = _line_mag(px, py, ix, iy)
@@ -119,24 +119,24 @@ def min_distance(A, B, E):
     AE[0] = E[0] - A[0]
     AE[1] = E[1] - A[1]
 
-    # Variables to store dot product
+    # variables to store dot product
 
-    # Calculating the dot product
+    # calculating the dot product
     AB_BE = AB[0] * BE[0] + AB[1] * BE[1]
     AB_AE = AB[0] * AE[0] + AB[1] * AE[1]
 
-    # Minimum distance from
+    # minimum distance from
     # point E to the line segment
     reqAns = 0
 
-    # Case 1
+    # case 1
     if (AB_BE > 0):
         # Finding the magnitude
         y = E[1] - B[1]
         x = E[0] - B[0]
         reqAns = np.sqrt(x*x + y*y)
 
-    # Case 2
+    # case 2
     elif (AB_AE < 0):
         y = E[1] - A[1]
         x = E[0] - A[0]
@@ -144,7 +144,7 @@ def min_distance(A, B, E):
 
     # Case 3
     else:
-        # Finding the perpendicular distance
+        # finding the perpendicular distance
         x1 = AB[0]
         y1 = AB[1]
         x2 = AE[0]

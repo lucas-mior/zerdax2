@@ -30,8 +30,8 @@ def algorithm(filename, log):
 
     img = find_corners(img)
     img = find_squares(img)
-    img = fen.generate_fen(img)
-    fen.print_fen(img.longfen)
+    img.longfen, img.fen = fen.generate(img.sqback, img.pieces)
+    fen.dump(img.longfen)
 
     return img.fen
 

@@ -3,14 +3,14 @@ import re
 from zerdax2_misc import SYMBOLS
 
 
-def generate_fen(img):
-    img.longfen = create_fen(img.sqback, img.pieces)
-    print("long fen:", img.longfen)
-    img.fen = compress_fen(img.longfen)
-    return img
+def generate(squares, pieces):
+    longfen = create(squares, pieces)
+    print(f"{longfen=}")
+    fen = compress(longfen)
+    return longfen, fen
 
 
-def create_fen(squares, pieces):
+def create(squares, pieces):
     print("creating fen...")
     fen = ""
     for i in range(7, -1, -1):
@@ -33,7 +33,7 @@ def create_fen(squares, pieces):
     return fen[:-1]
 
 
-def compress_fen(fen):
+def compress(fen):
     print("generating compressed FEN...")
     for length in reversed(range(2, 9)):
         fen = fen.replace(length * '1', str(length))
@@ -41,7 +41,7 @@ def compress_fen(fen):
     return fen
 
 
-def print_fen(fen):
+def dump(fen):
     print("―"*19)
 
     print("| ", end='')

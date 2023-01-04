@@ -61,10 +61,7 @@ def dist_point_to_line(point, line):
         # take the shorter distance to an endpoint
         ix = _line_mag(px, py, x1, y1)
         iy = _line_mag(px, py, x2, y2)
-        if ix > iy:
-            dist_point_to_line = iy
-        else:
-            dist_point_to_line = ix
+        dist_point_to_line = min(ix, iy)
     else:
         # intersecting point is on the line, use the formula
         # ix = x1 + u * (x2 - x1)

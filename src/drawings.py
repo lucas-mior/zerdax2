@@ -63,12 +63,11 @@ def squares(img, image):
     return canvas
 
 
-def boxes(img):
-    i = img.BGR
-    canvas = np.zeros(i.shape, dtype='uint8')
-    thick = round(2.4 * (i.shape[0] / 1280))
+def boxes(pieces, image):
+    canvas = np.zeros(image.shape, dtype='uint8')
+    thick = round(2.4 * (image.shape[0] / 1280))
 
-    for piece in img.pieces:
+    for piece in pieces:
         x0, y0, x1, y1, conf, num, _ = piece
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
         conf = round(float(conf), 2)
@@ -79,5 +78,5 @@ def boxes(img):
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
-    cv2.addWeighted(i, 0.5, canvas, 0.5, 0, canvas)
+    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas

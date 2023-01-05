@@ -12,6 +12,7 @@ DX = 40
 
 def find_corners(img):
     img = black_space(img)
+    img = magic_prepare(img)
     lines = magic_lines(img)
     inter = aux.calc_intersections(img, img.gray3ch, lines)
     img.corners = calc_corners(img, inter)
@@ -35,7 +36,6 @@ def create_cannys(img, w=9, thighg=200, thighv=200, saveny=False):
 
 def magic_lines(img):
     print("finding all lines of board...")
-    img = magic_prepare(img)
 
     got_hough = False
     force = 1.2

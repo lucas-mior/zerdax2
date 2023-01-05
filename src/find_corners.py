@@ -60,12 +60,7 @@ def magic_lines(img):
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
 
-        if lines is None:
-            minlen = max(img.slen/1.4, minlen - incr)
-            tvotes = round(minlen / force)
-            continue
-
-        if len(lines) < 18:
+        if lines is None or len(lines) < 18:
             minlen = max(img.slen/1.4, minlen - incr)
             tvotes = round(minlen / force)
             continue
@@ -96,21 +91,15 @@ def magic_lines(img):
         minlen -= incr
         tvotes = round(minlen / force)
         if minlen <= (img.slen/1.4):
-            if force <= 1.5:
-                force += 0.1
-                _update_magic(force)
-            elif force <= 1.8 and (l1 < 10 or l2 < 10):
-                force += 0.1
-                _update_magic(force)
+            force += 0.1
+            _update_magic(force)
 
     if not got_hough:
-        if l1 < 10 or l2 < 10:
-            print("magic_lines() failed ",
+        if l1 < 9 or l2 < 9:
+            print("magic_lines() failed:",
+                  f"{ll} # [{l1}][{l2}]",
                   f"@ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
             exit(1)
-        else:
-            print("could not find 11 lines in at least one side."
-                  "Trying with 10 on both sides.")
 
     canvas = draw.lines(img, img.gray3ch, dir1, dir2)
     aux.save(img, "hough_magic", canvas)

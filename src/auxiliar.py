@@ -108,7 +108,7 @@ def calc_intersections(img, image, lines1, lines2=None):
 
             dtheta = abs(t - tt)
             if corn and (dtheta < 20 or dtheta > 160):
-                print(f"t - tt: {dtheta}")
+                # print(f"t - tt: {dtheta}")
                 continue
 
             xdiff = (x1 - x2, xx1 - xx2)

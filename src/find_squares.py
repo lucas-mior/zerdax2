@@ -85,7 +85,7 @@ def w_lines(img):
     newgap = False
     vert = hori = None
     minlines = 9
-    while True and passed < 10:
+    while passed < 10:
         lv = lh = 0
         lines = cv2.HoughLinesP(img.wcanny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
@@ -102,11 +102,11 @@ def w_lines(img):
                 ll = lv + lh
                 if lv >= minlines and lh >= minlines:
                     print(f"{ll} lines [{lv}][{lh}] ",
-                          f"@ {th:1=.3f}º,{tvotes},{minlen},{maxgap}")
+                          f"@ {th}º,{tvotes},{minlen},{maxgap}")
                     got_hough = True
                     break
             print(f"{ll} # [{lv}][{lh}] ",
-                  f"@ {th:1=.3f}º,{tvotes},{minlen},{maxgap}")
+                  f"@ {th}º,{tvotes},{minlen},{maxgap}")
         if passed == 0:
             _update_wlines(2.2, 0.75)
         elif passed == 1:
@@ -122,7 +122,8 @@ def w_lines(img):
 
     if not got_hough:
         if lv < 7 or lh < 7:
-            print(f"magic failed @ {th},{tvotes},{minlen},{maxgap}")
+            print(f"wmagic() failed: {ll} # [{lv}][{lh}]"
+                  f"@ {th}º,{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 7 or 8")

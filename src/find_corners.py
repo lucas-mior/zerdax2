@@ -98,7 +98,7 @@ def magic_lines(img):
         if l1 < 9 or l2 < 9:
             print("magic_lines() failed:",
                   f"{ll} # [{l1}][{l2}]",
-                  f"@ {180*(tangle/np.pi)},{tvotes},{minlen},{maxgap}")
+                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             exit(1)
 
     canvas = draw.lines(img, img.gray3ch, dir1, dir2)

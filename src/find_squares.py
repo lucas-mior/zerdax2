@@ -77,7 +77,7 @@ def w_lines(img):
         tvotes = round(minlen0 / force)
 
     tangle = np.pi / 360
-    th = 180*(tangle/np.pi)
+    h_a = np.rad2deg(tangle)
     minlen = minlen0 = round((img.wwidth)*0.8)
     tvotes = round(minlen0 / 2)
     maxgap = img.wwidth / 8

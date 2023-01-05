@@ -73,7 +73,7 @@ def w_lines(img):
     def _update_wlines(force, le):
         nonlocal passed, minlen, tvotes
         print("passed:", passed)
-        minlen = round((img.wwidth) * le)
+        minlen = round((img.wwidh_a) * le)
         tvotes = round(minlen0 / force)
 
     tangle = np.pi / 360
@@ -102,11 +102,11 @@ def w_lines(img):
                 ll = lv + lh
                 if lv >= minlines and lh >= minlines:
                     print(f"{ll} lines [{lv}][{lh}] ",
-                          f"@ {th}º,{tvotes},{minlen},{maxgap}")
+                          f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
                     got_hough = True
                     break
             print(f"{ll} # [{lv}][{lh}] ",
-                  f"@ {th}º,{tvotes},{minlen},{maxgap}")
+                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         if passed == 0:
             _update_wlines(2.2, 0.75)
         elif passed == 1:
@@ -123,7 +123,7 @@ def w_lines(img):
     if not got_hough:
         if lv < 7 or lh < 7:
             print(f"wmagic() failed: {ll} # [{lv}][{lh}]"
-                  f"@ {th}º,{tvotes},{minlen},{maxgap}")
+                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             exit(1)
         else:
             print("failed to find at least 9 lines, trying with 7 or 8")

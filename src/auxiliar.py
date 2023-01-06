@@ -5,10 +5,6 @@ import drawings as draw
 i = 1
 
 
-def determinant(a, b):
-    return a[0]*b[1] - a[1]*b[0]
-
-
 def save(img, filename, image):
     global i
     cv2.imwrite(f"{img.basename}{i:02d}_{filename}.png", image)
@@ -94,6 +90,10 @@ def find_canny(image, wmin=8, thigh=220):
 
 def calc_intersections(img, image, lines1, lines2=None):
     print("calculating intersections...")
+
+    def _determinant(a, b):
+        return a[0]*b[1] - a[1]*b[0]
+
     inter = []
     corn = False
     if lines2 is None:
@@ -114,15 +114,15 @@ def calc_intersections(img, image, lines1, lines2=None):
             xdiff = (x1 - x2, xx1 - xx2)
             ydiff = (y1 - y2, yy1 - yy2)
 
-            div = determinant(xdiff, ydiff)
+            div = _determinant(xdiff, ydiff)
             if div == 0:
                 print("div == 0")
                 continue
 
-            d = (determinant((x1, y1), (x2, y2)),
-                 determinant((xx1, yy1), (xx2, yy2)))
-            x = round(determinant(d, xdiff) / div)
-            y = round(determinant(d, ydiff) / div)
+            d = (_determinant((x1, y1), (x2, y2)),
+                 _determinant((xx1, yy1), (xx2, yy2)))
+            x = round(_determinant(d, xdiff) / div)
+            y = round(_determinant(d, ydiff) / div)
 
             if x >= image.shape[1] or y >= image.shape[0] or x < 0 or y < 0:
                 print(f"{x} >= {image.shape[1]} or {y} >= {image.shape[0]}")

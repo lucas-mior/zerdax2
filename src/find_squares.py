@@ -28,7 +28,7 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     img.sqback = np.array(np.round(sqback), dtype='int32')
 
-    canvas = draw.squares(img, img.board)
+    canvas = draw.squares(img.board, img.sqback)
     # aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
@@ -42,7 +42,7 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.sqback = np.array(np.round(sqback), dtype='int32')
-    canvas = draw.squares(img, img.BGR)
+    canvas = draw.squares(img.BGR, img.sqback)
     aux.save(img, "A1E4C5H8", canvas)
 
     return img

@@ -69,66 +69,70 @@ def create_wcannys(img, w=10, thighg=200, thighv=200):
 def w_lines(img):
     print("finding vertical and horizontal lines...")
     got_hough = False
-
-    def _update_wlines(force, le):
-        nonlocal passed, minlen, tvotes
-        print("passed:", passed)
-        minlen = round((img.wwidh_a) * le)
-        tvotes = round(minlen0 / force)
-
+    force = 1.2
+    maxgap = img.wwidth / 4
+    minlen = minlen0 = img.wwidth * 0.8
+    tvotes = round(minlen / force)
     tangle = np.pi / 360
-    h_a = np.rad2deg(tangle)
-    minlen = minlen0 = round((img.wwidth)*0.8)
-    tvotes = round(minlen0 / 2)
-    maxgap = img.wwidth / 8
-    passed = 0
-    newgap = False
-    vert = hori = None
-    minlines = 9
-    while passed < 10:
-        lv = lh = 0
+    h_a = round(np.rad2deg(tangle), 2)
+
+    def _update_magic(force):
+        nonlocal minlen, tvotes
+        print(f"{force=}")
+        minlen = minlen0
+        tvotes = round(minlen / force)
+        return
+
+    incr = 32
+    while minlen >= (minlen0/1.5):
+        l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.wcanny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
-        if lines is not None:
+
+        if lines is None or len(lines) < 18:
+            minlen = max(minlen0/1.4, minlen - incr)
+            tvotes = round(minlen / force)
+            continue
+
+        lines = aux.radius_theta(lines)
+        lines = filter_90(lines)
+        ll = len(lines)
+        if ll < 10:
+            minlen = max(img.slen/1.4, minlen - incr/2)
+            tvotes = round(minlen / force)
+            continue
+
+        if ll >= 10:
+            lines = bundle_lines(lines)
             lines = aux.radius_theta(lines)
-            lines = filter_90(lines)
-            ll = len(lines)
-            if len(lines) > (minlines-2):
-                lines = bundle_lines(lines)
-                lines = aux.radius_theta(lines)
-                vert, hori = aux.geo_lines(lines)
-                lv, lh = len(vert), len(hori)
-                ll = lv + lh
-                if lv >= minlines and lh >= minlines:
-                    print(f"{ll} lines [{lv}][{lh}] ",
-                          f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-                    got_hough = True
-                    break
-            print(f"{ll} # [{lv}][{lh}] ",
-                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-        if passed == 0:
-            _update_wlines(2.2, 0.75)
-        elif passed == 1:
-            _update_wlines(2.3, 0.70)
-        elif passed == 2:
-            _update_wlines(2.3, 0.65)
-        elif passed == 3 and (lv < 8 or lh < 8) and not newgap:
-            _update_wlines(2, 0.80)
-            maxgap *= 1.1
-            newgap = True
-            passed = 0
-        passed += 1
+            vert, hori = aux.geo_lines(lines)
+            l1, l2 = len(vert), len(hori)
+            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
+                print(f"{ll} # [{l1}][{l2}] ",
+                      f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
+                got_hough = True
+                break
+
+        print(f"{ll} # [{l1}][{l2}] ",
+              f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
+        minlen -= incr
+        tvotes = round(minlen / force)
+        if minlen <= (img.slen/1.4):
+            force += 0.1
+            _update_magic(force)
 
     if not got_hough:
-        if lv < 7 or lh < 7:
-            print(f"wmagic() failed: {ll} # [{lv}][{lh}]"
+        if l1 < 7 or l2 < 7:
+            print("magic_lines() failed:",
+                  f"{ll} # [{l1}][{l2}]",
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-            exit(1)
-        else:
-            print("failed to find at least 9 lines, trying with 7 or 8")
+            # exit(1)
 
+    canvas = draw.lines(img, img.warp3ch, vert, hori)
+    aux.save(img, "wmagic", canvas)
     return vert, hori
+
 
 
 def filter_90(lines):

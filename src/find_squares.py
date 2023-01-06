@@ -6,7 +6,7 @@ import drawings as draw
 
 from bundle_lines import bundle_lines
 
-WARPED_LEN = 640
+WLEN = 640
 DX = 40
 
 
@@ -268,7 +268,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
         vert = vert[np.argsort(vert[:, 0])]
-    while abs(vert[-1, 0] - WARPED_LEN) > (medv + 5):
+    while abs(vert[-1, 0] - WLEN) > (medv + 5):
         x1 = vert[-1, 0] + medv
         y1 = vert[-1, 1]
         x2 = vert[-1, 2] + medv
@@ -284,7 +284,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
         hori = hori[np.argsort(hori[:, 1])]
-    while abs(hori[-1, 1] - WARPED_LEN) > (medh + 5):
+    while abs(hori[-1, 1] - WLEN) > (medh + 5):
         x1 = hori[-1, 0]
         y1 = hori[-1, 1] + medh
         x2 = hori[-1, 2]
@@ -334,7 +334,7 @@ def remove_extras(vert, hori):
     def _rem_extras(lines, num, kind):
         if num == 10:
             d1 = abs(lines[0, kind] - 0)
-            d2 = abs(lines[-1, kind] - WARPED_LEN)
+            d2 = abs(lines[-1, kind] - WLEN)
             if d1 < d2:
                 lines = lines[1:]
             else:
@@ -364,7 +364,7 @@ def add_last_outer(vert, hori, medv, medh):
             print("7 or less lines, there should be at least 8")
         elif num == 8:
             d1 = abs(lines[0, 0] - 0)
-            d2 = abs(lines[-1, 0] - WARPED_LEN)
+            d2 = abs(lines[-1, 0] - WLEN)
             if d1 > d2:
                 if d1 >= med:
                     x1 = lines[0, 0] - med

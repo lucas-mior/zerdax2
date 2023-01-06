@@ -6,7 +6,7 @@ import drawings as draw
 
 from bundle_lines import bundle_lines
 
-WARP_LEN = 640
+WLEN = 640
 DX = 40
 
 
@@ -242,8 +242,8 @@ def perspective_transform(img):
     orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
                             (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
 
-    width = WARP_LEN
-    height = WARP_LEN
+    width = WLEN
+    height = WLEN
     img.wwidth = width
     img.wheigth = height
 

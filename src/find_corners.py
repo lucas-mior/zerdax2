@@ -39,29 +39,28 @@ def magic_lines(img):
 
     got_hough = False
     force = 1.2
-    maxgap = 100
-    img.slen = (img.bwidth + img.bheigth) * 0.25
-    minlen = minlen0 = img.slen
+    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.25
+    maxgap = minlen0 / 6
     tvotes = round(minlen / force)
     tangle = np.pi / 360
-    h_a = round(np.rad2deg(tangle), 3)
+    h_a = round(np.rad2deg(tangle), 2)
 
     def _update_magic(force):
         nonlocal minlen, tvotes
-        print(f"force: {force=}")
+        print(f"{force=}")
         minlen = minlen0
         tvotes = round(minlen / force)
         return
 
     incr = 32
-    while minlen >= (img.slen/1.5):
+    while minlen >= (minlen0/1.5):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
 
         if lines is None or len(lines) < 18:
-            minlen = max(img.slen/1.4, minlen - incr)
+            minlen = max(minlen0/1.4, minlen - incr)
             tvotes = round(minlen / force)
             continue
 
@@ -70,7 +69,7 @@ def magic_lines(img):
         img.angles = lines_kmeans(img, lines)
         lines = filter_angles(img, lines)
         if len(lines) < 16:
-            minlen = max(img.slen/1.4, minlen - incr/2)
+            minlen = max(minlen0/1.4, minlen - incr/2)
             tvotes = round(minlen / force)
             continue
 
@@ -90,7 +89,7 @@ def magic_lines(img):
               f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         minlen -= incr
         tvotes = round(minlen / force)
-        if minlen <= (img.slen/1.4):
+        if minlen <= (minlen0/1.4):
             force += 0.1
             _update_magic(force)
 

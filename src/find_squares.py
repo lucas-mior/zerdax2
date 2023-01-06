@@ -48,7 +48,7 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=10, thighg=200, thighv=200):
+def create_wcannys(img, w=10, thighg=230, thighv=230):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)

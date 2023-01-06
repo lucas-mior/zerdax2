@@ -53,7 +53,7 @@ def geo_lines(lines):
     return vert, hori
 
 
-def find_canny(image, wmin=8, thigh=220):
+def find_canny(image, wmin=8, thigh=230):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False

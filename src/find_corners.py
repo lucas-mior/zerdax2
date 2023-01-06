@@ -21,7 +21,7 @@ def find_corners(img):
     return img
 
 
-def create_cannys(img, w=9, thighg=200, thighv=200, saveny=False):
+def create_cannys(img, w=9, thighg=230, thighv=230, saveny=False):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)

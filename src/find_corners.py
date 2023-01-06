@@ -100,7 +100,7 @@ def magic_lines(img):
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             exit(1)
 
-    canvas = draw.lines(img, img.gray3ch, dir1, dir2)
+    canvas = draw.lines(img.gray3ch, dir1, dir2)
     aux.save(img, "hough_magic", canvas)
     return lines
 
@@ -226,7 +226,7 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    canvas = draw.corners(img, img.gray3ch, BR, BL, TR, TL)
+    canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
     # aux.save(img, "corners", canvas)
 
     return np.array([BR, BL, TR, TL], dtype='int32')
@@ -311,7 +311,7 @@ def magic_prepare(img):
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    # aux.save(img, "canny_closed", img.canny)
+    aux.save(img, "canny_closed", img.canny)
     return img
 
 

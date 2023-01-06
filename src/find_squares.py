@@ -127,7 +127,7 @@ def w_lines(img):
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             # exit(1)
 
-    canvas = draw.lines(img, img.warp3ch, vert, hori)
+    canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "wmagic", canvas)
     return vert, hori
 
@@ -205,7 +205,7 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    canvas = draw.lines(img, img.warp3ch, vert, hori)
+    canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
@@ -213,7 +213,7 @@ def magic_vert_hori(img, vert, hori):
     def _check_save(title):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
-            canvas = draw.lines(img, img.warp3ch, vert, hori)
+            canvas = draw.lines(img.warp3ch, vert, hori)
             aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return

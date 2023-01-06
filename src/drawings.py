@@ -14,21 +14,21 @@ def intersections(image, inter):
     return canvas
 
 
-def lines(img, image, vert, hori):
+def lines(image, vert, hori):
     canvas = np.zeros(image.shape, dtype='uint8')
 
     for x1, y1, x2, y2, r, t in vert:
         cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(255, 0, 0), thickness=img.thick)
+                 color=(255, 0, 0), thickness=3)
     for x1, y1, x2, y2, r, t in hori:
         cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(0, 255, 0), thickness=img.thick)
+                 color=(0, 255, 0), thickness=3)
 
     cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas
 
 
-def corners(img, image, BR, BL, TR, TL):
+def corners(image, BR, BL, TR, TL):
     canvas = np.zeros(image.shape, dtype='uint8')
 
     cv2.circle(canvas, BR, radius=7,

@@ -124,8 +124,11 @@ def calc_intersections(img, image, lines1, lines2=None):
             x = round(_det(d, xdiff) / div)
             y = round(_det(d, ydiff) / div)
 
-            if x >= image.shape[1] or y >= image.shape[0] or x < 0 or y < 0:
+            if x >= image.shape[1] or y >= image.shape[0]:
                 print(f"{x} >= {image.shape[1]} or {y} >= {image.shape[0]}")
+                continue
+            if x < 0 or y < 0:
+                print(f"{x} < 0 or {y} < 0")
                 continue
 
             for p in inter:

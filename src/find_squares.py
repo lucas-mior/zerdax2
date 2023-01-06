@@ -134,7 +134,6 @@ def w_lines(img):
     return vert, hori
 
 
-
 def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 

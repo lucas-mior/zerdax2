@@ -5,7 +5,6 @@ import auxiliar as aux
 import drawings as draw
 
 from bundle_lines import bundle_lines
-import lffilter as lf
 
 WARPED_LEN = 640
 DX = 40

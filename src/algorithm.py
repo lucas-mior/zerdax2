@@ -6,7 +6,6 @@ from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
-import lffilter as lf
 
 BWIDTH = 640
 

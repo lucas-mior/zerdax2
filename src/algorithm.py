@@ -28,7 +28,7 @@ def algorithm(filename):
 
     img = find_corners(img)
     img = find_squares(img)
-    img.longfen, img.fen = fen.generate(img.sqback, img.pieces)
+    img.longfen, img.fen = fen.generate(img.squares, img.pieces)
     fen.dump(img.longfen)
 
     return img.fen

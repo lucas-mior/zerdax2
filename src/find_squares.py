@@ -26,23 +26,23 @@ def find_squares(img):
     sqback = np.zeros(squares.shape, dtype='float32')
     for i in range(0, 8):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
-    img.sqback = np.array(np.round(sqback), dtype='int32')
+    squares = sqback
 
-    canvas = draw.squares(img.board, img.sqback)
+    # canvas = draw.squares(img.board, squares)
     # aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
-    sqback[:, :, :, 0] -= DX
-    sqback[:, :, :, 1] -= DX
+    squares[:, :, :, 0] -= DX
+    squares[:, :, :, 1] -= DX
     # scale to input size
-    sqback[:, :, :, 0] /= img.bfact
-    sqback[:, :, :, 1] /= img.bfact
+    squares[:, :, :, 0] /= img.bfact
+    squares[:, :, :, 1] /= img.bfact
     # position board bounding box
-    sqback[:, :, :, 0] += img.x0
-    sqback[:, :, :, 1] += img.y0
+    squares[:, :, :, 0] += img.x0
+    squares[:, :, :, 1] += img.y0
 
-    img.sqback = np.array(np.round(sqback), dtype='int32')
-    canvas = draw.squares(img.BGR, img.sqback)
+    img.squares = np.array(np.round(squares), dtype='int32')
+    canvas = draw.squares(img.BGR, img.squares)
     aux.save(img, "A1E4C5H8", canvas)
 
     return img

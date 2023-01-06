@@ -223,8 +223,8 @@ def magic_vert_hori(img, vert, hori):
     print("calculating median distances...")
     distv, disth = get_distances(vert, hori)
     medv, medh = mean_dist(distv, disth)
-    print("medv:", medv)
-    print("medh:", medh)
+    print(f"{medv=}")
+    print(f"{medh=}")
 
     print("removing for sure wrong lines...")
     remv = wrong_lines(distv, medv)

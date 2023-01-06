@@ -98,7 +98,7 @@ def w_lines(img):
         lines = filter_90(lines)
         ll = len(lines)
         if ll < 10:
-            minlen = max(img.slen/1.4, minlen - incr/2)
+            minlen = max(minlen0/1.4, minlen - incr/2)
             tvotes = round(minlen / force)
             continue
 
@@ -116,7 +116,7 @@ def w_lines(img):
               f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         minlen -= incr
         tvotes = round(minlen / force)
-        if minlen <= (img.slen/1.4):
+        if minlen <= (minlen0/1.4):
             force += 0.1
             _update_magic(force)
 

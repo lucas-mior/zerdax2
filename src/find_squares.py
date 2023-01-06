@@ -102,16 +102,15 @@ def w_lines(img):
             tvotes = round(minlen / force)
             continue
 
-        if ll >= 10:
-            lines = bundle_lines(lines)
-            lines = aux.radius_theta(lines)
-            vert, hori = aux.geo_lines(lines)
-            l1, l2 = len(vert), len(hori)
-            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{ll} # [{l1}][{l2}] ",
-                      f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-                got_hough = True
-                break
+        lines = bundle_lines(lines)
+        lines = aux.radius_theta(lines)
+        vert, hori = aux.geo_lines(lines)
+        l1, l2 = len(vert), len(hori)
+        if 18 <= ll and (9 <= l1 <= 11 and 9 <= l2 <= 11):
+            print(f"{ll}>{len(vert)} # [{l1}][{l2}] ",
+                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
+            got_hough = True
+            break
 
         print(f"{ll} # [{l1}][{l2}] ",
               f"@ {h_a}º,{tvotes},{minlen},{maxgap}")

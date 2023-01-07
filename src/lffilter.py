@@ -4,10 +4,11 @@ import numpy as np
 
 
 def ffilter(image):
-    f = np.copy(image/255)
-    W = np.copy(image/255) * 0
-    N = np.copy(image/255) * 0
-    g = np.copy(image/255)
+    image /= 255
+    f = np.copy(image)
+    W = np.copy(image) * 0
+    N = np.copy(image) * 0
+    g = np.copy(image)
 
     lf = ct.CDLL("./libffilter.so")
     lf_filter = lf.ffilter

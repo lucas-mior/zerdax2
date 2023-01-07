@@ -20,6 +20,8 @@ def find_squares(img):
     vert, hori = magic_vert_hori(img, vert, hori)
 
     inter = aux.calc_intersections(img, img.warp3ch, vert, hori)
+    canvas = draw.intersections(img.warp3ch, inter)
+    aux.save(img, "intersections", canvas)
     if len(inter) != 81:
         print("There should be exacly 81 intersections")
         exit(1)

@@ -27,22 +27,23 @@ def find_squares(img):
     sqback = np.zeros(squares.shape, dtype='float32')
     for i in range(0, 8):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
-    squares = sqback
+    squares = np.round(sqback)
+    squares = np.array(sqback, dtype='int32')
 
     canvas = draw.squares(img.board, squares)
     aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
-    squares[:, :, :, 0] -= DX
-    squares[:, :, :, 1] -= DX
+    sqback[:, :, :, 0] -= DX
+    sqback[:, :, :, 1] -= DX
     # scale to input size
-    squares[:, :, :, 0] /= img.bfact
-    squares[:, :, :, 1] /= img.bfact
+    sqback[:, :, :, 0] /= img.bfact
+    sqback[:, :, :, 1] /= img.bfact
     # position board bounding box
-    squares[:, :, :, 0] += img.x0
-    squares[:, :, :, 1] += img.y0
+    sqback[:, :, :, 0] += img.x0
+    sqback[:, :, :, 1] += img.y0
 
-    img.squares = np.array(np.round(squares), dtype='int32')
+    img.squares = np.array(np.round(sqback), dtype='int32')
     canvas = draw.squares(img.BGR, img.squares)
     aux.save(img, "A1E4C5H8", canvas)
 
@@ -259,7 +260,7 @@ def magic_vert_hori(img, vert, hori):
 
 
 def add_outer(vert, hori, medv, medh):
-    tol = 3
+    tol = 2
     print("adding missing outer lines...")
     while abs(vert[0, 0] - 0) > (medv + tol):
         x1 = vert[0, 0] - medv

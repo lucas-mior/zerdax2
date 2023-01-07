@@ -50,17 +50,15 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=11, thighg=230, thighv=230):
+def create_wcannys(img):
     print("finding edges for gray, V warp images...")
-    cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
-    cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)
+    cannyG = aux.find_edges(img.wg, lowpass=lf.ffilter)
+    cannyV = aux.find_edges(img.wv, lowpass=lf.ffilter)
     aux.save(img, "wcannyG", cannyG)
     aux.save(img, "wcannyV", cannyV)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
-
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
     aux.save(img, "wcanny", img.wcanny)

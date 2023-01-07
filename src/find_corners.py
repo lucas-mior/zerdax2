@@ -3,6 +3,7 @@ import numpy as np
 
 import auxiliar as aux
 import drawings as draw
+import lffilter as lf
 
 from bundle_lines import bundle_lines
 
@@ -21,10 +22,10 @@ def find_corners(img):
     return img
 
 
-def create_cannys(img, w=10, thighg=230, thighv=230, saveny=False):
+def create_cannys(img, ):
     print("finding edges for gray, S, V images...")
-    cannyG = aux.find_canny(img.G, wmin=w, thigh=thighg)
-    cannyV = aux.find_canny(img.V, wmin=w, thigh=thighv)
+    cannyG = aux.find_edges(img.G, lowpass=lf.fffilter)
+    cannyV = aux.find_edges(img.V, lowpass=lf.fffilter)
     aux.save(img, "cannyG", cannyG)
     aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)

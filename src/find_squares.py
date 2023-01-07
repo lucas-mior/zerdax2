@@ -12,7 +12,8 @@ DX = 40
 
 
 def find_squares(img):
-    img = pre_process(img)
+    print("generating 3 channel gray warp image for drawings...")
+    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
     img = create_wcannys(img)
     img = magic_prepare(img)
     vert, hori = w_lines(img)
@@ -434,9 +435,3 @@ def calc_squares(img, inter):
             squares[i, j, 3] = intersq[i, j+1]
 
     return np.array(squares, dtype='float32')
-
-
-def pre_process(img):
-    print("generating 3 channel gray warp image for drawings...")
-    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
-    return img

@@ -159,7 +159,7 @@ def lines_kmeans(img, lines):
     compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
                                           criteria, 10, flags)
 
-    labels = labels.flatten()
+    labels = np.ravel(labels)
 
     d1 = abs(centers[0] - centers[1])
     d2 = abs(centers[0] - centers[2])
@@ -173,7 +173,7 @@ def lines_kmeans(img, lines):
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
 
-    labels = labels.flatten()
+    labels = np.ravel(labels)
 
     diff = []
     diff.append((abs(centers[0] - 85), -85))
@@ -269,7 +269,7 @@ def split_lines(img, lines):
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
                                           criteria, 10, flags)
-    labels = labels.flatten()
+    labels = np.ravel(labels)
 
     A = lines[labels == 0]
     B = lines[labels == 1]
@@ -286,7 +286,7 @@ def split_lines(img, lines):
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
 
-        labels = labels.flatten()
+        labels = np.ravel(labels)
         A = lines[labels == 0]
         B = lines[labels == 1]
 
@@ -296,7 +296,7 @@ def split_lines(img, lines):
         lines = np.array(lines, dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 10, flags)
-        labels = labels.flatten()
+        labels = np.ravel(labels)
         A = lines[labels == 0]
         B = lines[labels == 1]
 

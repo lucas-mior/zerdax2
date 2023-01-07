@@ -8,7 +8,7 @@ import lffilter as lf
 from bundle_lines import bundle_lines
 
 WLEN = 640
-DX = 40
+DX = 50
 
 
 def find_squares(img):
@@ -46,7 +46,7 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.squares = np.array(np.round(sqback), dtype='int32')
-    # canvas = draw.squares(img.BGR, img.squares)
+    canvas = draw.squares(img.BGR, img.squares)
     aux.save(img, "A1E4C5H8", canvas)
 
     return img
@@ -137,7 +137,7 @@ def w_lines(img):
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             # exit(1)
 
-    # canvas = draw.lines(img.warp3ch, vert, hori)
+    canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "wmagic", canvas)
     return vert, hori
 
@@ -215,7 +215,7 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    # canvas = draw.lines(img.warp3ch, vert, hori)
+    canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)

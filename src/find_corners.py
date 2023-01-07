@@ -8,7 +8,7 @@ import lffilter as lf
 from bundle_lines import bundle_lines
 
 WLEN = 640
-DX = 40
+DX = 50
 
 
 def find_corners(img):
@@ -236,7 +236,7 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    # canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
+    canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
     aux.save(img, "corners", canvas)
 
     return np.array([BR, BL, TR, TL], dtype='int32')

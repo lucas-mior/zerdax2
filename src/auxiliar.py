@@ -64,10 +64,10 @@ def find_edges(img, image, lowpass):
     image = lowpass(image)
     # save(img, "lowpass", image)
     if lowpass == lf.ffilter:
-        wmin = 11
+        wmin = 10
         thigh = 200
     elif lowpass == gauss:
-        wmin = 13
+        wmin = 12
         thigh = 230
     else:
         print(f"which lowfilter is {lowpass}?")

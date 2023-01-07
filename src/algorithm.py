@@ -44,7 +44,7 @@ def pre_process(img):
 
     print("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    # aux.save(img, "gray_board", img.gray)
+    aux.save(img, "gray_board", img.gray)
 
     # print("applying gaussian blur...")
     # img.G = cv2.GaussianBlur(img.gray, (5, 5), 0.5)
@@ -77,7 +77,7 @@ def crop_board(img):
     img.x1, img.y1 = x1 + 2, y1 + 2
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    # aux.save(img, "board_box", img.board)
+    aux.save(img, "board_box", img.board)
     return img
 
 
@@ -88,5 +88,5 @@ def reduce_box(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    # aux.save(img, "board_reduce", img.board)
+    aux.save(img, "board_reduce", img.board)
     return img

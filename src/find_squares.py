@@ -13,7 +13,7 @@ DX = 40
 
 def find_squares(img):
     img = pre_process(img)
-    img = create_wcannys(img, w=10)
+    img = create_wcannys(img, w=11)
     vert, hori = w_lines(img)
     vert, hori = magic_vert_hori(img, vert, hori)
 
@@ -29,8 +29,8 @@ def find_squares(img):
         sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
     squares = sqback
 
-    # canvas = draw.squares(img.board, squares)
-    # aux.save(img, "A1E4C5H8", canvas)
+    canvas = draw.squares(img.board, squares)
+    aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     squares[:, :, :, 0] -= DX
@@ -49,12 +49,12 @@ def find_squares(img):
     return img
 
 
-def create_wcannys(img, w=10, thighg=230, thighv=230):
+def create_wcannys(img, w=11, thighg=230, thighv=230):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_canny(img.wg, wmin=w, thigh=thighg)
     cannyV = aux.find_canny(img.wv, wmin=w, thigh=thighv)
-    # aux.save(img, "wcannyG", cannyG)
-    # aux.save(img, "wcannyV", cannyV)
+    aux.save(img, "wcannyG", cannyG)
+    aux.save(img, "wcannyV", cannyV)
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -62,7 +62,7 @@ def create_wcannys(img, w=10, thighg=230, thighv=230):
 
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
-    # aux.save(img, "wcanny", img.wcanny)
+    aux.save(img, "wcanny", img.wcanny)
     return img
 
 
@@ -259,8 +259,9 @@ def magic_vert_hori(img, vert, hori):
 
 
 def add_outer(vert, hori, medv, medh):
+    tol = 3
     print("adding missing outer lines...")
-    while abs(vert[0, 0] - 0) > (medv + 5):
+    while abs(vert[0, 0] - 0) > (medv + tol):
         x1 = vert[0, 0] - medv
         y1 = vert[0, 1]
         x2 = vert[0, 2] - medv
@@ -268,7 +269,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
         vert = vert[np.argsort(vert[:, 0])]
-    while abs(vert[-1, 0] - WLEN) > (medv + 5):
+    while abs(vert[-1, 0] - WLEN) > (medv + tol):
         x1 = vert[-1, 0] + medv
         y1 = vert[-1, 1]
         x2 = vert[-1, 2] + medv
@@ -276,7 +277,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         vert = np.append(vert, new, axis=0)
         vert = vert[np.argsort(vert[:, 0])]
-    while abs(hori[0, 1] - 0) > (medh + 5):
+    while abs(hori[0, 1] - 0) > (medh + tol):
         x1 = hori[0, 0]
         y1 = hori[0, 1] - medh
         x2 = hori[0, 2]
@@ -284,7 +285,7 @@ def add_outer(vert, hori, medv, medh):
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
         hori = hori[np.argsort(hori[:, 1])]
-    while abs(hori[-1, 1] - WLEN) > (medh + 5):
+    while abs(hori[-1, 1] - WLEN) > (medh + tol):
         x1 = hori[-1, 0]
         y1 = hori[-1, 1] + medh
         x2 = hori[-1, 2]

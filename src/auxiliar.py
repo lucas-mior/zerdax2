@@ -62,7 +62,7 @@ def gauss(image):
 def find_edges(img, image, lowpass):
     print("filtering image...")
     image = lowpass(image)
-    # save(img, "lowpass", image)
+    save(img, "lowpass", image)
     if lowpass == lf.ffilter:
         wmin = 10
         thigh = 200
@@ -164,6 +164,6 @@ def calc_intersections(img, image, lines1, lines2=None):
 
     inter = np.array(inter, dtype='int32')
     canvas = draw.intersections(image, inter)
-    # save(img, "intersections", canvas)
+    save(img, "intersections", canvas)
 
     return inter

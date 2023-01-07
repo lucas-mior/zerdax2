@@ -20,8 +20,7 @@ def create(squares, pieces):
             for piece in pieces:
                 xm = round((piece[2] + piece[0])/2)
                 y = round(piece[3]) - 15
-                p = (xm, y)
-                if cv2.pointPolygonTest(sq, p, True) >= 0:
+                if cv2.pointPolygonTest(sq, (xm, y), True) >= 0:
                     fen += SYMBOLS[str(int(piece[5]))]
                     got_piece = True
                     pieces.remove(piece)

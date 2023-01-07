@@ -4,7 +4,7 @@ import numpy as np
 
 
 def ffilter(image):
-    image /= 255
+    image = np.array(image/255, dtype='float64')
     f = np.copy(image)
     W = np.copy(image) * 0
     N = np.copy(image) * 0

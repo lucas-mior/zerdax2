@@ -3,6 +3,7 @@ import numpy as np
 
 import auxiliar as aux
 import drawings as draw
+import lffilter as lf
 
 from bundle_lines import bundle_lines
 
@@ -433,15 +434,15 @@ def pre_process(img):
     print("generating 3 channel gray warp image for drawings...")
     img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
 
-    print("applying gaussian blur...")
-    img.wg = cv2.GaussianBlur(img.wg, (5, 5), 0.5)
-    img.wv = cv2.GaussianBlur(img.wv, (5, 5), 0.5)
+    # print("applying gaussian blur...")
+    # img.wg = cv2.GaussianBlur(img.wg, (5, 5), 0.5)
+    # img.wv = cv2.GaussianBlur(img.wv, (5, 5), 0.5)
     # aux.save(img, "wGblur", img.wg)
     # aux.save(img, "wVblur", img.wv)
 
-    # print("filtering warp image...")
-    # img.wg = lf.ffilter(img.wg)
-    # img.wv = lf.ffilter(img.wv)
-    # # aux.save(img, "wg_filter", img.wg)
-    # # aux.save(img, "wv_filter", img.wv)
+    print("filtering warp image...")
+    img.wg = lf.ffilter(img.wg)
+    img.wv = lf.ffilter(img.wv)
+    aux.save(img, "wg_filter", img.wg)
+    aux.save(img, "wv_filter", img.wv)
     return img

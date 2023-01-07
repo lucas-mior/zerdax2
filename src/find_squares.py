@@ -69,7 +69,7 @@ def w_lines(img):
     print("finding vertical and horizontal lines...")
     got_hough = False
     force = 1.2
-    maxgap = img.wwidth / 4
+    maxgap = img.wwidth / 8
     minlen = minlen0 = img.wwidth * 0.8
     tvotes = round(minlen / force)
     tangle = np.pi / 360

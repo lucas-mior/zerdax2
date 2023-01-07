@@ -40,7 +40,7 @@ def magic_lines(img):
     got_hough = False
     force = 1.2
     minlen = minlen0 = (img.bwidth + img.bheigth) * 0.25
-    maxgap = minlen0 / 6
+    maxgap = minlen0 / 8
     tvotes = round(minlen / force)
     tangle = np.pi / 360
     h_a = round(np.rad2deg(tangle), 2)

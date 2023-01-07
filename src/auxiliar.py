@@ -62,12 +62,12 @@ def gauss(image):
 def find_edges(img, image, lowpass):
     print("filtering image...")
     image = lowpass(image)
-    save(img, "lowpass", image)
+    # save(img, "lowpass", image)
     if lowpass == lf.ffilter:
-        wmin = 10
+        wmin = 11
         thigh = 200
     elif lowpass == gauss:
-        wmin = 12
+        wmin = 13
         thigh = 230
     else:
         print(f"which lowfilter is {lowpass}?")

@@ -46,8 +46,8 @@ def find_squares(img):
     sqback[:, :, :, 1] += img.y0
 
     img.squares = np.array(np.round(sqback), dtype='int32')
-    canvas = draw.squares(img.BGR, img.squares)
-    aux.save(img, "A1E4C5H8", canvas)
+    # canvas = draw.squares(img.BGR, img.squares)
+    # aux.save(img, "A1E4C5H8", canvas)
 
     return img
 
@@ -56,8 +56,8 @@ def create_wcannys(img):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_edges(img, img.wg, lowpass=lf.ffilter)
     cannyV = aux.find_edges(img, img.wv, lowpass=lf.ffilter)
-    aux.save(img, "wcannyG", cannyG)
-    aux.save(img, "wcannyV", cannyV)
+    # aux.save(img, "wcannyG", cannyG)
+    # aux.save(img, "wcannyV", cannyV)
 
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
     return img
@@ -66,9 +66,10 @@ def create_wcannys(img):
 def magic_prepare(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
+    # aux.save(img, "wcanny_dilate", img.wcanny)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
+    # aux.save(img, "wcanny_close", img.wcanny)
 
-    aux.save(img, "wcanny", img.wcanny)
     return img
 
 
@@ -134,8 +135,8 @@ def w_lines(img):
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             # exit(1)
 
-    canvas = draw.lines(img.warp3ch, vert, hori)
-    aux.save(img, "wmagic", canvas)
+    # canvas = draw.lines(img.warp3ch, vert, hori)
+    # aux.save(img, "wmagic", canvas)
     return vert, hori
 
 
@@ -218,11 +219,11 @@ def magic_vert_hori(img, vert, hori):
     lv, lh = len(vert), len(hori)
 
     def _check_save(title):
-        nonlocal lv, lh, vert, hori
-        if lv != len(vert) or lh != len(hori):
-            canvas = draw.lines(img.warp3ch, vert, hori)
-            aux.save(img, title, canvas)
-            lv, lh = len(vert), len(hori)
+        # nonlocal lv, lh, vert, hori
+        # if lv != len(vert) or lh != len(hori):
+        #     canvas = draw.lines(img.warp3ch, vert, hori)
+        #     aux.save(img, title, canvas)
+        #     lv, lh = len(vert), len(hori)
         return
 
     print("calculating median distances...")

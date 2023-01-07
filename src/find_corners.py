@@ -27,8 +27,8 @@ def create_cannys(img):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_edges(img, img.G, lowpass=lf.ffilter)
     cannyV = aux.find_edges(img, img.V, lowpass=lf.ffilter)
-    aux.save(img, "cannyG", cannyG)
-    aux.save(img, "cannyV", cannyV)
+    # aux.save(img, "cannyG", cannyG)
+    # aux.save(img, "cannyV", cannyV)
 
     img.canny = cv2.bitwise_or(cannyG, cannyV)
     return img
@@ -38,9 +38,9 @@ def magic_prepare(img):
     print("preparing image for magic...")
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    aux.save(img, "canny_dilate", img.canny)
+    # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "canny_closed", img.canny)
+    # aux.save(img, "canny_closed", img.canny)
     return img
 
 
@@ -49,7 +49,7 @@ def magic_lines(img):
 
     got_hough = False
     force = 1.2
-    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.25
+    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.2
     maxgap = minlen0 / 8
     tvotes = round(minlen / force)
     tangle = np.pi / 360
@@ -69,7 +69,7 @@ def magic_lines(img):
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
 
-        if lines is None or len(lines) < 18:
+        if lines is None or len(lines) < 16:
             minlen = max(minlen0/1.4, minlen - incr)
             tvotes = round(minlen / force)
             continue
@@ -236,8 +236,8 @@ def calc_corners(img, inter):
 
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
-    canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
-    aux.save(img, "corners", canvas)
+    # canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
+    # aux.save(img, "corners", canvas)
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 
@@ -264,8 +264,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    aux.save(img, "warpclaheG", img.wg)
-    aux.save(img, "warpclaheV", img.wv)
+    # aux.save(img, "warpclaheG", img.wg)
+    # aux.save(img, "warpclaheV", img.wv)
 
     return img
 

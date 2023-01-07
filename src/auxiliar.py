@@ -54,8 +54,26 @@ def geo_lines(lines):
     return vert, hori
 
 
-def find_edges(image, lowpass):
-    return find_canny(image)
+def gauss(image):
+    filtered = cv2.GaussianBlur(image, (5, 5), 0.5)
+    return filtered
+
+
+def find_edges(img, image, lowpass):
+    print("filtering image...")
+    image = lowpass(image)
+    save(img, "lowpass", image)
+    if lowpass == lf.ffilter:
+        wmin = 10
+        thigh = 200
+    elif lowpass == gauss:
+        wmin = 12
+        thigh = 230
+    else:
+        print(f"which lowfilter is {lowpass}?")
+        exit(1)
+    return find_canny(image, wmin, thigh)
+
 
 def find_canny(image, wmin=8, thigh=230):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")

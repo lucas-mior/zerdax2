@@ -25,7 +25,6 @@ def algorithm(filename):
     img = yolo.detect_objects(img)
     img = crop_board(img)
     img = reduce_box(img)
-    img = pre_process(img)
 
     img = find_corners(img)
     img = find_squares(img)
@@ -33,41 +32,6 @@ def algorithm(filename):
     fen.dump(img.longfen)
 
     return img.fen
-
-
-def pre_process(img):
-    print("creating HSV representation of image...")
-    img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
-    img.H = img.HSV[:, :, 0]
-    img.S = img.HSV[:, :, 1]
-    img.V = img.HSV[:, :, 2]
-
-    print("converting image to grayscale...")
-    img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    aux.save(img, "gray_board", img.gray)
-
-    # print("applying gaussian blur...")
-    # img.G = cv2.GaussianBlur(img.gray, (5, 5), 0.5)
-    # img.V = cv2.GaussianBlur(img.V, (5, 5), 0.5)
-    # aux.save(img, "Gblur", img.G)
-    # aux.save(img, "Vblur", img.V)
-
-    print("filtering warp image...")
-    img.G = lf.ffilter(img.gray)
-    img.V = lf.ffilter(img.V)
-    aux.save(img, "Glffilter", img.G)
-    aux.save(img, "Vlffilter", img.V)
-
-    print("applying distributed histogram equalization to image...")
-    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
-    img.G = clahe.apply(img.G)
-    img.V = clahe.apply(img.V)
-    aux.save(img, "claheG", img.G)
-    aux.save(img, "claheV", img.V)
-
-    print("generating 3 channel gray image for drawings...")
-    img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
-    return img
 
 
 def crop_board(img):

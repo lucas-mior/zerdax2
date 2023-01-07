@@ -34,6 +34,16 @@ def create_cannys(img):
     return img
 
 
+def magic_prepare(img):
+    print("preparing image for magic...")
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
+    aux.save(img, "canny_dilate", img.canny)
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
+    aux.save(img, "canny_closed", img.canny)
+    return img
+
+
 def magic_lines(img):
     print("finding all lines of board...")
 
@@ -301,16 +311,6 @@ def split_lines(img, lines):
         B = lines[labels == 1]
 
     return np.int32(A), np.int32(B)
-
-
-def magic_prepare(img):
-    print("preparing image for magic...")
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    aux.save(img, "canny_dilate", img.canny)
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "canny_closed", img.canny)
-    return img
 
 
 def broad_corners(img, BR, BL, TR, TL):

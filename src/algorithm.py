@@ -6,7 +6,6 @@ from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
-import lffilter as lf
 
 BWIDTH = 640
 
@@ -67,6 +66,8 @@ def pre_process(img):
     print("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
     aux.save(img, "gray_board", img.gray)
+    print("generating 3 channel gray image for drawings...")
+    img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
     print("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
@@ -75,6 +76,4 @@ def pre_process(img):
     aux.save(img, "claheG", img.G)
     aux.save(img, "claheV", img.V)
 
-    print("generating 3 channel gray image for drawings...")
-    img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
     return img

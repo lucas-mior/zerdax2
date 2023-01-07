@@ -16,7 +16,7 @@ def find_corners(img):
     img = create_cannys(img)
     img = magic_prepare(img)
     lines = magic_lines(img)
-    inter = aux.calc_intersections(img, img.gray3ch, lines)
+    inter = aux.calc_intersections(img.gray3ch, lines)
     canvas = draw.intersections(img.gray3ch, inter)
     aux.save(img, "intersections", canvas)
 

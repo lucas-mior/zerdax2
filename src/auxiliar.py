@@ -110,7 +110,7 @@ def find_canny(image, wmin=8, thigh=230):
     return canny
 
 
-def calc_intersections(img, image, lines1, lines2=None):
+def calc_intersections(image, lines1, lines2=None):
     print("calculating intersections...")
 
     def _det(a, b):
@@ -162,5 +162,4 @@ def calc_intersections(img, image, lines1, lines2=None):
             else:
                 inter.append((x, y))
 
-    inter = np.array(inter, dtype='int32')
-    return inter
+    return np.array(inter, dtype='int32')

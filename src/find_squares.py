@@ -221,11 +221,11 @@ def magic_vert_hori(img, vert, hori):
     lv, lh = len(vert), len(hori)
 
     def _check_save(title):
-        # nonlocal lv, lh, vert, hori
-        # if lv != len(vert) or lh != len(hori):
-        #     canvas = draw.lines(img.warp3ch, vert, hori)
-        #     aux.save(img, title, canvas)
-        #     lv, lh = len(vert), len(hori)
+        nonlocal lv, lh, vert, hori
+        if lv != len(vert) or lh != len(hori):
+            canvas = draw.lines(img.warp3ch, vert, hori)
+            aux.save(img, title, canvas)
+            lv, lh = len(vert), len(hori)
         return
 
     print("calculating median distances...")

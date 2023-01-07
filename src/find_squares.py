@@ -115,7 +115,7 @@ def w_lines(img):
         vert, hori = aux.geo_lines(lines)
         l1, l2 = len(vert), len(hori)
         if 18 <= ll and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-            print(f"{ll}>{len(vert)} # [{l1}][{l2}] ",
+            print(f"{ll}>{len(lines)} # [{l1}][{l2}] ",
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
             got_hough = True
             break
@@ -127,6 +127,8 @@ def w_lines(img):
         if minlen <= (minlen0/1.4):
             force += 0.1
             _update_magic(force)
+        if tvotes < 200:
+            break
 
     if not got_hough:
         if l1 < 7 or l2 < 7:
@@ -213,8 +215,8 @@ def right_lines(dist, med):
 
 
 def magic_vert_hori(img, vert, hori):
-    canvas = draw.lines(img.warp3ch, vert, hori)
-    aux.save(img, "verthori0", canvas)
+    # canvas = draw.lines(img.warp3ch, vert, hori)
+    # aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
 

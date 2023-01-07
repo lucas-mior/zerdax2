@@ -164,6 +164,6 @@ def calc_intersections(img, image, lines1, lines2=None):
 
     inter = np.array(inter, dtype='int32')
     canvas = draw.intersections(image, inter)
-    save(img, "intersections", canvas)
+    # save(img, "intersections", canvas)
 
     return inter

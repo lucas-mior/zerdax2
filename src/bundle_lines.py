@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def bundle_lines(lines, min_dist=8, min_angle=15):
+def bundle_lines(lines, min_dist=12, min_angle=15):
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:

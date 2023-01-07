@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import drawings as draw
+import lffilter as lf
 
 i = 1
 
@@ -52,6 +53,9 @@ def geo_lines(lines):
 
     return vert, hori
 
+
+def find_edges(image, lowpass):
+    return find_canny(image)
 
 def find_canny(image, wmin=8, thigh=230):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")

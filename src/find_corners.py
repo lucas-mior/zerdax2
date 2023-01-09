@@ -114,7 +114,7 @@ def magic_lines(img):
             exit(1)
 
     canvas = draw.lines(img.gray3ch, dir1, dir2)
-    # aux.save(img, "hough_magic", canvas)
+    aux.save(img, "hough_magic", canvas)
     return lines
 
 

@@ -78,17 +78,16 @@ def magic_lines(img):
             continue
 
         lines = filter_all(img, lines)
-        if len(lines) < 16:
+        ll = len(lines)
+        if ll < 16:
             minlen = max(minlen0/1.4, minlen - incr/2)
             tvotes = round(minlen / force)
             continue
 
-        lines = bundle_lines(lines)
-        lines = aux.radius_theta(lines)
-        ll = len(lines)
         if ll >= 16:
-            dir1, dir2 = split_lines(img, lines)
+            dir1, dir2 = filter_2(img, lines)
             l1, l2 = len(dir1), len(dir2)
+            ll = l1 + l2
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{ll} # [{l1}][{l2}] ",
                       f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
@@ -349,3 +348,10 @@ def filter_all(img, lines):
     angles = lines_kmeans(lines)
     lines = filter_angles(angles, lines)
     return lines
+
+
+def filter_2(img, lines):
+    lines = bundle_lines(lines)
+    lines = aux.radius_theta(lines)
+    dir1, dir2 = split_lines(img, lines)
+    return dir1, dir2

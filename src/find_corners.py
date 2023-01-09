@@ -79,8 +79,8 @@ def magic_lines(img):
 
         lines = aux.radius_theta(lines)
         lines = filter_lines(img, lines)
-        img.angles = lines_kmeans(img, lines)
-        lines = filter_angles(img, lines)
+        angles = lines_kmeans(lines)
+        lines = filter_angles(angles, lines)
         if len(lines) < 16:
             minlen = max(minlen0/1.4, minlen - incr/2)
             tvotes = round(minlen / force)
@@ -144,15 +144,15 @@ def filter_lines(img, lines):
     return lines[rem == 0]
 
 
-def filter_angles(img, lines, tol=15):
+def filter_angles(angles, lines, tol=15):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, line in enumerate(lines):
         x1, y1, x2, y2, r, t = line
-        if abs(t - img.angles[0]) > tol and abs(t - img.angles[1]) > tol:
-            if len(img.angles) == 2:
+        if abs(t - angles[0]) > tol and abs(t - angles[1]) > tol:
+            if len(angles) == 2:
                 rem[i] = 1
-            elif abs(t - img.angles[2]) > tol:
+            elif abs(t - angles[2]) > tol:
                 rem[i] = 1
             else:
                 rem[i] = 0
@@ -162,7 +162,7 @@ def filter_angles(img, lines, tol=15):
     return lines[rem == 0]
 
 
-def lines_kmeans(img, lines):
+def lines_kmeans(lines):
     lines = np.array(lines, dtype='float32')
     if (lines.shape[1] < 6):
         lines = aux.radius_theta(lines)

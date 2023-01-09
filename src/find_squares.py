@@ -203,10 +203,11 @@ def mean_dist(distv, disth):
 
 
 def wrong_lines(dist, med):
+    tol = 8
     rem = np.zeros(dist.shape[0], dtype='uint8')
 
     for i, d in enumerate(dist):
-        if abs(d[0] - med) > 8 and abs(d[1] - med) > 8:
+        if abs(d[0] - med) > tol and abs(d[1] - med) > tol:
             rem[i] = 1
         else:
             rem[i] = 0
@@ -214,10 +215,11 @@ def wrong_lines(dist, med):
 
 
 def right_lines(dist, med):
+    tol = 8
     cer = np.zeros(dist.shape[0], dtype='uint8')
 
     for i, d in enumerate(dist):
-        if abs(d[0] - med) < 8 and abs(d[1] - med) < 8:
+        if abs(d[0] - med) < tol and abs(d[1] - med) < tol:
             cer[i] = 1
         else:
             cer[i] = 0

@@ -21,7 +21,7 @@ def find_squares(img):
 
     inter = aux.calc_intersections(img.warp3ch, vert, hori)
     canvas = draw.intersections(img.warp3ch, inter)
-    aux.save(img, "intersections", canvas)
+    # aux.save(img, "intersections", canvas)
     if len(inter) != 81:
         print("There should be exacly 81 intersections")
         exit(1)
@@ -35,7 +35,7 @@ def find_squares(img):
     squares = np.array(sqback, dtype='int32')
 
     canvas = draw.squares(img.board, squares)
-    aux.save(img, "A1E4C5H8", canvas)
+    # aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -49,7 +49,7 @@ def find_squares(img):
 
     img.squares = np.array(np.round(sqback), dtype='int32')
     canvas = draw.squares(img.BGR, img.squares)
-    aux.save(img, "A1E4C5H8", canvas)
+    # aux.save(img, "A1E4C5H8", canvas)
 
     return img
 
@@ -58,8 +58,8 @@ def create_wcannys(img):
     print("finding edges for gray, V warp images...")
     cannyG = aux.find_edges(img, img.wg, lowpass=lf.ffilter)
     cannyV = aux.find_edges(img, img.wv, lowpass=lf.ffilter)
-    aux.save(img, "wcannyG", cannyG)
-    aux.save(img, "wcannyV", cannyV)
+    # aux.save(img, "wcannyG", cannyG)
+    # aux.save(img, "wcannyV", cannyV)
 
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
     return img
@@ -68,9 +68,9 @@ def create_wcannys(img):
 def magic_prepare(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
-    aux.save(img, "wcanny_dilate", img.wcanny)
+    # aux.save(img, "wcanny_dilate", img.wcanny)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "wcanny_close", img.wcanny)
+    # aux.save(img, "wcanny_close", img.wcanny)
 
     return img
 
@@ -140,7 +140,7 @@ def w_lines(img):
             # exit(1)
 
     canvas = draw.lines(img.warp3ch, vert, hori)
-    aux.save(img, "wmagic", canvas)
+    # aux.save(img, "wmagic", canvas)
     return vert, hori
 
 
@@ -226,7 +226,7 @@ def right_lines(dist, med):
 
 def magic_vert_hori(img, vert, hori):
     canvas = draw.lines(img.warp3ch, vert, hori)
-    aux.save(img, "verthori0", canvas)
+    # aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
     if lv <= 5 and lh <= 5 or (lh < 1 > lv):
@@ -238,7 +238,7 @@ def magic_vert_hori(img, vert, hori):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
             canvas = draw.lines(img.warp3ch, vert, hori)
-            aux.save(img, title, canvas)
+            # aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return
 

@@ -35,7 +35,7 @@ def find_squares(img):
     squares = np.array(sqback, dtype='int32')
 
     canvas = draw.squares(img.board, squares)
-    # aux.save(img, "A1E4C5H8", canvas)
+    aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -214,24 +214,24 @@ def magic_vert_hori(img, vert, hori):
 
     print("calculating median distances...")
     distv, disth = get_distances(vert, hori)
-    medv, medh = mean_dist(distv, disth)
+    medv, medh = aux.mean_dist(distv, disth)
     print(f"{medv=}")
     print(f"{medh=}")
 
     if lv >= 5:
         print("removing for sure wrong vertical lines...")
-        remv = wrong_lines(distv, medv)
+        remv = aux.wrong_lines(distv, medv, tol=4)
         vert = vert[remv == 0]
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
-        remh = wrong_lines(disth, medh)
+        remh = aux.wrong_lines(disth, medh, tol=4)
         hori = hori[remh == 0]
     _check_save("rem_wrong")
 
     if lv >= 5 and lh >= 5:
         print("updating median distances...")
         distv, disth = get_distances(vert, hori)
-        medv, medh = mean_dist(distv, disth)
+        medv, medh = aux.mean_dist(distv, disth)
         print("chosing best lines...")
         cerv = right_lines(distv, medv)
         cerh = right_lines(disth, medh)

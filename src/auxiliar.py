@@ -185,8 +185,9 @@ def mean_dist(distv, disth):
     return medv, medh
 
 
-def wrong_lines(dist, med, tol=8):
+def wrong_lines(dist, med, tol=4):
     rem = np.zeros(dist.shape[0], dtype='uint8')
+    tol = med / tol
 
     for i, d in enumerate(dist):
         if abs(d[0] - med) > tol and abs(d[1] - med) > tol:

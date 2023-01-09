@@ -86,11 +86,7 @@ def magic_lines(img):
 
         if ll >= 16:
             vert, hori = split_lines(img, lines)
-            canvas = draw.lines(img.gray3ch, vert, hori)
-            aux.save(img, "hough_magic_before2", canvas)
             vert, hori = magic_dir(vert, hori)
-            canvas = draw.lines(img.gray3ch, vert, hori)
-            aux.save(img, "hough_magic_after2", canvas)
             l1, l2 = len(vert), len(hori)
             ll = l1 + l2
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
@@ -116,7 +112,6 @@ def magic_lines(img):
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
-    exit()
     return lines
 
 
@@ -375,11 +370,11 @@ def magic_dir(vert, hori):
 
     if lv >= 5:
         print("removing for sure wrong vertical lines...")
-        remv = aux.wrong_lines(distv, medv, tol=16)
+        remv = aux.wrong_lines(distv, medv, tol=2)
         vert = vert[remv == 0]
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
-        remh = aux.wrong_lines(disth, medh, tol=16)
+        remh = aux.wrong_lines(disth, medh, tol=2)
         hori = hori[remh == 0]
     return vert, hori
 

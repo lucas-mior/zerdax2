@@ -14,7 +14,6 @@ DX = 50
 def find_corners(img):
     img = create_cannys(img)
     img = black_space(img)
-    img = magic_prepare(img)
     lines = magic_lines(img)
     inter = aux.calc_intersections(img.gray3ch, lines)
     canvas = draw.intersections(img.gray3ch, inter)
@@ -32,13 +31,8 @@ def create_cannys(img):
     cannyV = aux.find_edges(img, img.V, lowpass=lf.ffilter)
     aux.save(img, "cannyG", cannyG)
     aux.save(img, "cannyV", cannyV)
-
     img.canny = cv2.bitwise_or(cannyG, cannyV)
-    return img
 
-
-def magic_prepare(img):
-    print("preparing image for magic...")
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     aux.save(img, "canny_dilate", img.canny)

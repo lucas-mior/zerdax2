@@ -189,8 +189,16 @@ def mean_dist(distv, disth):
         med = round((med1 + med2)/2)
         return med
 
-    medv = _mean_dist(distv)
-    medh = _mean_dist(disth)
+    if len(distv) <= 5:
+        medh = _mean_dist(disth)
+        medv = medh
+    elif len(disth) <= 5:
+        medv = _mean_dist(distv)
+        medh = medv
+    else:
+        medv = _mean_dist(distv)
+        medh = _mean_dist(disth)
+
     return medv, medh
 
 
@@ -240,23 +248,26 @@ def magic_vert_hori(img, vert, hori):
     print(f"{medv=}")
     print(f"{medh=}")
 
-    print("removing for sure wrong lines...")
-    remv = wrong_lines(distv, medv)
-    remh = wrong_lines(disth, medh)
-    vert = vert[remv == 0]
-    hori = hori[remh == 0]
+    if lv >= 5:
+        print("removing for sure wrong vertical lines...")
+        remv = wrong_lines(distv, medv)
+        vert = vert[remv == 0]
+    if lh >= 5:
+        print("removing for sure wrong horizontal lines...")
+        remh = wrong_lines(disth, medh)
+        hori = hori[remh == 0]
     _check_save("rem_wrong")
 
-    print("updating median distances...")
-    distv, disth = get_distances(vert, hori)
-    medv, medh = mean_dist(distv, disth)
-
-    print("chosing best lines...")
-    cerv = right_lines(distv, medv)
-    cerh = right_lines(disth, medh)
-    vert = vert[cerv == 1]
-    hori = hori[cerh == 1]
-    _check_save("right_lines")
+    if lv >= 5 and lh >= 5:
+        print("updating median distances...")
+        distv, disth = get_distances(vert, hori)
+        medv, medh = mean_dist(distv, disth)
+        print("chosing best lines...")
+        cerv = right_lines(distv, medv)
+        cerh = right_lines(disth, medh)
+        vert = vert[cerv == 1]
+        hori = hori[cerh == 1]
+        _check_save("right_lines")
 
     vert, hori = add_outer(vert, hori, medv, medh)
     _check_save("add_outer")

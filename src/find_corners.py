@@ -77,10 +77,7 @@ def magic_lines(img):
             tvotes = round(minlen / force)
             continue
 
-        lines = aux.radius_theta(lines)
-        lines = filter_lines(img, lines)
-        angles = lines_kmeans(lines)
-        lines = filter_angles(angles, lines)
+        lines = filter_all(img, lines)
         if len(lines) < 16:
             minlen = max(minlen0/1.4, minlen - incr/2)
             tvotes = round(minlen / force)
@@ -344,3 +341,11 @@ def black_space(img):
     img.bwidth += (DX*2)
     img.bheigth += (DX*2)
     return img
+
+
+def filter_all(img, lines):
+    lines = aux.radius_theta(lines)
+    lines = filter_lines(img, lines)
+    angles = lines_kmeans(lines)
+    lines = filter_angles(angles, lines)
+    return lines

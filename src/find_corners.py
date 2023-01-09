@@ -112,33 +112,6 @@ def magic_lines(img):
     return lines
 
 
-def filter_border_lines(img, lines):
-    tol = 5
-    if (lines.shape[1] < 6):
-        lines = aux.radius_theta(lines)
-
-    rem = np.zeros(lines.shape[0], dtype='uint8')
-
-    for i, line in enumerate(lines):
-        x1, y1, x2, y2, r, t = line
-        if x1 < (DX+tol) and x2 < (DX+tol) or y1 < (DX+tol) and y2 < (DX+tol):
-            rem[i] = 1
-        elif (img.bwidth - x1) < (DX+tol) and (img.bwidth - x2) < (DX+tol):
-            rem[i] = 1
-        elif (img.bheigth - y1) < (DX+tol) and (img.bheigth - y2) < (DX+tol):
-            rem[i] = 1
-        # elif (x1 < (DX+tol) or (img.bwidth - x1) < (DX+tol)):
-        #     if (y2 < (DX+tol) or (img.bheigth - y2) < (DX+tol)):
-        #         rem[i] = 1
-        # elif (x2 < (DX+tol) or (img.bwidth - x2) < (DX+tol)):
-        #     if (y1 < (DX+tol) or (img.bheigth - y1) < (DX+tol)):
-        #         rem[i] = 1
-        else:
-            rem[i] = 0
-
-    return lines[rem == 0]
-
-
 def filter_angles(angles, lines, tol=15):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
@@ -354,7 +327,6 @@ def black_space(img):
 
 def filter_all(img, lines):
     lines = aux.radius_theta(lines)
-    lines = filter_border_lines(img, lines)
     angles = lines_kmeans(lines)
     print(f"angles: {angles}")
     lines = filter_angles(angles, lines)

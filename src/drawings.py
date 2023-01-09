@@ -19,10 +19,10 @@ def lines(image, vert, hori):
 
     for x1, y1, x2, y2, r, t in vert:
         cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(255, 0, 0), thickness=3)
+                 color=(255, 0, 0), thickness=3)  # blue
     for x1, y1, x2, y2, r, t in hori:
         cv2.line(canvas, (x1, y1), (x2, y2),
-                 color=(0, 255, 0), thickness=3)
+                 color=(0, 255, 0), thickness=3)  # green
 
     cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas

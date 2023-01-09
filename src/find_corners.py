@@ -14,8 +14,8 @@ DX = 50
 def find_corners(img):
     img = create_cannys(img)
     img = black_space(img)
-    lines = magic_lines(img)
-    inter = aux.calc_intersections(img.gray3ch, lines)
+    vert, hori = magic_lines(img)
+    inter = aux.calc_intersections(img.gray3ch, vert, hori)
     canvas = draw.intersections(img.gray3ch, inter)
     aux.save(img, "intersections", canvas)
 
@@ -33,7 +33,7 @@ def create_cannys(img):
     aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
@@ -44,72 +44,33 @@ def create_cannys(img):
 def magic_lines(img):
     print("finding all lines of board...")
 
-    got_hough = False
-    force = 1.2
-    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.25
-    maxgap = minlen0 / 8
-    tvotes = round(minlen / force)
-    tangle = np.pi / 360
-    h_a = round(np.rad2deg(tangle), 2)
+    minlen0 = round((img.bwidth + img.bheigth) * 0.25)
+    maxgap = round(minlen0 / 8)
+    tvotes = round(minlen0 / 2)
+    angle = 0.5  # degrees
+    tangle = np.deg2rad(angle)  # radians
 
-    def _update_magic(force):
-        nonlocal minlen, tvotes
-        print(f"{force=}")
-        minlen = minlen0
-        tvotes = round(minlen / force)
-        return
-
-    incr = 32
-    while minlen >= (minlen0/1.4):
-        l1 = l2 = ll = 0
+    gotmin = False
+    minlen = 0
+    for minlen in range(minlen0, round(minlen0 * 0.6), -16):
+        tvotes = round(minlen / 2)
+        print(f"trying @{angle}º, {tvotes}, {minlen}, {maxgap}")
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        lines = lines[:, 0, :]
+        if lines is not None and len(lines) >= 16:
+            lines = lines[:, 0, :]
+            gotmin = True
+            break
+    if not gotmin:
+        print("magic_lines() failed @ {angle}º, {tvotes}, {minlen}, {maxgap}")
+        exit(1)
+    print(f"{minlen=}")
 
-        if lines is None or len(lines) < 16:
-            minlen = max(minlen0/1.3, minlen - incr)
-            tvotes = round(minlen / force)
-            continue
-
-        lines = bundle_lines(lines)
-        lines = filter_all(img, lines)
-        ll = len(lines)
-        if ll < 16:
-            minlen = max(minlen0/1.3, minlen - incr/2)
-            tvotes = round(minlen / force)
-            continue
-
-        if ll >= 16:
-            vert, hori = split_lines(img, lines)
-            vert, hori = magic_dir(vert, hori)
-            l1, l2 = len(vert), len(hori)
-            ll = l1 + l2
-            if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
-                print(f"{ll} # [{l1}][{l2}] ",
-                      f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-                got_hough = True
-                break
-
-        print(f"{ll} # [{l1}][{l2}] ",
-              f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-        minlen -= incr
-        tvotes = round(minlen / force)
-        if minlen <= (minlen0/1.3):
-            force += 0.1
-            _update_magic(force)
-        else:
-            force += 0.1
-
-    if not got_hough:
-        if l1 < 9 or l2 < 9:
-            print("magic_lines() failed:",
-                  f"{ll} # [{l1}][{l2}]",
-                  f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-            exit(1)
-
+    vert, hori = split_lines(img, lines)
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
-    return lines
+    exit()
+    return vert, hori
 
 
 def filter_angles(angles, lines, tol=15):

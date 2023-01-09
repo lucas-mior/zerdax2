@@ -121,6 +121,7 @@ def magic_lines(img):
 
 
 def filter_lines(img, lines):
+    tol = 5
     if (lines.shape[1] < 6):
         lines = aux.radius_theta(lines)
 
@@ -128,17 +129,17 @@ def filter_lines(img, lines):
 
     for i, line in enumerate(lines):
         x1, y1, x2, y2, r, t = line
-        if x1 < (DX+5) and x2 < (DX+5) or y1 < (DX+5) and y2 < (DX+5):
+        if x1 < (DX+tol) and x2 < (DX+tol) or y1 < (DX+tol) and y2 < (DX+tol):
             rem[i] = 1
-        elif (img.bwidth - x1) < (DX+5) and (img.bwidth - x2) < (DX+5):
+        elif (img.bwidth - x1) < (DX+tol) and (img.bwidth - x2) < (DX+tol):
             rem[i] = 1
-        elif (img.bheigth - y1) < (DX+5) and (img.bheigth - y2) < (DX+5):
+        elif (img.bheigth - y1) < (DX+tol) and (img.bheigth - y2) < (DX+tol):
             rem[i] = 1
-        elif (x1 < (DX+5) or (img.bwidth - x1) < (DX+5)):
-            if (y2 < (DX+5) or (img.bheigth - y2) < (DX+5)):
+        elif (x1 < (DX+tol) or (img.bwidth - x1) < (DX+tol)):
+            if (y2 < (DX+tol) or (img.bheigth - y2) < (DX+tol)):
                 rem[i] = 1
-        elif (x2 < (DX+5) or (img.bwidth - x2) < (DX+5)):
-            if (y1 < (DX+5) or (img.bheigth - y1) < (DX+5)):
+        elif (x2 < (DX+tol) or (img.bwidth - x2) < (DX+tol)):
+            if (y1 < (DX+tol) or (img.bheigth - y1) < (DX+tol)):
                 rem[i] = 1
         else:
             rem[i] = 0

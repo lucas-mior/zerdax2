@@ -85,10 +85,13 @@ def magic_lines(img):
             continue
 
         if ll >= 16:
-            vert, hori = filter_2(img, lines)
-            l1, l2 = len(vert), len(hori)
+            vert, hori = split_lines(img, lines)
             canvas = draw.lines(img.gray3ch, vert, hori)
-            aux.save(img, "hough_magic>16", canvas)
+            aux.save(img, "hough_magic_before2", canvas)
+            vert, hori = magic_dir(vert, hori)
+            canvas = draw.lines(img.gray3ch, vert, hori)
+            aux.save(img, "hough_magic_after2", canvas)
+            l1, l2 = len(vert), len(hori)
             ll = l1 + l2
             if 18 <= ll <= 22 and (9 <= l1 <= 11 and 9 <= l2 <= 11):
                 print(f"{ll} # [{l1}][{l2}] ",
@@ -273,6 +276,8 @@ def perspective_transform(img):
 
 
 def split_lines(img, lines):
+    lines = bundle_lines(lines)
+    lines = aux.radius_theta(lines)
     lines = np.array(lines, dtype='float32')
     if (lines.shape[1] < 6):
         lines = aux.radius_theta(lines)
@@ -354,14 +359,6 @@ def filter_all(img, lines):
     angles = lines_kmeans(lines)
     lines = filter_angles(angles, lines)
     return lines
-
-
-def filter_2(img, lines):
-    lines = bundle_lines(lines)
-    lines = aux.radius_theta(lines)
-    vert, hori = split_lines(img, lines)
-    vert, hori = magic_dir(vert, hori)
-    return vert, hori
 
 
 def magic_dir(vert, hori):

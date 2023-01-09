@@ -182,38 +182,6 @@ def get_distances(vert, hori):
     return distv, disth
 
 
-def mean_dist(distv, disth):
-    def _mean_dist(dist):
-        med1 = np.median(dist[:, 0])
-        med2 = np.median(dist[:, 1])
-        med = round((med1 + med2)/2)
-        return med
-
-    if len(distv) <= 5:
-        medh = _mean_dist(disth)
-        medv = medh
-    elif len(disth) <= 5:
-        medv = _mean_dist(distv)
-        medh = medv
-    else:
-        medv = _mean_dist(distv)
-        medh = _mean_dist(disth)
-
-    return medv, medh
-
-
-def wrong_lines(dist, med):
-    tol = 8
-    rem = np.zeros(dist.shape[0], dtype='uint8')
-
-    for i, d in enumerate(dist):
-        if abs(d[0] - med) > tol and abs(d[1] - med) > tol:
-            rem[i] = 1
-        else:
-            rem[i] = 0
-    return rem
-
-
 def right_lines(dist, med):
     tol = 8
     cer = np.zeros(dist.shape[0], dtype='uint8')

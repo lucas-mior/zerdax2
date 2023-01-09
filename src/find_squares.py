@@ -15,7 +15,6 @@ def find_squares(img):
     print("generating 3 channel gray warp image for drawings...")
     img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
     img = create_wcannys(img)
-    img = magic_prepare(img)
     vert, hori = w_lines(img)
     vert, hori = magic_vert_hori(img, vert, hori)
 
@@ -60,18 +59,13 @@ def create_wcannys(img):
     cannyV = aux.find_edges(img, img.wv, lowpass=lf.ffilter)
     aux.save(img, "wcannyG", cannyG)
     aux.save(img, "wcannyV", cannyV)
-
     img.wcanny = cv2.bitwise_or(cannyG, cannyV)
-    return img
 
-
-def magic_prepare(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_DILATE, kernel)
     aux.save(img, "wcanny_dilate", img.wcanny)
     img.wcanny = cv2.morphologyEx(img.wcanny, cv2.MORPH_CLOSE, kernel)
     aux.save(img, "wcanny_close", img.wcanny)
-
     return img
 
 

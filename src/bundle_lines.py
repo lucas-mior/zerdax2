@@ -1,7 +1,10 @@
 import numpy as np
+import auxiliar as aux
 
 
 def bundle_lines(lines, min_dist=12, min_angle=15):
+    if (lines.shape[1] < 6):
+        lines = aux.radius_theta(lines)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:

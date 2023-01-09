@@ -77,6 +77,7 @@ def magic_lines(img):
             tvotes = round(minlen / force)
             continue
 
+        lines = bundle_lines(lines)
         lines = filter_all(img, lines)
         ll = len(lines)
         if ll < 16:
@@ -115,7 +116,7 @@ def magic_lines(img):
     return lines
 
 
-def filter_lines(img, lines):
+def filter_border_lines(img, lines):
     tol = 5
     if (lines.shape[1] < 6):
         lines = aux.radius_theta(lines)
@@ -185,6 +186,7 @@ def lines_kmeans(lines):
                                               criteria, 10, flags)
 
     labels = np.ravel(labels)
+    centers.sort()
 
     diff = []
     diff.append((abs(centers[0] - 85), -85))
@@ -201,8 +203,9 @@ def lines_kmeans(lines):
                 if abs(centers[0] - k) > 15 and abs(centers[1] - k) > 15:
                     centers = np.append(centers, k)
             else:
-                if abs(centers[2] - k) > 15:
-                    centers = np.append(centers, k)
+                if abs(centers[0] - k) > 15 and abs(centers[1] - k) > 15:
+                    if abs(centers[2] - k) > 15:
+                        centers = np.append(centers, k)
             break
 
     centers = np.round(centers)
@@ -272,7 +275,6 @@ def perspective_transform(img):
 
 
 def split_lines(img, lines):
-    lines = bundle_lines(lines)
     lines = aux.radius_theta(lines)
     lines = np.array(lines, dtype='float32')
     if (lines.shape[1] < 6):
@@ -351,8 +353,9 @@ def black_space(img):
 
 def filter_all(img, lines):
     lines = aux.radius_theta(lines)
-    lines = filter_lines(img, lines)
+    lines = filter_border_lines(img, lines)
     angles = lines_kmeans(lines)
+    print(f"angles: {angles}")
     lines = filter_angles(angles, lines)
     return lines
 

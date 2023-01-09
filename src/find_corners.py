@@ -354,4 +354,9 @@ def filter_2(img, lines):
     lines = bundle_lines(lines)
     lines = aux.radius_theta(lines)
     dir1, dir2 = split_lines(img, lines)
+    dir1, dir2 = magic_dir(dir1, dir2)
+    return dir1, dir2
+
+
+def magic_dir(dir1, dir2):
     return dir1, dir2

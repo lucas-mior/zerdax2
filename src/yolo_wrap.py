@@ -16,8 +16,8 @@ def detect_objects(img):
                     conf_thres=0.5,  # confidence threshold
                     iou_thres=0.45,  # NMS IOU threshold
                     max_det=32,  # maximum detections per image
-                    save_txt=False,  # save results to *.txt
-                    save_conf=True,  # save confidences in --save-txt labels
+                    # save_txt=False,  # save results to *.txt
+                    # save_conf=True,  # save confidences in --save-txt labels
                     project='.',  # save results to project/name
                     name='exp',  # save results to project/name
                     )
@@ -36,7 +36,7 @@ def detect_objects(img):
     img.pieces = process_pieces(img.pieces)
 
     canvas = draw.boxes(img.pieces, img.BGR)
-    aux.save(img, "yolo", canvas)
+    # aux.save(img, "yolo", canvas)
     return img
 
 

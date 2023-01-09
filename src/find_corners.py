@@ -52,7 +52,7 @@ def magic_lines(img):
 
     got_hough = False
     force = 1.2
-    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.2
+    minlen = minlen0 = (img.bwidth + img.bheigth) * 0.25
     maxgap = minlen0 / 8
     tvotes = round(minlen / force)
     tangle = np.pi / 360
@@ -66,14 +66,14 @@ def magic_lines(img):
         return
 
     incr = 32
-    while minlen >= (minlen0/1.5):
+    while minlen >= (minlen0/1.4):
         l1 = l2 = ll = 0
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
 
         if lines is None or len(lines) < 16:
-            minlen = max(minlen0/1.4, minlen - incr)
+            minlen = max(minlen0/1.3, minlen - incr)
             tvotes = round(minlen / force)
             continue
 
@@ -81,7 +81,7 @@ def magic_lines(img):
         lines = filter_all(img, lines)
         ll = len(lines)
         if ll < 16:
-            minlen = max(minlen0/1.4, minlen - incr/2)
+            minlen = max(minlen0/1.3, minlen - incr/2)
             tvotes = round(minlen / force)
             continue
 
@@ -100,9 +100,11 @@ def magic_lines(img):
               f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
         minlen -= incr
         tvotes = round(minlen / force)
-        if minlen <= (minlen0/1.4):
+        if minlen <= (minlen0/1.3):
             force += 0.1
             _update_magic(force)
+        else:
+            force += 0.1
 
     if not got_hough:
         if l1 < 9 or l2 < 9:
@@ -131,12 +133,12 @@ def filter_border_lines(img, lines):
             rem[i] = 1
         elif (img.bheigth - y1) < (DX+tol) and (img.bheigth - y2) < (DX+tol):
             rem[i] = 1
-        elif (x1 < (DX+tol) or (img.bwidth - x1) < (DX+tol)):
-            if (y2 < (DX+tol) or (img.bheigth - y2) < (DX+tol)):
-                rem[i] = 1
-        elif (x2 < (DX+tol) or (img.bwidth - x2) < (DX+tol)):
-            if (y1 < (DX+tol) or (img.bheigth - y1) < (DX+tol)):
-                rem[i] = 1
+        # elif (x1 < (DX+tol) or (img.bwidth - x1) < (DX+tol)):
+        #     if (y2 < (DX+tol) or (img.bheigth - y2) < (DX+tol)):
+        #         rem[i] = 1
+        # elif (x2 < (DX+tol) or (img.bwidth - x2) < (DX+tol)):
+        #     if (y1 < (DX+tol) or (img.bheigth - y1) < (DX+tol)):
+        #         rem[i] = 1
         else:
             rem[i] = 0
 
@@ -172,6 +174,8 @@ def lines_kmeans(lines):
                                           criteria, 10, flags)
 
     labels = np.ravel(labels)
+    centers.sort()
+    print(f"{centers=}")
 
     d1 = abs(centers[0] - centers[1])
     d2 = abs(centers[0] - centers[2])
@@ -187,6 +191,7 @@ def lines_kmeans(lines):
 
     labels = np.ravel(labels)
     centers.sort()
+    print(f"{centers=}")
 
     diff = []
     diff.append((abs(centers[0] - 85), -85))
@@ -209,6 +214,7 @@ def lines_kmeans(lines):
             break
 
     centers = np.round(centers)
+    print(f"{centers=}")
     return np.array(centers, dtype='int32')
 
 
@@ -315,7 +321,7 @@ def split_lines(img, lines):
         A = lines[labels == 0]
         B = lines[labels == 1]
 
-    if centers[0] < centers[1]:
+    if centers[1] < centers[0]:
         return np.int32(A), np.int32(B)
     else:
         return np.int32(B), np.int32(A)

@@ -36,7 +36,7 @@ def detect_objects(img):
     img.pieces = process_pieces(img.pieces)
 
     canvas = draw.boxes(img.pieces, img.BGR)
-    # aux.save(img, "yolo", canvas)
+    aux.save(img, "yolo", canvas)
     return img
 
 

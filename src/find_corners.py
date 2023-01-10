@@ -63,10 +63,21 @@ def magic_lines(img):
             break
     if not gotmin:
         print("magic_lines() failed @ {angle}º, {tvotes}, {minlen}, {maxgap}")
+        aux.save(img, "lastcanny", img.canny)
+        canvas = draw.lines(img.gray3ch, lines)
         exit(1)
-    print(f"{minlen=}")
 
+    print(f"{minlen=}")
+    lines = bundle_lines(lines)
     vert, hori = split_lines(img, lines)
+    lv, lh = len(vert), len(hori)
+    while lv < 9 or lh < 9:
+        minlen -= 2
+        tvotes -= 5
+        lines = cv2.HoughLinesP(img.canny, 1,
+                                tangle, tvotes, None, minlen, maxgap)
+
+
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
     exit()

@@ -17,7 +17,7 @@ def find_corners(img):
     vert, hori = magic_lines(img)
     inter = aux.calc_intersections(img.gray3ch, vert, hori)
     canvas = draw.intersections(img.gray3ch, inter)
-    aux.save(img, "intersections", canvas)
+    # aux.save(img, "intersections", canvas)
 
     img.corners = calc_corners(img, inter)
     img = perspective_transform(img)
@@ -29,15 +29,15 @@ def create_cannys(img):
     print("finding edges for gray, S, V images...")
     cannyG = aux.find_edges(img, img.G, lowpass=lf.ffilter)
     cannyV = aux.find_edges(img, img.V, lowpass=lf.ffilter)
-    aux.save(img, "cannyG", cannyG)
-    aux.save(img, "cannyV", cannyV)
+    # aux.save(img, "cannyG", cannyG)
+    # aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    aux.save(img, "canny_dilate", img.canny)
+    # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "canny_closed", img.canny)
+    # aux.save(img, "canny_closed", img.canny)
     return img
 
 
@@ -63,7 +63,7 @@ def magic_lines(img):
             break
     if not gotmin:
         print("magic_lines() failed @ {angle}º, {tvotes}, {minlen}, {maxgap}")
-        aux.save(img, "lastcanny", img.canny)
+        # aux.save(img, "lastcanny", img.canny)
         canvas = draw.lines(img.gray3ch, lines)
         exit(1)
 
@@ -79,7 +79,7 @@ def magic_lines(img):
 
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "hough_magic", canvas)
+    # aux.save(img, "hough_magic", canvas)
     exit()
     return vert, hori
 
@@ -186,7 +186,7 @@ def calc_corners(img, inter):
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
     canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
-    aux.save(img, "corners", canvas)
+    # aux.save(img, "corners", canvas)
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 
@@ -213,8 +213,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    aux.save(img, "warpclaheG", img.wg)
-    aux.save(img, "warpclaheV", img.wv)
+    # aux.save(img, "warpclaheG", img.wg)
+    # aux.save(img, "warpclaheV", img.wv)
 
     return img
 

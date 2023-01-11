@@ -4,6 +4,7 @@ import numpy as np
 import auxiliar as aux
 import drawings as draw
 import lffilter as lf
+import find_squares as fs
 
 from bundle_lines import bundle_lines
 
@@ -37,7 +38,7 @@ def create_cannys(img):
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    # aux.save(img, "canny_closed", img.canny)
+    aux.save(img, "canny_closed", img.canny)
     return img
 
 
@@ -70,9 +71,9 @@ def magic_lines(img):
     print(f"{minlen=}")
     minlen0 = minlen
     ll = lv = lh = 0
-    while lv < 9 or lh < 9:
-        minlen = max(minlen - 2, minlen0 / 2)
-        tvotes -= 2
+    while lv < 9 or lh < 9 and tvotes > minlen0 / 3:
+        minlen = max(minlen - 2, minlen0 / 1.5)
+        tvotes -= 5
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         if ll := len(lines) < 12:
@@ -86,11 +87,18 @@ def magic_lines(img):
         if (lv := len(vert)) >= 6 <= (lh := len(hori)):
             vert = vert[np.argsort(vert[:, 0])]
             hori = hori[np.argsort(hori[:, 1])]
-            vert, hori = magic_dir(img, vert, hori)
+            vert, hori, medv, medh = magic_dir(img, vert, hori)
+            vert, hori = rem_1011(img, vert, hori, medv, medh)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
+
+    if lv < 9 or lh < 9:
+        vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
+        vert, hori = fs.add_middle(vert, hori, medv, medh)
+        vert, hori = fs.remove_extras(vert, hori)
+        vert, hori = fs.add_last_outer(vert, hori, medv, medh)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic_final", canvas)
@@ -248,50 +256,40 @@ def black_space(img):
 def magic_dir(img, vert, hori):
     lv, lh = len(vert), len(hori)
     distv, disth = get_distances(vert, hori)
-    print("distances:")
-    print("disth:\n", disth)
-    print("distv:\n", distv)
-
     medv, medh = aux.mean_dist(distv, disth)
-    print(f"{medv=}")
-    print(f"{medh=}")
 
-    print("removing for sure wrong vertical lines...")
-    vert = aux.wrong_lines(vert, distv, medv, tol=2)
-    lv = len(vert)
-    print("removing for sure wrong horizontal lines...")
-    hori = aux.wrong_lines(hori, disth, medh, tol=2)
-    lh = len(hori)
+    # print("removing for sure wrong vertical lines...")
+    # vert = aux.wrong_lines(vert, distv, medv, tol=2)
+    # lv = len(vert)
+    # print("removing for sure wrong horizontal lines...")
+    # hori = aux.wrong_lines(hori, disth, medh, tol=2)
+    # lh = len(hori)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "after_wrong", canvas)
+    return vert, hori, medv, medh
 
+
+def rem_1011(img, vert, hori, medv, medh):
     tol = 2
     ww = img.bwidth
     hh = img.bheigth
-    changed = False
+    lv, lh = len(vert), len(hori)
     if lv == 9:
         vtol = medv + tol + DX
         if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
             vert = vert[0:-1]
-            changed = True
         elif abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
             vert = vert[1:]
-            changed = True
     if lh == 9:
         htol = medh + tol + DX
         if abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
             hori = hori[0:-1]
-            changed = True
         elif abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
             hori = hori[1:]
-            changed = True
-    if changed:
-        canvas = draw.lines(img.gray3ch, vert, hori)
-        aux.save(img, "after==9", canvas)
-        return vert, hori
 
-    vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
+    canvas = draw.lines(img.gray3ch, vert, hori)
+    aux.save(img, "after==9", canvas)
     return vert, hori
 
 

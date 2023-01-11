@@ -331,7 +331,7 @@ def remove_extras(vert, hori):
         elif num == 11:
             lines = lines[1:-1]
         elif num >= 12:
-            print("There are 12 or more vertical lines")
+            print("There are 12 or more lines")
             lines = lines[1:-1]
             lines = _rem_extras(lines, len(lines), kind)
         return lines

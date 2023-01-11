@@ -4,6 +4,7 @@ import numpy as np
 import auxiliar as aux
 import drawings as draw
 import lffilter as lf
+import lines as li
 
 from bundle_lines import bundle_lines
 
@@ -176,18 +177,6 @@ def get_distances(vert, hori):
     return distv, disth
 
 
-def right_lines(dist, med):
-    tol = 8
-    cer = np.zeros(dist.shape[0], dtype='uint8')
-
-    for i, d in enumerate(dist):
-        if abs(d[0] - med) < tol and abs(d[1] - med) < tol:
-            cer[i] = 1
-        else:
-            cer[i] = 0
-    return cer
-
-
 def magic_vert_hori(img, vert, hori):
     canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "verthori0", canvas)
@@ -207,37 +196,35 @@ def magic_vert_hori(img, vert, hori):
         return
 
     print("calculating median distances...")
-    distv, disth = get_distances(vert, hori)
-    medv, medh = aux.mean_dist(distv, disth)
+    distv, disth = li.get_distances(vert, hori)
+    medv, medh = li.mean_dist(distv, disth)
     print(f"{medv=}")
     print(f"{medh=}")
 
     if lv >= 5:
         print("removing for sure wrong vertical lines...")
-        vert = aux.wrong_lines(vert, distv, medv, tol=4)
+        vert = li.wrong_lines(vert, distv, medv, tol=4)
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
-        hori = aux.wrong_lines(hori, disth, medh, tol=4)
+        hori = li.wrong_lines(hori, disth, medh, tol=4)
     _check_save("rem_wrong")
 
     if lv >= 5 and lh >= 5:
         print("updating median distances...")
-        distv, disth = get_distances(vert, hori)
-        medv, medh = aux.mean_dist(distv, disth)
+        distv, disth = li.get_distances(vert, hori)
+        medv, medh = li.mean_dist(distv, disth)
         print("chosing best lines...")
-        cerv = right_lines(distv, medv)
-        cerh = right_lines(disth, medh)
-        vert = vert[cerv == 1]
-        hori = hori[cerh == 1]
+        vert = li.right_lines(vert, distv, medv)
+        hori = li.right_lines(hori, disth, medh)
         _check_save("right_lines")
 
-    vert, hori = add_outer(vert, hori, medv, medh)
-    _check_save("add_outer")
-    vert, hori = add_middle(vert, hori, medv, medh)
+    vert, hori = li.add_wouter(vert, hori, medv, medh)
+    _check_save("add_wouter")
+    vert, hori = li.add_middle(vert, hori, medv, medh)
     _check_save("add_middle")
-    vert, hori = remove_extras(vert, hori)
+    vert, hori = li.remove_extras(vert, hori)
     _check_save("rem_extras")
-    vert, hori = add_last_outer(vert, hori, medv, medh)
+    vert, hori = li.add_last_outer(vert, hori, medv, medh)
     _check_save("last_outer")
 
     if len(vert) != 9 or len(hori) != 9:

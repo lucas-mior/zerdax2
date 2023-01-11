@@ -168,7 +168,7 @@ def add_outer(vert, hori, medv, medh, ww, hh):
     return vert, hori
 
 
-def right_lines(dist, med):
+def right_lines(lines, dist, med):
     tol = 8
     cer = np.zeros(dist.shape[0], dtype='uint8')
 
@@ -177,12 +177,14 @@ def right_lines(dist, med):
             cer[i] = 1
         else:
             cer[i] = 0
-    return cer
+    return lines[cer == 1]
 
 
 def add_wouter(vert, hori, medv, medh):
     tol = 2
     print("adding missing outer lines...")
+    print("vert::::add_wouter")
+    print(f"{vert}")
     while abs(vert[0, 0] - 0) > (medv + tol):
         x1 = vert[0, 0] - medv
         y1 = vert[0, 1]
@@ -316,3 +318,36 @@ def add_last_outer(vert, hori, medv, medh):
     vert = _add_last_outer(vert, v, medv, 0)
     hori = _add_last_outer(hori, h, medh, 1)
     return vert, hori
+
+
+def mean_dist(distv, disth):
+    def _mean_dist(dist):
+        med1 = np.median(dist[:, 0])
+        med2 = np.median(dist[:, 1])
+        med = round((med1 + med2)/2)
+        return med
+
+    if len(distv) <= 5:
+        medh = _mean_dist(disth)
+        medv = medh
+    elif len(disth) <= 5:
+        medv = _mean_dist(distv)
+        medh = medv
+    else:
+        medv = _mean_dist(distv)
+        medh = _mean_dist(disth)
+
+    return medv, medh
+
+
+def wrong_lines(lines, dists, med, tol=4):
+    rem = np.zeros(dists.shape[0], dtype='uint8')
+    tol = med / tol
+
+    for i, d in enumerate(dists):
+        if abs(d[0] - med) > tol and abs(d[1] - med) > tol:
+            rem[i] = 1
+        else:
+            rem[i] = 0
+
+    return lines[rem == 0]

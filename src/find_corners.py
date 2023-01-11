@@ -4,6 +4,7 @@ import numpy as np
 import auxiliar as aux
 import drawings as draw
 import lffilter as lf
+import lines as li
 import find_squares as fs
 
 from bundle_lines import bundle_lines
@@ -88,18 +89,18 @@ def magic_lines(img):
             vert = vert[np.argsort(vert[:, 0])]
             hori = hori[np.argsort(hori[:, 1])]
             vert, hori, medv, medh = magic_dir(img, vert, hori)
-            vert, hori = rem_1011(img, vert, hori, medv, medh)
+            vert, hori = li.rem_1011(img, vert, hori, medv, medh)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     if lv < 9 or lh < 9:
-        vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
-        vert, hori = fs.add_middle(vert, hori, medv, medh)
+        vert, hori = li.add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
+        vert, hori = li.add_middle(vert, hori, medv, medh)
     if lv > 9 or lh > 9:
-        vert, hori = fs.remove_extras(vert, hori)
-        vert, hori = fs.add_last_outer(vert, hori, medv, medh)
+        vert, hori = li.remove_extras(vert, hori)
+        vert, hori = li.add_last_outer(vert, hori, medv, medh)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic_final", canvas)
@@ -263,152 +264,14 @@ def magic_dir(img, vert, hori):
         return
 
     lv, lh = len(vert), len(hori)
-    distv, disth = get_distances(vert, hori)
-    medv, medh = aux.mean_dist(distv, disth)
+    distv, disth = li.get_distances(vert, hori)
+    medv, medh = li.mean_dist(distv, disth)
 
     print("removing for sure wrong vertical lines...")
-    vert = aux.wrong_lines(vert, distv, medv, tol=2)
+    vert = li.wrong_lines(vert, distv, medv, tol=2)
     lv = len(vert)
     print("removing for sure wrong horizontal lines...")
-    hori = aux.wrong_lines(hori, disth, medh, tol=2)
+    hori = li.wrong_lines(hori, disth, medh, tol=2)
     lh = len(hori)
     _check_save("rem_wrong")
     return vert, hori, medv, medh
-
-
-def rem_1011(img, vert, hori, medv, medh):
-    tol = 2
-    ww = img.bwidth
-    hh = img.bheigth
-    lv, lh = len(vert), len(hori)
-    if lv == 9:
-        vtol = medv + tol + DX
-        if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
-            vert = vert[0:-1]
-        elif abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
-            vert = vert[1:]
-    if lh == 9:
-        htol = medh + tol + DX
-        if abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
-            hori = hori[0:-1]
-        elif abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
-            hori = hori[1:]
-
-    canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "after==9", canvas)
-    return vert, hori
-
-
-def get_distances(vert, hori):
-    def _between(line2, line1):
-        dist1 = min_distance(line1[0:2], line1[2:4], line2[0:2])
-        dist2 = min_distance(line1[0:2], line1[2:4], line2[2:4])
-        dist3 = min_distance(line2[0:2], line2[2:4], line1[0:2])
-        dist4 = min_distance(line2[0:2], line2[2:4], line1[2:4])
-        return min(dist1, dist2, dist3, dist4)
-
-    def _get_dist(lines):
-        dist = np.zeros((lines.shape[0], 2), dtype='int32')
-        dist[0, 0] = dist[0, 1] = _between(lines[0], lines[1])
-        i = 0
-        for i in range(1, len(lines) - 1):
-            dist[i, 0] = _between(lines[i-1], lines[i+0])
-            dist[i, 1] = _between(lines[i+0], lines[i+1])
-        i += 1
-        dist[i, 0] = dist[i, 1] = _between(lines[i-1], lines[i])
-        return dist
-
-    return _get_dist(vert), _get_dist(hori)
-
-
-def min_distance(A, B, E):
-    # vector AB
-    AB = [None, None]
-    AB[0] = B[0] - A[0]
-    AB[1] = B[1] - A[1]
-
-    # vector BP
-    BE = [None, None]
-    BE[0] = E[0] - B[0]
-    BE[1] = E[1] - B[1]
-
-    # vector AP
-    AE = [None, None]
-    AE[0] = E[0] - A[0]
-    AE[1] = E[1] - A[1]
-
-    # variables to store dot product
-
-    # calculating the dot product
-    AB_BE = AB[0] * BE[0] + AB[1] * BE[1]
-    AB_AE = AB[0] * AE[0] + AB[1] * AE[1]
-
-    # minimum distance from
-    # point E to the line segment
-    reqAns = 0
-
-    # case 1
-    if (AB_BE > 0):
-        # Finding the magnitude
-        y = E[1] - B[1]
-        x = E[0] - B[0]
-        reqAns = np.sqrt(x*x + y*y)
-
-    # case 2
-    elif (AB_AE < 0):
-        y = E[1] - A[1]
-        x = E[0] - A[0]
-        reqAns = np.sqrt(x*x + y*y)
-
-    # Case 3
-    else:
-        # finding the perpendicular distance
-        x1 = AB[0]
-        y1 = AB[1]
-        x2 = AE[0]
-        y2 = AE[1]
-        mod = np.sqrt(x1*x1 + y1*y1)
-        reqAns = abs(x1*y2 - y1*x2) / mod
-
-    return reqAns
-
-
-def add_outer(vert, hori, medv, medh, ww, hh):
-    tol = 2
-    vtol = medv + tol + DX
-    htol = medh + tol + DX
-    print("adding missing outer lines...")
-    while abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
-        x1 = vert[0, 0] - abs(vert[0, 0] - vert[1, 0])
-        y1 = vert[0, 1]
-        x2 = vert[0, 2] - abs(vert[0, 2] - vert[1, 2])
-        y2 = vert[0, 3]
-        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-        vert = np.append(vert, new, axis=0)
-        vert = vert[np.argsort(vert[:, 0])]
-    while abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
-        x1 = vert[-1, 0] + abs(vert[-1, 0] - vert[-2, 0])
-        y1 = vert[-1, 1]
-        x2 = vert[-1, 2] + abs(vert[-1, 2] - vert[-2, 2])
-        y2 = vert[-1, 3]
-        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-        vert = np.append(vert, new, axis=0)
-        vert = vert[np.argsort(vert[:, 0])]
-    while abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
-        x1 = hori[0, 0]
-        y1 = hori[0, 1] - abs(hori[0, 1] - hori[1, 1])
-        x2 = hori[0, 2]
-        y2 = hori[0, 3] - abs(hori[0, 3] - hori[1, 3])
-        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-        hori = np.append(hori, new, axis=0)
-        hori = hori[np.argsort(hori[:, 1])]
-    while abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
-        x1 = hori[-1, 0]
-        y1 = hori[-1, 1] + abs(hori[-1, 1] - hori[-2, 1])
-        x2 = hori[-1, 2]
-        y2 = hori[-1, 3] + abs(hori[-1, 3] - hori[-2, 3])
-        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
-        hori = np.append(hori, new, axis=0)
-        hori = hori[np.argsort(hori[:, 1])]
-
-    return vert, hori

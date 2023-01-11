@@ -63,25 +63,26 @@ def find_edges(img, image, lowpass):
     print("filtering image...")
     image = lowpass(image)
     # save(img, "lowpass", image)
-    bonus = len(img.pieces) / 10
+    bonus = len(img.pieces) / 5
     if lowpass == lf.ffilter:
         wmin = 10 + bonus
-        thigh = 190
+        thigh0 = 190
     elif lowpass == gauss:
         wmin = 12 + bonus
-        thigh = 220
+        thigh0 = 220
     else:
         print(f"which lowfilter is {lowpass}?")
         exit(1)
-    return find_canny(image, wmin, thigh)
+    return find_canny(image, wmin, thigh0)
 
 
-def find_canny(image, wmin=8, thigh=230):
+def find_canny(image, wmin=8, thigh0=230):
     print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False
     thighmin = 30
     tlowmin = 10
+    thigh = thigh0
     while thigh >= thighmin:
         tlow = max(tlowmin, round(thigh*0.8))
         while tlow >= tlowmin:

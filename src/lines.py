@@ -9,12 +9,12 @@ DX = 50
 
 
 def rem_1011(img, vert, hori):
-    tol = 5
+    tol = 2
     ww = img.bwidth
     hh = img.bheigth
 
-    def _rem(lines, k, dim):
-        while len(lines) >= 9:
+    def _rem(lines, k, dd):
+        if len(lines) >= 9:
             dprev = min(abs(lines[1, k] - lines[0, k]),
                         abs(lines[1, k+2] - lines[0, k+2]))
             t1 = dprev + tol + DX
@@ -22,16 +22,29 @@ def rem_1011(img, vert, hori):
                         abs(lines[-1, 2] - lines[-2, 2]))
             t2 = dprev + tol + DX
             if abs(lines[0, k] - 0) > t1 and abs(lines[0, k+2] - 0) > t1:
+                dy, dx = (t1-DX, 0) if k == 1 else (0, t1-DX)
                 lines = lines[0:-1]
-            elif abs(lines[-1, k] - dim) > t2 and abs(lines[-1, k+2] - dim) > t2:
+                x1 = lines[0, 0] - dx
+                y1 = lines[0, 1] - dy
+                x2 = lines[0, 2] - dx
+                y2 = lines[0, 3] - dy
+                new = np.array([[x1, y1, x2, y2, 0, 0, 0]], dtype='int32')
+                lines = np.append(lines, new, axis=0)
+                lines, _ = sort_lines(lines)
+            elif abs(lines[-1, k] - dd) > t2 and abs(lines[-1, k+2] - dd) > t2:
+                dy, dx = (t1-DX, 0) if k == 1 else (0, t1-DX)
                 lines = lines[1:]
-            else:
-                break
+                x1 = lines[-1, 0] + dx
+                y1 = lines[-1, 1] + dy
+                x2 = lines[-1, 2] + dx
+                y2 = lines[-1, 3] + dy
+                new = np.array([[x1, y1, x2, y2, 0, 0, 0]], dtype='int32')
+                lines = np.append(lines, new, axis=0)
+                lines, _ = sort_lines(lines)
         return lines
 
     vert = _rem(vert, 0, ww)
     hori = _rem(hori, 1, hh)
-
     return vert, hori
 
 
@@ -111,10 +124,8 @@ def min_distance(A, B, E):
     return reqAns
 
 
-def add_outer(vert, hori, medv, medh, ww, hh):
+def add_outer(vert, hori, ww, hh):
     tol = 2
-    vtol = medv + tol + DX
-    htol = medh + tol + DX
     print("adding missing outer lines...")
     while abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
         x1 = vert[0, 0] - abs(vert[0, 0] - vert[1, 0])
@@ -381,7 +392,7 @@ def split_lines(img, lines):
         return np.int32(B), np.int32(A)
 
 
-def sort_lines(vert, hori):
+def sort_lines(vert, hori=None):
     def _create(lines, kind):
         dummy = np.zeros((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:6] = lines[:, 0:6]
@@ -392,7 +403,8 @@ def sort_lines(vert, hori):
         return lines
 
     vert = _create(vert, 0)
-    hori = _create(hori, 1)
     vert = vert[np.argsort(vert[:, 6])]
-    hori = hori[np.argsort(hori[:, 6])]
+    if hori is not None:
+        hori = _create(hori, 1)
+        hori = hori[np.argsort(hori[:, 6])]
     return vert, hori

@@ -7,46 +7,26 @@ WLEN = 640
 DX = 50
 
 
-def magic_dir(img, vert, hori):
-    def _check_save(title):
-        nonlocal lv, lh, vert, hori
-        if lv != len(vert) or lh != len(hori):
-            canvas = draw.lines(img.warp3ch, vert, hori)
-            aux.save(img, title, canvas)
-            lv, lh = len(vert), len(hori)
-        return
-
-    lv, lh = len(vert), len(hori)
-    distv, disth = get_distances(vert, hori)
-    medv, medh = aux.mean_dist(distv, disth)
-
-    print("removing for sure wrong vertical lines...")
-    vert = aux.wrong_lines(vert, distv, medv, tol=2)
-    lv = len(vert)
-    print("removing for sure wrong horizontal lines...")
-    hori = aux.wrong_lines(hori, disth, medh, tol=2)
-    lh = len(hori)
-    _check_save("rem_wrong")
-    return vert, hori, medv, medh
-
-
 def rem_1011(img, vert, hori, medv, medh):
     tol = 2
     ww = img.bwidth
     hh = img.bheigth
-    lv, lh = len(vert), len(hori)
-    if lv == 9:
+    while len(vert) >= 9:
         vtol = medv + tol + DX
         if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
             vert = vert[0:-1]
         elif abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
             vert = vert[1:]
-    if lh == 9:
+        else:
+            break
+    while len(hori) >= 9:
         htol = medh + tol + DX
         if abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
             hori = hori[0:-1]
         elif abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
             hori = hori[1:]
+        else:
+            break
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "after==9", canvas)

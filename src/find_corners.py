@@ -92,7 +92,7 @@ def magic_lines(img):
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    # aux.save(img, "hough_magic", canvas)
+    aux.save(img, "hough_magic", canvas)
     return vert, hori
 
 
@@ -271,7 +271,7 @@ def magic_dir(img, vert, hori):
         hori = aux.wrong_lines(hori, disth, medh, tol=2)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    # aux.save(img, "hough_magic", canvas)
+    aux.save(img, "hough_magic", canvas)
     vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
     return vert, hori
 

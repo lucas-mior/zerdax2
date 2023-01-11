@@ -83,16 +83,17 @@ def magic_lines(img):
         lines = aux.radius_theta(lines)
         vert, hori = split_lines(img, lines)
         vert, hori = filter_angles(vert, hori)
-        vert = vert[np.argsort(vert[:, 0])]
-        hori = hori[np.argsort(hori[:, 1])]
-        vert, hori = magic_dir(img, vert, hori)
+        if (lv := len(vert)) >= 8 <= (lh := len(hori)):
+            vert = vert[np.argsort(vert[:, 0])]
+            hori = hori[np.argsort(hori[:, 1])]
+            vert, hori = magic_dir(img, vert, hori)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "hough_magic", canvas)
+    aux.save(img, "hough_magic_final", canvas)
     return vert, hori
 
 
@@ -271,7 +272,7 @@ def magic_dir(img, vert, hori):
         hori = aux.wrong_lines(hori, disth, medh, tol=2)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "hough_magic", canvas)
+    aux.save(img, "hough_magic_before_add_outer", canvas)
     vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
     return vert, hori
 
@@ -383,7 +384,7 @@ def add_outer(vert, hori, medv, medh, ww, hh):
         x1 = hori[-1, 0]
         y1 = hori[-1, 1] + abs(hori[-1, 1] - hori[-2, 1])
         x2 = hori[-1, 2]
-        y2 = max(hori[-1, 3] + abs(hori[-1, 3] - hori[-2, 3]), y1)
+        y2 = hori[-1, 3] + abs(hori[-1, 3] - hori[-2, 3])
         new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
         hori = np.append(hori, new, axis=0)
         hori = hori[np.argsort(hori[:, 1])]

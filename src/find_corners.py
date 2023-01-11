@@ -267,6 +267,8 @@ def magic_dir(vert, hori):
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
         hori = aux.wrong_lines(hori, disth, medh, tol=2)
+
+    vert, hori = add_outer(vert, hori)
     return vert, hori
 
 
@@ -342,3 +344,7 @@ def min_distance(A, B, E):
         reqAns = abs(x1*y2 - y1*x2) / mod
 
     return reqAns
+
+
+def add_outer(vert, hori):
+    return vert, hori

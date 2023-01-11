@@ -125,15 +125,10 @@ def calc_corners(img, inter):
     psub[:, 1] = inter[:, 1]
     psub[:, 2] = inter[:, 0] - inter[:, 1]
 
-    BR = psum[np.argmax(psum[:, 2])]
-    BL = psub[np.argmax(psub[:, 2])]
-    TR = psub[np.argmin(psub[:, 2])]
-    TL = psum[np.argmin(psum[:, 2])]
-
-    BR = BR[0:2]
-    BL = BL[0:2]
-    TR = TR[0:2]
-    TL = TL[0:2]
+    BR = psum[np.argmax(psum[:, 2])][0:2]
+    BL = psub[np.argmax(psub[:, 2])][0:2]
+    TR = psub[np.argmin(psub[:, 2])][0:2]
+    TL = psum[np.argmin(psum[:, 2])][0:2]
 
     dummy = TR
     TR = BL
@@ -142,7 +137,8 @@ def calc_corners(img, inter):
     BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
 
     canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
-    # aux.save(img, "corners", canvas)
+    aux.save(img, "corners", canvas)
+    exit()
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 

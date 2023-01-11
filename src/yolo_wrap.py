@@ -23,7 +23,7 @@ def detect_objects(img):
                     )
 
     objs = objs[np.argsort(objs[:, 4])][::-1]
-    boardnum = int(NUMBERS['Board'])
+    boardnum = NUMBERS['Board']
     for obj in objs:
         if obj[5] == boardnum:
             img.boardbox = np.array(obj[:4], dtype='int32')
@@ -83,7 +83,7 @@ def process_pieces(pieces):
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num, _ = piece
-        num = str(int(num))
+        num = int(num)
         rule = rules[SYMBOLS[num]]
         if rule[0] < rule[1]:
             rule[0] += 1

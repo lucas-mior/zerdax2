@@ -94,16 +94,15 @@ def magic_lines(img):
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
-    if lv < 9 or lh < 9:
-        vert, hori = li.add_outer(vert, hori, medv, medh,
-                                  img.bwidth, img.bheigth)
-        vert, hori = li.add_middle(vert, hori, medv, medh)
-    if lv > 9 or lh > 9:
-        vert, hori = li.remove_extras(vert, hori)
-        vert, hori = li.add_last_outer(vert, hori, medv, medh)
+    vert, hori = li.add_outer(vert, hori, medv, medh,
+                              img.bwidth, img.bheigth)
+    vert, hori = li.add_middle(vert, hori, medv, medh)
+    vert, hori = li.remove_extras(vert, hori)
+    vert, hori = li.add_last_outer(vert, hori, medv, medh)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    # aux.save(img, "hough_magic_final", canvas)
+    aux.save(img, "hough_magic", canvas)
+    exit()
     return vert, hori
 
 

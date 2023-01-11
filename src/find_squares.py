@@ -214,12 +214,10 @@ def magic_vert_hori(img, vert, hori):
 
     if lv >= 5:
         print("removing for sure wrong vertical lines...")
-        remv = aux.wrong_lines(distv, medv, tol=4)
-        vert = vert[remv == 0]
+        vert = aux.wrong_lines(vert, distv, medv, tol=4)
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
-        remh = aux.wrong_lines(disth, medh, tol=4)
-        hori = hori[remh == 0]
+        hori = aux.wrong_lines(hori, disth, medh, tol=4)
     _check_save("rem_wrong")
 
     if lv >= 5 and lh >= 5:

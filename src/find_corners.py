@@ -82,8 +82,7 @@ def magic_lines(img):
         lines = bundle_lines(lines)
         lines = aux.radius_theta(lines)
         vert, hori = split_lines(img, lines)
-        vert = filter_angles(vert)
-        hori = filter_angles(hori)
+        vert, hori = filter_angles(vert, hori)
         vert, hori = magic_dir(vert, hori)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
@@ -95,18 +94,20 @@ def magic_lines(img):
     return vert, hori
 
 
-def filter_angles(lines, tol=15):
-    rem = np.zeros(lines.shape[0], dtype='uint8')
-    angle = np.median(lines[:, 5])
+def filter_angles(vert, hori, tol=15):
+    def _filter(lines):
+        rem = np.zeros(lines.shape[0], dtype='uint8')
+        angle = np.median(lines[:, 5])
 
-    for i, line in enumerate(lines):
-        x1, y1, x2, y2, r, t = line
-        if abs(t - angle) > 15:
-            rem[i] = 1
-        else:
-            rem[i] = 0
+        for i, line in enumerate(lines):
+            x1, y1, x2, y2, r, t = line
+            if abs(t - angle) > 15:
+                rem[i] = 1
+            else:
+                rem[i] = 0
+        return lines[rem == 0]
 
-    return lines[rem == 0]
+    return _filter(vert), _filter(hori)
 
 
 def calc_corners(img, inter):
@@ -262,12 +263,10 @@ def magic_dir(vert, hori):
 
     if lv >= 5:
         print("removing for sure wrong vertical lines...")
-        remv = aux.wrong_lines(distv, medv, tol=2)
-        vert = vert[remv == 0]
+        vert = aux.wrong_lines(vert, distv, medv, tol=2)
     if lh >= 5:
         print("removing for sure wrong horizontal lines...")
-        remh = aux.wrong_lines(disth, medh, tol=2)
-        hori = hori[remh == 0]
+        hori = aux.wrong_lines(hori, disth, medh, tol=2)
     return vert, hori
 
 

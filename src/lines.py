@@ -33,23 +33,24 @@ def rem_1011(img, vert, hori, medv, medh):
     return vert, hori
 
 
-def get_distances(vert, hori):
-    def _between(line2, line1):
-        dist1 = min_distance(line1[0:2], line1[2:4], line2[0:2])
-        dist2 = min_distance(line1[0:2], line1[2:4], line2[2:4])
-        dist3 = min_distance(line2[0:2], line2[2:4], line1[0:2])
-        dist4 = min_distance(line2[0:2], line2[2:4], line1[2:4])
-        return min(dist1, dist2, dist3, dist4)
+def between(line2, line1):
+    dist1 = min_distance(line1[0:2], line1[2:4], line2[0:2])
+    dist2 = min_distance(line1[0:2], line1[2:4], line2[2:4])
+    dist3 = min_distance(line2[0:2], line2[2:4], line1[0:2])
+    dist4 = min_distance(line2[0:2], line2[2:4], line1[2:4])
+    return min(dist1, dist2, dist3, dist4)
 
+
+def get_distances(vert, hori):
     def _get_dist(lines):
         dist = np.zeros((lines.shape[0], 2), dtype='int32')
-        dist[0, 0] = dist[0, 1] = _between(lines[0], lines[1])
+        dist[0, 0] = dist[0, 1] = between(lines[0], lines[1])
         i = 0
         for i in range(1, len(lines) - 1):
-            dist[i, 0] = _between(lines[i-1], lines[i+0])
-            dist[i, 1] = _between(lines[i+0], lines[i+1])
+            dist[i, 0] = between(lines[i-1], lines[i+0])
+            dist[i, 1] = between(lines[i+0], lines[i+1])
         i += 1
-        dist[i, 0] = dist[i, 1] = _between(lines[i-1], lines[i])
+        dist[i, 0] = dist[i, 1] = between(lines[i-1], lines[i])
         return dist
 
     return _get_dist(vert), _get_dist(hori)
@@ -148,18 +149,6 @@ def add_outer(vert, hori, medv, medh, ww, hh):
     return vert, hori
 
 
-def right_lines(lines, dist, med):
-    tol = 8
-    cer = np.zeros(dist.shape[0], dtype='uint8')
-
-    for i, d in enumerate(dist):
-        if abs(d[0] - med) < tol and abs(d[1] - med) < tol:
-            cer[i] = 1
-        else:
-            cer[i] = 0
-    return lines[cer == 1]
-
-
 def add_wouter(vert, hori, medv, medh):
     tol = 2
     print("adding missing outer lines...")
@@ -201,13 +190,25 @@ def add_wouter(vert, hori, medv, medh):
     return vert, hori
 
 
+def right_lines(lines, dist, med):
+    tol = 8
+    cer = np.zeros(dist.shape[0], dtype='uint8')
+
+    for i, d in enumerate(dist):
+        if abs(d[0] - med) < tol and abs(d[1] - med) < tol:
+            cer[i] = 1
+        else:
+            cer[i] = 0
+    return lines[cer == 1]
+
+
 def add_middle(vert, hori, medv, medh):
     print("adding missing middle lines...")
 
     def _add_middle(lines, med, kind):
         for i in range(1, len(lines) - 1):
-            dprev = abs(lines[i, kind] - lines[i-1, kind])
-            dnext = abs(lines[i, kind] - lines[i+1, kind])
+            dprev = between(lines[i], lines[i-1])
+            dnext = between(lines[i], lines[i+1])
             if dnext > (dprev * 1.5):
                 dnext = round(dnext / 2)
                 if kind == 0:

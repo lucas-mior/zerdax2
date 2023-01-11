@@ -62,7 +62,7 @@ def gauss(image):
 def find_edges(img, image, lowpass):
     print("filtering image...")
     image = lowpass(image)
-    save(img, "lowpass", image)
+    # save(img, "lowpass", image)
     bonus = len(img.pieces) / 10
     if lowpass == lf.ffilter:
         wmin = 10 + bonus

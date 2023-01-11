@@ -83,11 +83,14 @@ def magic_lines(img):
         lines = aux.radius_theta(lines)
         vert, hori = split_lines(img, lines)
         vert, hori = filter_angles(vert, hori)
-        vert, hori = magic_dir(vert, hori)
+        vert = vert[np.argsort(vert[:, 0])]
+        hori = hori[np.argsort(hori[:, 1])]
+        vert, hori = magic_dir(img, vert, hori)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
+        break
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
@@ -250,7 +253,7 @@ def black_space(img):
     return img
 
 
-def magic_dir(vert, hori):
+def magic_dir(img, vert, hori):
     lv, lh = len(vert), len(hori)
     distv, disth = get_distances(vert, hori)
     print("distances:")
@@ -268,7 +271,9 @@ def magic_dir(vert, hori):
         print("removing for sure wrong horizontal lines...")
         hori = aux.wrong_lines(hori, disth, medh, tol=2)
 
-    vert, hori = add_outer(vert, hori)
+    canvas = draw.lines(img.gray3ch, vert, hori)
+    aux.save(img, "hough_magic", canvas)
+    vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
     return vert, hori
 
 
@@ -346,5 +351,42 @@ def min_distance(A, B, E):
     return reqAns
 
 
-def add_outer(vert, hori):
+def add_outer(vert, hori, medv, medh, ww, hh):
+    tol = 2
+    vtol = medv + tol + DX
+    htol = medh + tol + DX
+    print("adding missing outer lines...")
+    while abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
+        x1 = vert[0, 0] - medv
+        y1 = vert[0, 1]
+        x2 = vert[0, 2] - medv
+        y2 = vert[0, 3]
+        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+        vert = np.append(vert, new, axis=0)
+        vert = vert[np.argsort(vert[:, 0])]
+    while abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
+        x1 = vert[-1, 0] + medv
+        y1 = vert[-1, 1]
+        x2 = vert[-1, 2] + medv
+        y2 = vert[-1, 3]
+        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+        vert = np.append(vert, new, axis=0)
+        vert = vert[np.argsort(vert[:, 0])]
+    while abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
+        x1 = hori[0, 0]
+        y1 = hori[0, 1] - medh
+        x2 = hori[0, 2]
+        y2 = hori[0, 3] - medh
+        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+        hori = np.append(hori, new, axis=0)
+        hori = hori[np.argsort(hori[:, 1])]
+    while abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
+        x1 = hori[-1, 0]
+        y1 = hori[-1, 1] + medh
+        x2 = hori[-1, 2]
+        y2 = hori[-1, 3] + medh
+        new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
+        hori = np.append(hori, new, axis=0)
+        hori = hori[np.argsort(hori[:, 1])]
+
     return vert, hori

@@ -254,19 +254,25 @@ def black_space(img):
 
 
 def magic_dir(img, vert, hori):
+    def _check_save(title):
+        nonlocal lv, lh, vert, hori
+        if lv != len(vert) or lh != len(hori):
+            canvas = draw.lines(img.warp3ch, vert, hori)
+            aux.save(img, title, canvas)
+            lv, lh = len(vert), len(hori)
+        return
+
     lv, lh = len(vert), len(hori)
     distv, disth = get_distances(vert, hori)
     medv, medh = aux.mean_dist(distv, disth)
 
-    # print("removing for sure wrong vertical lines...")
-    # vert = aux.wrong_lines(vert, distv, medv, tol=2)
-    # lv = len(vert)
-    # print("removing for sure wrong horizontal lines...")
-    # hori = aux.wrong_lines(hori, disth, medh, tol=2)
-    # lh = len(hori)
-
-    canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "after_wrong", canvas)
+    print("removing for sure wrong vertical lines...")
+    vert = aux.wrong_lines(vert, distv, medv, tol=2)
+    lv = len(vert)
+    print("removing for sure wrong horizontal lines...")
+    hori = aux.wrong_lines(hori, disth, medh, tol=2)
+    lh = len(hori)
+    _check_save("rem_wrong")
     return vert, hori, medv, medh
 
 

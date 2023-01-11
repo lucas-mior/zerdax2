@@ -127,11 +127,11 @@ def w_lines(img):
             break
 
     if not got_hough:
-        if l1 < 7 or l2 < 7:
+        if l1 < 6 and l2 < 6:
             print("magic_lines() failed:",
                   f"{ll} # [{l1}][{l2}]",
                   f"@ {h_a}º,{tvotes},{minlen},{maxgap}")
-            # exit(1)
+            exit(1)
 
     canvas = draw.lines(img.warp3ch, vert, hori)
     aux.save(img, "wmagic", canvas)

@@ -33,7 +33,7 @@ def create_cannys(img):
     aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
@@ -80,7 +80,6 @@ def magic_lines(img):
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
-    exit()
     return vert, hori
 
 

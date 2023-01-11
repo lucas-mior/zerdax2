@@ -20,7 +20,6 @@ if __name__ == '__main__':
     files = glob.glob('exp*')
     for f in files:
         os.rmdir(f)
-    exit()
     args = parseargs()
     image = args.image
     print(f"============ zerdax {image} ============")

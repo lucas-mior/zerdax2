@@ -38,7 +38,7 @@ def create_cannys(img):
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    aux.save(img, "canny_closed", img.canny)
+    # aux.save(img, "canny_closed", img.canny)
     return img
 
 
@@ -47,36 +47,39 @@ def magic_lines(img):
 
     minlen0 = round((img.bwidth + img.bheigth) * 0.3)
     maxgap = round(minlen0 / 8)
-    tvotes = round(minlen0 / 1)
+    tvotes = round(minlen0 / 1.2)
     angle = 1  # degrees
     tangle = np.deg2rad(angle)  # radians
 
     gotmin = False
     minlen = 0
     for minlen in range(minlen0, round(minlen0 * 0.6), -16):
-        tvotes = round(minlen / 1)
+        tvotes = round(minlen / 1.2)
         print(f"trying @{angle}º, {tvotes}, {minlen}, {maxgap}")
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         lines = lines[:, 0, :]
         lines = bundle_lines(lines)
-        if lines is not None and len(lines) >= 14:
+        if lines is not None and len(lines) >= 12:
             gotmin = True
             break
     if not gotmin:
         print("magic_lines() failed @ {angle}º, {tvotes}, {minlen}, {maxgap}")
-        # aux.save(img, "lastcanny", img.canny)
+        aux.save(img, "lastcanny", img.canny)
         canvas = draw.lines(img.gray3ch, lines)
         exit(1)
 
+    canvas = draw.lines(img.gray3ch, lines)
+    aux.save(img, "hough_magic000", canvas)
+
     lines = aux.radius_theta(lines)
-    minlen0 = minlen = min(np.min(lines[:, 4]), 300)
+    minlen0 = minlen = min(np.mean(lines[:, 4]), 300)
     maxgap = round(minlen0 / 4)
     tvotes = round(minlen0 * 1)
     print(f"{minlen=}")
     ll = lv = lh = 0
     while lv < 9 or lh < 9 and tvotes > minlen0 / 3:
-        minlen = max(minlen - 5, minlen0 / 1.5)
+        minlen = max(minlen - 5, minlen0 / 1.2)
         tvotes -= 5
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
@@ -102,6 +105,8 @@ def magic_lines(img):
     # vert, hori = li.add_middle(vert, hori, medv, medh)
     vert, hori = li.remove_extras(vert, hori, img.bwidth, img.bheigth)
     # vert, hori = li.add_last_outer(vert, hori, medv, medh)
+    # if len(vert) != 9 or len(hori) != 9:
+    aux.save(img, "len(vert)!=9 or len(hori)!=9", img.canny)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
@@ -222,11 +227,11 @@ def magic_dir(img, vert, hori):
     distv, disth = li.get_distances(vert, hori)
     medv, medh = li.mean_dist(distv, disth)
 
-    print("removing for sure wrong vertical lines...")
-    vert = li.wrong_lines(vert, distv, medv, tol=2)
-    lv = len(vert)
-    print("removing for sure wrong horizontal lines...")
-    hori = li.wrong_lines(hori, disth, medh, tol=2)
-    lh = len(hori)
-    _check_save("rem_wrong")
+    # print("removing for sure wrong vertical lines...")
+    # vert = li.wrong_lines(vert, distv, medv, tol=2)
+    # lv = len(vert)
+    # print("removing for sure wrong horizontal lines...")
+    # hori = li.wrong_lines(hori, disth, medh, tol=2)
+    # lh = len(hori)
+    # _check_save("rem_wrong")
     return vert, hori, medv, medh

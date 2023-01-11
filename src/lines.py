@@ -12,6 +12,7 @@ def rem_1011(img, vert, hori, medv, medh):
     tol = 2
     ww = img.bwidth
     hh = img.bheigth
+
     while len(vert) >= 9:
         vtol = medv + tol + DX
         if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
@@ -29,8 +30,6 @@ def rem_1011(img, vert, hori, medv, medh):
         else:
             break
 
-    canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "after==9", canvas)
     return vert, hori
 
 
@@ -43,10 +42,6 @@ def between(line2, line1):
 
 
 def get_distances(vert, hori):
-    print("vert(get_distances):")
-    print(vert)
-    print("hori(get_distances):")
-    print(hori)
 
     def _get_dist(lines):
         dist = np.zeros((lines.shape[0], 2), dtype='int32')

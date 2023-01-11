@@ -25,7 +25,7 @@ def lines(image, vert, hori=None):
             cv2.line(canvas, (x1, y1), (x2, y2),
                      color=(0, 255, 0), thickness=3)  # green
     else:
-        for x1, y1, x2, y2, r, t, _ in vert:
+        for x1, y1, x2, y2 in vert:
             cv2.line(canvas, (x1, y1), (x2, y2),
                      color=(0, 0, 255), thickness=3)  # red
 

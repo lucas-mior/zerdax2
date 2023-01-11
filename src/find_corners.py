@@ -109,7 +109,6 @@ def magic_lines(img):
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
-    exit()
     return vert, hori
 
 

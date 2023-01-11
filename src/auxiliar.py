@@ -124,8 +124,8 @@ def calc_intersections(image, lines1, lines2=None):
         corn = True
         lines2 = lines1
 
-    for x1, y1, x2, y2, r, t in lines1:
-        for xx1, yy1, xx2, yy2, rr, tt in lines2:
+    for x1, y1, x2, y2, r, t, _ in lines1:
+        for xx1, yy1, xx2, yy2, rr, tt, _ in lines2:
             close = False
             if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
                 continue

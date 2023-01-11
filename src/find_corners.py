@@ -75,7 +75,7 @@ def magic_lines(img):
         tvotes -= 2
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        if ll := len(lines) < 18:
+        if ll := len(lines) < 12:
             print(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines = lines[:, 0, :]
@@ -83,7 +83,7 @@ def magic_lines(img):
         lines = aux.radius_theta(lines)
         vert, hori = split_lines(img, lines)
         vert, hori = filter_angles(vert, hori)
-        if (lv := len(vert)) >= 8 <= (lh := len(hori)):
+        if (lv := len(vert)) >= 6 <= (lh := len(hori)):
             vert = vert[np.argsort(vert[:, 0])]
             hori = hori[np.argsort(hori[:, 1])]
             vert, hori = magic_dir(img, vert, hori)
@@ -256,15 +256,41 @@ def magic_dir(img, vert, hori):
     print(f"{medv=}")
     print(f"{medh=}")
 
-    if lv >= 5:
-        print("removing for sure wrong vertical lines...")
-        vert = aux.wrong_lines(vert, distv, medv, tol=2)
-    if lh >= 5:
-        print("removing for sure wrong horizontal lines...")
-        hori = aux.wrong_lines(hori, disth, medh, tol=2)
+    print("removing for sure wrong vertical lines...")
+    vert = aux.wrong_lines(vert, distv, medv, tol=2)
+    lv = len(vert)
+    print("removing for sure wrong horizontal lines...")
+    hori = aux.wrong_lines(hori, disth, medh, tol=2)
+    lh = len(hori)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "hough_magic_before_add_outer", canvas)
+    aux.save(img, "after_wrong", canvas)
+
+    tol = 2
+    ww = img.bwidth
+    hh = img.bheigth
+    changed = False
+    if lv == 9:
+        vtol = medv + tol + DX
+        if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
+            vert = vert[0:-1]
+            changed = True
+        elif abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
+            vert = vert[1:]
+            changed = True
+    if lh == 9:
+        htol = medh + tol + DX
+        if abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
+            hori = hori[0:-1]
+            changed = True
+        elif abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
+            hori = hori[1:]
+            changed = True
+    if changed:
+        canvas = draw.lines(img.gray3ch, vert, hori)
+        aux.save(img, "after==9", canvas)
+        return vert, hori
+
     vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
     return vert, hori
 

@@ -97,6 +97,7 @@ def magic_lines(img):
     if lv < 9 or lh < 9:
         vert, hori = add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
         vert, hori = fs.add_middle(vert, hori, medv, medh)
+    if lv > 9 or lh > 9:
         vert, hori = fs.remove_extras(vert, hori)
         vert, hori = fs.add_last_outer(vert, hori, medv, medh)
 
@@ -142,7 +143,6 @@ def calc_corners(img, inter):
 
     canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
     aux.save(img, "corners", canvas)
-    exit()
 
     return np.array([BR, BL, TR, TL], dtype='int32')
 

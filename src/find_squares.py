@@ -34,7 +34,7 @@ def find_squares(img):
     squares = np.array(sqback, dtype='int32')
 
     canvas = draw.squares(img.board, squares)
-    # aux.save(img, "A1E4C5H8", canvas)
+    aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -190,7 +190,7 @@ def right_lines(dist, med):
 
 def magic_vert_hori(img, vert, hori):
     canvas = draw.lines(img.warp3ch, vert, hori)
-    # aux.save(img, "verthori0", canvas)
+    aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
     if lv <= 5 and lh <= 5 or (lh < 1 > lv):
@@ -202,7 +202,7 @@ def magic_vert_hori(img, vert, hori):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
             canvas = draw.lines(img.warp3ch, vert, hori)
-            # aux.save(img, title, canvas)
+            aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return
 
@@ -289,23 +289,22 @@ def add_middle(vert, hori, medv, medh):
     print("adding missing middle lines...")
 
     def _add_middle(lines, med, kind):
-        i = 0
-        while i < (len(lines) - 1):
-            if abs(lines[i, kind] - lines[i+1, kind]) > (med*1.5):
+        for i in range(1, len(lines) - 1):
+            dref = abs(lines[i, kind] - lines[i-1, kind])
+            if abs(lines[i, kind] - lines[i+1, kind]) > (dref + 10):
                 if kind == 0:
-                    x1 = lines[i, 0] + med
+                    x1 = lines[i, 0] + dref + 5
                     y1 = lines[i, 1]
-                    x2 = lines[i, 2] + med
+                    x2 = lines[i, 2] + dref + 5
                     y2 = lines[i, 3]
                 else:
                     x1 = lines[i, 0]
-                    y1 = lines[i, 1] + med
+                    y1 = lines[i, 1] + dref + 5
                     x2 = lines[i, 2]
-                    y2 = lines[i, 3] + med
+                    y2 = lines[i, 3] + dref + 5
                 new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
                 lines = lines[np.argsort(lines[:, kind])]
-            i += 1
         return lines
 
     vert = _add_middle(vert, medv, 0)
@@ -315,29 +314,28 @@ def add_middle(vert, hori, medv, medh):
 
 def remove_extras(vert, hori):
     print("removing extra outer lines...")
-    v = len(vert)
-    h = len(hori)
-    if v <= 9 and h <= 9:
+    if len(vert) <= 9 and len(hori) <= 9:
         return vert, hori
 
-    def _rem_extras(lines, num, kind):
-        if num == 10:
+    def _rem_extras(lines, kind):
+        ll = len(lines)
+        if ll == 10:
             d1 = abs(lines[0, kind] - 0)
             d2 = abs(lines[-1, kind] - WLEN)
             if d1 < d2:
                 lines = lines[1:]
             else:
                 lines = lines[:-1]
-        elif num == 11:
+        elif ll == 11:
             lines = lines[1:-1]
-        elif num >= 12:
+        elif ll >= 12:
             print("There are 12 or more lines")
             lines = lines[1:-1]
-            lines = _rem_extras(lines, len(lines), kind)
+            lines = _rem_extras(lines, kind)
         return lines
 
-    vert = _rem_extras(vert, v, 0)
-    hori = _rem_extras(hori, h, 1)
+    vert = _rem_extras(vert, 0)
+    hori = _rem_extras(hori, 1)
     return vert, hori
 
 

@@ -94,12 +94,12 @@ def magic_lines(img):
         if (lv := len(vert)) >= 6 <= (lh := len(hori)):
             vert, hori = li.sort_lines(vert, hori)
             vert, hori, medv, medh = magic_dir(img, vert, hori)
-            vert, hori = li.rem_1011(img, vert, hori, medv, medh)
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
+    vert, hori = li.rem_1011(img, vert, hori)
     # vert, hori = li.add_outer(vert, hori, medv, medh,
     #                           img.bwidth, img.bheigth)
     # vert, hori = li.add_middle(vert, hori, medv, medh)

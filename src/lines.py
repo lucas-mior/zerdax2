@@ -8,27 +8,29 @@ WLEN = 640
 DX = 50
 
 
-def rem_1011(img, vert, hori, medv, medh):
-    tol = 2
+def rem_1011(img, vert, hori):
+    tol = 5
     ww = img.bwidth
     hh = img.bheigth
 
-    while len(vert) >= 9:
-        vtol = medv + tol + DX
-        if abs(vert[0, 0] - 0) > vtol and abs(vert[0, 2] - 0) > vtol:
-            vert = vert[0:-1]
-        elif abs(vert[-1, 0] - ww) > vtol and abs(vert[-1, 2] - ww) > vtol:
-            vert = vert[1:]
-        else:
-            break
-    while len(hori) >= 9:
-        htol = medh + tol + DX
-        if abs(hori[0, 1] - 0) > htol and abs(hori[0, 3] - 0) > htol:
-            hori = hori[0:-1]
-        elif abs(hori[-1, 1] - hh) > htol and abs(hori[-1, 3] - hh) > htol:
-            hori = hori[1:]
-        else:
-            break
+    def _rem(lines, k, dim):
+        while len(lines) >= 9:
+            dprev = min(abs(lines[1, k] - lines[0, k]),
+                        abs(lines[1, k+2] - lines[0, k+2]))
+            t1 = dprev + tol + DX
+            dprev = min(abs(lines[-1, 0] - lines[-2, 0]),
+                        abs(lines[-1, 2] - lines[-2, 2]))
+            t2 = dprev + tol + DX
+            if abs(lines[0, k] - 0) > t1 and abs(lines[0, k+2] - 0) > t1:
+                lines = lines[0:-1]
+            elif abs(lines[-1, k] - dim) > t2 and abs(lines[-1, k+2] - dim) > t2:
+                lines = lines[1:]
+            else:
+                break
+        return lines
+
+    vert = _rem(vert, 0, ww)
+    hori = _rem(hori, 1, hh)
 
     return vert, hori
 

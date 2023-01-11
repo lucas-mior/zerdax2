@@ -5,7 +5,6 @@ import auxiliar as aux
 import drawings as draw
 import lffilter as lf
 import lines as li
-import find_squares as fs
 
 from bundle_lines import bundle_lines
 
@@ -96,7 +95,8 @@ def magic_lines(img):
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     if lv < 9 or lh < 9:
-        vert, hori = li.add_outer(vert, hori, medv, medh, img.bwidth, img.bheigth)
+        vert, hori = li.add_outer(vert, hori, medv, medh,
+                                  img.bwidth, img.bheigth)
         vert, hori = li.add_middle(vert, hori, medv, medh)
     if lv > 9 or lh > 9:
         vert, hori = li.remove_extras(vert, hori)

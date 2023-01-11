@@ -290,18 +290,20 @@ def add_middle(vert, hori, medv, medh):
 
     def _add_middle(lines, med, kind):
         for i in range(1, len(lines) - 1):
-            dref = abs(lines[i, kind] - lines[i-1, kind])
-            if abs(lines[i, kind] - lines[i+1, kind]) > (dref + 10):
+            dprev = abs(lines[i, kind] - lines[i-1, kind])
+            dnext = abs(lines[i, kind] - lines[i+1, kind])
+            if dnext > (dprev * 1.5):
+                dnext = round(dnext / 2)
                 if kind == 0:
-                    x1 = lines[i, 0] + dref + 5
+                    x1 = lines[i, 0] + dnext
                     y1 = lines[i, 1]
-                    x2 = lines[i, 2] + dref + 5
+                    x2 = lines[i, 2] + dnext
                     y2 = lines[i, 3]
                 else:
                     x1 = lines[i, 0]
-                    y1 = lines[i, 1] + dref + 5
+                    y1 = lines[i, 1] + dnext
                     x2 = lines[i, 2]
-                    y2 = lines[i, 3] + dref + 5
+                    y2 = lines[i, 3] + dnext
                 new = np.array([[x1, y1, x2, y2, 0, 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
                 lines = lines[np.argsort(lines[:, kind])]

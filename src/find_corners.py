@@ -45,9 +45,9 @@ def magic_lines(img):
     print("finding all lines of board...")
 
     minlen0 = round((img.bwidth + img.bheigth) * 0.25)
-    maxgap = round(minlen0 / 8)
+    maxgap = round(minlen0 / 4)
     tvotes = round(minlen0 / 2)
-    angle = 0.5  # degrees
+    angle = 1  # degrees
     tangle = np.deg2rad(angle)  # radians
 
     gotmin = False
@@ -57,7 +57,7 @@ def magic_lines(img):
         print(f"trying @{angle}º, {tvotes}, {minlen}, {maxgap}")
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        if lines is not None and len(lines) >= 16:
+        if lines is not None and len(lines) >= 18:
             lines = lines[:, 0, :]
             gotmin = True
             break
@@ -68,92 +68,45 @@ def magic_lines(img):
         exit(1)
 
     print(f"{minlen=}")
-    lines = bundle_lines(lines)
-    vert, hori = split_lines(img, lines)
-    lv, lh = len(vert), len(hori)
+    minlen0 = minlen
+    ll = lv = lh = 0
     while lv < 9 or lh < 9:
-        minlen -= 2
-        tvotes -= 5
+        minlen = max(minlen - 2, minlen0 / 2)
+        tvotes -= 2
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-
+        if ll := len(lines) < 18:
+            print(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
+            continue
+        lines = lines[:, 0, :]
+        lines = bundle_lines(lines)
+        lines = aux.radius_theta(lines)
+        vert, hori = split_lines(img, lines)
+        vert = filter_angles(vert)
+        hori = filter_angles(hori)
+        vert, hori = magic_dir(vert, hori)
+        lv, lh = len(vert), len(hori)
+        ll = lv + lh
+        print(f"{ll} # [{lv}][{lh}] @",
+              f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
     return vert, hori
 
 
-def filter_angles(angles, lines, tol=15):
+def filter_angles(lines, tol=15):
     rem = np.zeros(lines.shape[0], dtype='uint8')
+    angle = np.median(lines[:, 5])
 
     for i, line in enumerate(lines):
         x1, y1, x2, y2, r, t = line
-        if abs(t - angles[0]) > tol and abs(t - angles[1]) > tol:
-            if len(angles) == 2:
-                rem[i] = 1
-            elif abs(t - angles[2]) > tol:
-                rem[i] = 1
-            else:
-                rem[i] = 0
+        if abs(t - angle) > 15:
+            rem[i] = 1
         else:
             rem[i] = 0
 
     return lines[rem == 0]
-
-
-def lines_kmeans(lines):
-    lines = np.array(lines, dtype='float32')
-    if (lines.shape[1] < 6):
-        lines = aux.radius_theta(lines)
-
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
-                                          criteria, 10, flags)
-
-    labels = np.ravel(labels)
-    centers.sort()
-    print(f"{centers=}")
-
-    d1 = abs(centers[0] - centers[1])
-    d2 = abs(centers[0] - centers[2])
-    d3 = abs(centers[1] - centers[2])
-
-    dd1 = d1 < 22.5 and d2 > 22.5 and d3 > 22.5
-    dd2 = d2 < 22.5 and d1 > 22.5 and d3 > 22.5
-    dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
-
-    if dd1 or dd2 or dd3:
-        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 10, flags)
-
-    labels = np.ravel(labels)
-    centers.sort()
-    print(f"{centers=}")
-
-    diff = []
-    diff.append((abs(centers[0] - 85), -85))
-    diff.append((abs(centers[0] + 85), +85))
-    diff.append((abs(centers[1] - 85), -85))
-    diff.append((abs(centers[1] + 85), +85))
-    if len(centers) > 2:
-        diff.append((abs(centers[2] - 85), -85))
-        diff.append((abs(centers[2] + 85), +85))
-
-    for d, k in diff:
-        if d < 15:
-            if len(centers) == 2:
-                if abs(centers[0] - k) > 15 and abs(centers[1] - k) > 15:
-                    centers = np.append(centers, k)
-            else:
-                if abs(centers[0] - k) > 15 and abs(centers[1] - k) > 15:
-                    if abs(centers[2] - k) > 15:
-                        centers = np.append(centers, k)
-            break
-
-    centers = np.round(centers)
-    print(f"{centers=}")
-    return np.array(centers, dtype='int32')
 
 
 def calc_corners(img, inter):
@@ -294,14 +247,6 @@ def black_space(img):
     img.bwidth += (DX*2)
     img.bheigth += (DX*2)
     return img
-
-
-def filter_all(img, lines):
-    lines = aux.radius_theta(lines)
-    angles = lines_kmeans(lines)
-    print(f"angles: {angles}")
-    lines = filter_angles(angles, lines)
-    return lines
 
 
 def magic_dir(vert, hori):

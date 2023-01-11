@@ -29,7 +29,7 @@ def rem_1011(img, vert, hori, medv, medh):
             break
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "after==9", canvas)
+    # aux.save(img, "after==9", canvas)
     return vert, hori
 
 

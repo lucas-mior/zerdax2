@@ -35,7 +35,7 @@ def find_squares(img):
     squares = np.array(sqback, dtype='int32')
 
     canvas = draw.squares(img.board, squares)
-    aux.save(img, "A1E4C5H8", canvas)
+    # aux.save(img, "A1E4C5H8", canvas)
 
     # remove black border
     sqback[:, :, :, 0] -= DX
@@ -153,7 +153,7 @@ def filter_90(lines):
 
 def magic_vert_hori(img, vert, hori):
     canvas = draw.lines(img.warp3ch, vert, hori)
-    aux.save(img, "verthori0", canvas)
+    # aux.save(img, "verthori0", canvas)
     print("adjusting vertical and horizontal lines...")
     lv, lh = len(vert), len(hori)
     if lv <= 5 and lh <= 5 or (lh < 1 > lv):
@@ -165,7 +165,7 @@ def magic_vert_hori(img, vert, hori):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
             canvas = draw.lines(img.warp3ch, vert, hori)
-            aux.save(img, title, canvas)
+            # aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return
 

@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 import auxiliar as aux
 import drawings as draw
@@ -29,7 +30,7 @@ def rem_1011(img, vert, hori, medv, medh):
             break
 
     canvas = draw.lines(img.gray3ch, vert, hori)
-    # aux.save(img, "after==9", canvas)
+    aux.save(img, "after==9", canvas)
     return vert, hori
 
 
@@ -42,6 +43,11 @@ def between(line2, line1):
 
 
 def get_distances(vert, hori):
+    print("vert(get_distances):")
+    print(vert)
+    print("hori(get_distances):")
+    print(hori)
+
     def _get_dist(lines):
         dist = np.zeros((lines.shape[0], 2), dtype='int32')
         dist[0, 0] = dist[0, 1] = between(lines[0], lines[1])
@@ -231,16 +237,16 @@ def add_middle(vert, hori, medv, medh):
     return vert, hori
 
 
-def remove_extras(vert, hori):
+def remove_extras(vert, hori, width, heigth):
     print("removing extra outer lines...")
     if len(vert) <= 9 and len(hori) <= 9:
         return vert, hori
 
-    def _rem_extras(lines, kind):
+    def _rem_extras(lines, kind, dim):
         ll = len(lines)
         if ll == 10:
-            d1 = abs(lines[0, kind] - 0)
-            d2 = abs(lines[-1, kind] - WLEN)
+            d1 = min(abs(lines[0, kind] - 0), abs(lines[0, kind+2] - 0))
+            d2 = min(abs(lines[-1, kind] - dim), abs(lines[-1, kind+2] - dim))
             if d1 < d2:
                 lines = lines[1:]
             else:
@@ -253,8 +259,8 @@ def remove_extras(vert, hori):
             lines = _rem_extras(lines, kind)
         return lines
 
-    vert = _rem_extras(vert, 0)
-    hori = _rem_extras(hori, 1)
+    vert = _rem_extras(vert, 0, width)
+    hori = _rem_extras(hori, 1, heigth)
     return vert, hori
 
 
@@ -332,3 +338,64 @@ def wrong_lines(lines, dists, med, tol=4):
             rem[i] = 0
 
     return lines[rem == 0]
+
+
+def split_lines(img, lines):
+    lines = aux.radius_theta(lines)
+    lines = np.array(lines, dtype='float32')
+    if (lines.shape[1] < 6):
+        lines = aux.radius_theta(lines)
+
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    flags = cv2.KMEANS_RANDOM_CENTERS
+    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
+                                          criteria, 10, flags)
+    labels = np.ravel(labels)
+
+    d1 = abs(centers[0] - centers[1])
+    d2 = abs(centers[0] - centers[2])
+    d3 = abs(centers[1] - centers[2])
+
+    dd1 = d1 < 22.5 and d2 > 22.5 and d3 > 22.5
+    dd2 = d2 < 22.5 and d1 > 22.5 and d3 > 22.5
+    dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
+
+    if dd1 or dd2 or dd3:
+        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+                                              criteria, 10, flags)
+
+        labels = np.ravel(labels)
+        A = lines[labels == 0]
+        B = lines[labels == 1]
+
+    if len(centers) == 3:
+        # redo kmeans using absolute inclination
+        lines = aux.radius_theta(lines, abs_angle=True)
+        lines = np.array(lines, dtype='float32')
+        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+                                              criteria, 10, flags)
+        labels = np.ravel(labels)
+        A = lines[labels == 0]
+        B = lines[labels == 1]
+
+    if centers[1] < centers[0]:
+        return np.int32(A), np.int32(B)
+    else:
+        return np.int32(B), np.int32(A)
+
+
+def sort_lines(vert, hori):
+    def _create(lines, kind):
+        dummy = np.zeros((lines.shape[0], 7), dtype='int32')
+        dummy[:, 0:6] = lines[:, 0:6]
+        lines = dummy
+
+        for i, line in enumerate(lines):
+            lines[i, 6] = round(line[kind] + line[kind+2])
+        return lines
+
+    vert = _create(vert, 0)
+    hori = _create(hori, 1)
+    vert = vert[np.argsort(vert[:, 6])]
+    hori = hori[np.argsort(hori[:, 6])]
+    return vert, hori

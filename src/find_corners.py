@@ -38,7 +38,7 @@ def create_cannys(img):
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
     # aux.save(img, "canny_dilate", img.canny)
     img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    # aux.save(img, "canny_closed", img.canny)
+    aux.save(img, "canny_closed", img.canny)
     return img
 
 
@@ -46,20 +46,21 @@ def magic_lines(img):
     print("finding all lines of board...")
 
     minlen0 = round((img.bwidth + img.bheigth) * 0.3)
-    maxgap = round(minlen0 / 4)
-    tvotes = round(minlen0 / 2)
+    maxgap = round(minlen0 / 8)
+    tvotes = round(minlen0 / 1)
     angle = 1  # degrees
     tangle = np.deg2rad(angle)  # radians
 
     gotmin = False
     minlen = 0
     for minlen in range(minlen0, round(minlen0 * 0.6), -16):
-        tvotes = round(minlen / 2)
+        tvotes = round(minlen / 1)
         print(f"trying @{angle}º, {tvotes}, {minlen}, {maxgap}")
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        if lines is not None and len(lines) >= 10:
-            lines = lines[:, 0, :]
+        lines = lines[:, 0, :]
+        lines = bundle_lines(lines)
+        if lines is not None and len(lines) >= 14:
             gotmin = True
             break
     if not gotmin:
@@ -68,25 +69,27 @@ def magic_lines(img):
         canvas = draw.lines(img.gray3ch, lines)
         exit(1)
 
+    lines = aux.radius_theta(lines)
+    minlen0 = minlen = min(np.min(lines[:, 4]), 300)
+    maxgap = round(minlen0 / 4)
+    tvotes = round(minlen0 * 1)
     print(f"{minlen=}")
-    minlen0 = minlen
     ll = lv = lh = 0
     while lv < 9 or lh < 9 and tvotes > minlen0 / 3:
-        minlen = max(minlen - 2, minlen0 / 1.5)
+        minlen = max(minlen - 5, minlen0 / 1.5)
         tvotes -= 5
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        if ll := len(lines) < 12:
+        if (ll := len(lines)) < 16:
             print(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines = lines[:, 0, :]
         lines = bundle_lines(lines)
         lines = aux.radius_theta(lines)
-        vert, hori = split_lines(img, lines)
+        vert, hori = li.split_lines(img, lines)
         vert, hori = filter_angles(vert, hori)
         if (lv := len(vert)) >= 6 <= (lh := len(hori)):
-            vert = vert[np.argsort(vert[:, 0])]
-            hori = hori[np.argsort(hori[:, 1])]
+            vert, hori = li.sort_lines(vert, hori)
             vert, hori, medv, medh = magic_dir(img, vert, hori)
             vert, hori = li.rem_1011(img, vert, hori, medv, medh)
         lv, lh = len(vert), len(hori)
@@ -94,11 +97,11 @@ def magic_lines(img):
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
-    vert, hori = li.add_outer(vert, hori, medv, medh,
-                              img.bwidth, img.bheigth)
-    vert, hori = li.add_middle(vert, hori, medv, medh)
-    vert, hori = li.remove_extras(vert, hori)
-    vert, hori = li.add_last_outer(vert, hori, medv, medh)
+    # vert, hori = li.add_outer(vert, hori, medv, medh,
+    #                           img.bwidth, img.bheigth)
+    # vert, hori = li.add_middle(vert, hori, medv, medh)
+    vert, hori = li.remove_extras(vert, hori, img.bwidth, img.bheigth)
+    # vert, hori = li.add_last_outer(vert, hori, medv, medh)
 
     canvas = draw.lines(img.gray3ch, vert, hori)
     aux.save(img, "hough_magic", canvas)
@@ -112,7 +115,7 @@ def filter_angles(vert, hori, tol=15):
         angle = np.median(lines[:, 5])
 
         for i, line in enumerate(lines):
-            x1, y1, x2, y2, r, t = line
+            x1, y1, x2, y2, r, t, _ = line
             if abs(t - angle) > 15:
                 rem[i] = 1
             else:
@@ -175,53 +178,6 @@ def perspective_transform(img):
     return img
 
 
-def split_lines(img, lines):
-    lines = aux.radius_theta(lines)
-    lines = np.array(lines, dtype='float32')
-    if (lines.shape[1] < 6):
-        lines = aux.radius_theta(lines)
-
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
-                                          criteria, 10, flags)
-    labels = np.ravel(labels)
-
-    A = lines[labels == 0]
-    B = lines[labels == 1]
-
-    d1 = abs(centers[0] - centers[1])
-    d2 = abs(centers[0] - centers[2])
-    d3 = abs(centers[1] - centers[2])
-
-    dd1 = d1 < 22.5 and d2 > 22.5 and d3 > 22.5
-    dd2 = d2 < 22.5 and d1 > 22.5 and d3 > 22.5
-    dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
-
-    if dd1 or dd2 or dd3:
-        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 10, flags)
-
-        labels = np.ravel(labels)
-        A = lines[labels == 0]
-        B = lines[labels == 1]
-
-    if len(centers) == 3:
-        # redo kmeans using absolute inclination
-        lines = aux.radius_theta(lines, abs_angle=True)
-        lines = np.array(lines, dtype='float32')
-        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 10, flags)
-        labels = np.ravel(labels)
-        A = lines[labels == 0]
-        B = lines[labels == 1]
-
-    if centers[1] < centers[0]:
-        return np.int32(A), np.int32(B)
-    else:
-        return np.int32(B), np.int32(A)
-
-
 def broad_corners(img, BR, BL, TR, TL):
     print("adding margin for corners...")
     BR[0] = min(img.bwidth-1,  BR[0]+8)
@@ -257,7 +213,7 @@ def magic_dir(img, vert, hori):
     def _check_save(title):
         nonlocal lv, lh, vert, hori
         if lv != len(vert) or lh != len(hori):
-            canvas = draw.lines(img.warp3ch, vert, hori)
+            # canvas = draw.lines(img.warp3ch, vert, hori)
             # aux.save(img, title, canvas)
             lv, lh = len(vert), len(hori)
         return

@@ -196,7 +196,7 @@ def magic_vert_hori(img, vert, hori):
     _check_save("add_wouter")
     vert, hori = li.add_middle(vert, hori, medv, medh)
     _check_save("add_middle")
-    vert, hori = li.remove_extras(vert, hori)
+    vert, hori = li.remove_extras(vert, hori, img.wwidth, img.wheigth)
     _check_save("rem_extras")
     vert, hori = li.add_last_outer(vert, hori, medv, medh)
     _check_save("last_outer")

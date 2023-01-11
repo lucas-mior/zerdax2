@@ -18,14 +18,14 @@ def lines(image, vert, hori=None):
     canvas = np.zeros(image.shape, dtype='uint8')
 
     if hori is not None:
-        for x1, y1, x2, y2, r, t in vert:
+        for x1, y1, x2, y2, r, t, _ in vert:
             cv2.line(canvas, (x1, y1), (x2, y2),
                      color=(255, 0, 0), thickness=3)  # blue
-        for x1, y1, x2, y2, r, t in hori:
+        for x1, y1, x2, y2, r, t, _ in hori:
             cv2.line(canvas, (x1, y1), (x2, y2),
                      color=(0, 255, 0), thickness=3)  # green
     else:
-        for x1, y1, x2, y2, r, t in vert:
+        for x1, y1, x2, y2, r, t, _ in vert:
             cv2.line(canvas, (x1, y1), (x2, y2),
                      color=(0, 0, 255), thickness=3)  # red
 

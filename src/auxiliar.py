@@ -30,12 +30,12 @@ def theta(x1, y1, x2, y2, abs_angle=False):
 
 
 def radius_theta(lines, abs_angle=False):
-    dummy = np.zeros((lines.shape[0], 6), dtype='int32')
+    dummy = np.zeros((lines.shape[0], 7), dtype='int32')
     dummy[:, 0:4] = lines[:, 0:4]
     lines = dummy[np.argsort(dummy[:, 0])]
 
     for i, line in enumerate(lines):
-        x1, y1, x2, y2, r, t = line
+        x1, y1, x2, y2, r, t, _ = line
         lines[i, 4] = radius(x1, y1, x2, y2)
         lines[i, 5] = theta(x1, y1, x2, y2, abs_angle=abs_angle)
 

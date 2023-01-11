@@ -99,7 +99,7 @@ def magic_lines(img):
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
-    vert, hori = li.rem_1011(img, vert, hori)
+    vert, hori = li.fix_1011(img, vert, hori)
     # vert, hori = li.add_outer(vert, hori, img.bwidth, img.bheigth)
     # vert, hori = li.add_middle(vert, hori, medv, medh)
     vert, hori = li.remove_extras(vert, hori, img.bwidth, img.bheigth)

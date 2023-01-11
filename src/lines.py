@@ -8,12 +8,12 @@ WLEN = 640
 DX = 50
 
 
-def rem_1011(img, vert, hori):
+def fix_1011(img, vert, hori):
     tol = 2
     ww = img.bwidth
     hh = img.bheigth
 
-    def _rem(lines, k, dd):
+    def _fix(lines, k, dd):
         if len(lines) >= 9:
             dprev = min(abs(lines[1, k] - lines[0, k]),
                         abs(lines[1, k+2] - lines[0, k+2]))
@@ -43,8 +43,8 @@ def rem_1011(img, vert, hori):
                 lines, _ = sort_lines(lines)
         return lines
 
-    vert = _rem(vert, 0, ww)
-    hori = _rem(hori, 1, hh)
+    vert = _fix(vert, 0, ww)
+    hori = _fix(hori, 1, hh)
     return vert, hori
 
 

@@ -17,6 +17,7 @@ def add_outer(lines, k, ww, hh):
 
 
 def add_outer_wrap(img, vert, hori):
+    print("adding missing outer lines...")
     ww = img.bwidth
     hh = img.bheigth
 
@@ -98,6 +99,7 @@ def add_last_outer(vert, hori):
 
 
 def split_lines(lines):
+    print("spliting lines into vertical and horizontal...")
     if (lines.shape[1] < 6):
         lines, _ = aux.radius_theta(lines)
     lines = np.array(lines, dtype='float32')
@@ -152,6 +154,8 @@ def split_lines(lines):
 
 
 def sort_lines(vert, hori=None, k=0):
+    print("sorting lines by position and respective direction...")
+
     def _create(lines, kind):
         dummy = np.zeros((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:6] = lines[:, 0:6]
@@ -176,6 +180,8 @@ def sort_lines(vert, hori=None, k=0):
 
 
 def filter_byangle(vert, hori=None, tol=15):
+    print("filtering lines by angle accoring to direction...")
+
     def _filter(lines):
         rem = np.zeros(lines.shape[0], dtype='uint8')
         angle = np.median(lines[:, 5])
@@ -289,11 +295,10 @@ def rem_extras(lines, ll, k, dd):
             lines = lines[:-1]
         else:
             lines = lines[1:]
-    elif ll == 11:
+    elif ll >= 11:
+        print("There are 11 or more lines, removing on both sides...")
         lines = lines[1:-1]
-    elif ll >= 12:
-        print("There are 12 or more lines, removing on both sides...")
-        print(lines)
-        lines = lines[1:-1]
+    if ll >= 12:
+        print("There are 12 or more lines, removing extras again...")
         lines = rem_extras(lines, ll-2, k, dd)
     return lines

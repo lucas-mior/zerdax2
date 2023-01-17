@@ -44,7 +44,7 @@ def find_squares(img):
 
 
 def create_cannys(img, bonus=0):
-    print("finding edges for gray, S, V images...")
+    print("finding edges for gray, and V images...")
     cannyG, got_canny = aux.find_edges(img, img.G,
                                        lowpass=lf.ffilter, bonus=bonus)
     if not got_canny:
@@ -90,8 +90,9 @@ def magic_lines(img):
         print(f"{ll} # [{lv}][{lh}] @",
               f"{angle}º, {tvotes}, {minlen}, {maxgap}")
     if (lv < 8 or lh < 8) and bonus < 3:
+        print("Failed to find at least 8 lines in both directions.")
+        print("Recreating edges with a high threshold.")
         bonus += 1
-        print(f"{bonus=}")
         img = create_cannys(img, bonus=bonus)
         vert, hori = magic_lines(img)
         return vert, hori

@@ -91,8 +91,7 @@ def find_canny(image, wmin=8, thigh0=250):
                 got_canny = True
                 break
             else:
-                if np.random.random() < 0.5:
-                    print(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
+                print(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
                 gain = wmin - w
                 diff = round(max(8, gain*8))
                 if tlow <= tlowmin:
@@ -106,13 +105,13 @@ def find_canny(image, wmin=8, thigh0=250):
             thigh = max(thighmin, thigh - diff)
 
     if not got_canny:
-        print("find_edges() failed.")
+        print(f"Failed to find edges with mean >= {wmin:0=.1f}")
 
     return canny, got_canny
 
 
 def calc_intersections(image, lines1, lines2=None):
-    print("calculating intersections...")
+    print("calculating intersections between group(s) of lines...")
 
     inter = []
     if lines2 is None:
@@ -133,7 +132,6 @@ def calc_intersections(image, lines1, lines2=None):
 
             div = det([xdiff, ydiff])
             if div == 0:
-                print("div == 0")
                 continue
 
             d = (det([(x1, y1), (x2, y2)]),
@@ -148,6 +146,7 @@ def calc_intersections(image, lines1, lines2=None):
 
 
 def calc_intersection(line, ww=500, hh=300, kind=0):
+    print("calculating intersections between 2 lines...")
     if kind == 0:
         line2 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:

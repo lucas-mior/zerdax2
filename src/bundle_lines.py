@@ -10,6 +10,7 @@ def bundle_verthori(vert, hori):
 
 
 def bundle_lines(img, lines, min_dist=15, min_angle=15):
+    print("bundling similar lines together...")
     lines, _ = aux.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []

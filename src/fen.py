@@ -33,7 +33,7 @@ def create(squares, pieces):
 
 
 def compress(fen):
-    print("generating compressed FEN...")
+    print("compressing FEN...")
     for length in reversed(range(2, 9)):
         fen = fen.replace(length * '1', str(length))
 

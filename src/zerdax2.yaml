@@ -1,0 +1,13 @@
+path: ../datasets/zerdax2 # dataset root dir
+train: images/train/ # train images (relative to 'path')
+val: images/val/       # val images (relative to 'path')
+test: images/test/     # test images (relative to 'path')
+
+names:
+  0: Board
+  1: King
+  2: Queen
+  3: Rook
+  4: Bishop
+  5: Knight
+  6: Pawn

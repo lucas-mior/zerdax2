@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from numpy.linalg import det
+import logging as log
 import lffilter as lf
 
 i = 1
@@ -59,7 +60,7 @@ def gauss(image):
 
 
 def find_edges(img, image, lowpass, bonus=0):
-    print("filtering image...")
+    log.info("filtering image...")
     image = lowpass(image)
     pbonus = len(img.pieces) / 15
     if lowpass == lf.ffilter:
@@ -75,7 +76,7 @@ def find_edges(img, image, lowpass, bonus=0):
 
 
 def find_canny(image, wmin=8, thigh0=250):
-    print(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
+    log.info(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False
     thighmin = 30
@@ -87,11 +88,11 @@ def find_canny(image, wmin=8, thigh0=250):
             canny = cv2.Canny(image, tlow, thigh)
             w = np.mean(canny)
             if w >= wmin:
-                print(f"{w:0=.2f} >= {wmin:0=.1f}, @ {tlow}, {thigh}")
+                log.info(f"{w:0=.2f} >= {wmin:0=.1f}, @ {tlow}, {thigh}")
                 got_canny = True
                 break
             else:
-                print(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
+                log.debug(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
                 gain = wmin - w
                 diff = round(max(8, gain*8))
                 if tlow <= tlowmin:
@@ -105,13 +106,14 @@ def find_canny(image, wmin=8, thigh0=250):
             thigh = max(thighmin, thigh - diff)
 
     if not got_canny:
-        print(f"Failed to find edges with mean >= {wmin:0=.1f}")
+        log.info(f"Failed to find edges with mean >= {wmin:0=.1f}")
+        log.info(f"Last canny thresholds: {tlow, thigh}")
 
     return canny, got_canny
 
 
 def calc_intersections(image, lines1, lines2=None):
-    print("calculating intersections between group(s) of lines...")
+    log.info("calculating intersections between group(s) of lines...")
 
     if lines2 is None:
         lines2 = lines1
@@ -146,7 +148,7 @@ def calc_intersections(image, lines1, lines2=None):
 
 
 def calc_intersection(line, ww=500, hh=300, kind=0):
-    print("calculating intersections between 2 lines...")
+    log.debug("calculating intersections between 2 lines...")
     if kind == 0:
         line2 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:
@@ -159,7 +161,7 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
     x1, y1, x2, y2 = line[:4]
     xx1, yy1, xx2, yy2 = line2[:4]
     if (x1, y1, x2, x2) == (xx1, yy1, xx2, yy2):
-        print("lines should not be equal")
+        log.error("lines should not be equal")
         return (30000, 30000)
 
     xdiff = (x1 - x2, xx1 - xx2)
@@ -167,7 +169,7 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
 
     div = det([xdiff, ydiff])
     if div == 0:
-        print("div == 0 (parallel lines)")
+        log.error("div == 0 (parallel lines)")
         return (30000, 30000)
 
     d = (det([(x1, y1), (x2, y2)]),

@@ -1,4 +1,5 @@
 import numpy as np
+import logging as log
 import auxiliar as aux
 import drawings as draw
 
@@ -10,7 +11,7 @@ def bundle_verthori(vert, hori):
 
 
 def bundle_lines(img, lines, min_dist=15, min_angle=15):
-    print("bundling similar lines together...")
+    log.info("bundling similar lines together...")
     lines, _ = aux.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
@@ -22,6 +23,7 @@ def bundle_lines(img, lines, min_dist=15, min_angle=15):
 
 
 def check_is_line_different(line1, groups, min_dist, min_angle):
+    log.debug("checking if line is different from lines in groups...")
     for group in groups:
         for line2 in group:
             dtheta = abs(line1[5] - line2[5])
@@ -39,6 +41,7 @@ def check_is_line_different(line1, groups, min_dist, min_angle):
 
 
 def merge_lines_into_groups(lines, min_dist, min_angle):
+    log.debug("merging lines into groups...")
     groups = []
     groups.append([lines[0]])
 
@@ -50,6 +53,7 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
 
 
 def merge_line_segments(img, lines):
+    log.debug("merging line segments...")
     ll = len(lines)
     # canvas = draw.lines(img.gray3ch, lines)
     # aux.save(img, "group", canvas)
@@ -73,6 +77,7 @@ def segments_distance(line1, line2):
       one segment is (x11, y11) to (x12, y12)
       the other is   (x21, y21) to (x22, y22)
     """
+    log.debug("calculating distance between line segments...")
     x11, y11, x12, y12 = line1[:4]
     x21, y21, x22, y22 = line2[:4]
     if segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22):
@@ -87,6 +92,7 @@ def segments_distance(line1, line2):
 
 
 def segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22):
+    log.debug("checking if segments intersect...")
     """ whether two segments in the plane intersect:
       one segment is (x11, y11) to (x12, y12)
       the other is   (x21, y21) to (x22, y22)

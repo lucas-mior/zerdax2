@@ -1,17 +1,18 @@
 import cv2
 import re
+import logging as log
 from zerdax2_misc import SYMBOLS
 
 
 def generate(squares, pieces):
     longfen = create(squares, pieces)
-    print(f"{longfen=}")
+    log.info(f"{longfen=}")
     fen = compress(longfen)
     return longfen, fen
 
 
 def create(squares, pieces):
-    print("creating fen...")
+    log.info("creating fen...")
     fen = ""
     for i in range(7, -1, -1):
         for j in range(0, 8):
@@ -34,7 +35,7 @@ def create(squares, pieces):
 
 
 def compress(fen):
-    print("compressing FEN...")
+    log.info("compressing FEN...")
     for length in reversed(range(2, 9)):
         fen = fen.replace(length * '1', str(length))
 

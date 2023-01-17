@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import logging as log
 
 import auxiliar as aux
 import drawings as draw
@@ -44,7 +45,7 @@ def find_squares(img):
 
 
 def create_cannys(img, bonus=0):
-    print("finding edges for gray, and V images...")
+    log.info("finding edges for gray, and V images...")
     cannyG, got_canny = aux.find_edges(img, img.G,
                                        lowpass=lf.ffilter, bonus=bonus)
     if not got_canny:
@@ -62,7 +63,7 @@ def create_cannys(img, bonus=0):
 
 
 def magic_lines(img):
-    print("finding all lines of board...")
+    log.info("finding all lines of board...")
     global bonus
 
     angle = 0.5  # degrees
@@ -77,7 +78,7 @@ def magic_lines(img):
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         if (ll := lines.shape[0]) < 16:
-            print(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
+            log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines = lines[:, 0, :]
         lines = bundle_lines(img, lines)
@@ -87,17 +88,18 @@ def magic_lines(img):
         vert, hori = li.sort_lines(vert, hori)
         lv, lh = vert.shape[0], hori.shape[0]
         ll = lv + lh
-        print(f"{ll} # [{lv}][{lh}] @",
-              f"{angle}º, {tvotes}, {minlen}, {maxgap}")
+        log.info(f"{ll} # [{lv}][{lh}] @",
+                 f"{angle}º, {tvotes}, {minlen}, {maxgap}")
     if (lv < 8 or lh < 8) and bonus < 3:
-        print("Failed to find at least 8 lines in both directions.")
-        print("Recreating edges with a high threshold.")
+        log.info("Failed to find at least 8 lines in both directions.")
+        log.info("Recreating edges with a high threshold.")
         bonus += 1
         img = create_cannys(img, bonus=bonus)
         vert, hori = magic_lines(img)
         return vert, hori
 
     if lv < 9 or lh < 9:
+        log.info("Recreating edges with a high threshold.")
         aux.save(img, f"canny{lv=}_{lh=}", img.canny)
     vert, hori = li.shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
     vert, hori = li.add_outer_wrap(img, vert, hori)

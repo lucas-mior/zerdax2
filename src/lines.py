@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import logging as log
 
 import auxiliar as aux
 import drawings as draw
@@ -17,7 +18,7 @@ def add_outer(lines, k, ww, hh):
 
 
 def add_outer_wrap(img, vert, hori):
-    print("adding missing outer lines...")
+    log.info("adding missing outer lines...")
     ww = img.bwidth
     hh = img.bheigth
 
@@ -27,7 +28,7 @@ def add_outer_wrap(img, vert, hori):
 
 
 def add_middle(vert, hori):
-    print("adding missing middle lines...")
+    log.info("adding missing middle lines...")
 
     def _append(lines, i, x, y, kind):
         x1, x2 = x
@@ -83,7 +84,7 @@ def add_middle(vert, hori):
 
 
 def remove_extras(vert, hori, ww, hh):
-    print("removing extra outer lines...")
+    log.info("removing extra outer lines...")
     if (lv := vert.shape[0]) > 9:
         vert = rem_extras(vert, lv, k=0, dd=ww)
     if (lh := hori.shape[0]) > 9:
@@ -97,7 +98,7 @@ def add_last_outer(vert, hori):
 
 
 def split_lines(lines):
-    print("spliting lines into vertical and horizontal...")
+    log.info("spliting lines into vertical and horizontal...")
     if (lines.shape[1] < 6):
         lines, _ = aux.radius_theta(lines)
     lines = np.array(lines, dtype='float32')
@@ -152,7 +153,7 @@ def split_lines(lines):
 
 
 def sort_lines(vert, hori=None, k=0):
-    print("sorting lines by position and respective direction...")
+    log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
         dummy = np.zeros((lines.shape[0], 7), dtype='int32')
@@ -176,7 +177,7 @@ def sort_lines(vert, hori=None, k=0):
 
 
 def filter_byangle(vert, hori=None, tol=15):
-    print("filtering lines by angle accoring to direction...")
+    log.info("filtering lines by angle accoring to direction...")
 
     def _filter(lines):
         rem = np.zeros(lines.shape[0], dtype='uint8')
@@ -292,9 +293,9 @@ def rem_extras(lines, ll, k, dd):
         else:
             lines = lines[1:]
     elif ll >= 11:
-        print("There are 11 or more lines, removing on both sides...")
+        log.info("There are 11 or more lines, removing on both sides...")
         lines = lines[1:-1]
     if ll >= 12:
-        print("There are 12 or more lines, removing extras again...")
+        log.info("There are 12 or more lines, removing extras again...")
         lines = rem_extras(lines, ll-2, k, dd)
     return lines

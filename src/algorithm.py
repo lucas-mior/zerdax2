@@ -1,5 +1,6 @@
 import cv2
 from pathlib import Path
+import logging as log
 
 from find_squares import find_squares
 import yolo_wrap as yolo
@@ -33,7 +34,7 @@ def algorithm(filename):
 
 
 def crop_board(img):
-    print("cropping image to board box...")
+    log.info("cropping image to board box...")
     x0, y0, x1, y1 = img.boardbox
     img.x0, img.y0 = x0 - 5, y0 - 5
     img.x1, img.y1 = x1 + 5, y1 + 5
@@ -44,7 +45,7 @@ def crop_board(img):
 
 
 def reduce_box(img):
-    print(f"reduce cropped image to default size ({BWIDTH})...")
+    log.info(f"reduce cropped image to default size ({BWIDTH})...")
     img.bwidth = BWIDTH
     img.bfact = img.bwidth / img.board.shape[1]
     img.bheigth = round(img.bfact * img.board.shape[0])
@@ -55,19 +56,19 @@ def reduce_box(img):
 
 
 def pre_process(img):
-    print("creating HSV representation of image...")
+    log.info("creating HSV representation of image...")
     img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
     # img.H = img.HSV[:, :, 0]
     # img.S = img.HSV[:, :, 1]
     img.V = img.HSV[:, :, 2]
 
-    print("converting image to grayscale...")
+    log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
     # aux.save(img, "gray_board", img.gray)
-    print("generating 3 channel gray image for drawings...")
+    log.info("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
-    print("applying distributed histogram equalization to image...")
+    log.info("applying distributed histogram equalization to image...")
     clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)

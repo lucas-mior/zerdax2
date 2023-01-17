@@ -1,6 +1,7 @@
 import cv2
 import copy
 import numpy as np
+import logging as log
 
 import auxiliar as aux
 import drawings as draw
@@ -30,7 +31,7 @@ def detect_objects(img):
             img.boardbox = np.array(obj[:4], dtype='int32')
             break
 
-    print(f"{img.boardbox=}")
+    log.info(f"{img.boardbox=}")
 
     img.pieces = objs[objs[:, 5] != boardnum].tolist()
     img.pieces = determine_colors(img.pieces, img.BGR)

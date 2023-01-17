@@ -113,10 +113,10 @@ def find_canny(image, wmin=8, thigh0=250):
 def calc_intersections(image, lines1, lines2=None):
     print("calculating intersections between group(s) of lines...")
 
-    inter = []
     if lines2 is None:
         lines2 = lines1
 
+    rows = []
     for x1, y1, x2, y2, r, t, _ in lines1:
         col = []
         for xx1, yy1, xx2, yy2, rr, tt, _ in lines2:
@@ -139,9 +139,9 @@ def calc_intersections(image, lines1, lines2=None):
             x = det([d, xdiff]) / div
             y = det([d, ydiff]) / div
             col.append((x, y))
-        inter.append(col)
+        rows.append(col)
 
-    inter = np.round(inter)
+    inter = np.round(rows)
     return np.array(inter, dtype='int32')
 
 

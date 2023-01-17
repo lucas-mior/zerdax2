@@ -6,7 +6,11 @@ import logging as log
 import auxiliar as aux
 import drawings as draw
 import yolov5.detect as yolo
+import constants as consts
 from zerdax2_misc import SYMBOLS, AMOUNT, NUMBERS
+
+conf = consts.conf_thres
+iou = consts.iou_thres
 
 
 def detect_objects(img):
@@ -14,8 +18,8 @@ def detect_objects(img):
                     source=img.filename,
                     data="yolov5/zerdax2.yaml",
                     nosave=True,  # do not save images/videos
-                    conf_thres=0.5,  # confidence threshold
-                    iou_thres=0.45,  # NMS IOU threshold
+                    conf_thres=conf,  # confidence threshold
+                    iou_thres=iou,  # NMS IOU threshold
                     max_det=32,  # maximum detections per image
                     save_txt=False,  # save results to *.txt
                     save_conf=True,  # save confidences in --save-txt labels

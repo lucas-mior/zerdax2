@@ -6,10 +6,11 @@ import auxiliar as aux
 import drawings as draw
 import lffilter as lf
 import lines as li
+import constants as consts
 
 from bundle_lines import bundle_lines
 
-MINLEN = 240
+MINLEN = consts.MIN_LINE_LENGTH
 bonus = 0
 
 
@@ -65,19 +66,20 @@ def create_cannys(img, bonus=0):
 def magic_lines(img):
     log.info("finding all lines of board...")
     global bonus
+    min_before_split = consts.min_lines_before_split
 
-    angle = 0.5  # degrees
+    angle = consts.hough_angle_resolution
     tangle = np.deg2rad(angle)  # radians
     minlen0 = minlen = MINLEN
-    maxgap = round(minlen0 / 4)
-    tvotes = round(minlen0 * 1)
+    maxgap = round(minlen0 / consts.hough_maxgap_factor)
+    tvotes = round(minlen0)
     ll = lv = lh = 0
     while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.4):
         minlen = max(minlen - 8, minlen0 / 1.2)
         tvotes -= 12
         lines = cv2.HoughLinesP(img.canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
-        if (ll := lines.shape[0]) < 16:
+        if (ll := lines.shape[0]) < min_before_split:
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines = lines[:, 0, :]

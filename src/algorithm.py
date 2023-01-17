@@ -6,8 +6,7 @@ from find_squares import find_squares
 import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
-
-BWIDTH = 512
+import constants as consts
 
 
 class Image:
@@ -36,8 +35,9 @@ def algorithm(filename):
 def crop_board(img):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = img.boardbox
-    img.x0, img.y0 = x0 - 5, y0 - 5
-    img.x1, img.y1 = x1 + 5, y1 + 5
+    d = consts.margin
+    img.x0, img.y0 = x0 - d, y0 - d
+    img.x1, img.y1 = x1 + d, y1 + d
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
     # aux.save(img, "board_box", img.board)
@@ -45,8 +45,8 @@ def crop_board(img):
 
 
 def reduce_box(img):
-    log.info(f"reduce cropped image to default size ({BWIDTH})...")
-    img.bwidth = BWIDTH
+    log.info(f"reducing cropped image to default size ({consts.BWIDTH})...")
+    img.bwidth = consts.BWIDTH
     img.bfact = img.bwidth / img.board.shape[1]
     img.bheigth = round(img.bfact * img.board.shape[0])
 
@@ -69,7 +69,9 @@ def pre_process(img):
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
     log.info("applying distributed histogram equalization to image...")
-    clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(10, 10))
+    tgs = consts.tileGridSize
+    cliplim = consts.clipLimit
+    clahe = cv2.createCLAHE(clipLimit=cliplim, tileGridSize=(tgs, tgs))
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
     # aux.save(img, "claheG", img.G)

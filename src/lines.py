@@ -4,10 +4,11 @@ import logging as log
 
 import auxiliar as aux
 import drawings as draw
+import constants as consts
 
 
 def add_outer(lines, k, ww, hh):
-    tol = 4
+    tol = consts.outer_tolerance
     runs = 0
 
     while runs < 2:
@@ -29,6 +30,7 @@ def add_outer_wrap(img, vert, hori):
 
 def add_middle(vert, hori):
     log.info("adding missing middle lines...")
+    tol = consts.middle_tolerance
 
     def _append(lines, i, x, y, kind):
         x1, x2 = x
@@ -51,7 +53,7 @@ def add_middle(vert, hori):
              lines[1, 2] - lines[2, 2] + lines[1, 2])
         y = (lines[1, 1] - lines[2, 1] + lines[1, 1],
              lines[1, 3] - lines[2, 3] + lines[1, 3])
-        if dthis > (dnext*1.3) and dthis > (dnext2*1.3):
+        if dthis > (dnext*tol) and dthis > (dnext2*tol):
             lines = _append(lines, 0, x, y, kind)
             i = 0
         for i in range(1, len(lines) - 2):
@@ -61,7 +63,7 @@ def add_middle(vert, hori):
                      + abs(lines[i+0, kind+2] - lines[i+1, kind+2])) / 2
             dnext = (abs(lines[i+1, kind] - lines[i+2, kind])
                      + abs(lines[i+1, kind+2] - lines[i+2, kind+2])) / 2
-            if dthis > (dprev*1.3) and dthis > (dnext*1.3):
+            if dthis > (dprev*tol) and dthis > (dnext*tol):
                 x = (round((lines[i, 0] + lines[i+1, 0])/2),
                      round((lines[i, 2] + lines[i+1, 2])/2))
                 y = (round((lines[i, 1] + lines[i+1, 1])/2),
@@ -113,9 +115,10 @@ def split_lines(lines):
     d2 = abs(centers[0] - centers[2])
     d3 = abs(centers[1] - centers[2])
 
-    dd1 = d1 < 22.5 and d2 > 22.5 and d3 > 22.5
-    dd2 = d2 < 22.5 and d1 > 22.5 and d3 > 22.5
-    dd3 = d3 < 22.5 and d1 > 22.5 and d2 > 22.5
+    maxdiff = consts.angles_max_diff
+    dd1 = d1 < maxdiff and d2 > maxdiff and d3 > maxdiff
+    dd2 = d2 < maxdiff and d1 > maxdiff and d3 > maxdiff
+    dd3 = d3 < maxdiff and d1 > maxdiff and d2 > maxdiff
 
     if dd1 or dd2 or dd3:
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
@@ -178,13 +181,14 @@ def sort_lines(vert, hori=None, k=0):
 
 def filter_byangle(vert, hori=None, tol=15):
     log.info("filtering lines by angle accoring to direction...")
+    tol = consts.angle_tolerance
 
     def _filter(lines):
         rem = np.zeros(lines.shape[0], dtype='uint8')
         angle = np.median(lines[:, 5])
 
         for i, line in enumerate(lines):
-            if abs(line[5] - angle) > 15:
+            if abs(line[5] - angle) > tol:
                 rem[i] = 1
             else:
                 rem[i] = 0
@@ -225,7 +229,8 @@ def calc_outer(lines, tol, where, k, ww, hh):
         if inters[0, k] <= dd and inters[1, k] <= dd:
             x1, y1, x2, y2 = np.ravel(inters)
             line = (x1, y1, x2, y2)
-            if (r := aux.radius(line)) >= 175:
+            minlen = consts.MIN_LINE_LENGTH / 1.5
+            if (r := aux.radius(line)) >= minlen:
                 new = np.array([[x1, y1, x2, y2,
                                  r, aux.theta(line), 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
@@ -276,7 +281,7 @@ def limit_bydims(inters, ww, hh):
 
 
 def rem_extras(lines, ll, k, dd):
-    tol = 4
+    tol = consts.outer_tolerance
     if ll == 10:
         d10 = abs(lines[1, k] - 0)
         d11 = abs(lines[1, k+2] - 0)

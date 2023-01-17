@@ -3,6 +3,7 @@ import numpy as np
 from numpy.linalg import det
 import logging as log
 import lffilter as lf
+import constants as consts
 
 i = 1
 
@@ -55,20 +56,23 @@ def radius_theta(vert, hori=None, abs_angle=False):
 
 
 def gauss(image):
-    filtered = cv2.GaussianBlur(image, (5, 5), 0.5)
+    ks = consts.gauss_kernel_shape
+    gamma = consts.gauss_gamma
+    filtered = cv2.GaussianBlur(image, ks, gamma)
     return filtered
 
 
 def find_edges(img, image, lowpass, bonus=0):
     log.info("filtering image...")
     image = lowpass(image)
-    pbonus = len(img.pieces) / 15
+    factor = consts.piece_bonus_factor
+    pbonus = len(img.pieces) / factor
     if lowpass == lf.ffilter:
-        wmin = 10.5 + pbonus + bonus
-        thigh0 = 250
+        wmin = consts.wminfilter + pbonus + bonus
+        thigh0 = consts.thighfilter
     elif lowpass == gauss:
-        wmin = 12 + pbonus + bonus
-        thigh0 = 220
+        wmin = consts.wmingauss + pbonus + bonus
+        thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
     if not got_canny:
         save(img, "lowpass", image)
@@ -79,8 +83,8 @@ def find_canny(image, wmin=8, thigh0=250):
     log.info(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
 
     got_canny = False
-    thighmin = 30
-    tlowmin = 10
+    thighmin = consts.thighmin
+    tlowmin = consts.tlowmin
     thigh = thigh0
     while thigh >= thighmin:
         tlow = max(tlowmin, round(thigh*0.8))
@@ -126,7 +130,9 @@ def calc_intersections(image, lines1, lines2=None):
                 continue
 
             dtheta = abs(t - tt)
-            if (dtheta < 20 or dtheta > 160):
+            tol1 = consts.min_angle_to_intersect
+            tol2 = 180 - tol1
+            if (dtheta < tol1 or dtheta > tol2):
                 continue
 
             xdiff = (x1 - x2, xx1 - xx2)

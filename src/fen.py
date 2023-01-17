@@ -18,10 +18,11 @@ def create(squares, pieces):
             sq = squares[j, i]
             got_piece = False
             for piece in pieces:
-                xm = round((piece[2] + piece[0])/2)
-                y = round(piece[3]) - 15
+                x0, y0, x1, y1, _, number = piece[:6]
+                xm = round((x0 + x1)/2)
+                y = round(y1) - 15
                 if cv2.pointPolygonTest(sq, (xm, y), True) >= 0:
-                    fen += SYMBOLS[int(piece[5])]
+                    fen += SYMBOLS[int(number)]
                     got_piece = True
                     pieces.remove(piece)
                     break

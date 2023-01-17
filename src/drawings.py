@@ -46,9 +46,7 @@ def squares(image, squares):
 
     def _draw_square(canvas, coord, color, name):
         cv2.drawContours(canvas, [coord], -1, color=color, thickness=3)
-        color[0] = max(0, color[0] - 80)
-        color[1] = max(0, color[1] - 80)
-        color[2] = max(0, color[2] - 80)
+        color = [max(0, c - 80) for c in color]
         cv2.putText(canvas, name, (coord[0, 0]+5, coord[0, 1]-5),
                     cv2.FONT_HERSHEY_SIMPLEX, scale, color=color, thickness=2)
         return canvas

@@ -229,7 +229,7 @@ def calc_outer(lines, tol, where, k, ww, hh):
         if inters[0, k] <= dd and inters[1, k] <= dd:
             x1, y1, x2, y2 = np.ravel(inters)
             line = (x1, y1, x2, y2)
-            minlen = consts.MIN_LINE_LENGTH / 1.5
+            minlen = consts.min_line_length / 1.5
             if (r := aux.radius(line)) >= minlen:
                 new = np.array([[x1, y1, x2, y2,
                                  r, aux.theta(line), 0]], dtype='int32')

@@ -10,7 +10,7 @@ import constants as consts
 
 from bundle_lines import bundle_lines
 
-MINLEN = consts.MIN_LINE_LENGTH
+minlen0 = consts.min_line_length
 bonus = 0
 
 
@@ -70,7 +70,7 @@ def magic_lines(img):
 
     angle = consts.hough_angle_resolution
     tangle = np.deg2rad(angle)  # radians
-    minlen0 = minlen = MINLEN
+    minlen = minlen0
     maxgap = round(minlen0 / consts.hough_maxgap_factor)
     tvotes = round(minlen0)
     ll = lv = lh = 0

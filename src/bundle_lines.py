@@ -4,8 +4,8 @@ import auxiliar as aux
 import drawings as draw
 import constants as consts
 
-MIN_DIST = consts.min_dist_to_separate_lines
-MIN_ANGLE = consts.min_angle_to_separate_lines
+min_dist = consts.min_dist_to_separate_lines
+min_angle = consts.min_angle_to_separate_lines
 
 
 def bundle_verthori(vert, hori):
@@ -14,7 +14,7 @@ def bundle_verthori(vert, hori):
     return vert, hori
 
 
-def bundle_lines(img, lines, min_dist=MIN_DIST, min_angle=MIN_ANGLE):
+def bundle_lines(img, lines, min_dist=min_dist, min_angle=min_angle):
     log.info("bundling similar lines together...")
     lines, _ = aux.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)

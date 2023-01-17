@@ -1,5 +1,5 @@
-BWIDTH = 512
-MIN_LINE_LENGTH = 240
+bwidth = 512
+min_line_length = 240
 margin = 5
 tileGridSize = 10
 clipLimit = 1.0

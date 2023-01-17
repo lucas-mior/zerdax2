@@ -45,8 +45,8 @@ def crop_board(img):
 
 
 def reduce_box(img):
-    log.info(f"reducing cropped image to default size ({consts.BWIDTH})...")
-    img.bwidth = consts.BWIDTH
+    log.info(f"reducing cropped image to default size ({consts.bwidth})...")
+    img.bwidth = consts.bwidth
     img.bfact = img.bwidth / img.board.shape[1]
     img.bheigth = round(img.bfact * img.board.shape[0])
 

@@ -167,7 +167,7 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
     x1, y1, x2, y2 = line[:4]
     xx1, yy1, xx2, yy2 = line2[:4]
     if (x1, y1, x2, x2) == (xx1, yy1, xx2, yy2):
-        log.error("lines should not be equal")
+        log.warning("lines should not be equal")
         return (30000, 30000)
 
     xdiff = (x1 - x2, xx1 - xx2)
@@ -175,7 +175,7 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
 
     div = det([xdiff, ydiff])
     if div == 0:
-        log.error("div == 0 (parallel lines)")
+        log.warning("div == 0 (parallel lines)")
         return (30000, 30000)
 
     d = (det([(x1, y1), (x2, y2)]),

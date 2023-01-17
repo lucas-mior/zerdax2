@@ -20,6 +20,11 @@ def find_squares(img):
     inters = aux.calc_intersections(img.gray3ch, vert, hori)
     canvas = draw.points(img.gray3ch, inters)
     # aux.save(img, "intersections", canvas)
+    if inters.shape != (9, 9, 2):
+        log.error("There should be 81 intersections",
+                  "in 9 rows and 9 columns")
+        log.error(f"{inters.shape=}")
+        exit()
 
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)

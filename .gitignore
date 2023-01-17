@@ -4,3 +4,4 @@ __pycache__
 */yolov5
 *.o
 *.so
+*.pt

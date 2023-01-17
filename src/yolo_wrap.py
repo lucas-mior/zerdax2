@@ -20,6 +20,7 @@ def detect_objects(img):
                     save_conf=True,  # save confidences in --save-txt labels
                     project='.',  # save results to project/name
                     name='exp',  # save results to project/name
+                    exist_ok=True,  # existing project/name ok, don't increment
                     )
 
     objs = objs[np.argsort(objs[:, 4])][::-1]

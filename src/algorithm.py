@@ -40,7 +40,8 @@ def crop_board(img):
     img.x1, img.y1 = x1 + d, y1 + d
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    # aux.save(img, "board_box", img.board)
+    if aux.debugging():
+        aux.save(img, "board_box", img.board)
     return img
 
 
@@ -51,7 +52,8 @@ def reduce_box(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    # aux.save(img, "board_reduce", img.board)
+    if aux.debugging():
+        aux.save(img, "board_reduce", img.board)
     return img
 
 
@@ -64,7 +66,8 @@ def pre_process(img):
 
     log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    # aux.save(img, "gray_board", img.gray)
+    if aux.debugging():
+        aux.save(img, "gray_board", img.gray)
     log.info("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
@@ -74,7 +77,8 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clipLimit=cliplim, tileGridSize=(tgs, tgs))
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
-    # aux.save(img, "claheG", img.G)
-    # aux.save(img, "claheV", img.V)
+    if aux.debugging():
+        aux.save(img, "claheG", img.G)
+        aux.save(img, "claheV", img.V)
 
     return img

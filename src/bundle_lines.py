@@ -59,8 +59,6 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
 def merge_line_segments(img, lines):
     log.debug("merging line segments...")
     ll = len(lines)
-    # canvas = draw.lines(img.gray3ch, lines)
-    # aux.save(img, "group", canvas)
     if ll == 1:
         return np.block([lines[0][0:2], lines[0][2:4]])
 

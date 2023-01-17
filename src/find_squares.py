@@ -21,14 +21,17 @@ def find_squares(img):
         log.error("There should be 9 vertical lines and",
                   "9 horizontal lines")
         log.error(f"Got {lv} vertical and {lh} horizontal lines")
+        canvas = draw.lines(img.gray3ch, vert, hori)
+        aux.save(img, "magic_lines", canvas)
         exit()
+
     inters = aux.calc_intersections(img.gray3ch, vert, hori)
-    canvas = draw.points(img.gray3ch, inters)
-    # aux.save(img, "intersections", canvas)
     if inters.shape != (9, 9, 2):
         log.error("There should be 81 intersections",
                   "in 9 rows and 9 columns")
         log.error(f"{inters.shape=}")
+        canvas = draw.points(img.gray3ch, inters)
+        aux.save(img, "intersections", canvas)
         exit()
 
     intersq = inters.reshape(9, 9, 1, 2)
@@ -41,8 +44,9 @@ def find_squares(img):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas = draw.squares(img.board, squares)
-    # aux.save(img, "A1E4C5H8", canvas)
+    if aux.debugging():
+        canvas = draw.squares(img.board, squares)
+        aux.save(img, "A1E4C5H8", canvas)
     squares = np.float32(squares)
     # scale to input size
     squares[:, :, :, 0] /= img.bfact
@@ -52,18 +56,20 @@ def find_squares(img):
     squares[:, :, :, 1] += img.y0
 
     img.squares = np.array(np.round(squares), dtype='int32')
+    if aux.debugging():
+        canvas = draw.squares(img.BGR, img.squares)
+        aux.save(img, "A1E4C5H8", canvas)
     return img
 
 
 def create_cannys(img, bonus=0):
     log.info("finding edges for gray, and V images...")
-    cannyG, got_canny = aux.find_edges(img, img.G,
-                                       lowpass=lf.ffilter, bonus=bonus)
-    if not got_canny:
+    cannyG, got_cannyG = aux.find_edges(img, img.G,
+                                        lowpass=lf.ffilter, bonus=bonus)
+    cannyV, got_cannyV = aux.find_edges(img, img.V,
+                                        lowpass=lf.ffilter, bonus=bonus)
+    if not got_cannyG or not got_cannyV or aux.debugging():
         aux.save(img, "cannyG", cannyG)
-    cannyV, got_canny = aux.find_edges(img, img.V,
-                                       lowpass=lf.ffilter, bonus=bonus)
-    if not got_canny:
         aux.save(img, "cannyV", cannyV)
     img.canny = cv2.bitwise_or(cannyG, cannyV)
 
@@ -111,8 +117,10 @@ def magic_lines(img):
         return vert, hori
 
     if lv < 9 or lh < 9:
-        log.info("Less than 9 lines find in at least one direction")
-        aux.save(img, f"canny{lv=}_{lh=}", img.canny)
+        log.warning("Less than 9 lines find in at least one direction")
+        img.canny3ch = cv2.cvtColor(img.canny, cv2.COLOR_GRAY2BGR)
+        canvas = draw.lines(img.canny3ch, vert, hori)
+        aux.save(img, f"canny{lv=}_{lh=}", canvas)
     vert, hori = li.shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
     vert, hori = li.add_outer_wrap(img, vert, hori)
     vert, hori = li.sort_lines(vert, hori)
@@ -121,7 +129,7 @@ def magic_lines(img):
     vert, hori = li.add_middle(vert, hori)
     vert, hori = li.sort_lines(vert, hori)
     vert, hori = li.remove_extras(vert, hori, img.bwidth, img.bheigth)
-
-    canvas = draw.lines(img.gray3ch, vert, hori)
-    aux.save(img, "hough_magic", canvas)
+    if aux.debugging():
+        canvas = draw.lines(img.gray3ch, vert, hori)
+        aux.save(img, "magic_lines", canvas)
     return vert, hori

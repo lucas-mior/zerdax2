@@ -74,7 +74,7 @@ def find_edges(img, image, lowpass, bonus=0):
         wmin = consts.wmingauss + pbonus + bonus
         thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
-    if not got_canny:
+    if not got_canny or debugging():
         save(img, "lowpass", image)
     return canny, got_canny
 
@@ -183,3 +183,10 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
     x = round(det([d, xdiff]) / div)
     y = round(det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')
+
+
+def debugging():
+    if log.root.level < 20:
+        return True
+    else:
+        return False

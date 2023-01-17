@@ -27,8 +27,7 @@ def parse_args(args):
 
 if __name__ == '__main__':
     filenames, loglevel = parse_args(sys.argv[1:])
-    fmt = '[%(levelname)s] %(message)s'
-    log.basicConfig(level=loglevel, format=fmt)
+    log.basicConfig(level=loglevel, format='[%(levelname)s] %(message)s')
 
     for filename in filenames:
         print(f"============ zerdax2.py {filename} ============")

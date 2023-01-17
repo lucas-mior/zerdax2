@@ -161,10 +161,8 @@ def sort_lines(vert, hori=None, k=0):
         dummy[:, 0:6] = lines[:, 0:6]
         lines = dummy
 
-        intersec = []
         for i, line in enumerate(lines):
             inter = aux.calc_intersection(line, kind=kind)
-            intersec.append(inter)
             lines[i, 6] = inter[kind]
         return lines
 

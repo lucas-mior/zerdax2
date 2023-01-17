@@ -101,7 +101,7 @@ def magic_lines(img):
         return vert, hori
 
     if lv < 9 or lh < 9:
-        log.info("Recreating edges with a high threshold.")
+        log.info("Less than 9 lines find in at least one direction")
         aux.save(img, f"canny{lv=}_{lh=}", img.canny)
     vert, hori = li.shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
     vert, hori = li.add_outer_wrap(img, vert, hori)

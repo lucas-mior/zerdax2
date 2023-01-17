@@ -17,6 +17,11 @@ bonus = 0
 def find_squares(img):
     img = create_cannys(img)
     vert, hori = magic_lines(img)
+    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9:
+        log.error("There should be 9 vertical lines and",
+                  "9 horizontal lines")
+        log.error(f"Got {lv} vertical and {lh} horizontal lines")
+        exit()
     inters = aux.calc_intersections(img.gray3ch, vert, hori)
     canvas = draw.points(img.gray3ch, inters)
     # aux.save(img, "intersections", canvas)

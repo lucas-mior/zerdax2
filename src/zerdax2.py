@@ -8,7 +8,7 @@ from algorithm import algorithm
 
 if __name__ == '__main__':
     for image in sys.argv[1:]:
-        print(f"============ zerdax {image} ============")
+        print(f"============ zerdax2.py {image} ============")
         fen = algorithm(image)
         print("FEN:", fen)
         files = glob.glob('exp*')

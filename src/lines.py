@@ -5,7 +5,7 @@ import logging as log
 import auxiliar as aux
 import constants as consts
 import drawings as draw
-from bundle_lines import bundle_lines
+from lines_bundle import lines_bundle
 
 minlen0 = consts.min_line_length
 bonus = 0
@@ -31,7 +31,7 @@ def find_lines(img, canny):
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines = lines[:, 0, :]
-        lines = bundle_lines(lines)
+        lines = lines_bundle(lines)
         lines, _ = radius_theta(lines)
         vert, hori = split_lines(lines)
         vert, hori = filter_byangle(vert, hori)

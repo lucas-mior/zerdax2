@@ -7,13 +7,7 @@ min_dist = consts.min_dist_to_separate_lines
 min_angle = consts.min_angle_to_separate_lines
 
 
-def bundle_verthori(vert, hori):
-    vert = bundle_lines(vert)
-    hori = bundle_lines(hori)
-    return vert, hori
-
-
-def bundle_lines(lines, min_dist=min_dist, min_angle=min_angle):
+def lines_bundle(lines, min_dist=min_dist, min_angle=min_angle):
     log.info("bundling similar lines together...")
     lines, _ = li.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)

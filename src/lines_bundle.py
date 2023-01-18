@@ -34,15 +34,15 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
 def check_is_line_different(line1, groups, min_dist, min_angle):
     log.debug("checking if line is different from lines in groups...")
     for group in groups:
-        for line2 in group:
-            dtheta = abs(line1[5] - line2[5])
+        for line0 in group:
+            dtheta = abs(line1[5] - line0[5])
             if dtheta < min_angle:
-                dist = segments_distance(line2, line1)
+                dist = segments_distance(line0, line1)
                 if dist < min_dist:
-                    group.append(line1)
+                    group.append(line0)
                     return False
             elif (dtheta <= (min_angle+2)):
-                dist = segments_distance(line2, line1)
+                dist = segments_distance(line0, line1)
                 if dist <= 1:
                     group.append(line1)
                     return False
@@ -67,23 +67,23 @@ def merge_line_segments(lines):
     return np.block([P[0:2], P[2:4]])
 
 
-def segments_distance(line1, line2):
+def segments_distance(line0, line1):
     log.debug("calculating distance between line segments...")
-    if segments_intersect(line1[:4], line2[:4]):
+    if segments_intersect(line0[:4], line1[:4]):
         return 0
     # try each of the 4 vertices w/the other segment
     distances = []
-    distances.append(point_seg_distance(line1[0:2], line2[:4]))
-    distances.append(point_seg_distance(line1[2:4], line2[:4]))
-    distances.append(point_seg_distance(line2[0:2], line1[:4]))
-    distances.append(point_seg_distance(line2[2:4], line1[:4]))
+    distances.append(point_seg_distance(line0[0:2], line1[:4]))
+    distances.append(point_seg_distance(line0[2:4], line1[:4]))
+    distances.append(point_seg_distance(line1[0:2], line0[:4]))
+    distances.append(point_seg_distance(line1[2:4], line0[:4]))
     return min(distances)
 
 
-def segments_intersect(line1, line2):
+def segments_intersect(line0, line1):
     log.debug("checking if segments intersect...")
-    x0, y0, x1, y1 = line1[:4]
-    xx0, yy0, xx1, yy1 = line2[:4]
+    x0, y0, x1, y1 = line0[:4]
+    xx0, yy0, xx1, yy1 = line1[:4]
     dx0 = x1 - x0
     dy0 = y1 - y0
     dx1 = xx1 - xx0

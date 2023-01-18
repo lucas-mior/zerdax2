@@ -26,10 +26,10 @@ def lines(image, vert, hori=None):
 
     def _draw_lines(canvas, lines, color):
         for i, line in enumerate(lines[:, :4]):
-            x1, y1, x2, y2 = line
-            cv2.line(canvas, (x1, y1), (x2, y2),
+            x0, y0, x1, y1 = line
+            cv2.line(canvas, (x0, y0), (x1, y1),
                      color=color, thickness=3)
-            cv2.putText(canvas, str(i), (round((x1+x2)/2), round((y1+y2)/2)),
+            cv2.putText(canvas, str(i), (round((x0+x1)/2), round((y0+y1)/2)),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=1.3,
                         color=color, thickness=2)
         return canvas

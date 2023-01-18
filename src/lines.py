@@ -83,10 +83,10 @@ def add_middle(vert, hori):
     tol = consts.middle_tolerance
 
     def _append(lines, i, x, y, kind):
-        x1, x2 = x
-        y1, y2 = y
-        line = (x1, y1, x2, y2)
-        new = np.array([[x1, y1, x2, y2,
+        x0, x1 = x
+        y0, y1 = y
+        line = (x0, y0, x1, y1)
+        new = np.array([[x0, y0, x1, y1,
                          length(line), theta(line), 0]], dtype='int32')
         lines = np.append(lines, new, axis=0)
         lines, _ = sort_lines(lines, k=kind)
@@ -95,15 +95,15 @@ def add_middle(vert, hori):
     def _add_middle(lines, kind):
         dthis = (abs(lines[0, kind] - lines[1, kind])
                  + abs(lines[0, kind+2] - lines[1, kind+2])) / 2
-        dnext = (abs(lines[1, kind] - lines[2, kind])
-                 + abs(lines[1, kind+2] - lines[2, kind+2])) / 2
-        dnext2 = (abs(lines[2, kind] - lines[3, kind])
+        dnext0 = (abs(lines[1, kind] - lines[2, kind])
+                  + abs(lines[1, kind+2] - lines[2, kind+2])) / 2
+        dnext1 = (abs(lines[2, kind] - lines[3, kind])
                   + abs(lines[2, kind+2] - lines[3, kind+2])) / 2
         x = (lines[1, 0] - lines[2, 0] + lines[1, 0],
              lines[1, 2] - lines[2, 2] + lines[1, 2])
         y = (lines[1, 1] - lines[2, 1] + lines[1, 1],
              lines[1, 3] - lines[2, 3] + lines[1, 3])
-        if dthis > (dnext*tol) and dthis > (dnext2*tol):
+        if dthis > (dnext0*tol) and dthis > (dnext1*tol):
             lines = _append(lines, 0, x, y, kind)
             i = 0
         for i in range(1, len(lines) - 2):
@@ -161,16 +161,16 @@ def split_lines(lines):
                                           criteria, 15, flags)
     labels = np.ravel(labels)
 
-    d1 = abs(centers[0] - centers[1])
-    d2 = abs(centers[0] - centers[2])
-    d3 = abs(centers[1] - centers[2])
+    d0 = abs(centers[0] - centers[1])
+    d1 = abs(centers[0] - centers[2])
+    d2 = abs(centers[1] - centers[2])
 
     maxdiff = consts.angles_max_diff
-    dd1 = d1 < maxdiff and d2 > maxdiff and d3 > maxdiff
-    dd2 = d2 < maxdiff and d1 > maxdiff and d3 > maxdiff
-    dd3 = d3 < maxdiff and d1 > maxdiff and d2 > maxdiff
+    dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
+    dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
+    dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
-    if dd1 or dd2 or dd3:
+    if dd0 or dd1 or dd2:
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 15, flags)
         labels = np.ravel(labels)
@@ -194,12 +194,12 @@ def split_lines(lines):
         hori = np.array(A, dtype='int32')
     nvert = []
     for line in vert:
-        x1, y1, x2, y2 = line[:4]
-        if y1 > y2:
-            a1, b1 = x1, y1
-            x1, y1 = x2, y2
-            x2, y2 = a1, b1
-        line = [x1, y1, x2, y2, line[4], line[5]]
+        x0, y0, x1, y1 = line[:4]
+        if y0 > y1:
+            a1, b1 = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = a1, b1
+        line = [x0, y0, x1, y1, line[4], line[5]]
         nvert.append(line)
     vert = np.array(nvert, dtype='int32')
     return vert, hori
@@ -268,20 +268,20 @@ def calc_outer(lines, tol, where, k, ww, hh):
     dx = (line0[0] - line1[0], line0[2] - line1[2])
     dy = (line0[1] - line1[1], line0[3] - line1[3])
     if abs(line0[k] - ee) > tol and abs(line0[k+2] - ee) > tol:
-        x1 = line0[0] + dx[0]
-        y1 = line0[1] + dy[0]
-        x2 = line0[2] + dx[1]
-        y2 = line0[3] + dy[1]
-        new = np.array([[x1, y1, x2, y2, 0, 0, 0]], dtype='int32')
+        x0 = line0[0] + dx[0]
+        y0 = line0[1] + dy[0]
+        x1 = line0[2] + dx[1]
+        y1 = line0[3] + dy[1]
+        new = np.array([[x0, y0, x1, y1, 0, 0, 0]], dtype='int32')
         inters = limit_bydims(new[0][:4], ww, hh)
         if len(inters) != 2:
             return lines
         if inters[0, k] <= dd and inters[1, k] <= dd:
-            x1, y1, x2, y2 = np.ravel(inters)
-            line = (x1, y1, x2, y2)
+            x0, y0, x1, y1 = np.ravel(inters)
+            line = (x0, y0, x1, y1)
             minlen = consts.min_line_length / 1.5
             if (r := length(line)) >= minlen:
-                new = np.array([[x1, y1, x2, y2,
+                new = np.array([[x0, y0, x1, y1,
                                  r, theta(line), 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
                 lines, _ = sort_lines(lines, k=k)
@@ -308,10 +308,10 @@ def shorten_byinter(ww, hh, vert, hori=None):
             limit = limit_bydims(new[0, :4], ww, hh)
             limit = np.ravel(limit)
             if length(limit) < length(new[0, :4]):
-                x1, y1, x2, y2 = limit[:4]
+                x0, y0, x1, y1 = limit[:4]
             else:
-                x1, y1, x2, y2 = new[0, :4]
-            new = x1, y1, x2, y2, line[4], line[5], line[6]
+                x0, y0, x1, y1 = new[0, :4]
+            new = x0, y0, x1, y1, line[4], line[5], line[6]
             nlines.append(new)
         lines = np.array(nlines, dtype='int32')
         return lines
@@ -363,9 +363,9 @@ def length_theta(vert, hori=None, abs_angle=False):
         lines = dummy[np.argsort(dummy[:, 0])]
 
         for i, line in enumerate(lines):
-            x1, y1, x2, y2, r, t, _ = line
-            lines[i, 4] = length((x1, y1, x2, y2))
-            lines[i, 5] = theta((x1, y1, x2, y2), abs_angle=abs_angle)
+            x0, y0, x1, y1, r, t, _ = line
+            lines[i, 4] = length((x0, y0, x1, y1))
+            lines[i, 5] = theta((x0, y0, x1, y1), abs_angle=abs_angle)
         return np.round(lines)
 
     if hori is not None:
@@ -375,54 +375,54 @@ def length_theta(vert, hori=None, abs_angle=False):
 
 
 def length(line):
-    x1, y1, x2, y2 = line[:4]
-    dx = x2 - x1
-    dy = y2 - y1
+    x0, y0, x1, y1 = line[:4]
+    dx = x1 - x0
+    dy = y1 - y0
     return np.sqrt(dx*dx + dy*dy)
 
 
 def theta(line, abs_angle=False):
-    x1, y1, x2, y2 = line[:4]
+    x0, y0, x1, y1 = line[:4]
     if abs_angle:
-        angle = np.arctan2(abs(y1-y2), abs(x2-x1))
+        angle = np.arctan2(abs(y0-y1), abs(x1-x0))
     else:
-        if x2 < x1:
-            a1, b1 = x1, y1
-            x1, y1 = x2, y2
-            x2, y2 = a1, b1
-        angle = np.arctan2(y1-y2, x2-x1)
+        if x1 < x0:
+            a1, b1 = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = a1, b1
+        angle = np.arctan2(y0-y1, x1-x0)
 
     return np.rad2deg(angle)
 
 
-def calc_intersections(lines1, lines2=None):
+def calc_intersections(lines0, lines1=None):
     log.info("calculating intersections between group(s) of lines...")
 
-    if lines2 is None:
-        lines2 = lines1
+    if lines1 is None:
+        lines1 = lines0
 
     rows = []
-    for x1, y1, x2, y2, r, t, _ in lines1:
+    for x0, y0, x1, y1, r, t, _ in lines0:
         col = []
-        for xx1, yy1, xx2, yy2, rr, tt, _ in lines2:
-            if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
+        for xx0, yy0, xx1, yy1, rr, tt, _ in lines1:
+            if (x0, y0) == (xx0, yy0) and (x1, y1) == (xx0, yy0):
                 continue
 
             dtheta = abs(t - tt)
-            tol1 = consts.min_angle_to_intersect
-            tol2 = 180 - tol1
-            if (dtheta < tol1 or dtheta > tol2):
+            tol0 = consts.min_angle_to_intersect
+            tol1 = 180 - tol0
+            if (dtheta < tol0 or dtheta > tol1):
                 continue
 
-            xdiff = (x1 - x2, xx1 - xx2)
-            ydiff = (y1 - y2, yy1 - yy2)
+            xdiff = (x0 - x1, xx0 - xx1)
+            ydiff = (y0 - y1, yy0 - yy1)
 
             div = det([xdiff, ydiff])
             if div == 0:
                 continue
 
-            d = (det([(x1, y1), (x2, y2)]),
-                 det([(xx1, yy1), (xx2, yy2)]))
+            d = (det([(x0, y0), (x1, y1)]),
+                 det([(xx0, yy0), (xx1, yy1)]))
             x = det([d, xdiff]) / div
             y = det([d, ydiff]) / div
             col.append((x, y))
@@ -432,33 +432,33 @@ def calc_intersections(lines1, lines2=None):
     return np.array(inter, dtype='int32')
 
 
-def calc_intersection(line, ww=500, hh=300, kind=0):
+def calc_intersection(line0, ww=500, hh=300, kind=0):
     log.debug("calculating intersections between 2 lines...")
     if kind == 0:
-        line2 = (50, 0, 400, 0, 0, 0)
+        line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:
-        line2 = (0, 50, 0, 400, 0, 0)
+        line1 = (0, 50, 0, 400, 0, 0)
     elif kind == 2:
-        line2 = (50, hh, 400, hh, 0, 0)
+        line1 = (50, hh, 400, hh, 0, 0)
     elif kind == 3:
-        line2 = (ww, 50, ww, 400, 0, 0)
+        line1 = (ww, 50, ww, 400, 0, 0)
 
-    x1, y1, x2, y2 = line[:4]
-    xx1, yy1, xx2, yy2 = line2[:4]
-    if (x1, y1, x2, x2) == (xx1, yy1, xx2, yy2):
+    x0, y0, x1, y1 = line0[:4]
+    xx0, yy0, xx1, yy1 = line1[:4]
+    if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
         log.warning("lines should not be equal")
         return (30000, 30000)
 
-    xdiff = (x1 - x2, xx1 - xx2)
-    ydiff = (y1 - y2, yy1 - yy2)
+    xdiff = (x0 - x1, xx0 - xx1)
+    ydiff = (y0 - y1, yy0 - yy1)
 
     div = det([xdiff, ydiff])
     if div == 0:
         log.warning("div == 0 (parallel lines)")
         return (30000, 30000)
 
-    d = (det([(x1, y1), (x2, y2)]),
-         det([(xx1, yy1), (xx2, yy2)]))
+    d = (det([(x0, y0), (x1, y1)]),
+         det([(xx0, yy0), (xx1, yy1)]))
     x = round(det([d, xdiff]) / div)
     y = round(det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')

@@ -47,10 +47,10 @@ def find_lines(img, canny):
         canvas = draw.lines(canny3ch, vert, hori)
         aux.save(f"canny{lv=}_{lh=}", canvas)
 
-    vert, hori = shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
-    vert, hori = add_outer_wrap(img, vert, hori)
+    vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
+    vert, hori = add_outer_wrap(img.bwidth, img.bheigth, vert, hori)
     vert, hori = sort_lines(vert, hori)
-    vert, hori = shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
+    vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
     vert, hori = add_middle(vert, hori)
     vert, hori = sort_lines(vert, hori)
@@ -73,10 +73,8 @@ def add_outer(lines, k, ww, hh):
     return lines
 
 
-def add_outer_wrap(img, vert, hori):
+def add_outer_wrap(ww, hh, vert, hori):
     log.info("adding missing outer lines...")
-    ww = img.bwidth
-    hh = img.bheigth
 
     vert = add_outer(vert, 0, ww, hh)
     hori = add_outer(hori, 1, ww, hh)
@@ -301,7 +299,7 @@ def calc_inters(line, ww, hh):
     return np.array([i0, i1, i2, i3], dtype='int32')
 
 
-def shorten_byinter(img, ww, hh, vert, hori=None):
+def shorten_byinter(ww, hh, vert, hori=None):
     inters = aux.calc_intersections(vert, hori)
 
     def _shorten(lines):

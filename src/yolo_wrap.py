@@ -38,7 +38,7 @@ def detect_objects(img):
     log.info(f"{img.boardbox=}")
 
     img.pieces = objs[objs[:, 5] != boardnum].tolist()
-    img.pieces = determine_colors(img, img.pieces, img.BGR)
+    img.pieces = determine_colors(img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
     if aux.debugging():
@@ -47,7 +47,7 @@ def detect_objects(img):
     return img
 
 
-def determine_colors(img, pieces, image):
+def determine_colors(pieces, image):
     pcolors = []
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     for p in pieces:

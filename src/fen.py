@@ -20,7 +20,6 @@ def compress(fen):
     log.info("compressing FEN...")
     for length in reversed(range(2, 9)):
         fen = fen.replace(length * '1', str(length))
-
     return fen
 
 

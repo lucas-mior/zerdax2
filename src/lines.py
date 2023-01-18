@@ -5,16 +5,14 @@ import logging as log
 import auxiliar as aux
 import constants as consts
 import drawings as draw
-import lffilter as lf
 from bundle_lines import bundle_lines
 
 minlen0 = consts.min_line_length
 bonus = 0
 
 
-def find_lines(img):
+def find_lines(img, canny):
     log.info("finding all lines of board...")
-    img = create_cannys(img)
     global bonus
     min_before_split = consts.min_lines_before_split
 
@@ -27,7 +25,7 @@ def find_lines(img):
     while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.4):
         minlen = max(minlen - 8, minlen0 / 1.2)
         tvotes -= 12
-        lines = cv2.HoughLinesP(img.canny, 1,
+        lines = cv2.HoughLinesP(canny, 1,
                                 tangle, tvotes, None, minlen, maxgap)
         if (ll := lines.shape[0]) < min_before_split:
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
@@ -42,19 +40,13 @@ def find_lines(img):
         ll = lv + lh
         log.info(f"{ll} # [{lv}][{lh}] @",
                  f"{angle}º, {tvotes}, {minlen}, {maxgap}")
-    if (lv < 8 or lh < 8) and bonus < 3:
-        log.info("Failed to find at least 8 lines in both directions.")
-        log.info("Recreating edges with a high threshold.")
-        bonus += 1
-        img = create_cannys(img, bonus=bonus)
-        vert, hori = find_lines(img)
-        return vert, hori
 
     if lv < 9 or lh < 9:
         log.warning("Less than 9 lines find in at least one direction")
-        img.canny3ch = cv2.cvtColor(img.canny, cv2.COLOR_GRAY2BGR)
-        canvas = draw.lines(img.canny3ch, vert, hori)
+        canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+        canvas = draw.lines(canny3ch, vert, hori)
         aux.save(img, f"canny{lv=}_{lh=}", canvas)
+
     vert, hori = shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
     vert, hori = add_outer_wrap(img, vert, hori)
     vert, hori = sort_lines(vert, hori)
@@ -63,29 +55,11 @@ def find_lines(img):
     vert, hori = add_middle(vert, hori)
     vert, hori = sort_lines(vert, hori)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
+
     if aux.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
         aux.save(img, "find_lines", canvas)
-
-    img.vert, img.hori = vert, hori
-    return img
-
-
-def create_cannys(img, bonus=0):
-    log.info("finding edges for gray, and V images...")
-    cannyG, got_cannyG = aux.find_edges(img, img.G,
-                                        lowpass=lf.ffilter, bonus=bonus)
-    cannyV, got_cannyV = aux.find_edges(img, img.V,
-                                        lowpass=lf.ffilter, bonus=bonus)
-    if not got_cannyG or not got_cannyV or aux.debugging():
-        aux.save(img, "cannyG", cannyG)
-        aux.save(img, "cannyV", cannyV)
-    img.canny = cv2.bitwise_or(cannyG, cannyV)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    return img
+    return vert, hori
 
 
 def add_outer(lines, k, ww, hh):

@@ -7,6 +7,7 @@ from lines import find_lines
 import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
+import lffilter as lf
 import constants as consts
 
 
@@ -25,9 +26,10 @@ def algorithm(filename):
     img = crop_board(img)
     img = reduce_box(img)
     img = pre_process(img)
+    img = create_cannys(img)
 
-    img = find_lines(img)
-    img = calc_squares(img)
+    vert, hori = find_lines(img, img.canny)
+    img = calc_squares(img, vert, hori)
 
     img.longfen, img.fen = fen.generate(img.squares)
     fen.dump(img.longfen)
@@ -81,4 +83,21 @@ def pre_process(img):
         aux.save(img, "claheG", img.G)
         aux.save(img, "claheV", img.V)
 
+    return img
+
+
+def create_cannys(img, bonus=0):
+    log.info("finding edges for gray, and V images...")
+    cannyG, got_cannyG = aux.find_edges(img, img.G,
+                                        lowpass=lf.ffilter, bonus=bonus)
+    cannyV, got_cannyV = aux.find_edges(img, img.V,
+                                        lowpass=lf.ffilter, bonus=bonus)
+    if not got_cannyG or not got_cannyV or aux.debugging():
+        aux.save(img, "cannyG", cannyG)
+        aux.save(img, "cannyV", cannyV)
+    img.canny = cv2.bitwise_or(cannyG, cannyV)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
+    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
     return img

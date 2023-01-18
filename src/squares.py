@@ -6,8 +6,7 @@ import auxiliar as aux
 import drawings as draw
 
 
-def calc_squares(img):
-    vert, hori = img.vert, img.hori
+def calc_squares(img, vert, hori):
     if (lv := len(vert)) != 9 or (lh := len(hori)) != 9:
         log.error("There should be 9 vertical lines and",
                   "9 horizontal lines")

@@ -302,7 +302,7 @@ def calc_inters(line, ww, hh):
 
 
 def shorten_byinter(img, ww, hh, vert, hori=None):
-    inters = aux.calc_intersections(img.gray3ch, vert, hori)
+    inters = aux.calc_intersections(vert, hori)
 
     def _shorten(lines):
         nlines = []

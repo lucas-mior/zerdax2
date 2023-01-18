@@ -16,7 +16,7 @@ def save(img, filename, image):
     i += 1
 
 
-def calc_intersections(image, lines1, lines2=None):
+def calc_intersections(lines1, lines2=None):
     log.info("calculating intersections between group(s) of lines...")
 
     if lines2 is None:

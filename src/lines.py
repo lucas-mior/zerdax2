@@ -105,10 +105,10 @@ def split_lines(lines):
         lines, _ = aux.radius_theta(lines)
     lines = np.array(lines, dtype='float32')
 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
-                                          criteria, 10, flags)
+                                          criteria, 15, flags)
     labels = np.ravel(labels)
 
     d1 = abs(centers[0] - centers[1])
@@ -122,7 +122,7 @@ def split_lines(lines):
 
     if dd1 or dd2 or dd3:
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 10, flags)
+                                              criteria, 15, flags)
         labels = np.ravel(labels)
         A = lines[labels == 0]
         B = lines[labels == 1]
@@ -131,7 +131,7 @@ def split_lines(lines):
         lines, _ = aux.radius_theta(lines, abs_angle=True)
         lines = np.array(lines, dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 10, flags)
+                                              criteria, 15, flags)
         labels = np.ravel(labels)
         A = lines[labels == 0]
         B = lines[labels == 1]

@@ -69,10 +69,10 @@ def determine_colors(pieces, image):
 
     pcolors = np.array(pcolors, dtype='float32')
 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(pcolors[:, 6], 2, None,
-                                          criteria, 10, flags)
+                                          criteria, 20, flags)
     if centers[0] < centers[1]:
         blacklabel = 0
     else:

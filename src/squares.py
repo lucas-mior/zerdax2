@@ -98,8 +98,6 @@ def iterate(squares, pieces, force=False):
     def _select_piece(sq, possible):
         if len(possible) == 1:
             return possible[0]
-        print("select_piece from possible:")
-        print(possible)
 
         xc = np.sum(sq[:, 0])/4
         yc = np.sum(sq[:, 1])/4

@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import det
 import cv2
 import logging as log
 
@@ -217,7 +218,7 @@ def sort_lines(vert, hori=None, k=0):
         lines = dummy
 
         for i, line in enumerate(lines):
-            inter = aux.calc_intersection(line, kind=kind)
+            inter = calc_intersection(line, kind=kind)
             lines[i, 6] = inter[kind]
         return lines
 
@@ -292,15 +293,15 @@ def calc_outer(lines, tol, where, k, ww, hh):
 
 
 def calc_inters(line, ww, hh):
-    i0 = aux.calc_intersection(line, ww, hh, kind=0)
-    i1 = aux.calc_intersection(line, ww, hh, kind=1)
-    i2 = aux.calc_intersection(line, ww, hh, kind=2)
-    i3 = aux.calc_intersection(line, ww, hh, kind=3)
+    i0 = calc_intersection(line, ww, hh, kind=0)
+    i1 = calc_intersection(line, ww, hh, kind=1)
+    i2 = calc_intersection(line, ww, hh, kind=2)
+    i3 = calc_intersection(line, ww, hh, kind=3)
     return np.array([i0, i1, i2, i3], dtype='int32')
 
 
 def shorten_byinter(ww, hh, vert, hori=None):
-    inters = aux.calc_intersections(vert, hori)
+    inters = calc_intersections(vert, hori)
 
     def _shorten(lines):
         nlines = []
@@ -396,3 +397,72 @@ def theta(line, abs_angle=False):
         angle = np.arctan2(y1-y2, x2-x1)
 
     return np.rad2deg(angle)
+
+
+def calc_intersections(lines1, lines2=None):
+    log.info("calculating intersections between group(s) of lines...")
+
+    if lines2 is None:
+        lines2 = lines1
+
+    rows = []
+    for x1, y1, x2, y2, r, t, _ in lines1:
+        col = []
+        for xx1, yy1, xx2, yy2, rr, tt, _ in lines2:
+            if (x1, y1) == (xx1, yy1) and (x2, y2) == (xx2, yy2):
+                continue
+
+            dtheta = abs(t - tt)
+            tol1 = consts.min_angle_to_intersect
+            tol2 = 180 - tol1
+            if (dtheta < tol1 or dtheta > tol2):
+                continue
+
+            xdiff = (x1 - x2, xx1 - xx2)
+            ydiff = (y1 - y2, yy1 - yy2)
+
+            div = det([xdiff, ydiff])
+            if div == 0:
+                continue
+
+            d = (det([(x1, y1), (x2, y2)]),
+                 det([(xx1, yy1), (xx2, yy2)]))
+            x = det([d, xdiff]) / div
+            y = det([d, ydiff]) / div
+            col.append((x, y))
+        rows.append(col)
+
+    inter = np.round(rows)
+    return np.array(inter, dtype='int32')
+
+
+def calc_intersection(line, ww=500, hh=300, kind=0):
+    log.debug("calculating intersections between 2 lines...")
+    if kind == 0:
+        line2 = (50, 0, 400, 0, 0, 0)
+    elif kind == 1:
+        line2 = (0, 50, 0, 400, 0, 0)
+    elif kind == 2:
+        line2 = (50, hh, 400, hh, 0, 0)
+    elif kind == 3:
+        line2 = (ww, 50, ww, 400, 0, 0)
+
+    x1, y1, x2, y2 = line[:4]
+    xx1, yy1, xx2, yy2 = line2[:4]
+    if (x1, y1, x2, x2) == (xx1, yy1, xx2, yy2):
+        log.warning("lines should not be equal")
+        return (30000, 30000)
+
+    xdiff = (x1 - x2, xx1 - xx2)
+    ydiff = (y1 - y2, yy1 - yy2)
+
+    div = det([xdiff, ydiff])
+    if div == 0:
+        log.warning("div == 0 (parallel lines)")
+        return (30000, 30000)
+
+    d = (det([(x1, y1), (x2, y2)]),
+         det([(xx1, yy1), (xx2, yy2)]))
+    x = round(det([d, xdiff]) / div)
+    y = round(det([d, ydiff]) / div)
+    return np.array((x, y), dtype='int32')

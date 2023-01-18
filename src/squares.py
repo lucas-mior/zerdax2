@@ -16,7 +16,7 @@ def calc_squares(img, vert, hori):
         aux.save("magic_lines", canvas)
         exit()
 
-    inters = aux.calc_intersections(vert, hori)
+    inters = li.calc_intersections(vert, hori)
     if inters.shape != (9, 9, 2):
         log.error("There should be 81 intersections",
                   "in 9 rows and 9 columns")

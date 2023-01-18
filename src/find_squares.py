@@ -47,7 +47,7 @@ def find_squares(img):
     if aux.debugging():
         canvas = draw.squares(img.board, squares)
         aux.save(img, "A1E4C5H8", canvas)
-    squares = np.float32(squares)
+    squares = np.array(squares, dtype='int32')
     # scale to input size
     squares[:, :, :4, 0] /= img.bfact
     squares[:, :, :4, 1] /= img.bfact

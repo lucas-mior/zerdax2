@@ -137,11 +137,11 @@ def split_lines(lines):
         B = lines[labels == 1]
 
     if abs(centers[1]) < abs(centers[0]):
-        vert = np.int32(A)
-        hori = np.int32(B)
+        vert = np.array(A, dtype='int32')
+        hori = np.array(B, dtype='int32')
     else:
-        vert = np.int32(B)
-        hori = np.int32(A)
+        vert = np.int32(B, dtype='int32')
+        hori = np.int32(A, dtype='int32')
     nvert = []
     for line in vert:
         x1, y1, x2, y2 = line[:4]
@@ -151,7 +151,7 @@ def split_lines(lines):
             x2, y2 = a1, b1
         line = [x1, y1, x2, y2, line[4], line[5]]
         nvert.append(line)
-    vert = np.int32(nvert)
+    vert = np.array(nvert, dtype='int32')
     return vert, hori
 
 
@@ -243,7 +243,7 @@ def calc_inters(line, ww, hh):
     i1 = aux.calc_intersection(line, ww, hh, kind=1)
     i2 = aux.calc_intersection(line, ww, hh, kind=2)
     i3 = aux.calc_intersection(line, ww, hh, kind=3)
-    return np.array([i0, i1, i2, i3])
+    return np.array([i0, i1, i2, i3], dtype='int32')
 
 
 def shorten_byinter(img, ww, hh, vert, hori=None):

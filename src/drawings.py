@@ -3,6 +3,11 @@ import cv2
 from zerdax2_misc import COLORS, SYMBOLS
 
 
+def addweighted(image, canvas, w1=0.5, w2=0.5):
+    cv2.addWeighted(image, w1, canvas, w2, 0, canvas)
+    return canvas
+
+
 def points(image, inters):
     canvas = np.zeros(image.shape, dtype='uint8')
 
@@ -11,7 +16,7 @@ def points(image, inters):
             cv2.circle(canvas, p, radius=5,
                        color=(30+i*2, 0, 225-i*2), thickness=-1)
 
-    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
+    canvas = addweighted(image, canvas)
     return canvas
 
 
@@ -36,7 +41,7 @@ def lines(image, vert, hori=None):
     else:
         canvas = _draw_lines(canvas, vert, (0, 0, 255))
 
-    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
+    canvas = addweighted(image, canvas)
     return canvas
 
 
@@ -56,7 +61,7 @@ def squares(image, squares):
     canvas = _draw_square(canvas, squares[2, 4, :4], [0, 0, 255], "C5")
     canvas = _draw_square(canvas, squares[7, 7, :4], [0, 255, 255], "H8")
 
-    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
+    canvas = addweighted(image, canvas)
     return canvas
 
 
@@ -74,5 +79,5 @@ def boxes(pieces, image):
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
-    cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
+    canvas = addweighted(image, canvas)
     return canvas

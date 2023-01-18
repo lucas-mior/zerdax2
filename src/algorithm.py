@@ -46,7 +46,7 @@ def crop_board(img):
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
     if aux.debugging():
-        aux.save(img, "board_box", img.board)
+        aux.save("board_box", img.board)
     return img
 
 
@@ -58,7 +58,7 @@ def reduce_box(img):
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
     if aux.debugging():
-        aux.save(img, "board_reduce", img.board)
+        aux.save("board_reduce", img.board)
     return img
 
 
@@ -70,7 +70,7 @@ def pre_process(img):
     log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
     if aux.debugging():
-        aux.save(img, "gray_board", img.gray)
+        aux.save("gray_board", img.gray)
     log.info("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
@@ -81,8 +81,8 @@ def pre_process(img):
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
     if aux.debugging():
-        aux.save(img, "claheG", img.G)
-        aux.save(img, "claheV", img.V)
+        aux.save("claheG", img.G)
+        aux.save("claheV", img.V)
 
     return img
 
@@ -94,8 +94,8 @@ def create_cannys(img, bonus=0):
     cannyV, got_cannyV = find_edges(img, img.V,
                                     lowpass=lf.ffilter, bonus=bonus)
     if not got_cannyG or not got_cannyV or aux.debugging():
-        aux.save(img, "cannyG", cannyG)
-        aux.save(img, "cannyV", cannyV)
+        aux.save("cannyG", cannyG)
+        aux.save("cannyV", cannyV)
     canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -124,7 +124,7 @@ def find_edges(img, image, lowpass, bonus=0):
         thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
     if not got_canny or aux.debugging():
-        aux.save(img, "lowpass", image)
+        aux.save("lowpass", image)
     return canny, got_canny
 
 

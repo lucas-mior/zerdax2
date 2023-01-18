@@ -8,9 +8,9 @@ import constants as consts
 i = 1
 
 
-def save(img, filename, image):
+def save(filename, image):
     global i
-    title = f"{img.basename}{i:02d}_{filename}.png"
+    title = f"z{i:04d}_{filename}.png"
     print(f"saving {title}...")
     cv2.imwrite(title, image)
     i += 1

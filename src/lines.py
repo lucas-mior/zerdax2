@@ -45,7 +45,7 @@ def find_lines(img, canny):
         log.warning("Less than 9 lines find in at least one direction")
         canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
         canvas = draw.lines(canny3ch, vert, hori)
-        aux.save(img, f"canny{lv=}_{lh=}", canvas)
+        aux.save(f"canny{lv=}_{lh=}", canvas)
 
     vert, hori = shorten_byinter(img, img.bwidth, img.bheigth, vert, hori)
     vert, hori = add_outer_wrap(img, vert, hori)
@@ -58,7 +58,7 @@ def find_lines(img, canny):
 
     if aux.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
-        aux.save(img, "find_lines", canvas)
+        aux.save("find_lines", canvas)
     return vert, hori
 
 

@@ -43,7 +43,7 @@ def detect_objects(img):
 
     if aux.debugging():
         canvas = draw.boxes(img.pieces, img.BGR)
-        aux.save(img, "yolo", canvas)
+        aux.save("yolo", canvas)
     return img
 
 

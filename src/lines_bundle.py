@@ -82,18 +82,18 @@ def segments_distance(line1, line2):
 
 def segments_intersect(line1, line2):
     log.debug("checking if segments intersect...")
-    x00, y00, x01, y01 = line1[:4]
-    x10, y10, x11, y11 = line2[:4]
-    dx0 = x01 - x00
-    dy0 = y01 - y00
-    dx1 = x11 - x10
-    dy1 = y11 - y10
-    delta = dx1 * dy0 - dy1 * dx0
+    x0, y0, x1, y1 = line1[:4]
+    xx0, yy0, xx1, yy1 = line2[:4]
+    dx0 = x1 - x0
+    dy0 = y1 - y0
+    dx1 = xx1 - xx0
+    dy1 = yy1 - yy0
+    delta = dx1*dy0 - dy1*dx0
     if delta == 0:
         return False  # parallel segments
 
-    s = (dx0*(y10 - y00) + dy0*(x00 - x10)) / delta
-    t = (dx1*(y00 - y10) + dy1*(x10 - x00)) / (-delta)
+    s = (dx0*(yy0 - y0) + dy0*(x0 - xx0)) / delta
+    t = (dx1*(y0 - yy0) + dy1*(xx0 - x0)) / (-delta)
     return (0 <= s <= 1) and (0 <= t <= 1)
 
 

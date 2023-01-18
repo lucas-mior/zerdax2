@@ -41,8 +41,8 @@ def detect_objects(img):
     img.pieces = determine_colors(img, img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
-    canvas = draw.boxes(img.pieces, img.BGR)
     if aux.debugging():
+        canvas = draw.boxes(img.pieces, img.BGR)
         aux.save(img, "yolo", canvas)
     return img
 

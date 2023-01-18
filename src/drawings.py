@@ -51,10 +51,10 @@ def squares(image, squares):
                     cv2.FONT_HERSHEY_SIMPLEX, scale, color=color, thickness=2)
         return canvas
 
-    canvas = _draw_square(canvas, squares[0, 0], [255, 0, 0], "A1")
-    canvas = _draw_square(canvas, squares[4, 3], [0, 255, 0], "E4")
-    canvas = _draw_square(canvas, squares[2, 4], [0, 0, 255], "C5")
-    canvas = _draw_square(canvas, squares[7, 7], [0, 255, 255], "H8")
+    canvas = _draw_square(canvas, squares[0, 0, :4], [255, 0, 0], "A1")
+    canvas = _draw_square(canvas, squares[4, 3, :4], [0, 255, 0], "E4")
+    canvas = _draw_square(canvas, squares[2, 4, :4], [0, 0, 255], "C5")
+    canvas = _draw_square(canvas, squares[7, 7, :4], [0, 255, 255], "H8")
 
     cv2.addWeighted(image, 0.5, canvas, 0.5, 0, canvas)
     return canvas

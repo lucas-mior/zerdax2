@@ -15,25 +15,7 @@ def generate(squares, pieces):
 
 
 def create(squares, pieces):
-    log.info("creating fen...")
-    fen = ""
-    for i in range(7, -1, -1):
-        for j in range(0, 8):
-            sq = squares[j, i]
-            got_piece = False
-            for piece in pieces:
-                x0, y0, x1, y1, _, number = piece[:6]
-                xm = round((x0 + x1)/2)
-                y = round(y1) - piece_y_tol
-                if cv2.pointPolygonTest(sq, (xm, y), True) >= 0:
-                    fen += SYMBOLS[int(number)]
-                    got_piece = True
-                    pieces.remove(piece)
-                    break
-            if not got_piece:
-                fen += '1'
-        fen += '/'
-
+    fen = 8*'11111111/'
     return fen[:-1]
 
 

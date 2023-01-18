@@ -36,7 +36,7 @@ def find_squares(img):
 
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)
-    squares = np.zeros((8, 8, 4, 2), dtype='int32')
+    squares = np.zeros((8, 8, 5, 2), dtype='int32')
     for i in range(0, 8):
         for j in range(0, 8):
             squares[i, j, 0] = intersq[i, j]
@@ -49,16 +49,13 @@ def find_squares(img):
         aux.save(img, "A1E4C5H8", canvas)
     squares = np.float32(squares)
     # scale to input size
-    squares[:, :, :, 0] /= img.bfact
-    squares[:, :, :, 1] /= img.bfact
+    squares[:, :, :4, 0] /= img.bfact
+    squares[:, :, :4, 1] /= img.bfact
     # position board bounding box
-    squares[:, :, :, 0] += img.x0
-    squares[:, :, :, 1] += img.y0
+    squares[:, :, :4, 0] += img.x0
+    squares[:, :, :4, 1] += img.y0
 
     img.squares = np.array(np.round(squares), dtype='int32')
-    if aux.debugging():
-        canvas = draw.squares(img.BGR, img.squares)
-        aux.save(img, "A1E4C5H8", canvas)
     return img
 
 

@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from pathlib import Path
 import logging as log
 
@@ -7,6 +8,7 @@ import yolo_wrap as yolo
 import fen as fen
 import auxiliar as aux
 import constants as consts
+import drawings as draw
 
 
 class Image:
@@ -26,9 +28,14 @@ def algorithm(filename):
     img = pre_process(img)
 
     img = find_squares(img)
+    img.squares = fill_squares(img.squares, img.pieces)
+    img.squares = check_bottom_right(img, img.BGR, img.squares)
+    if aux.debugging():
+        canvas = draw.squares(img.BGR, img.squares)
+        aux.save(img, "A1E4C5H8", canvas)
+
     img.longfen, img.fen = fen.generate(img.squares, img.pieces)
     fen.dump(img.longfen)
-
     return img.fen
 
 
@@ -82,3 +89,54 @@ def pre_process(img):
         aux.save(img, "claheV", img.V)
 
     return img
+
+
+def fill_squares(squares, pieces):
+    log.info("filling squares...")
+    piece_y_tol = consts.piece_y_tol
+    for i in range(7, -1, -1):
+        for j in range(0, 8):
+            sq = squares[j, i]
+            got_piece = False
+            for piece in pieces:
+                x0, y0, x1, y1, _, number = piece[:6]
+                xm = round((x0 + x1)/2)
+                y = round(y1) - piece_y_tol
+                if cv2.pointPolygonTest(sq, (xm, y), True) >= 0:
+                    sq[4] = [1, number]
+                    got_piece = True
+                    pieces.remove(piece)
+                    break
+            if not got_piece:
+                sq[4] = [0, -1]
+
+    return squares
+
+
+def check_bottom_right(img, image, squares):
+    a8 = np.copy(squares[7, 0])
+    contour = a8[:4]
+    frame = cv2.boundingRect(contour)
+    x0, y0, dx, dy = frame
+    contour[:, 0] -= x0
+    contour[:, 1] -= y0
+    a = image[y0:y0+dy, x0:x0+dx]
+    b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
+    mask1 = np.zeros(b.shape, dtype='uint8')
+    cv2.drawContours(mask1, [contour], -1, 255, -1)
+    mask0 = cv2.bitwise_not(mask1)
+    mean0 = cv2.mean(b, mask=mask0)[0]
+    mean1 = cv2.mean(b, mask=mask1)[0]
+    if a8[4, 1] < 0:
+        pass
+    elif a8[4, 1] <= 6:
+        mean1 -= 30
+    else:
+        mean1 += 30
+    mean0, mean1 = round(mean0), round(mean1)
+    if mean1 < mean0:
+        if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
+            squares = np.rot90(squares, k=1)
+        else:
+            squares = np.rot90(squares, k=3)
+    return squares

@@ -14,7 +14,7 @@ def generate(squares):
     longfen = longfen[:-1]
     log.info(f"{longfen=}")
     fen = compress(longfen)
-    return longfen, fen
+    return fen
 
 
 def compress(fen):

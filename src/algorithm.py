@@ -27,8 +27,8 @@ def algorithm(filename):
     vert, hori = find_lines(img, canny)
     img = calc_squares(img, vert, hori)
 
-    img.longfen, img.fen = fen.generate(img.squares)
-    fen.dump(img.longfen)
+    img.fen = fen.generate(img.squares)
+    fen.dump(img.fen)
     return img.fen
 
 

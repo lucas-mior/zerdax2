@@ -3,7 +3,6 @@ import cv2
 import logging as log
 
 import auxiliar as aux
-import drawings as draw
 import constants as consts
 
 

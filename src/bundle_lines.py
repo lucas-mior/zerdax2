@@ -1,7 +1,6 @@
 import numpy as np
 import logging as log
 import auxiliar as aux
-import drawings as draw
 import constants as consts
 
 min_dist = consts.min_dist_to_separate_lines

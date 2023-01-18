@@ -32,7 +32,7 @@ def find_lines(img, canny):
             continue
         lines = lines[:, 0, :]
         lines = lines_bundle(lines)
-        lines, _ = radius_theta(lines)
+        lines, _ = length_theta(lines)
         vert, hori = split_lines(lines)
         vert, hori = filter_byangle(vert, hori)
         vert, hori = sort_lines(vert, hori)
@@ -90,7 +90,7 @@ def add_middle(vert, hori):
         y1, y2 = y
         line = (x1, y1, x2, y2)
         new = np.array([[x1, y1, x2, y2,
-                         radius(line), theta(line), 0]], dtype='int32')
+                         length(line), theta(line), 0]], dtype='int32')
         lines = np.append(lines, new, axis=0)
         lines, _ = sort_lines(lines, k=kind)
         return lines
@@ -155,7 +155,7 @@ def add_last_outer(vert, hori):
 def split_lines(lines):
     log.info("spliting lines into vertical and horizontal...")
     if (lines.shape[1] < 6):
-        lines, _ = radius_theta(lines)
+        lines, _ = length_theta(lines)
     lines = np.array(lines, dtype='float32')
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
@@ -181,7 +181,7 @@ def split_lines(lines):
         B = lines[labels == 1]
     else:
         # redo kmeans using absolute inclination
-        lines, _ = radius_theta(lines, abs_angle=True)
+        lines, _ = length_theta(lines, abs_angle=True)
         lines = np.array(lines, dtype='float32')
         compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
                                               criteria, 15, flags)
@@ -283,7 +283,7 @@ def calc_outer(lines, tol, where, k, ww, hh):
             x1, y1, x2, y2 = np.ravel(inters)
             line = (x1, y1, x2, y2)
             minlen = consts.min_line_length / 1.5
-            if (r := radius(line)) >= minlen:
+            if (r := length(line)) >= minlen:
                 new = np.array([[x1, y1, x2, y2,
                                  r, theta(line), 0]], dtype='int32')
                 lines = np.append(lines, new, axis=0)
@@ -310,7 +310,7 @@ def shorten_byinter(ww, hh, vert, hori=None):
             new = np.array([[a[0], a[1], b[0], b[1], 0, 0, 0]], dtype='int32')
             limit = limit_bydims(new[0, :4], ww, hh)
             limit = np.ravel(limit)
-            if radius(limit) < radius(new[0, :4]):
+            if length(limit) < length(new[0, :4]):
                 x1, y1, x2, y2 = limit[:4]
             else:
                 x1, y1, x2, y2 = new[0, :4]
@@ -359,7 +359,7 @@ def rem_extras(lines, ll, k, dd):
     return lines
 
 
-def radius_theta(vert, hori=None, abs_angle=False):
+def length_theta(vert, hori=None, abs_angle=False):
     def _create(lines):
         dummy = np.zeros((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:4] = lines[:, 0:4]
@@ -367,7 +367,7 @@ def radius_theta(vert, hori=None, abs_angle=False):
 
         for i, line in enumerate(lines):
             x1, y1, x2, y2, r, t, _ = line
-            lines[i, 4] = radius((x1, y1, x2, y2))
+            lines[i, 4] = length((x1, y1, x2, y2))
             lines[i, 5] = theta((x1, y1, x2, y2), abs_angle=abs_angle)
         return np.round(lines)
 
@@ -377,7 +377,7 @@ def radius_theta(vert, hori=None, abs_angle=False):
     return vert, hori
 
 
-def radius(line):
+def length(line):
     x1, y1, x2, y2 = line[:4]
     dx = x2 - x1
     dy = y2 - y1

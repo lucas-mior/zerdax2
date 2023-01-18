@@ -24,14 +24,14 @@ def compress(fen):
     return fen
 
 
-def dump(fen):
+def dump(longfen):
     print("―"*19)
 
     print("| ", end='')
-    fen = re.sub(r'/', "|\n| ", fen)
-    fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
-    fen = re.sub(r'(1)', r'· ', fen)
-    print(fen, end='')
+    longfen = re.sub(r'/', "|\n| ", longfen)
+    longfen = re.sub(r'([a-zA-Z])', r'\1 ', longfen)
+    longfen = re.sub(r'(1)', r'· ', longfen)
+    print(longfen, end='')
     print("|")
 
     print("―"*19)

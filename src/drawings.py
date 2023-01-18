@@ -1,3 +1,5 @@
+import sys
+import auxiliar as aux
 import numpy as np
 import cv2
 from zerdax2_misc import COLORS, SYMBOLS
@@ -81,3 +83,11 @@ def boxes(pieces, image):
 
     canvas = addweighted(image, canvas)
     return canvas
+
+
+if __name__ == "__main__":
+    if len(sys.argv) >= 3:
+        image = cv2.imread(sys.argv[1])
+        canvas = cv2.imread(sys.argv[2])
+        canvas = addweighted(image, canvas)
+        aux.save("addweighted", canvas)

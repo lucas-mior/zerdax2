@@ -1,3 +1,4 @@
+import sys
 import cv2
 import numpy as np
 from types import SimpleNamespace
@@ -157,3 +158,8 @@ def find_canny(image, wmin=8, thigh0=250):
         log.info(f"Last canny thresholds: {tlow, thigh}")
 
     return canny, got_canny
+
+
+if __name__ == "__main__":
+    for filename in sys.argv[1:]:
+        print(algorithm(filename))

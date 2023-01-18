@@ -67,8 +67,6 @@ def reduce_box(img):
 def pre_process(img):
     log.info("creating HSV representation of image...")
     img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
-    # img.H = img.HSV[:, :, 0]
-    # img.S = img.HSV[:, :, 1]
     img.V = img.HSV[:, :, 2]
 
     log.info("converting image to grayscale...")

@@ -49,7 +49,7 @@ def find_lines(img, canny):
         aux.save(f"canny{lv=}_{lh=}", canvas)
 
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
-    vert, hori = add_outer_wrap(img.bwidth, img.bheigth, vert, hori)
+    vert, hori = add_outer(img.bwidth, img.bheigth, vert, hori)
     vert, hori = sort_lines(vert, hori)
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
@@ -63,22 +63,18 @@ def find_lines(img, canny):
     return vert, hori
 
 
-def add_outer(lines, k, ww, hh):
-    tol = consts.outer_tolerance
-    runs = 0
-
-    while runs < 2:
-        lines = calc_outer(lines, tol, 0, k, ww, hh)
-        lines = calc_outer(lines, tol, -1, k, ww, hh)
-        runs += 1
-    return lines
-
-
-def add_outer_wrap(ww, hh, vert, hori):
+def add_outer(ww, hh, vert, hori):
     log.info("adding missing outer lines...")
+    tol = consts.outer_tolerance
 
-    vert = add_outer(vert, 0, ww, hh)
-    hori = add_outer(hori, 1, ww, hh)
+    def _add_outer(lines, k):
+        for runs in range(2):
+            lines = calc_outer(lines, tol, 0, k, ww, hh)
+            lines = calc_outer(lines, tol, -1, k, ww, hh)
+        return lines
+
+    vert = _add_outer(vert, 0)
+    hori = _add_outer(hori, 1)
     return vert, hori
 
 

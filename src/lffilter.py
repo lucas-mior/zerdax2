@@ -1,6 +1,9 @@
+import sys
+import cv2
 import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import numpy as np
+import auxiliar as aux
 
 
 def ffilter(image, h=1):
@@ -28,3 +31,11 @@ def ffilter(image, h=1):
     g = np.round(g)
     g = np.clip(g, 0, 255)
     return np.array(g, dtype='uint8')
+
+
+if __name__ == "__main__":
+    for filename in sys.argv[1:]:
+        image = cv2.imread(filename)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = ffilter(image)
+        aux.save("ffilter", image)

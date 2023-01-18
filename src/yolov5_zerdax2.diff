@@ -1,0 +1,12 @@
+diff --git a/detect.py b/detect.py
+index 2d13401..c27d7e2 100644
+--- a/detect.py
++++ b/detect.py
+@@ -214,6 +214,7 @@ def run(
+         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
+     if update:
+         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
++    return det.numpy()
+ 
+ 
+ def parse_opt():

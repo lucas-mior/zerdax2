@@ -5,25 +5,23 @@ Chess position recognizer.
 This program is a work in progress and may not work as expected.
 
 ## Installation
-- Download yolov5 from ultralytics
-```
-$ git clone https://github.com/ultralytics/yolov5
-```
-
-- Clone and chdir to this repo
+- Clone and install dependencies
 ```
 $ git clone https://github.com/lucas-mior/zerdax2
-$ cd zerdax2
-```
-
-- Install dependencies
-```
+$ cd zerdax2/src
 $ pip install -r requirements.txt
 ```
-
-- Link yolov5
+- Download yolov5 from ultralytics, apply patch and install dependencies
 ```
-$ ln -s ../yolov5 ./
+$ git clone https://github.com/ultralytics/yolov5
+$ cd yolov5
+$ patch < ../yolov5_zerdax2.diff
+$ pip install -r requirements.txt
+$ cd ..
+```
+- Compile filter library
+```
+$ make
 ```
 
 ## Usage

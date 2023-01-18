@@ -24,14 +24,14 @@ def compress(fen):
     return fen
 
 
-def dump(longfen):
+def dump(fen):
     print("―"*19)
 
     print("| ", end='')
-    longfen = re.sub(r'/', "|\n| ", longfen)
-    longfen = re.sub(r'([a-zA-Z])', r'\1 ', longfen)
-    longfen = re.sub(r'(1)', r'· ', longfen)
-    print(longfen, end='')
+    fen = re.sub(r'/', "|\n| ", fen)
+    fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
+    fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
+    print(fen, end='')
     print("|")
 
     print("―"*19)
@@ -39,6 +39,6 @@ def dump(longfen):
 
 
 if __name__ == "__main__":
-    for longfen in sys.argv[1:]:
-        print(compress(longfen))
-        dump(longfen)
+    for fen in sys.argv[1:]:
+        print(compress(fen))
+        dump(fen)

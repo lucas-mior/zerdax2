@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+import sys
 import cv2
 import copy
 import numpy as np
@@ -86,3 +88,12 @@ def process_pieces(pieces):
             new_pieces.append(piece)
 
     return new_pieces
+
+
+if __name__ == "__main__":
+    for filename in sys.argv[1:]:
+        img = SimpleNamespace(filename=filename)
+        img.BGR = cv2.imread(filename)
+        img = detect_objects(img)
+        canvas = draw.boxes(img.pieces, img.BGR)
+        aux.save("yolo", canvas)

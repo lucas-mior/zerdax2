@@ -4,6 +4,8 @@ import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import numpy as np
 import auxiliar as aux
+import platform
+import logging as log
 
 
 def ffilter(image, h=1):
@@ -13,7 +15,13 @@ def ffilter(image, h=1):
     N = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')
 
-    lf = ct.CDLL("./libffilter.so")
+    if platform.uname()[0] == "Windows":
+        # library = "libffilter.dll"
+        log.critical("Filter library does not run on windows yet")
+        exit()
+    elif platform.uname()[0] == "Linux":
+        library = "libffilter.so"
+    lf = ct.CDLL(library)
     lf_filter = lf.ffilter
 
     lf_filter.restype = None

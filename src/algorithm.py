@@ -91,7 +91,7 @@ def pre_process(img):
 
 def fill_squares(squares, pieces):
     log.info("filling squares...")
-    piece_y_tol = consts.piece_y_tol
+    piece_y_tol = round(abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22)
     for i in range(7, -1, -1):
         for j in range(0, 8):
             sq = squares[j, i]

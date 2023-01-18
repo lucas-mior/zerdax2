@@ -16,7 +16,6 @@ tlowmin = 10
 min_angle_to_intersect = 20
 min_dist_to_separate_lines = 15
 min_angle_to_separate_lines = 15
-piece_y_tol = 15
 min_lines_before_split = 16
 hough_angle_resolution = 0.5
 hough_maxgap_factor = 4

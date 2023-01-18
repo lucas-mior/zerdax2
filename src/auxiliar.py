@@ -86,7 +86,4 @@ def calc_intersection(line, ww=500, hh=300, kind=0):
 
 
 def debugging():
-    if log.root.level < 20:
-        return True
-    else:
-        return False
+    return log.root.level < 20

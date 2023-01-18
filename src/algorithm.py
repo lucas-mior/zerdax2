@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from pathlib import Path
+from types import SimpleNamespace
 import logging as log
 
 from squares import calc_squares
@@ -12,14 +12,8 @@ import lffilter as lf
 import constants as consts
 
 
-class Image:
-    def __init__(self, filename):
-        self.filename = filename
-        self.basename = Path(self.filename).stem
-
-
 def algorithm(filename):
-    img = Image(filename)
+    img = SimpleNamespace(filename=filename)
 
     img.BGR = cv2.imread(img.filename)
 

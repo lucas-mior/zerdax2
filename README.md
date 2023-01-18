@@ -26,7 +26,7 @@ $ make
 
 ## Usage
 ```
-$ ./zerdax2.py <image> [<image2> ...] [--loglevel=LEVEL]
+$ python ./zerdax2.py <image> [<image2> ...] [--loglevel=LEVEL]
 ```
 Image filenames are also read from standard input.
 Resulting FEN is written to standard output aswell

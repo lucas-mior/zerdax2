@@ -19,6 +19,18 @@ def lines_bundle(lines, min_dist=min_dist, min_angle=min_angle):
     return np.array(merged_lines, dtype='int32')
 
 
+def merge_lines_into_groups(lines, min_dist, min_angle):
+    log.debug("merging lines into groups...")
+    groups = []
+    groups.append([lines[0]])
+
+    for line_new in lines[1:]:
+        if check_is_line_different(line_new, groups, min_dist, min_angle):
+            groups.append([line_new])
+
+    return groups
+
+
 def check_is_line_different(line1, groups, min_dist, min_angle):
     log.debug("checking if line is different from lines in groups...")
     for group in groups:
@@ -35,18 +47,6 @@ def check_is_line_different(line1, groups, min_dist, min_angle):
                     group.append(line1)
                     return False
     return True
-
-
-def merge_lines_into_groups(lines, min_dist, min_angle):
-    log.debug("merging lines into groups...")
-    groups = []
-    groups.append([lines[0]])
-
-    for line_new in lines[1:]:
-        if check_is_line_different(line_new, groups, min_dist, min_angle):
-            groups.append([line_new])
-
-    return groups
 
 
 def merge_line_segments(lines):
@@ -79,10 +79,10 @@ def segments_distance(line1, line2):
         return 0
     # try each of the 4 vertices w/the other segment
     distances = []
-    distances.append(point_segment_distance(x11, y11, x21, y21, x22, y22))
-    distances.append(point_segment_distance(x12, y12, x21, y21, x22, y22))
-    distances.append(point_segment_distance(x21, y21, x11, y11, x12, y12))
-    distances.append(point_segment_distance(x22, y22, x11, y11, x12, y12))
+    distances.append(point_seg_distance(x11, y11, x21, y21, x22, y22))
+    distances.append(point_seg_distance(x12, y12, x21, y21, x22, y22))
+    distances.append(point_seg_distance(x21, y21, x11, y11, x12, y12))
+    distances.append(point_seg_distance(x22, y22, x11, y11, x12, y12))
     return min(distances)
 
 
@@ -105,7 +105,7 @@ def segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22):
     return (0 <= s <= 1) and (0 <= t <= 1)
 
 
-def point_segment_distance(px, py, x1, y1, x2, y2):
+def point_seg_distance(px, py, x1, y1, x2, y2):
     dx = x2 - x1
     dy = y2 - y1
     if dx == dy == 0:  # the segment's just a point

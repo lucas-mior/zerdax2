@@ -16,9 +16,7 @@ def ffilter(image, h=1):
     g = np.zeros(image.shape, dtype='float64')
 
     if platform.uname()[0] == "Windows":
-        # library = "./libffilter.dll"
-        log.critical("Filter library does not run on windows yet")
-        exit()
+        library = "./libffilter.dll"
     elif platform.uname()[0] == "Linux":
         library = "./libffilter.so"
     lf = ct.CDLL(library)

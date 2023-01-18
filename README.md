@@ -31,4 +31,14 @@ $ ln -s ../yolov5 ./
 $ ./zerdax2.py <image> [<image2> ...] [--loglevel=LEVEL]
 ```
 Image filenames are also read from standard input.
+Resulting FEN is written to standard output aswell
+as position diagram using characters.
 Type `<C-c>` to quit.
+
+## Utilities
+- `algorithm.py`: Run algorithm on images passed as arguments without reading
+                standard input for filenames and with default logging level.
+- `drawings.py`: Superimpose 2 images
+- `fen.py`: Compress FEN given as argument and draw position using characters
+- `lffilter.py`: Run a low pass filter on images.
+- `yolo_wrap.py`: Run piece detection and save results on image.

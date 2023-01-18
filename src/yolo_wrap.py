@@ -18,7 +18,7 @@ iou = consts.iou_thres
 def detect_objects(img):
     objs = yolo.run(weights="best.pt",
                     source=img.filename,
-                    data="yolov5/zerdax2.yaml",
+                    data="zerdax2.yaml",
                     nosave=True,  # do not save images/videos
                     conf_thres=conf,  # confidence threshold
                     iou_thres=iou,  # NMS IOU threshold

@@ -1,3 +1,4 @@
+import sys
 import re
 import logging as log
 from zerdax2_misc import SYMBOLS
@@ -35,3 +36,9 @@ def dump(longfen):
 
     print("―"*19)
     return
+
+
+if __name__ == "__main__":
+    for longfen in sys.argv[1:]:
+        print(compress(longfen))
+        dump(longfen)

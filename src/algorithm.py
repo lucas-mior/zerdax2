@@ -100,7 +100,7 @@ def fill_squares(squares, pieces):
                 x0, y0, x1, y1, _, number = piece[:6]
                 xm = round((x0 + x1)/2)
                 y = round(y1) - piece_y_tol
-                if cv2.pointPolygonTest(sq, (xm, y), True) >= 0:
+                if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
                     sq[4] = [1, number]
                     got_piece = True
                     pieces.remove(piece)

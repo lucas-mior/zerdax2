@@ -27,9 +27,9 @@ def algorithm(filename):
     img = crop_board(img)
     img = reduce_box(img)
     img = pre_process(img)
-    img = create_cannys(img)
+    canny = create_cannys(img)
 
-    vert, hori = find_lines(img, img.canny)
+    vert, hori = find_lines(img, canny)
     img = calc_squares(img, vert, hori)
 
     img.longfen, img.fen = fen.generate(img.squares)
@@ -96,12 +96,12 @@ def create_cannys(img, bonus=0):
     if not got_cannyG or not got_cannyV or aux.debugging():
         aux.save(img, "cannyG", cannyG)
         aux.save(img, "cannyV", cannyV)
-    img.canny = cv2.bitwise_or(cannyG, cannyV)
+    canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    return img
+    canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
+    canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
+    return canny
 
 
 def gauss(image):

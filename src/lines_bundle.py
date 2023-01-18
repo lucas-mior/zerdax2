@@ -68,10 +68,6 @@ def merge_line_segments(lines):
 
 
 def segments_distance(line1, line2):
-    """ distance between two segments in the plane:
-      one segment is (x11, y11) to (x12, y12)
-      the other is   (x21, y21) to (x22, y22)
-    """
     log.debug("calculating distance between line segments...")
     if segments_intersect(line1[:4], line2[:4]):
         return 0
@@ -86,10 +82,6 @@ def segments_distance(line1, line2):
 
 def segments_intersect(line1, line2):
     log.debug("checking if segments intersect...")
-    """ whether two segments in the plane intersect:
-      one segment is (x11, y11) to (x12, y12)
-      the other is   (x21, y21) to (x22, y22)
-    """
     x00, y00, x01, y01 = line1[:4]
     x10, y10, x11, y11 = line2[:4]
     dx0 = x01 - x00

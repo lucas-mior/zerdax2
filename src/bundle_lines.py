@@ -14,13 +14,13 @@ def bundle_verthori(vert, hori):
     return vert, hori
 
 
-def bundle_lines(img, lines, min_dist=min_dist, min_angle=min_angle):
+def bundle_lines(lines, min_dist=min_dist, min_angle=min_angle):
     log.info("bundling similar lines together...")
     lines, _ = aux.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:
-        line = merge_line_segments(img, group)
+        line = merge_line_segments(group)
         merged_lines.append(line)
 
     return np.array(merged_lines, dtype='int32')
@@ -56,7 +56,7 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
     return groups
 
 
-def merge_line_segments(img, lines):
+def merge_line_segments(lines):
     log.debug("merging line segments...")
     ll = len(lines)
     if ll == 1:

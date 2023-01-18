@@ -29,7 +29,7 @@ def algorithm(filename):
 
     img = find_squares(img)
     img.squares = fill_squares(img.squares, img.pieces)
-    img.squares = check_bottom_right(img, img.BGR, img.squares)
+    img.squares = check_bottom_right(img.BGR, img.squares)
     if aux.debugging():
         canvas = draw.squares(img.BGR, img.squares)
         aux.save(img, "A1E4C5H8", canvas)
@@ -111,30 +111,29 @@ def fill_squares(squares, pieces):
     return squares
 
 
-def check_bottom_right(img, image, squares):
+def check_bottom_right(image, squares):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     a8 = np.copy(squares[7, 0])
     contour = a8[:4]
     frame = cv2.boundingRect(contour)
     x0, y0, dx, dy = frame
     contour[:, 0] -= x0
     contour[:, 1] -= y0
-    a = image[y0:y0+dy, x0:x0+dx]
-    b = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
+    b = image[y0:y0+dy, x0:x0+dx]
     mask1 = np.zeros(b.shape, dtype='uint8')
     cv2.drawContours(mask1, [contour], -1, 255, -1)
     mask0 = cv2.bitwise_not(mask1)
-    mean0 = cv2.mean(b, mask=mask0)[0]
-    mean1 = cv2.mean(b, mask=mask1)[0]
-    if a8[4, 1] < 0:
+    mean0 = round(cv2.mean(b, mask=mask0)[0])
+    mean1 = round(cv2.mean(b, mask=mask1)[0])
+    if a8[4, 1] < 0:  # no piece
         pass
-    elif a8[4, 1] <= 6:
+    elif a8[4, 1] <= 6:  # white piece
         mean1 -= 30
-    else:
+    else:  # black piece
         mean1 += 30
-    mean0, mean1 = round(mean0), round(mean1)
     if mean1 < mean0:
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
             squares = np.rot90(squares, k=1)
         else:
-            squares = np.rot90(squares, k=3)
+            squares = np.rot90(squares, k=-1)
     return squares

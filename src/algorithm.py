@@ -34,7 +34,7 @@ def algorithm(filename):
         canvas = draw.squares(img.BGR, img.squares)
         aux.save(img, "A1E4C5H8", canvas)
 
-    img.longfen, img.fen = fen.generate(img.squares, img.pieces)
+    img.longfen, img.fen = fen.generate(img.squares)
     fen.dump(img.longfen)
     return img.fen
 

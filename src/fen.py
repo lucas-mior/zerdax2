@@ -1,21 +1,23 @@
-import cv2
+import numpy as np
 import re
 import logging as log
 from zerdax2_misc import SYMBOLS
-import constants as consts
-
-piece_y_tol = consts.piece_y_tol
 
 
-def generate(squares, pieces):
-    longfen = create(squares, pieces)
+def generate(squares):
+    longfen = create(squares)
     log.info(f"{longfen=}")
     fen = compress(longfen)
     return longfen, fen
 
 
-def create(squares, pieces):
-    fen = 8*'11111111/'
+def create(squares):
+    fen = ""
+    for i in range(7, -1, -1):
+        for j in range(0, 8):
+            sq = squares[j, i]
+            fen += SYMBOLS[sq[4, 1]]
+        fen += '/'
     return fen[:-1]
 
 

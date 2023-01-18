@@ -15,6 +15,7 @@ COLORS = {
 }
 
 SYMBOLS = {
+    -1: "1",
     0: "Board",
     1: "K",
     2: "Q",

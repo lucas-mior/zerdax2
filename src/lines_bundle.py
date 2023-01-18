@@ -73,60 +73,62 @@ def segments_distance(line1, line2):
       the other is   (x21, y21) to (x22, y22)
     """
     log.debug("calculating distance between line segments...")
-    x11, y11, x12, y12 = line1[:4]
-    x21, y21, x22, y22 = line2[:4]
-    if segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22):
+    if segments_intersect(line1[:4], line2[:4]):
         return 0
     # try each of the 4 vertices w/the other segment
     distances = []
-    distances.append(point_seg_distance(x11, y11, x21, y21, x22, y22))
-    distances.append(point_seg_distance(x12, y12, x21, y21, x22, y22))
-    distances.append(point_seg_distance(x21, y21, x11, y11, x12, y12))
-    distances.append(point_seg_distance(x22, y22, x11, y11, x12, y12))
+    distances.append(point_seg_distance(line1[0:2], line2[:4]))
+    distances.append(point_seg_distance(line1[2:4], line2[:4]))
+    distances.append(point_seg_distance(line2[0:2], line1[:4]))
+    distances.append(point_seg_distance(line2[2:4], line1[:4]))
     return min(distances)
 
 
-def segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22):
+def segments_intersect(line1, line2):
     log.debug("checking if segments intersect...")
     """ whether two segments in the plane intersect:
       one segment is (x11, y11) to (x12, y12)
       the other is   (x21, y21) to (x22, y22)
     """
-    dx1 = x12 - x11
-    dy1 = y12 - y11
-    dx2 = x22 - x21
-    dy2 = y22 - y21
-    delta = dx2 * dy1 - dy2 * dx1
+    x00, y00, x01, y01 = line1[:4]
+    x10, y10, x11, y11 = line2[:4]
+    dx0 = x01 - x00
+    dy0 = y01 - y00
+    dx1 = x11 - x10
+    dy1 = y11 - y10
+    delta = dx1 * dy0 - dy1 * dx0
     if delta == 0:
         return False  # parallel segments
 
-    s = (dx1*(y21 - y11) + dy1*(x11 - x21)) / delta
-    t = (dx2*(y11 - y21) + dy2*(x21 - x11)) / (-delta)
+    s = (dx0*(y10 - y00) + dy0*(x00 - x10)) / delta
+    t = (dx1*(y00 - y10) + dy1*(x10 - x00)) / (-delta)
     return (0 <= s <= 1) and (0 <= t <= 1)
 
 
-def point_seg_distance(px, py, x1, y1, x2, y2):
-    dx = x2 - x1
-    dy = y2 - y1
+def point_seg_distance(point, line):
+    px, py = point
+    x0, y0, x1, y1 = line
+    dx = x1 - x0
+    dy = y1 - y0
     if dx == dy == 0:  # the segment's just a point
-        dx = px - x1
-        dy = py - y1
+        dx = px - x0
+        dy = py - y0
         return np.sqrt(dx*dx + dy*dy)
 
     # Calculate the t that minimizes the distance.
-    t = ((px - x1)*dx + (py - y1)*dy) / (dx*dx + dy*dy)
+    t = ((px - x0)*dx + (py - y0)*dy) / (dx*dx + dy*dy)
 
     # See if this represents one of the segment's
     # end points or a point in the middle.
     if t < 0:
+        dx = px - x0
+        dy = py - y0
+    elif t > 1:
         dx = px - x1
         dy = py - y1
-    elif t > 1:
-        dx = px - x2
-        dy = py - y2
     else:
-        near_x = x1 + t*dx
-        near_y = y1 + t*dy
+        near_x = x0 + t*dx
+        near_y = y0 + t*dy
         dx = px - near_x
         dy = py - near_y
 

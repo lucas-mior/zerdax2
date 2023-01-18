@@ -16,45 +16,6 @@ def save(img, filename, image):
     i += 1
 
 
-def radius(line):
-    x1, y1, x2, y2 = line[:4]
-    dx = x2 - x1
-    dy = y2 - y1
-    return np.sqrt(dx*dx + dy*dy)
-
-
-def theta(line, abs_angle=False):
-    x1, y1, x2, y2 = line[:4]
-    if abs_angle:
-        angle = np.arctan2(abs(y1-y2), abs(x2-x1))
-    else:
-        if x2 < x1:
-            a1, b1 = x1, y1
-            x1, y1 = x2, y2
-            x2, y2 = a1, b1
-        angle = np.arctan2(y1-y2, x2-x1)
-
-    return np.rad2deg(angle)
-
-
-def radius_theta(vert, hori=None, abs_angle=False):
-    def _create(lines):
-        dummy = np.zeros((lines.shape[0], 7), dtype='int32')
-        dummy[:, 0:4] = lines[:, 0:4]
-        lines = dummy[np.argsort(dummy[:, 0])]
-
-        for i, line in enumerate(lines):
-            x1, y1, x2, y2, r, t, _ = line
-            lines[i, 4] = radius((x1, y1, x2, y2))
-            lines[i, 5] = theta((x1, y1, x2, y2), abs_angle=abs_angle)
-        return np.round(lines)
-
-    if hori is not None:
-        hori = _create(hori)
-    vert = _create(vert)
-    return vert, hori
-
-
 def gauss(image):
     ks = consts.gauss_kernel_shape
     gamma = consts.gauss_gamma

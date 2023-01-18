@@ -1,7 +1,7 @@
 import numpy as np
 import logging as log
-import auxiliar as aux
 import constants as consts
+import lines as li
 
 min_dist = consts.min_dist_to_separate_lines
 min_angle = consts.min_angle_to_separate_lines
@@ -15,7 +15,7 @@ def bundle_verthori(vert, hori):
 
 def bundle_lines(lines, min_dist=min_dist, min_angle=min_angle):
     log.info("bundling similar lines together...")
-    lines, _ = aux.radius_theta(lines, abs_angle=False)
+    lines, _ = li.radius_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:

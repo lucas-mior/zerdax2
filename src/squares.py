@@ -4,6 +4,7 @@ import logging as log
 
 import auxiliar as aux
 import drawings as draw
+import lines as li
 
 
 def calc_squares(img, vert, hori):
@@ -105,7 +106,7 @@ def iterate(squares, pieces, force=False):
         dists = []
         for i, p in enumerate(possible):
             x, y = round((p[0] + p[2])/2), round(p[3] + piece_y_tol)
-            dists.append(round(aux.radius((xc, yc, x, y))))
+            dists.append(round(li.radius((xc, yc, x, y))))
         possible = possible[np.argsort(dists)]
         return possible[0]
 

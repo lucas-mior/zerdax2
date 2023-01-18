@@ -16,67 +16,6 @@ def save(img, filename, image):
     i += 1
 
 
-def gauss(image):
-    ks = consts.gauss_kernel_shape
-    gamma = consts.gauss_gamma
-    filtered = cv2.GaussianBlur(image, ks, gamma)
-    return filtered
-
-
-def find_edges(img, image, lowpass, bonus=0):
-    log.info("filtering image...")
-    image = lowpass(image)
-    factor = consts.piece_bonus_factor
-    pbonus = len(img.pieces) / factor
-    if lowpass == lf.ffilter:
-        wmin = consts.wminfilter + pbonus + bonus
-        thigh0 = consts.thighfilter
-    elif lowpass == gauss:
-        wmin = consts.wmingauss + pbonus + bonus
-        thigh0 = consts.thighgauss
-    canny, got_canny = find_canny(image, wmin, thigh0)
-    if not got_canny or debugging():
-        save(img, "lowpass", image)
-    return canny, got_canny
-
-
-def find_canny(image, wmin=8, thigh0=250):
-    log.info(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
-
-    got_canny = False
-    thighmin = consts.thighmin
-    tlowmin = consts.tlowmin
-    thigh = thigh0
-    while thigh >= thighmin:
-        tlow = max(tlowmin, round(thigh*0.8))
-        while tlow >= tlowmin:
-            canny = cv2.Canny(image, tlow, thigh)
-            w = np.mean(canny)
-            if w >= wmin:
-                log.info(f"{w:0=.2f} >= {wmin:0=.1f}, @ {tlow}, {thigh}")
-                got_canny = True
-                break
-            else:
-                log.debug(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
-                gain = wmin - w
-                diff = round(max(8, gain*8))
-                if tlow <= tlowmin:
-                    break
-                tlow = max(tlowmin, tlow - diff)
-
-        if got_canny or (thigh <= thighmin):
-            break
-        else:
-            diff = round(max(5, gain*(thigh/20)))
-            thigh = max(thighmin, thigh - diff)
-
-    if not got_canny:
-        log.info(f"Failed to find edges with mean >= {wmin:0=.1f}")
-        log.info(f"Last canny thresholds: {tlow, thigh}")
-
-    return canny, got_canny
-
-
 def calc_intersections(image, lines1, lines2=None):
     log.info("calculating intersections between group(s) of lines...")
 

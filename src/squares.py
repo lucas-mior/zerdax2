@@ -56,35 +56,13 @@ def calc_squares(img):
 
 
 def fill_squares(squares, pieces):
-    def _select_piece(possible):
-        if len(possible) == 1:
-            return possible[0]
-
-        areas = np.array(possible.shape[0], dtype='int32')
-        for i, p in enumerate(possible):
-            areas[i] = abs((p[0]-p[2])*(p[1]-p[3]))
-        possible = possible[np.argsort(areas)]
-        return possible[0]
 
     log.info("filling squares...")
-    piece_y_tol = round(abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22)
-    for i in range(7, -1, -1):
-        for j in range(0, 8):
-            sq = squares[j, i]
-            possible = []
-            for piece in pieces:
-                x0, y0, x1, y1, _, number = piece[:6]
-                xm = round((x0 + x1)/2)
-                y = round(y1) - piece_y_tol
-                if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
-                    possible.append(piece)
-            if len(possible) > 0:
-                piece = _select_piece(possible)
-                sq[4] = [1, piece[5]]
-                pieces.remove(piece)
-            else:
-                sq[4] = [0, -1]
+    squares, pieces = iterate(squares, pieces)
+    if len(pieces) == 0:
+        return squares
 
+    squares, pieces = iterate(squares, pieces, force=True)
     return squares
 
 
@@ -114,3 +92,47 @@ def check_bottom_right(image, squares):
         else:
             squares = np.rot90(squares, k=-1)
     return squares
+
+
+def iterate(squares, pieces, force=False):
+    def _select_piece(sq, possible):
+        if len(possible) == 1:
+            return possible[0]
+        print("select_piece from possible:")
+        print(possible)
+
+        xc = np.sum(sq[:, 0])/4
+        yc = np.sum(sq[:, 1])/4
+        dists = []
+        for i, p in enumerate(possible):
+            x, y = round((p[0] + p[2])/2), round(p[3] + piece_y_tol)
+            dists.append(round(aux.radius((xc, yc, x, y))))
+        possible = possible[np.argsort(dists)]
+        return possible[0]
+
+    piece_y_tol = round(abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22)
+    for i in range(7, -1, -1):
+        for j in range(0, 8):
+            sq = squares[j, i]
+            possible = []
+            if sq[4, 0] == 1:
+                continue
+            for piece in pieces:
+                x0, y0, x1, y1, _, number = piece[:6]
+                xm = round((x0 + x1)/2)
+                y = round(y1) - piece_y_tol
+                if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
+                    possible.append(piece)
+                elif force:
+                    if cv2.pointPolygonTest(sq[:4], (xm, y-5), True) >= 0:
+                        possible.append(piece)
+                    elif cv2.pointPolygonTest(sq[:4], (xm, y+2), True) >= 0:
+                        possible.append(piece)
+            if len(possible) > 0:
+                possible = np.array(possible)
+                piece = _select_piece(sq, possible).tolist()
+                sq[4] = [1, piece[5]]
+                pieces.remove(piece)
+            else:
+                sq[4] = [0, -1]
+    return squares, pieces

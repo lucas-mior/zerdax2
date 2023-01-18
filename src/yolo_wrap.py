@@ -64,10 +64,7 @@ def determine_colors(img, pieces, image):
     flags = cv2.KMEANS_RANDOM_CENTERS
     compact, labels, centers = cv2.kmeans(pcolors[:, 6], 2, None,
                                           criteria, 20, flags)
-    if centers[0] < centers[1]:
-        blacklabel = 0
-    else:
-        blacklabel = 1
+    blacklabel = int(centers[0] > centers[1])
 
     for i, p in enumerate(pcolors):
         if labels[i] == blacklabel:

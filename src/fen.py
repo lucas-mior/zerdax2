@@ -4,20 +4,16 @@ from zerdax2_misc import SYMBOLS
 
 
 def generate(squares):
-    longfen = create(squares)
-    log.info(f"{longfen=}")
-    fen = compress(longfen)
-    return longfen, fen
-
-
-def create(squares):
-    fen = ""
+    longfen = ""
     for i in range(7, -1, -1):
         for j in range(0, 8):
             sq = squares[j, i]
-            fen += SYMBOLS[sq[4, 1]]
-        fen += '/'
-    return fen[:-1]
+            longfen += SYMBOLS[sq[4, 1]]
+        longfen += '/'
+    longfen = longfen[:-1]
+    log.info(f"{longfen=}")
+    fen = compress(longfen)
+    return longfen, fen
 
 
 def compress(fen):

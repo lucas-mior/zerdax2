@@ -40,9 +40,10 @@ void convolute(double *f, int32_t xx, int32_t yy, double *W, double *N, double *
             g[yy*x + y] = 0;
             for (int32_t i = -1; i <= +1; i++) {
                 for (int32_t j = -1; j <= +1; j++) {
-                    g[yy*x + y] += (W[yy*(x+i) + y+j]*f[yy*(x+i) + y+j])/N[yy*x + y];
+                    g[yy*x + y] += (W[yy*(x+i) + y+j]*f[yy*(x+i) + y+j]);
                 }
             }
+            g[yy*x + y] /= N[yy*x + y];
         }
     }
     for (int32_t y = 0; y < (yy*xx - 1); y+=yy)

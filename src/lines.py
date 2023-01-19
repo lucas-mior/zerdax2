@@ -17,6 +17,8 @@ def find_lines(img, canny):
     global bonus
     if aux.debugging():
         canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+    else:
+        canny3ch = None
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -53,7 +55,7 @@ def find_lines(img, canny):
 
     if lv < 9 or lh < 9:
         log.warning("Less than 9 lines find in at least one direction")
-        if not ('canny3ch' in locals()):
+        if canny3ch is None:
             canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
         canvas = draw.lines(canny3ch, vert, hori)
         aux.save(f"canny{lv=}_{lh=}", canvas)

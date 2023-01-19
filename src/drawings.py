@@ -26,14 +26,16 @@ def lines(image, vert, hori=None):
     canvas = np.zeros(image.shape, dtype='uint8')
     vert = np.array(vert)
 
-    def _draw_lines(canvas, lines, color):
+    def _draw_lines(canvas, lines, color, number=True):
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
             cv2.line(canvas, (x0, y0), (x1, y1),
                      color=color, thickness=3)
-            cv2.putText(canvas, str(i), (round((x0+x1)/2), round((y0+y1)/2)),
-                        cv2.FONT_HERSHEY_SIMPLEX, fontScale=1.3,
-                        color=color, thickness=2)
+            if number:
+                x, y = round((x0+x1)/2), round((y0+y1)/2)
+                cv2.putText(canvas, str(i), (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, fontScale=1.3,
+                            color=color, thickness=2)
         return canvas
 
     if hori is not None:
@@ -41,7 +43,7 @@ def lines(image, vert, hori=None):
         canvas = _draw_lines(canvas, vert, (255, 0, 0))
         canvas = _draw_lines(canvas, hori, (0, 255, 0))
     else:
-        canvas = _draw_lines(canvas, vert, (0, 0, 255))
+        canvas = _draw_lines(canvas, vert, (0, 0, 255), number=False)
 
     canvas = addweighted(image, canvas)
     return canvas

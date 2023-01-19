@@ -15,6 +15,8 @@ bonus = 0
 def find_lines(img, canny):
     log.info("finding all lines of board...")
     global bonus
+    if aux.debugging():
+        canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -31,31 +33,47 @@ def find_lines(img, canny):
         if (ll := lines.shape[0]) < min_before_split:
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
-        lines = lines[:, 0, :]
-        lines = lines_bundle(lines)
+        lines_hough = lines[:, 0, :]
+        lines = lines_bundle(lines_hough)
+        if aux.debugging():
+            canvas = draw.lines(canny3ch, lines_hough)
+            aux.save("hough_lines", canvas)
+            canvas = draw.lines(canny3ch, lines)
+            aux.save("lines_bundled", canvas)
         lines, _ = length_theta(lines)
         vert, hori = split_lines(lines)
+        lv, lh = check_save(canny3ch, "split_lines", vert, hori, 0, 0)
         vert, hori = filter_byangle(vert, hori)
+        lv, lh = check_save(canny3ch, "filter_byangle", vert, hori, lv, lh)
         vert, hori = sort_lines(vert, hori)
-        lv, lh = vert.shape[0], hori.shape[0]
+        lv, lh = check_save(canny3ch, "sort_lines", vert, hori, 0, 0)
         ll = lv + lh
         log.info(f"{ll} # [{lv}][{lh}] @",
                  f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
     if lv < 9 or lh < 9:
         log.warning("Less than 9 lines find in at least one direction")
-        canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+        if not ('canny3ch' in locals()):
+            canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
         canvas = draw.lines(canny3ch, vert, hori)
         aux.save(f"canny{lv=}_{lh=}", canvas)
 
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
+    lv, lh = check_save(canny3ch, "shorten_byinter", vert, hori, -1, -1)
     vert, hori = add_outer(img.bwidth, img.bheigth, vert, hori)
+    lv, lh = check_save(canny3ch, "add_outer", vert, hori, lv, lh)
     vert, hori = sort_lines(vert, hori)
+    lv, lh = check_save(canny3ch, "sort_lines", vert, hori, -1, -1)
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
+    lv, lh = check_save(canny3ch, "shorten_byinter", vert, hori, -1, -1)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
+    lv, lh = check_save(canny3ch, "remove_extras", vert, hori, lv, lh)
     vert, hori = add_middle(vert, hori)
+    lv, lh = check_save(canny3ch, "add_middle", vert, hori, lv, lh)
     vert, hori = sort_lines(vert, hori)
+    lv, lh = check_save(canny3ch, "sort_lines", vert, hori, -1, -1)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
+    lv, lh = check_save(canny3ch, "remove_extras", vert, hori, lv, lh)
 
     if aux.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
@@ -142,10 +160,6 @@ def remove_extras(vert, hori, ww, hh):
     if (lh := hori.shape[0]) > 9:
         hori = rem_extras(hori, lh, k=1, dd=hh)
 
-    return vert, hori
-
-
-def add_last_outer(vert, hori):
     return vert, hori
 
 
@@ -462,3 +476,14 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
     x = round(det([d, xdiff]) / div)
     y = round(det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')
+
+
+def check_save(image, title, vert, hori, old_lv=0, old_lh=0):
+    lv, lh = len(vert), len(hori)
+    if old_lv == lv and old_lh == lh:
+        return old_lv, old_lh
+
+    if aux.debugging():
+        canvas = draw.lines(image, vert, hori)
+        aux.save(title, canvas)
+    return lv, lh

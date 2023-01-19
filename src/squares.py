@@ -13,7 +13,7 @@ def calc_squares(img, vert, hori):
                   "9 horizontal lines")
         log.error(f"Got {lv} vertical and {lh} horizontal lines")
         canvas = draw.lines(img.gray3ch, vert, hori)
-        aux.save("magic_lines", canvas)
+        aux.save("find_lines", canvas)
         exit()
 
     inters = li.calc_intersections(vert, hori)

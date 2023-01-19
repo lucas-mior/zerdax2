@@ -15,10 +15,7 @@ bonus = 0
 def find_lines(img, canny):
     log.info("finding all lines of board...")
     global bonus
-    if aux.debugging():
-        canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
-    else:
-        canny3ch = None
+    canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -55,8 +52,6 @@ def find_lines(img, canny):
 
     if lv < 9 or lh < 9:
         log.warning("Less than 9 lines find in at least one direction")
-        if canny3ch is None:
-            canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
         canvas = draw.lines(canny3ch, vert, hori)
         aux.save(f"canny{lv=}_{lh=}", canvas)
 

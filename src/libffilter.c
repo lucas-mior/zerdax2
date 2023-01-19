@@ -1,6 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 
 double weight(double *f, int32_t x, int32_t y, int32_t yy, double h) {

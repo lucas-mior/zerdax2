@@ -13,8 +13,7 @@ def generate(squares):
         longfen += '/'
     longfen = longfen[:-1]
     log.info(f"{longfen=}")
-    fen = compress(longfen)
-    return fen
+    return compress(longfen)
 
 
 def compress(fen):

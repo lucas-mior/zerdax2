@@ -59,8 +59,6 @@ def find_lines(img, canny):
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
     vert, hori = add_outer(img.bwidth, img.bheigth, vert, hori)
     lv, lh = check_save("add_outer", vert, hori, lv, lh, canny3ch)
-    vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save("sort_lines", vert, hori, -1, -1, canny3ch)
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)

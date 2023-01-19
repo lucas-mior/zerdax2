@@ -41,11 +41,11 @@ def find_lines(img, canny):
             aux.save("lines_bundled", canvas)
         lines, _ = length_theta(lines)
         vert, hori = split_lines(lines)
-        lv, lh = check_save(canny3ch, "split_lines", vert, hori, 0, 0)
+        lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
         vert, hori = filter_byangle(vert, hori)
-        lv, lh = check_save(canny3ch, "filter_byangle", vert, hori, lv, lh)
+        lv, lh = check_save("filter_byangle", vert, hori, lv, lh, canny3ch)
         vert, hori = sort_lines(vert, hori)
-        lv, lh = check_save(canny3ch, "sort_lines", vert, hori, 0, 0)
+        lv, lh = check_save("sort_lines", vert, hori, 0, 0, canny3ch)
         ll = lv + lh
         log.info(f"{ll} # [{lv}][{lh}] @",
                  f"{angle}º, {tvotes}, {minlen}, {maxgap}")
@@ -56,21 +56,21 @@ def find_lines(img, canny):
         aux.save(f"canny{lv=}_{lh=}", canvas)
 
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
-    lv, lh = check_save(canny3ch, "shorten_byinter", vert, hori, -1, -1)
+    lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
     vert, hori = add_outer(img.bwidth, img.bheigth, vert, hori)
-    lv, lh = check_save(canny3ch, "add_outer", vert, hori, lv, lh)
+    lv, lh = check_save("add_outer", vert, hori, lv, lh, canny3ch)
     vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save(canny3ch, "sort_lines", vert, hori, -1, -1)
+    lv, lh = check_save("sort_lines", vert, hori, -1, -1, canny3ch)
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
-    lv, lh = check_save(canny3ch, "shorten_byinter", vert, hori, -1, -1)
+    lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
-    lv, lh = check_save(canny3ch, "remove_extras", vert, hori, lv, lh)
+    lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
     vert, hori = add_middle(vert, hori)
-    lv, lh = check_save(canny3ch, "add_middle", vert, hori, lv, lh)
+    lv, lh = check_save("add_middle", vert, hori, lv, lh, canny3ch)
     vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save(canny3ch, "sort_lines", vert, hori, -1, -1)
+    lv, lh = check_save("sort_lines", vert, hori, -1, -1, canny3ch)
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
-    lv, lh = check_save(canny3ch, "remove_extras", vert, hori, lv, lh)
+    lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
     if aux.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
@@ -475,7 +475,7 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
     return np.array((x, y), dtype='int32')
 
 
-def check_save(image, title, vert, hori, old_lv=0, old_lh=0):
+def check_save(title, vert, hori, old_lv, old_lh, image):
     lv, lh = len(vert), len(hori)
     if old_lv == lv and old_lh == lh:
         return old_lv, old_lh

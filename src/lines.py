@@ -433,7 +433,7 @@ def calc_intersections(lines0, lines1=None):
 
 
 def calc_intersection(line0, ww=500, hh=300, kind=0):
-    log.debug("calculating intersections between 2 lines...")
+    log.debug("calculating intersection between 2 lines...")
     if kind == 0:
         line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:

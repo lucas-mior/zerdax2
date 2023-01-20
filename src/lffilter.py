@@ -3,9 +3,9 @@ import cv2
 import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import numpy as np
-import drawings as draw
 import platform
-import logging as log
+
+import drawings as draw
 
 
 def ffilter(image, h=1):

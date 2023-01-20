@@ -1,8 +1,8 @@
 import sys
 import cv2
 import numpy as np
-from types import SimpleNamespace
 import logging as log
+from types import SimpleNamespace
 
 from squares import calc_squares
 from lines import find_lines

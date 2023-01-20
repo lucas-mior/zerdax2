@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import cv2
+
 from zerdax2_misc import COLORS, SYMBOLS
 
 i = 1

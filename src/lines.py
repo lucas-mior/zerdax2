@@ -3,7 +3,7 @@ from numpy.linalg import det
 import cv2
 import logging as log
 
-import auxiliar as aux
+import algorithm as algo
 import constants as consts
 import drawings as draw
 from lines_bundle import lines_bundle
@@ -34,11 +34,11 @@ def find_lines(img, canny):
             continue
         lines_hough = lines[:, 0, :]
         lines = lines_bundle(lines_hough)
-        if aux.debugging():
+        if algo.debugging():
             canvas = draw.lines(canny3ch, lines_hough)
-            aux.save("hough_lines", canvas)
+            draw.save("hough_lines", canvas)
             canvas = draw.lines(canny3ch, lines)
-            aux.save("lines_bundled", canvas)
+            draw.save("lines_bundled", canvas)
         lines, _ = length_theta(lines)
         vert, hori = split_lines(lines)
         lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
@@ -53,7 +53,7 @@ def find_lines(img, canny):
     if lv < 9 or lh < 9:
         log.warning("Less than 9 lines find in at least one direction")
         canvas = draw.lines(canny3ch, vert, hori)
-        aux.save(f"canny{lv=}_{lh=}", canvas)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
 
     vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
@@ -70,9 +70,9 @@ def find_lines(img, canny):
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
-    if True or aux.debugging():
+    if True or algo.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
-        aux.save("find_lines", canvas)
+        draw.save("find_lines", canvas)
     return vert, hori
 
 
@@ -472,9 +472,9 @@ def check_save(title, vert, hori, old_lv, old_lh, image):
     if old_lv == lv and old_lh == lh:
         return old_lv, old_lh
 
-    if aux.debugging():
+    if algo.debugging():
         canvas = draw.lines(image, vert, hori)
-        aux.save(title, canvas)
+        draw.save(title, canvas)
     return lv, lh
 
 

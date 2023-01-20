@@ -5,7 +5,7 @@ import copy
 import numpy as np
 import logging as log
 
-import auxiliar as aux
+import algorithm as algo
 import drawings as draw
 import yolov5.detect as yolo
 import constants as consts
@@ -43,9 +43,9 @@ def detect_objects(img):
     img.pieces = determine_colors(img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
-    if aux.debugging():
+    if algo.debugging():
         canvas = draw.boxes(img.pieces, img.BGR)
-        aux.save("yolo", canvas)
+        draw.save("yolo", canvas)
     return img
 
 
@@ -96,4 +96,4 @@ if __name__ == "__main__":
         img.BGR = cv2.imread(filename)
         img = detect_objects(img)
         canvas = draw.boxes(img.pieces, img.BGR)
-        aux.save("yolo", canvas)
+        draw.save("yolo", canvas)

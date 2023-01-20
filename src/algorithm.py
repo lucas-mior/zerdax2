@@ -8,9 +8,9 @@ from squares import calc_squares
 from lines import find_lines
 import yolo_wrap as yolo
 import fen as fen
-import auxiliar as aux
 import lffilter as lf
 import constants as consts
+import drawings as draw
 
 
 def algorithm(filename):
@@ -40,8 +40,8 @@ def crop_board(img):
     img.x1, img.y1 = x1 + d, y1 + d
 
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    if aux.debugging():
-        aux.save("board_box", img.board)
+    if debugging():
+        draw.save("board_box", img.board)
     return img
 
 
@@ -52,8 +52,8 @@ def reduce_box(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    if aux.debugging():
-        aux.save("board_reduce", img.board)
+    if debugging():
+        draw.save("board_reduce", img.board)
     return img
 
 
@@ -64,8 +64,8 @@ def pre_process(img):
 
     log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    if aux.debugging():
-        aux.save("gray_board", img.gray)
+    if debugging():
+        draw.save("gray_board", img.gray)
     log.info("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
@@ -75,9 +75,9 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clipLimit=cliplim, tileGridSize=(tgs, tgs))
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
-    if aux.debugging():
-        aux.save("claheG", img.G)
-        aux.save("claheV", img.V)
+    if debugging():
+        draw.save("claheG", img.G)
+        draw.save("claheV", img.V)
 
     return img
 
@@ -88,9 +88,9 @@ def create_cannys(img, bonus=0):
                                     lowpass=lf.ffilter, bonus=bonus)
     cannyV, got_cannyV = find_edges(img, img.V,
                                     lowpass=lf.ffilter, bonus=bonus)
-    if not got_cannyG or not got_cannyV or aux.debugging():
-        aux.save("cannyG", cannyG)
-        aux.save("cannyV", cannyV)
+    if not got_cannyG or not got_cannyV or debugging():
+        draw.save("cannyG", cannyG)
+        draw.save("cannyV", cannyV)
     canny = cv2.bitwise_or(cannyG, cannyV)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -118,8 +118,8 @@ def find_edges(img, image, lowpass, bonus=0):
         wmin = consts.wmingauss + pbonus + bonus
         thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
-    if not got_canny or aux.debugging():
-        aux.save("lowpass", image)
+    if not got_canny or debugging():
+        draw.save("lowpass", image)
     return canny, got_canny
 
 
@@ -163,3 +163,7 @@ def find_canny(image, wmin=8, thigh0=250):
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
         print(algorithm(filename))
+
+
+def debugging():
+    return log.root.level < 20

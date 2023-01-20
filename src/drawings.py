@@ -1,8 +1,17 @@
 import sys
-import auxiliar as aux
 import numpy as np
 import cv2
 from zerdax2_misc import COLORS, SYMBOLS
+
+i = 1
+
+
+def save(name, image):
+    global i
+    title = f"z{i:04d}_{name}.png"
+    print(f"saving {title}...")
+    cv2.imwrite(title, image)
+    i += 1
 
 
 def addweighted(image, canvas, w1=0.5, w2=0.5):
@@ -92,4 +101,4 @@ if __name__ == "__main__":
         image = cv2.imread(sys.argv[1])
         canvas = cv2.imread(sys.argv[2])
         canvas = addweighted(image, canvas)
-        aux.save("addweighted", canvas)
+        save("addweighted", canvas)

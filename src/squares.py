@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import logging as log
 
-import auxiliar as aux
+import algorithm as algo
 import drawings as draw
 import lines as li
 
@@ -13,7 +13,7 @@ def calc_squares(img, vert, hori):
                   "9 horizontal lines")
         log.error(f"Got {lv} vertical and {lh} horizontal lines")
         canvas = draw.lines(img.gray3ch, vert, hori)
-        aux.save("find_lines", canvas)
+        draw.save("find_lines", canvas)
         exit()
 
     inters = li.calc_intersections(vert, hori)
@@ -22,7 +22,7 @@ def calc_squares(img, vert, hori):
                   "in 9 rows and 9 columns")
         log.error(f"{inters.shape=}")
         canvas = draw.points(img.gray3ch, inters)
-        aux.save("intersections", canvas)
+        draw.save("intersections", canvas)
         exit()
 
     intersq = inters.reshape(9, 9, 1, 2)
@@ -35,9 +35,9 @@ def calc_squares(img, vert, hori):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    if aux.debugging():
+    if algo.debugging():
         canvas = draw.squares(img.board, squares)
-        aux.save("A1E4C5H8", canvas)
+        draw.save("A1E4C5H8", canvas)
     squares = np.array(squares, dtype='float32')
     # scale to input size
     squares[:, :, :4, 0] /= img.bfact
@@ -49,9 +49,9 @@ def calc_squares(img, vert, hori):
     img.squares = np.array(np.round(squares), dtype='int32')
     img.squares = fill_squares(img.squares, img.pieces)
     img.squares = check_bottom_right(img.BGR, img.squares)
-    if aux.debugging():
+    if algo.debugging():
         canvas = draw.squares(img.BGR, img.squares)
-        aux.save("A1E4C5H8", canvas)
+        draw.save("A1E4C5H8", canvas)
     return img
 
 

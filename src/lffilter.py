@@ -3,7 +3,7 @@ import cv2
 import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import numpy as np
-import auxiliar as aux
+import drawings as draw
 import platform
 import logging as log
 
@@ -16,7 +16,7 @@ def ffilter(image, h=1):
     g = np.zeros(image.shape, dtype='float64')
 
     if platform.uname()[0] == "Windows":
-        library = ".\libffilter.dll"
+        library = r".\libffilter.dll"
     elif platform.uname()[0] == "Linux":
         library = "./libffilter.so"
     lf = ct.CDLL(library)
@@ -44,4 +44,4 @@ if __name__ == "__main__":
         image = cv2.imread(filename)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = ffilter(image)
-        aux.save("ffilter", image)
+        draw.save("ffilter", image)

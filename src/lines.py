@@ -106,12 +106,9 @@ def add_middle(vert, hori):
         return lines
 
     def _add_middle(lines, kind):
-        dthis = (abs(lines[0, kind] - lines[1, kind])
-                 + abs(lines[0, kind+2] - lines[1, kind+2])) / 2
-        dnext0 = (abs(lines[1, kind] - lines[2, kind])
-                  + abs(lines[1, kind+2] - lines[2, kind+2])) / 2
-        dnext1 = (abs(lines[2, kind] - lines[3, kind])
-                  + abs(lines[2, kind+2] - lines[3, kind+2])) / 2
+        dthis = segments_distance(lines[0], lines[1])
+        dnext0 = segments_distance(lines[1], lines[2])
+        dnext1 = segments_distance(lines[2], lines[3])
         x = (lines[1, 0] - lines[2, 0] + lines[1, 0],
              lines[1, 2] - lines[2, 2] + lines[1, 2])
         y = (lines[1, 1] - lines[2, 1] + lines[1, 1],
@@ -120,12 +117,9 @@ def add_middle(vert, hori):
             lines = _append(lines, 0, x, y, kind)
             i = 0
         for i in range(1, len(lines) - 2):
-            dprev = (abs(lines[i+0, kind] - lines[i-1, kind])
-                     + abs(lines[i+0, kind+2] - lines[i-1, kind+2])) / 2
-            dthis = (abs(lines[i+0, kind] - lines[i+1, kind])
-                     + abs(lines[i+0, kind+2] - lines[i+1, kind+2])) / 2
-            dnext = (abs(lines[i+1, kind] - lines[i+2, kind])
-                     + abs(lines[i+1, kind+2] - lines[i+2, kind+2])) / 2
+            dprev = segments_distance(lines[i+0], lines[i-1])
+            dthis = segments_distance(lines[i+0], lines[i+1])
+            dnext = segments_distance(lines[i+1], lines[i+2])
             if dthis > (dprev*tol) and dthis > (dnext*tol):
                 x = (round((lines[i, 0] + lines[i+1, 0])/2),
                      round((lines[i, 2] + lines[i+1, 2])/2))

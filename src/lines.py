@@ -70,7 +70,7 @@ def find_lines(img, canny):
     vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
-    if aux.debugging():
+    if True or aux.debugging():
         canvas = draw.lines(img.gray3ch, vert, hori)
         aux.save("find_lines", canvas)
     return vert, hori

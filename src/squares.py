@@ -66,7 +66,7 @@ def fill_squares(squares, pieces):
     return squares
 
 
-def check_bottom_right(image, squares):
+def check_bottom_right(image, squares, col=7, row=0):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     a8 = np.copy(squares[7, 0])
     contour = a8[:4]
@@ -86,6 +86,10 @@ def check_bottom_right(image, squares):
         mean1 -= 30
     else:  # black piece
         mean1 += 30
+    diff = abs(mean1 - mean0)
+    if diff < 30 and col >= 1:
+        squares = check_bottom_right(image, squares, col-1, row+1)
+        return squares
     if mean1 < mean0:
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
             squares = np.rot90(squares, k=1)

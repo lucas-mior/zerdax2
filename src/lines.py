@@ -482,3 +482,63 @@ def check_save(title, vert, hori, old_lv, old_lh, image):
         canvas = draw.lines(image, vert, hori)
         aux.save(title, canvas)
     return lv, lh
+
+
+def segments_distance(line0, line1):
+    log.debug("calculating distance between line segments...")
+    if segments_intersect(line0[:4], line1[:4]):
+        return 0
+    # try each of the 4 vertices w/the other segment
+    distances = []
+    distances.append(point_seg_distance(line0[0:2], line1[:4]))
+    distances.append(point_seg_distance(line0[2:4], line1[:4]))
+    distances.append(point_seg_distance(line1[0:2], line0[:4]))
+    distances.append(point_seg_distance(line1[2:4], line0[:4]))
+    return min(distances)
+
+
+def segments_intersect(line0, line1):
+    log.debug("checking if segments intersect...")
+    x0, y0, x1, y1 = line0[:4]
+    xx0, yy0, xx1, yy1 = line1[:4]
+    dx0 = x1 - x0
+    dy0 = y1 - y0
+    dx1 = xx1 - xx0
+    dy1 = yy1 - yy0
+    delta = dx1*dy0 - dy1*dx0
+    if delta == 0:
+        return False  # parallel segments
+
+    s = (dx0*(yy0 - y0) + dy0*(x0 - xx0)) / delta
+    t = (dx1*(y0 - yy0) + dy1*(xx0 - x0)) / (-delta)
+    return (0 <= s <= 1) and (0 <= t <= 1)
+
+
+def point_seg_distance(point, line):
+    px, py = point
+    x0, y0, x1, y1 = line
+    dx = x1 - x0
+    dy = y1 - y0
+    if dx == dy == 0:  # the segment's just a point
+        dx = px - x0
+        dy = py - y0
+        return np.sqrt(dx*dx + dy*dy)
+
+    # Calculate the t that minimizes the distance.
+    t = ((px - x0)*dx + (py - y0)*dy) / (dx*dx + dy*dy)
+
+    # See if this represents one of the segment's
+    # end points or a point in the middle.
+    if t < 0:
+        dx = px - x0
+        dy = py - y0
+    elif t > 1:
+        dx = px - x1
+        dy = py - y1
+    else:
+        near_x = x0 + t*dx
+        near_y = y0 + t*dy
+        dx = px - near_x
+        dy = py - near_y
+
+    return np.sqrt(dx*dx + dy*dy)

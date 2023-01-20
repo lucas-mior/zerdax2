@@ -4,15 +4,14 @@ import cv2
 
 from zerdax2_misc import COLORS, SYMBOLS
 
-i = 1
-
 
 def save(name, image):
-    global i
-    title = f"z{i:04d}_{name}.png"
+    if not hasattr(save, "i"):
+        save.i = 0
+    save.i += 1
+    title = f"z{save.i:04d}_{name}.png"
     print(f"saving {title}...")
     cv2.imwrite(title, image)
-    i += 1
 
 
 def addweighted(image, canvas, w1=0.5, w2=0.5):

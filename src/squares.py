@@ -49,6 +49,7 @@ def calc_squares(img, vert, hori):
     img.squares = np.array(np.round(squares), dtype='int32')
     img.squares = fill_squares(img.squares, img.pieces)
     img.squares = check_bottom_right(img.BGR, img.squares)
+
     if algo.debugging():
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)

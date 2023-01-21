@@ -10,7 +10,7 @@ def save(name, image):
     if not hasattr(save, "i"):
         save.i = 0
     save.i += 1
-    title = f"{algo.file}_{save.i:04d}_{name}.png"
+    title = f"{algo.img.basename}_{save.i:04d}_{name}.png"
     print(f"saving {title}...")
     cv2.imwrite(title, image)
 

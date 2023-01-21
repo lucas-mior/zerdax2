@@ -36,6 +36,10 @@ def algorithm(filename):
     return img.fen
 
 
+def debugging():
+    return log.root.level < 20
+
+
 def crop_board(img):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = img.boardbox
@@ -167,7 +171,3 @@ def find_canny(image, wmin=8, thigh0=250):
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
         print(algorithm(filename))
-
-
-def debugging():
-    return log.root.level < 20

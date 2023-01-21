@@ -12,8 +12,10 @@ minlen0 = consts.min_line_length
 bonus = 0
 
 
-def find_lines(canny, width, heigth, gray3ch):
+def find_lines(canny, gray3ch):
     log.info("finding all lines of board...")
+    width = canny.shape[1]
+    heigth = canny.shape[0]
     global bonus
     canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split

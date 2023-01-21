@@ -37,10 +37,8 @@ def fill_squares(squares, pieces):
 
     log.info("filling squares...")
     squares, pieces = iterate(squares, pieces)
-    if len(pieces) == 0:
-        return squares
-
-    squares, pieces = iterate(squares, pieces, force=True)
+    if len(pieces) > 0:
+        squares, pieces = iterate(squares, pieces, force=True)
     return squares
 
 

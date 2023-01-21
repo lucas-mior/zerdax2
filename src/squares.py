@@ -19,15 +19,9 @@ def calc_squares(img, inters):
             squares[i, j, 3] = intersq[i, j+1]
 
     if algo.debugging():
-        canvas = draw.squares(img.board, squares)
-        draw.save("A1E4C5H8", canvas)
+        canvas = draw.squares(img.BGR, squares)
+        draw.save("A1E4C5H8_before_check", canvas)
     squares = np.array(squares, dtype='float32')
-    # scale to input size
-    squares[:, :, :4, 0] /= img.bfact
-    squares[:, :, :4, 1] /= img.bfact
-    # position board bounding box
-    squares[:, :, :4, 0] += img.x0
-    squares[:, :, :4, 1] += img.y0
 
     img.squares = np.array(np.round(squares), dtype='int32')
     img.squares = fill_squares(img.squares, img.pieces)

@@ -46,6 +46,13 @@ def algorithm(filename):
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
         exit()
+    inters = np.array(inters, dtype='float32')
+    # scale to input size
+    inters[:, :, 0] /= img.bfact
+    inters[:, :, 1] /= img.bfact
+    # position board bounding box
+    inters[:, :, 0] += img.x0
+    inters[:, :, 1] += img.y0
 
     img = calc_squares(img, inters)
 

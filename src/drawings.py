@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import algorithm as algo
 import cv2
 
 from zerdax2_misc import COLORS, SYMBOLS
@@ -9,7 +10,7 @@ def save(name, image):
     if not hasattr(save, "i"):
         save.i = 0
     save.i += 1
-    title = f"z{save.i:04d}_{name}.png"
+    title = f"{algo.file}_{save.i:04d}_{name}.png"
     print(f"saving {title}...")
     cv2.imwrite(title, image)
 

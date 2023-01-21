@@ -12,8 +12,12 @@ import lffilter as lf
 import constants as consts
 import drawings as draw
 
+file = ""
+
 
 def algorithm(filename):
+    global file
+    file = filename.rsplit(".", 1)[0]
     img = SimpleNamespace(filename=filename)
 
     img.BGR = cv2.imread(img.filename)

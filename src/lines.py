@@ -12,7 +12,7 @@ minlen0 = consts.min_line_length
 bonus = 0
 
 
-def find_lines(img, canny):
+def find_lines(canny, width, heigth, gray3ch):
     log.info("finding all lines of board...")
     global bonus
     canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
@@ -55,23 +55,23 @@ def find_lines(img, canny):
         canvas = draw.lines(canny3ch, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
 
-    vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
+    vert, hori = shorten_byinter(width, heigth, vert, hori)
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
-    vert, hori = add_outer(img.bwidth, img.bheigth, vert, hori)
+    vert, hori = add_outer(width, heigth, vert, hori)
     lv, lh = check_save("add_outer", vert, hori, lv, lh, canny3ch)
-    vert, hori = shorten_byinter(img.bwidth, img.bheigth, vert, hori)
+    vert, hori = shorten_byinter(width, heigth, vert, hori)
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
-    vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
+    vert, hori = remove_extras(vert, hori, width, heigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
     vert, hori = add_middle(vert, hori)
     lv, lh = check_save("add_middle", vert, hori, lv, lh, canny3ch)
     vert, hori = sort_lines(vert, hori)
     lv, lh = check_save("sort_lines", vert, hori, -1, -1, canny3ch)
-    vert, hori = remove_extras(vert, hori, img.bwidth, img.bheigth)
+    vert, hori = remove_extras(vert, hori, width, heigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
     if True or algo.debugging():
-        canvas = draw.lines(img.gray3ch, vert, hori)
+        canvas = draw.lines(gray3ch, vert, hori)
         draw.save("find_lines", canvas)
     return vert, hori
 

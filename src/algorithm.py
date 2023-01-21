@@ -28,7 +28,7 @@ def algorithm(filename):
     img = pre_process(img)
     canny = create_cannys(img)
 
-    vert, hori = find_lines(img, canny)
+    vert, hori = find_lines(canny, img.bwidth, img.bheigth, img.gray3ch)
     img = calc_squares(img, vert, hori)
 
     img.fen = fen.generate(img.squares)

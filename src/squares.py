@@ -7,24 +7,7 @@ import drawings as draw
 import lines as li
 
 
-def calc_squares(img, vert, hori):
-    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9:
-        log.error("There should be 9 vertical lines and",
-                  "9 horizontal lines")
-        log.error(f"Got {lv} vertical and {lh} horizontal lines")
-        canvas = draw.lines(img.gray3ch, vert, hori)
-        draw.save("find_lines", canvas)
-        exit()
-
-    inters = li.calc_intersections(vert, hori)
-    if inters.shape != (9, 9, 2):
-        log.error("There should be 81 intersections",
-                  "in 9 rows and 9 columns")
-        log.error(f"{inters.shape=}")
-        canvas = draw.points(img.gray3ch, inters)
-        draw.save("intersections", canvas)
-        exit()
-
+def calc_squares(img, inters):
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)
     squares = np.zeros((8, 8, 5, 2), dtype='int32')

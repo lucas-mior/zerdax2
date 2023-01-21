@@ -5,7 +5,7 @@ import logging as log
 from types import SimpleNamespace
 
 from squares import calc_squares
-from lines import find_lines
+from lines import find_lines, calc_intersections
 import yolo_wrap as yolo
 import fen as fen
 import lffilter as lf
@@ -28,8 +28,26 @@ def algorithm(filename):
     img = pre_process(img)
     canny = create_cannys(img)
 
-    vert, hori = find_lines(canny, img.bwidth, img.bheigth, img.gray3ch)
-    img = calc_squares(img, vert, hori)
+    vert, hori = find_lines(canny, img.gray3ch)
+
+    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9:
+        log.error("There should be 9 vertical lines and",
+                  "9 horizontal lines")
+        log.error(f"Got {lv} vertical and {lh} horizontal lines")
+        canvas = draw.lines(img.gray3ch, vert, hori)
+        draw.save("find_lines", canvas)
+        exit()
+
+    inters = calc_intersections(vert, hori)
+    if inters.shape != (9, 9, 2):
+        log.error("There should be 81 intersections",
+                  "in 9 rows and 9 columns")
+        log.error(f"{inters.shape=}")
+        canvas = draw.points(img.gray3ch, inters)
+        draw.save("intersections", canvas)
+        exit()
+
+    img = calc_squares(img, inters)
 
     img.fen = fen.generate(img.squares)
     fen.dump(img.fen)

@@ -9,7 +9,7 @@ import algorithm as algo
 import drawings as draw
 import yolov5.detect as yolo
 import constants as consts
-from zerdax2_misc import SYMBOLS, AMOUNT, NUMBERS
+from misc import SYMBOLS, AMOUNT, NUMBERS
 
 conf = consts.conf_thres
 iou = consts.iou_thres

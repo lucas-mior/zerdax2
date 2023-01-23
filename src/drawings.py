@@ -3,7 +3,7 @@ import numpy as np
 import algorithm as algo
 import cv2
 
-from zerdax2_misc import COLORS, SYMBOLS
+from misc import COLORS, SYMBOLS
 
 
 def save(name, image):

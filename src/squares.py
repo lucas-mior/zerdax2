@@ -4,7 +4,6 @@ import logging as log
 
 import algorithm as algo
 import drawings as draw
-import lines as li
 
 
 def calc_squares(img, inters):

@@ -351,6 +351,11 @@ def rem_extras(lines, ll, k, dd):
 
 
 def length_theta(vert, hori=None, abs_angle=False):
+    if abs_angle:
+        angle = theta_abs
+    else:
+        angle = theta
+
     def _create(lines):
         dummy = np.zeros((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:4] = lines[:, 0:4]
@@ -359,7 +364,7 @@ def length_theta(vert, hori=None, abs_angle=False):
         for i, line in enumerate(lines):
             x0, y0, x1, y1, r, t, _ = line
             lines[i, 4] = length((x0, y0, x1, y1))
-            lines[i, 5] = theta((x0, y0, x1, y1), abs_angle=abs_angle)
+            lines[i, 5] = angle((x0, y0, x1, y1))
         return np.round(lines)
 
     if hori is not None:
@@ -375,17 +380,19 @@ def length(line):
     return np.sqrt(dx*dx + dy*dy)
 
 
-def theta(line, abs_angle=False):
+def theta(line):
     x0, y0, x1, y1 = line[:4]
-    if abs_angle:
-        angle = np.arctan2(abs(y0-y1), abs(x1-x0))
-    else:
-        if x1 < x0:
-            a1, b1 = x0, y0
-            x0, y0 = x1, y1
-            x1, y1 = a1, b1
-        angle = np.arctan2(y0-y1, x1-x0)
+    if x1 < x0:
+        a1, b1 = x0, y0
+        x0, y0 = x1, y1
+        x1, y1 = a1, b1
+    angle = np.arctan2(y0-y1, x1-x0)
+    return np.rad2deg(angle)
 
+
+def theta_abs(line):
+    x0, y0, x1, y1 = line[:4]
+    angle = np.arctan2(abs(y0-y1), abs(x1-x0))
     return np.rad2deg(angle)
 
 

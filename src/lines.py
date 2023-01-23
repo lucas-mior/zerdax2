@@ -255,13 +255,11 @@ def calc_outer(lines, tol, where, k, ww, hh):
     line0 = lines[where]
     line1 = lines[other]
 
-    dx = (line0[0] - line1[0], line0[2] - line1[2])
-    dy = (line0[1] - line1[1], line0[3] - line1[3])
+    x = (2*line0[0] - line1[0], 2*line0[2] - line1[2])
+    y = (2*line0[1] - line1[1], 2*line0[3] - line1[3])
     if abs(line0[k] - ee) > tol and abs(line0[k+2] - ee) > tol:
-        x0 = line0[0] + dx[0]
-        y0 = line0[1] + dy[0]
-        x1 = line0[2] + dx[1]
-        y1 = line0[3] + dy[1]
+        x0, x1 = x
+        y0, y1 = y
         new = np.array([[x0, y0, x1, y1, 0, 0, 0]], dtype='int32')
         inters = limit_bydims(new[0][:4], ww, hh)
         if len(inters) != 2:

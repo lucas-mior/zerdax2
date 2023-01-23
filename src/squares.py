@@ -59,9 +59,10 @@ def fill_squares(squares, pieces, force=False):
             x0, y0, x1, y1, _, number = piece[:6]
             xm = round((x0 + x1)/2)
             y = round(y1) - piece_y_tol
-            if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
-                possible.append(piece)
-            elif force:
+            if not force:
+                if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
+                    possible.append(piece)
+            else:
                 if cv2.pointPolygonTest(sq[:4], (xm, y-5), True) >= 0:
                     possible.append(piece)
                 elif cv2.pointPolygonTest(sq[:4], (xm, y+2), True) >= 0:

@@ -24,8 +24,7 @@ def algorithm(filename):
     img.BGR = cv2.imread(img.filename)
 
     img = yolo.detect_objects(img)
-    img = crop_board(img)
-    img = reduce_box(img)
+    img = crop_board_to_size(img)
     img = pre_process(img)
     canny = create_cannys(img)
 
@@ -72,20 +71,14 @@ def debugging():
     return log.root.level < 20
 
 
-def crop_board(img):
+def crop_board_to_size(img):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = img.boardbox
     d = consts.margin
     img.x0, img.y0 = x0 - d, y0 - d
     img.x1, img.y1 = x1 + d, y1 + d
-
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
-    if debugging():
-        draw.save("board_box", img.board)
-    return img
 
-
-def reduce_box(img):
     log.info(f"reducing cropped image to default size ({consts.bwidth})...")
     img.bwidth = consts.bwidth
     img.bfact = img.bwidth / img.board.shape[1]
@@ -93,7 +86,7 @@ def reduce_box(img):
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
     if debugging():
-        draw.save("board_reduce", img.board)
+        draw.save("board", img.board)
     return img
 
 

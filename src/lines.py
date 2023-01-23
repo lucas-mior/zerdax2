@@ -140,11 +140,37 @@ def add_middle(vert, hori):
 
 
 def remove_extras(vert, hori, ww, hh):
+    tol = consts.outer_tolerance
+
+    def _rem_extras(lines, ll, k, dd):
+        if ll == 10:
+            d10 = abs(lines[1, k] - 0)
+            d11 = abs(lines[1, k+2] - 0)
+            d1 = min(d10, d11)
+            d20 = abs(lines[-2, k] - dd)
+            d21 = abs(lines[-2, k+2] - dd)
+            d2 = min(d20, d21)
+            if d1 > tol and d2 < tol:
+                lines = lines[:-1]
+            elif d2 > tol and d1 < tol:
+                lines = lines[1:]
+            elif d2 < d1:
+                lines = lines[:-1]
+            else:
+                lines = lines[1:]
+        elif ll >= 11:
+            log.info("There are 11 or more lines, removing on both sides...")
+            lines = lines[1:-1]
+        if ll >= 12:
+            log.info("There are 12 or more lines, removing extras again...")
+            lines = _rem_extras(lines, ll-2, k, dd)
+        return lines
+
     log.info("removing extra outer lines...")
     if (lv := vert.shape[0]) > 9:
-        vert = rem_extras(vert, lv, k=0, dd=ww)
+        vert = _rem_extras(vert, lv, k=0, dd=ww)
     if (lh := hori.shape[0]) > 9:
-        hori = rem_extras(hori, lh, k=1, dd=hh)
+        hori = _rem_extras(hori, lh, k=1, dd=hh)
 
     return vert, hori
 
@@ -273,7 +299,6 @@ def calc_outer(lines, tol, where, k, ww, hh):
                 new = np.array([[x0, y0, x1, y1,
                                  r, theta(line), 0]], dtype='int32')
                 lines = np.insert(lines, where, new, axis=0)
-                print(f"lines after: {lines}")
     return lines
 
 
@@ -317,32 +342,6 @@ def limit_bydims(inters, ww, hh):
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
                     (inters[:, 0] <= ww) & (inters[:, 1] <= hh)]
     return inters
-
-
-def rem_extras(lines, ll, k, dd):
-    tol = consts.outer_tolerance
-    if ll == 10:
-        d10 = abs(lines[1, k] - 0)
-        d11 = abs(lines[1, k+2] - 0)
-        d1 = min(d10, d11)
-        d20 = abs(lines[-2, k] - dd)
-        d21 = abs(lines[-2, k+2] - dd)
-        d2 = min(d20, d21)
-        if d1 > tol and d2 < tol:
-            lines = lines[:-1]
-        elif d2 > tol and d1 < tol:
-            lines = lines[1:]
-        elif d2 < d1:
-            lines = lines[:-1]
-        else:
-            lines = lines[1:]
-    elif ll >= 11:
-        log.info("There are 11 or more lines, removing on both sides...")
-        lines = lines[1:-1]
-    if ll >= 12:
-        log.info("There are 12 or more lines, removing extras again...")
-        lines = rem_extras(lines, ll-2, k, dd)
-    return lines
 
 
 def length_theta(vert, hori=None, abs_angle=False):

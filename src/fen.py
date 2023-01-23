@@ -25,16 +25,18 @@ def compress(fen):
 
 
 def dump(fen):
-    print("―"*19)
+    print("  ", "―"*18, sep='')
 
-    print("| ", end='')
+    fen = re.sub(r'^', "| ", fen)
     fen = re.sub(r'/', "|\n| ", fen)
+    fen = re.sub(r'$', "|", fen)
     fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
-    print(fen, end='')
-    print("|")
+    for i, line in enumerate(fen.splitlines()):
+        print(8-i, line, sep='')
 
-    print("―"*19)
+    print("  ", "―"*18, sep='')
+    print("   A B C D E F G H ")
     return
 
 

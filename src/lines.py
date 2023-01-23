@@ -157,9 +157,8 @@ def split_lines(lines):
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    compact, labels, centers = cv2.kmeans(lines[:, 5], 3, None,
-                                          criteria, 15, flags)
-    labels = np.ravel(labels)
+    _, _, centers = cv2.kmeans(lines[:, 5], 3, None,
+                               criteria, 15, flags)
 
     d0 = abs(centers[0] - centers[1])
     d1 = abs(centers[0] - centers[2])
@@ -171,20 +170,18 @@ def split_lines(lines):
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
     if dd0 or dd1 or dd2:
-        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 15, flags)
+        _, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+                                        criteria, 15, flags)
         labels = np.ravel(labels)
-        A = lines[labels == 0]
-        B = lines[labels == 1]
     else:
         # redo kmeans using absolute inclination
         lines, _ = length_theta(lines, abs_angle=True)
         lines = np.array(lines, dtype='float32')
-        compact, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
-                                              criteria, 15, flags)
+        _, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+                                        criteria, 15, flags)
         labels = np.ravel(labels)
-        A = lines[labels == 0]
-        B = lines[labels == 1]
+    A = lines[labels == 0]
+    B = lines[labels == 1]
 
     if abs(centers[1]) < abs(centers[0]):
         vert = np.array(A, dtype='int32')

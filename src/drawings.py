@@ -40,7 +40,7 @@ def lines(image, vert, hori=None):
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
             cv2.line(canvas, (x0, y0), (x1, y1),
-                     color=color, thickness=3)
+                     color=color, thickness=2)
             if number:
                 x, y = round((x0+x1)/2), round((y0+y1)/2)
                 cv2.putText(canvas, str(i), (x, y),

@@ -28,15 +28,16 @@ def algorithm(filename):
     img = pre_process(img)
     canny = create_cannys(img)
 
-    vert, hori = find_lines(canny, img.gray3ch)
+    vert, hori = find_lines(canny)
 
-    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9:
+    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debugging():
         log.error("There should be 9 vertical lines and",
                   "9 horizontal lines")
         log.error(f"Got {lv} vertical and {lh} horizontal lines")
         canvas = draw.lines(img.gray3ch, vert, hori)
         draw.save("find_lines", canvas)
-        exit()
+        if lv != 9 or lh != 9:
+            exit()
 
     inters = calc_intersections(vert, hori)
     if inters.shape != (9, 9, 2):

@@ -11,7 +11,7 @@ from lines_bundle import lines_bundle
 minlen0 = consts.min_line_length
 
 
-def find_lines(canny, gray3ch):
+def find_lines(canny):
     log.info("finding all lines of board...")
     width = canny.shape[1]
     heigth = canny.shape[0]
@@ -70,9 +70,6 @@ def find_lines(canny, gray3ch):
     vert, hori = remove_extras(vert, hori, width, heigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
-    if algo.debugging():
-        canvas = draw.lines(gray3ch, vert, hori)
-        draw.save("find_lines", canvas)
     return vert, hori
 
 

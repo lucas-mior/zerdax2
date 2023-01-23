@@ -70,21 +70,15 @@ def check_bottom_right(image, squares):
             mean1 -= 30
         else:  # black piece
             mean1 += 30
-        return mean1, mean0, abs(mean1 - mean0)
+        return mean1, mean0
 
-    col, row = (7, 0)
-    mean1, mean0, diff = _calc_means(col, row)
     change_votes = 0
-    while diff < 30 and col >= 1:
-        col -= 1
-        row += 1
-        mean1, mean0, diff = _calc_means(col, row)
+    for col in range(7):
+        row = 7 - col
+        mean1, mean0 = _calc_means(col, row)
         if mean1 < mean0:
             change_votes += 1
-    if diff < 30:
-        if change_votes > 4:
-            squares = _rotate(squares)
-    elif mean1 < mean0:
+    if change_votes > 4:
         squares = _rotate(squares)
     return squares
 

@@ -55,6 +55,10 @@ def algorithm(filename):
     # position board bounding box
     inters[:, :, 0] += img.x0
     inters[:, :, 1] += img.y0
+    inters = np.array(np.round(inters), dtype='int32')
+    if debugging():
+        canvas = draw.points(img.BGR, inters)
+        draw.save("intersections", canvas)
 
     img = calc_squares(img, inters)
 

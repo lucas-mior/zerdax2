@@ -97,8 +97,7 @@ def add_middle(vert, hori):
         line = (x0, y0, x1, y1)
         new = np.array([[x0, y0, x1, y1,
                          length(line), theta(line), 0]], dtype='int32')
-        lines = np.append(lines, new, axis=0)
-        lines, _ = sort_lines(lines, k=kind)
+        lines = np.insert(lines, i+1, new, axis=0)
         return lines
 
     def _add_middle(lines, kind):
@@ -128,10 +127,12 @@ def add_middle(vert, hori):
         lines = _add_middle(lines, kind)
         lines = np.flip(lines, axis=0)
         lines = _add_middle(lines, kind)
+        lines = np.flip(lines, axis=0)
         if len(lines) <= 9:
             lines = _add_middle(lines, kind)
             lines = np.flip(lines, axis=0)
             lines = _add_middle(lines, kind)
+            lines = np.flip(lines, axis=0)
         return lines
     vert = _adds(vert, 0)
     hori = _adds(hori, 1)
@@ -271,8 +272,8 @@ def calc_outer(lines, tol, where, k, ww, hh):
             if (r := length(line)) >= minlen:
                 new = np.array([[x0, y0, x1, y1,
                                  r, theta(line), 0]], dtype='int32')
-                lines = np.append(lines, new, axis=0)
-                lines, _ = sort_lines(lines, k=k)
+                lines = np.insert(lines, where, new, axis=0)
+                print(f"lines after: {lines}")
     return lines
 
 

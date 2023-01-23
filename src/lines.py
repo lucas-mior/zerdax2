@@ -205,7 +205,7 @@ def sort_lines(vert, hori=None, k=0):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
-        dummy = np.zeros((lines.shape[0], 7), dtype='int32')
+        dummy = np.empty((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:6] = lines[:, 0:6]
         lines = dummy
 
@@ -353,7 +353,7 @@ def length_theta(vert, hori=None, abs_angle=False):
         angle = theta
 
     def _create(lines):
-        dummy = np.zeros((lines.shape[0], 7), dtype='int32')
+        dummy = np.empty((lines.shape[0], 7), dtype='int32')
         dummy[:, 0:4] = lines[:, 0:4]
         lines = dummy[np.argsort(dummy[:, 0])]
 

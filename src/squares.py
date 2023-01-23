@@ -41,48 +41,6 @@ def fill_squares(squares, pieces):
     return squares
 
 
-def check_colors(image, squares):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    def _rotate(squares):
-        if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
-            squares = np.rot90(squares, k=1)
-        else:
-            squares = np.rot90(squares, k=-1)
-        return squares
-
-    def _calc_means(col, row):
-        sq = np.copy(squares[col, row])
-        contour = sq[:4]
-        frame = cv2.boundingRect(contour)
-        x0, y0, dx, dy = frame
-        contour[:, 0] -= x0
-        contour[:, 1] -= y0
-        b = image[y0:y0+dy, x0:x0+dx]
-        mask1 = np.zeros(b.shape, dtype='uint8')
-        cv2.drawContours(mask1, [contour], -1, 255, -1)
-        mask0 = cv2.bitwise_not(mask1)
-        mean0 = round(cv2.mean(b, mask=mask0)[0])
-        mean1 = round(cv2.mean(b, mask=mask1)[0])
-        if sq[4, 1] < 0:  # no piece
-            pass
-        elif sq[4, 1] <= 6:  # white piece
-            mean1 -= 30
-        else:  # black piece
-            mean1 += 30
-        return mean1, mean0
-
-    change_votes = 0
-    for col in range(7):
-        row = 7 - col
-        mean1, mean0 = _calc_means(col, row)
-        if mean1 < mean0:
-            change_votes += 1
-    if change_votes > 4:
-        squares = _rotate(squares)
-    return squares
-
-
 def iterate(squares, pieces, force=False):
     def _select_piece(sq, possible):
         if len(possible) == 1:
@@ -123,3 +81,45 @@ def iterate(squares, pieces, force=False):
         else:
             sq[4] = [0, -1]
     return squares, pieces
+
+
+def check_colors(image, squares):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    def _rotate(squares):
+        if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
+            squares = np.rot90(squares, k=1)
+        else:
+            squares = np.rot90(squares, k=-1)
+        return squares
+
+    def _calc_means(col, row):
+        sq = np.copy(squares[col, row])
+        contour = sq[:4]
+        frame = cv2.boundingRect(contour)
+        x0, y0, dx, dy = frame
+        contour[:, 0] -= x0
+        contour[:, 1] -= y0
+        b = image[y0:y0+dy, x0:x0+dx]
+        mask1 = np.zeros(b.shape, dtype='uint8')
+        cv2.drawContours(mask1, [contour], -1, 255, -1)
+        mask0 = cv2.bitwise_not(mask1)
+        mean0 = round(cv2.mean(b, mask=mask0)[0])
+        mean1 = round(cv2.mean(b, mask=mask1)[0])
+        if sq[4, 1] < 0:  # no piece
+            pass
+        elif sq[4, 1] <= 6:  # white piece
+            mean1 -= 30
+        else:  # black piece
+            mean1 += 30
+        return mean1, mean0
+
+    change_votes = 0
+    for col in range(7):
+        row = 7 - col
+        mean1, mean0 = _calc_means(col, row)
+        if mean1 < mean0:
+            change_votes += 1
+    if change_votes > 4:
+        squares = _rotate(squares)
+    return squares

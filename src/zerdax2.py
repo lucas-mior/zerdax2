@@ -34,6 +34,7 @@ if __name__ == '__main__':
         print(f"============ zerdax2.py {filename} ============")
         fen = algorithm(filename)
         print(f"FEN({filename}): {fen}")
+    exit()
     for line in sys.stdin:
         filename = line[:-1]
         print(f"============ zerdax2.py {filename} ============")

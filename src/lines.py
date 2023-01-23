@@ -234,15 +234,9 @@ def filter_byangle(vert, hori=None, tol=15):
     tol = consts.angle_tolerance
 
     def _filter(lines):
-        rem = np.zeros(lines.shape[0], dtype='uint8')
         angle = np.median(lines[:, 5])
-
-        for i, line in enumerate(lines):
-            if abs(line[5] - angle) > tol:
-                rem[i] = 1
-            else:
-                rem[i] = 0
-        return lines[rem == 0]
+        right = abs(lines[:, 5] - angle) <= tol
+        return lines[right]
 
     vert = _filter(vert)
     if hori is not None:

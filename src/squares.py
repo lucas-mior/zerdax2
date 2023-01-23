@@ -21,7 +21,7 @@ def calc_squares(img, inters):
     if algo.debugging():
         canvas = draw.squares(img.BGR, squares)
         draw.save("A1E4C5H8_before_check", canvas)
-    squares = np.array(squares, dtype='float32')
+    squares = np.array(squares, dtype='float64')
 
     img.squares = np.array(np.round(squares), dtype='int32')
     img.squares = fill_squares(img.squares, img.pieces)

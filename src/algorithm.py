@@ -46,7 +46,7 @@ def algorithm(filename):
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
         exit()
-    inters = np.array(inters, dtype='float32')
+    inters = np.array(inters, dtype='float64')
     # scale to input size
     inters[:, :, 0] /= img.bfact
     inters[:, :, 1] /= img.bfact

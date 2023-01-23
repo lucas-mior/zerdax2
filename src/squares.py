@@ -22,22 +22,16 @@ def calc_squares(img, inters):
         canvas = draw.squares(img.BGR, squares)
         draw.save("A1E4C5H8", canvas)
 
-    squares = fill_squares(squares, img.pieces)
+    log.info("filling squares...")
+    squares, pieces = iterate(squares, img.pieces)
+    if len(pieces) > 0:
+        squares, pieces = iterate(squares, img.pieces, force=True)
     img.squares, changed = check_colors(img.BGR, squares)
 
     if algo.debugging() and changed:
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
     return img
-
-
-def fill_squares(squares, pieces):
-
-    log.info("filling squares...")
-    squares, pieces = iterate(squares, pieces)
-    if len(pieces) > 0:
-        squares, pieces = iterate(squares, pieces, force=True)
-    return squares
 
 
 def iterate(squares, pieces, force=False):

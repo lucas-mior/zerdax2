@@ -24,7 +24,7 @@ def calc_squares(img, inters):
 
     squares = fill_squares(squares, img.pieces)
     img.squares = np.copy(squares)
-    img.squares = check_bottom_right(img.BGR, img.squares)
+    img.squares = check_colors(img.BGR, img.squares)
 
     if algo.debugging() and not np.array_equal(squares, img.squares):
         canvas = draw.squares(img.BGR, img.squares)
@@ -41,7 +41,7 @@ def fill_squares(squares, pieces):
     return squares
 
 
-def check_bottom_right(image, squares):
+def check_colors(image, squares):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def _rotate(squares):

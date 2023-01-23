@@ -43,7 +43,7 @@ def fill_squares(squares, pieces, force=False):
         yc = np.sum(sq[:, 1])/4
         dists = []
         for i, p in enumerate(possible):
-            x, y = (p[0] + p[2])/2, p[3] + piece_y_tol
+            x, y = (p[0] + p[2])/2, p[3] - piece_y_tol
             dists.append(li.length((xc, yc, x, y)))
         possible = possible[np.argsort(dists)]
         return possible[0]

@@ -78,12 +78,16 @@ def fill_squares(squares, pieces, force=False):
 
 def check_colors(image, squares):
     changed = False
+    player = "down"
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def _rotate(squares):
+        nonlocal player
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
+            player = "left"
             squares = np.rot90(squares, k=1)
         else:
+            player = "right"
             squares = np.rot90(squares, k=-1)
         return squares
 
@@ -117,4 +121,19 @@ def check_colors(image, squares):
     if change_votes > 4:
         changed = True
         squares = _rotate(squares)
+    white = squares[(squares[..., 4, 1] <= 6) & (squares[..., 4, 1] >= 0)]
+    black = squares[squares[..., 4, 1] > 6]
+    if player == "down":
+        meanwhite = np.median(white[:, 0, 1])
+        meanblack = np.median(black[:, 0, 1])
+    else:
+        if player == "left":
+            meanwhite = np.median(white[:, 0, 0])
+            meanblack = np.median(black[:, 0, 0])
+        else:
+            meanwhite = np.median(black[:, 0, 0])
+            meanblack = np.median(white[:, 0, 0])
+    if meanwhite < meanblack:
+        squares = np.rot90(squares, k=2)
+        changed = True
     return squares, changed

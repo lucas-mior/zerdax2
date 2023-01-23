@@ -20,14 +20,13 @@ def calc_squares(img, inters):
 
     if algo.debugging():
         canvas = draw.squares(img.BGR, squares)
-        draw.save("A1E4C5H8_before_check", canvas)
-    squares = np.array(squares, dtype='float64')
+        draw.save("A1E4C5H8", canvas)
 
-    img.squares = np.array(np.round(squares), dtype='int32')
-    img.squares = fill_squares(img.squares, img.pieces)
+    squares = fill_squares(squares, img.pieces)
+    img.squares = np.copy(squares)
     img.squares = check_bottom_right(img.BGR, img.squares)
 
-    if algo.debugging():
+    if algo.debugging() and not np.array_equal(squares, img.squares):
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
     return img

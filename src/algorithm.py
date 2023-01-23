@@ -179,7 +179,7 @@ def find_canny(image, wmin=8, thigh0=250):
         if got_canny or (thigh <= thighmin):
             break
         else:
-            diff = round(max(5, gain*(thigh/20)))
+            diff = round(max(6, gain*(thigh/18)))
             thigh = max(thighmin, thigh - diff)
 
     if not got_canny:

@@ -32,22 +32,22 @@ def algorithm(filename):
     vert, hori = find_lines(canny)
 
     if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debugging():
-        log.error("There should be 9 vertical lines and",
-                  "9 horizontal lines")
-        log.error(f"Got {lv} vertical and {lh} horizontal lines")
         canvas = draw.lines(img.gray3ch, vert, hori)
         draw.save("find_lines", canvas)
         if lv != 9 or lh != 9:
+            log.error("There should be 9 vertical lines and",
+                      "9 horizontal lines")
+            log.error(f"Got {lv} vertical and {lh} horizontal lines")
             exit()
 
     inters = calc_intersections(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debugging():
-        log.error("There should be 81 intersections",
-                  "in 9 rows and 9 columns")
-        log.error(f"{inters.shape=}")
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
         if failed:
+            log.error("There should be 81 intersections",
+                      "in 9 rows and 9 columns")
+            log.error(f"{inters.shape=}")
             exit()
     inters = np.array(inters, dtype='float64')
     # scale to input size

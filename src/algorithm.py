@@ -40,13 +40,14 @@ def algorithm(filename):
             exit()
 
     inters = calc_intersections(vert, hori)
-    if inters.shape != (9, 9, 2):
+    if (failed := inters.shape != (9, 9, 2)) or debugging():
         log.error("There should be 81 intersections",
                   "in 9 rows and 9 columns")
         log.error(f"{inters.shape=}")
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
-        exit()
+        if failed:
+            exit()
     inters = np.array(inters, dtype='float64')
     # scale to input size
     inters[:, :, 0] /= img.bfact

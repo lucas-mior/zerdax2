@@ -94,9 +94,8 @@ def add_middle(vert, hori):
     def _insert(lines, i, x, y, kind):
         x0, x1 = x
         y0, y1 = y
-        line = (x0, y0, x1, y1)
         new = np.array([[x0, y0, x1, y1,
-                         length(line), theta(line), 0]], dtype='int32')
+                         lines[i-1, 4], lines[i-1, 5], 0]], dtype='int32')
         lines = np.insert(lines, i+1, new, axis=0)
         return lines
 

@@ -23,10 +23,9 @@ def calc_squares(img, inters):
         draw.save("A1E4C5H8", canvas)
 
     squares = fill_squares(squares, img.pieces)
-    img.squares = np.copy(squares)
-    img.squares = check_colors(img.BGR, img.squares)
+    img.squares, changed = check_colors(img.BGR, squares)
 
-    if algo.debugging() and not np.array_equal(squares, img.squares):
+    if algo.debugging() and changed:
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
     return img
@@ -84,6 +83,7 @@ def iterate(squares, pieces, force=False):
 
 
 def check_colors(image, squares):
+    changed = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def _rotate(squares):
@@ -121,5 +121,6 @@ def check_colors(image, squares):
         if mean1 < mean0:
             change_votes += 1
     if change_votes > 4:
+        changed = True
         squares = _rotate(squares)
-    return squares
+    return squares, changed

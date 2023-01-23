@@ -19,6 +19,7 @@ def algorithm(filename):
     global img
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]
+    img.basename = img.basename.rsplit("/", 1)[-1]
 
     img.BGR = cv2.imread(img.filename)
 

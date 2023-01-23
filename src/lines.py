@@ -70,7 +70,7 @@ def find_lines(canny, gray3ch):
     vert, hori = remove_extras(vert, hori, width, heigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 
-    if True or algo.debugging():
+    if algo.debugging():
         canvas = draw.lines(gray3ch, vert, hori)
         draw.save("find_lines", canvas)
     return vert, hori

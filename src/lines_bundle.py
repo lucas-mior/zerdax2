@@ -34,15 +34,16 @@ def merge_lines_into_groups(lines, min_dist, min_angle):
 
 def check_is_line_different(line1, groups, min_dist, min_angle):
     log.debug("checking if line is different from lines in groups...")
+    min_angle2 = min_angle + 2
     for group in groups:
         for line0 in group:
             dtheta = abs(line1[5] - line0[5])
             if dtheta < min_angle:
                 dist = li.segments_distance(line0, line1)
                 if dist < min_dist:
-                    group.append(line0)
+                    group.append(line1)
                     return False
-            elif (dtheta <= (min_angle+2)):
+            elif (dtheta <= min_angle2):
                 dist = li.segments_distance(line0, line1)
                 if dist <= 1:
                     group.append(line1)

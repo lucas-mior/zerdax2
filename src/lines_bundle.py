@@ -14,7 +14,7 @@ def lines_bundle(lines, min_dist=min_dist, min_angle=min_angle):
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:
-        line = merge_line_segments(group)
+        line = merge_line_segments(np.array(group, dtype='int32'))
         merged_lines.append(line)
 
     return np.array(merged_lines, dtype='int32')
@@ -53,15 +53,14 @@ def check_is_line_different(line1, groups, min_dist, min_angle):
 
 def merge_line_segments(lines):
     log.debug("merging line segments...")
-    ll = len(lines)
+    ll = lines.shape[0]
     if ll == 1:
-        return np.block([lines[0][0:2], lines[0][2:4]])
+        return np.block([lines[0, 0:2], lines[0, 2:4]])
 
     if ll % 2 == 0:
-        lines = sorted(lines, key=lambda x: x[4])
+        lines = lines[np.argsort(lines[:, 4])]
         lines = lines[1:]
 
-    lines = np.array(lines)
     theta = np.median(lines[:, 5])
     P = lines[lines[:, 5] == theta]
     P = P[np.argmax(P[:, 4])]

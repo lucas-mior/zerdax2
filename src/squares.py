@@ -103,7 +103,8 @@ def iterate(squares, pieces, force=False):
         possible = possible[np.argsort(dists)]
         return possible[0]
 
-    piece_y_tol = round(abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22)
+    piece_y_tol = abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22
+    piece_y_tol = round(piece_y_tol)
     for i in range(7, -1, -1):
         for j in range(0, 8):
             sq = squares[j, i]

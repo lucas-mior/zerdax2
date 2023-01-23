@@ -395,22 +395,17 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
 
     if lines1 is None:
         lines1 = lines0
-    l0 = len(lines0)-1
-    l1 = len(lines1)-1
 
     rows = []
-    for index0 in np.ndindex(lines0.shape[0]):
-        line0 = lines0[index0]
+    for i in range(l0 := lines0.shape[0]):
+        line0 = lines0[i]
         x0, y0, x1, y1, r, t, _ = line0
         col = []
-        i0, = index0
-        for index1 in np.ndindex(lines1.shape[0]):
-            i1, = index1
-            if onlylast and i1 != 0 and i0 != 0 and i1 != l1 and i0 != l0:
-                print("continuing")
+        for j in range(l1 := lines1.shape[0]):
+            if onlylast and 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue
-            xx0, yy0, xx1, yy1, rr, tt, _ = lines1[index1]
+            xx0, yy0, xx1, yy1, rr, tt, _ = lines1[j]
             if (x0, y0) == (xx0, yy0) and (x1, y1) == (xx0, yy0):
                 continue
 

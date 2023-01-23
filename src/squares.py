@@ -119,7 +119,7 @@ def check_colors(image, squares):
         mean1, mean0 = _calc_means(col, row)
         if mean1 < mean0:
             change_votes += 1
-            if abs(mean1 - mean0) > 40:
+            if mean0 - mean1 > 40:
                 change_votes += 4
                 break
     if change_votes > 4:

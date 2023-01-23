@@ -35,44 +35,36 @@ def calc_squares(img, inters):
 
 
 def fill_squares(squares, pieces, force=False):
-    def _select_piece(sq, possible):
-        if len(possible) == 1:
-            return possible[0]
-
-        xc = np.sum(sq[:, 0])/4
-        yc = np.sum(sq[:, 1])/4
-        dists = []
-        for i, p in enumerate(possible):
-            x, y = (p[0] + p[2])/2, p[3] - piece_y_tol
-            dists.append(li.length((xc, yc, x, y)))
-        possible = possible[np.argsort(dists)]
-        return possible[0]
-
     piece_y_tol = abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22
     piece_y_tol = round(piece_y_tol)
     for index in np.ndindex(squares.shape[:2]):
         sq = squares[index]
-        possible = []
         if sq[4, 0] == 1:
             continue
+        dmax = 0
         for piece in pieces:
             x0, y0, x1, y1, _, number = piece[:6]
             xm = round((x0 + x1)/2)
             y = round(y1) - piece_y_tol
             if not force:
-                if cv2.pointPolygonTest(sq[:4], (xm, y), True) >= 0:
-                    possible.append(piece)
+                if (d := cv2.pointPolygonTest(sq[:4], (xm, y), True)) >= 0:
+                    if d > dmax:
+                        npiece = piece
+                        dmax = d
             else:
-                if cv2.pointPolygonTest(sq[:4], (xm, y-5), True) >= 0:
-                    possible.append(piece)
-                elif cv2.pointPolygonTest(sq[:4], (xm, y+2), True) >= 0:
-                    possible.append(piece)
-        if len(possible) > 0:
-            possible = np.array(possible)
-            piece = _select_piece(sq, possible).tolist()
-            sq[4] = [1, piece[5]]
-            pieces.remove(piece)
-        else:
+                if (d := cv2.pointPolygonTest(sq[:4], (xm, y-5), True)) >= 0:
+                    if d > dmax:
+                        npiece = piece
+                        dmax = d
+                elif (d := cv2.pointPolygonTest(sq[:4], (xm, y+2), True)) >= 0:
+                    if d > dmax:
+                        npiece = piece
+                        dmax = d
+
+        try:
+            sq[4] = [1, npiece[5]]
+            pieces.remove(npiece)
+        except Exception:
             sq[4] = [0, -1]
     return squares, pieces
 

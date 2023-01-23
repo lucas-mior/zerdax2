@@ -398,14 +398,13 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
 
     rows = []
     for i in range(l0 := lines0.shape[0]):
-        line0 = lines0[i]
-        x0, y0, x1, y1, r, t, _ = line0
+        x0, y0, x1, y1, r, t, _ = lines0[i]
         col = []
         for j in range(l1 := lines1.shape[0]):
+            xx0, yy0, xx1, yy1, rr, tt, _ = lines1[j]
             if onlylast and 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue
-            xx0, yy0, xx1, yy1, rr, tt, _ = lines1[j]
             if (x0, y0) == (xx0, yy0) and (x1, y1) == (xx0, yy0):
                 continue
 

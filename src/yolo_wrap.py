@@ -44,7 +44,7 @@ def detect_objects(img):
     img.pieces = process_pieces(img.pieces)
 
     if algo.debugging():
-        canvas = draw.boxes(img.pieces, img.BGR)
+        canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
     return img
 

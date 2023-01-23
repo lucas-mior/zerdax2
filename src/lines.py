@@ -231,7 +231,7 @@ def filter_byangle(vert, hori=None, tol=15):
 
     def _filter(lines):
         angle = np.median(lines[:, 5])
-        right = abs(lines[:, 5] - angle) <= tol
+        right = np.abs(lines[:, 5] - angle) <= tol
         return lines[right]
 
     vert = _filter(vert)

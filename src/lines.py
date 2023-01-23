@@ -39,7 +39,6 @@ def find_lines(canny):
             draw.save("hough_lines", canvas)
             canvas = draw.lines(canny3ch, lines)
             draw.save("lines_bundled", canvas)
-        lines, _ = length_theta(lines)
         vert, hori = split_lines(lines)
         lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
         vert, hori = filter_byangle(vert, hori)

@@ -82,7 +82,8 @@ def check_colors(image, squares):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def _rotate(squares):
-        nonlocal player
+        nonlocal player, changed
+        changed = True
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
             player = "left"
             squares = np.rot90(squares, k=1)
@@ -122,8 +123,8 @@ def check_colors(image, squares):
                 change_votes += 4
                 break
     if change_votes > 4:
-        changed = True
         squares = _rotate(squares)
+
     white = squares[(squares[..., 4, 1] <= 6) & (squares[..., 4, 1] >= 0)]
     black = squares[squares[..., 4, 1] > 6]
     if player == "down":

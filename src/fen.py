@@ -19,7 +19,7 @@ def generate(squares):
 
 def compress(fen):
     log.info("compressing FEN...")
-    for length in reversed(range(2, 9)):
+    for length in range(8, 1, -1):
         fen = fen.replace(length * '1', str(length))
     return fen
 

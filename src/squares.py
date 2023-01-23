@@ -23,9 +23,9 @@ def calc_squares(img, inters):
         draw.save("A1E4C5H8", canvas)
 
     log.info("filling squares...")
-    squares, pieces = iterate(squares, img.pieces)
+    squares, pieces = fill_squares(squares, img.pieces)
     if len(pieces) > 0:
-        squares, pieces = iterate(squares, img.pieces, force=True)
+        squares, pieces = fill_squares(squares, img.pieces, force=True)
     img.squares, changed = check_colors(img.BGR, squares)
 
     if algo.debugging() and changed:
@@ -34,7 +34,7 @@ def calc_squares(img, inters):
     return img
 
 
-def iterate(squares, pieces, force=False):
+def fill_squares(squares, pieces, force=False):
     def _select_piece(sq, possible):
         if len(possible) == 1:
             return possible[0]

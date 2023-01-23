@@ -117,8 +117,8 @@ def pre_process(img):
 
 def create_cannys(img):
     log.info("finding edges for gray, and V images...")
-    cannyG, got_cannyG = find_edges(img, img.G, lowpass=lf.ffilter)
-    cannyV, got_cannyV = find_edges(img, img.V, lowpass=lf.ffilter)
+    cannyG, got_cannyG = find_edges(img.G, lowpass=lf.ffilter)
+    cannyV, got_cannyV = find_edges(img.V, lowpass=lf.ffilter)
     if not got_cannyG or not got_cannyV or debugging():
         draw.save("cannyG", cannyG)
         draw.save("cannyV", cannyV)
@@ -137,16 +137,14 @@ def gauss(image):
     return filtered
 
 
-def find_edges(img, image, lowpass):
+def find_edges(image, lowpass):
     log.info("filtering image...")
     image = lowpass(image)
-    factor = consts.piece_bonus_factor
-    pbonus = len(img.pieces) / factor
     if lowpass == lf.ffilter:
-        wmin = consts.wminfilter + pbonus
+        wmin = consts.wminfilter
         thigh0 = consts.thighfilter
     elif lowpass == gauss:
-        wmin = consts.wmingauss + pbonus
+        wmin = consts.wmingauss
         thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
     if not got_canny or debugging():

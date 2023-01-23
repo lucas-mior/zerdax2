@@ -5,7 +5,6 @@ tileGridSize = 10
 clipLimit = 1.0
 gauss_kernel_shape = (5, 5)
 gauss_gamma = 0.5
-piece_bonus_factor = 15
 wminfilter = 10.5
 thighfilter = 250
 wmingauss = 12

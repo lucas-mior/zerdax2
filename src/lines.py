@@ -19,7 +19,7 @@ def find_lines(canny):
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
-    tangle = np.deg2rad(angle)  # radians
+    tangle = np.deg2rad(angle)
     minlen = minlen0
     maxgap = round(minlen0 / consts.hough_maxgap_factor)
     tvotes = round(minlen0)

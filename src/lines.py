@@ -320,7 +320,7 @@ def remove_extras(vert, hori, ww, hh):
             log.info("There are 11 or more lines, removing on both sides...")
             lines = lines[1:-1]
         if ll >= 12:
-            log.info("There are 12 or more lines, removing extras again...")
+            log.warning("There are 12 or more lines, removing extras again...")
             lines = _rem_extras(lines, ll-2, k, dd)
         return lines
 

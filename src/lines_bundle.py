@@ -43,7 +43,7 @@ def check_is_line_different(line1, groups, min_dist, min_angle):
                 if dist < min_dist:
                     group.append(line1)
                     return False
-            elif (dtheta <= min_angle2):
+            elif (dtheta <= min_angle2 or abs(dtheta - 180) < min_angle):
                 dist = li.segments_distance(line0, line1)
                 if dist <= 1:
                     group.append(line1)

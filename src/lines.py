@@ -247,7 +247,7 @@ def add_middle(vert, hori):
     log.info("adding missing middle lines...")
     tol = consts.middle_tolerance
 
-    def _insert(lines, i, x, y, kind):
+    def _insert(lines, i, x, y):
         x0, x1 = x
         y0, y1 = y
         new = np.array([[x0, y0, x1, y1,
@@ -264,7 +264,7 @@ def add_middle(vert, hori):
         y = (lines[1, 1] - lines[2, 1] + lines[1, 1],
              lines[1, 3] - lines[2, 3] + lines[1, 3])
         if dthis > (dnext0*tol) and dthis > (dnext1*tol):
-            lines = _insert(lines, 0, x, y, kind)
+            lines = _insert(lines, 0, x, y)
             i = 0
         for i in range(1, len(lines) - 2):
             dprev = segments_distance(lines[i+0], lines[i-1])
@@ -275,7 +275,7 @@ def add_middle(vert, hori):
                      round((lines[i, 2] + lines[i+1, 2])/2))
                 y = (round((lines[i, 1] + lines[i+1, 1])/2),
                      round((lines[i, 3] + lines[i+1, 3])/2))
-                lines = _insert(lines, i, x, y, kind)
+                lines = _insert(lines, i, x, y)
         return lines
 
     def _adds(lines, kind):

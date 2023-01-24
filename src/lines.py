@@ -23,7 +23,7 @@ def find_lines(canny):
     minlen = minlen0
     maxgap = round(minlen0 / consts.hough_maxgap_factor)
     tvotes = round(minlen0)
-    ll = lv = lh = 0
+    lv = lh = 0
     while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.4):
         minlen = max(minlen - 8, minlen0 / 1.2)
         tvotes -= 12

@@ -43,8 +43,6 @@ def find_lines(canny):
         lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
         vert, hori = filter_byangle(vert, hori)
         lv, lh = check_save("filter_byangle", vert, hori, lv, lh, canny3ch)
-        vert, hori = sort_lines(vert, hori)
-        lv, lh = check_save("sort_lines", vert, hori, 0, 0, canny3ch)
         ll = lv + lh
         log.info(f"{ll} # [{lv}][{lh}] @",
                  f"{angle}º, {tvotes}, {minlen}, {maxgap}")
@@ -54,6 +52,8 @@ def find_lines(canny):
         canvas = draw.lines(canny3ch, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
 
+    vert, hori = sort_lines(vert, hori)
+    lv, lh = check_save("sort_lines", vert, hori, 0, 0, canny3ch)
     vert, hori = shorten_byinter(width, heigth, vert, hori)
     lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
     vert, hori = add_outer(width, heigth, vert, hori)

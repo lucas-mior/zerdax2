@@ -332,14 +332,12 @@ def calc_outer(lines, tol, where, k, ww, hh):
 
 
 def limit_bydims(inters, ww, hh):
-    def _calc_inters(line, ww, hh):
-        i0 = calc_intersection(line, ww, hh, kind=0)
-        i1 = calc_intersection(line, ww, hh, kind=1)
-        i2 = calc_intersection(line, ww, hh, kind=2)
-        i3 = calc_intersection(line, ww, hh, kind=3)
-        return np.array([i0, i1, i2, i3], dtype='int32')
+    i0 = calc_intersection(inters, ww, hh, kind=0)
+    i1 = calc_intersection(inters, ww, hh, kind=1)
+    i2 = calc_intersection(inters, ww, hh, kind=2)
+    i3 = calc_intersection(inters, ww, hh, kind=3)
+    inters = np.array([i0, i1, i2, i3], dtype='int32')
 
-    inters = _calc_inters(inters, ww, hh)
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
                     (inters[:, 0] <= ww) & (inters[:, 1] <= hh)]
     return inters

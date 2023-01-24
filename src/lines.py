@@ -297,7 +297,10 @@ def calc_outer(lines, tol, where, k, ww, hh):
             if (r := length(line)) >= minlen:
                 new = np.array([[x0, y0, x1, y1,
                                  r, theta(line), 0]], dtype='int32')
-                lines = np.insert(lines, where, new, axis=0)
+                if where == -1:
+                    lines = np.append(lines, new, axis=0)
+                else:
+                    lines = np.insert(lines, 0, new, axis=0)
     return lines
 
 

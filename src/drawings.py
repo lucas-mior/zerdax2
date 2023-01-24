@@ -84,7 +84,7 @@ def boxes(image, pieces):
     thick = round(2.4 * (image.shape[0] / 1280))
 
     for piece in pieces:
-        x0, y0, x1, y1, conf, num, _ = piece
+        x0, y0, x1, y1, conf, num = piece[:6]
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
         conf, num = round(float(conf), 2), int(num)
         color = COLORS[num]

@@ -64,8 +64,6 @@ def find_lines(canny):
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
     vert, hori = add_middle(vert, hori)
     lv, lh = check_save("add_middle", vert, hori, lv, lh, canny3ch)
-    vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save("sort_lines", vert, hori, -1, -1, canny3ch)
     vert, hori = remove_extras(vert, hori, width, heigth)
     lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
 

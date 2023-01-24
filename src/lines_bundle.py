@@ -55,7 +55,7 @@ def merge_line_segments(lines):
     log.debug("merging line segments...")
     ll = lines.shape[0]
     if ll == 1:
-        return np.block([lines[0, 0:2], lines[0, 2:4]])
+        return np.array(lines[0, 0:4], dtype='int32')
 
     if ll % 2 == 0:
         lines = lines[np.argsort(lines[:, 4])]
@@ -65,4 +65,4 @@ def merge_line_segments(lines):
     P = lines[lines[:, 5] == theta]
     P = P[np.argmax(P[:, 4])]
 
-    return np.block([P[0:2], P[2:4]])
+    return np.array(P[0:4], dtype='int32')

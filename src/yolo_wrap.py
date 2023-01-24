@@ -50,29 +50,28 @@ def detect_objects(img):
 
 
 def determine_colors(pieces, image):
-    pcolors = []
+    avg_colors = []
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     for p in pieces:
         x0, y0 = int(p[0])+4, int(p[1])+4
         x1, y1 = int(p[2])-4, int(p[3])-7
         a = image[y0:y1, x0:x1]
         avg = np.median(a, overwrite_input=True)
-        p.append(avg)
-        pcolors.append(p)
+        avg_colors.append(avg)
 
-    pcolors = np.array(pcolors, dtype='float32')
+    avg_colors = np.array(avg_colors, dtype='float32')
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    _, labels, centers = cv2.kmeans(pcolors[:, 6], 2, None,
+    _, labels, centers = cv2.kmeans(avg_colors, 2, None,
                                     criteria, 20, flags)
     blacklabel = int(centers[0] > centers[1])
 
-    for i, p in enumerate(pcolors):
+    for i, p in enumerate(pieces):
         if labels[i] == blacklabel:
             p[5] += 6
 
-    return pcolors.tolist()
+    return pieces
 
 
 def process_pieces(pieces):
@@ -80,7 +79,7 @@ def process_pieces(pieces):
     rules = copy.deepcopy(AMOUNT)
 
     for piece in pieces:
-        x0, y0, x1, y1, conf, num, _ = piece
+        x0, y0, x1, y1, conf, num = piece[:6]
         num = int(num)
         rule = rules[SYMBOLS[num]]
         if rule[0] < rule[1]:

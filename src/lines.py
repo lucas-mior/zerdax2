@@ -178,11 +178,11 @@ def split_lines(lines):
     log.info("spliting lines into vertical and horizontal...")
     if (lines.shape[1] < 6):
         lines, _ = length_theta(lines)
-    lines = np.array(lines, dtype='float32')
+    angles = np.array(lines[:, 5], dtype='float32')
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    _, _, centers = cv2.kmeans(lines[:, 5], 3, None,
+    _, _, centers = cv2.kmeans(angles, 3, None,
                                criteria, 15, flags)
 
     d0 = abs(centers[0] - centers[1])
@@ -195,14 +195,14 @@ def split_lines(lines):
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
     if dd0 or dd1 or dd2:
-        _, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+        _, labels, centers = cv2.kmeans(angles, 2, None,
                                         criteria, 15, flags)
         labels = np.ravel(labels)
     else:
         # redo kmeans using absolute inclination
         lines, _ = length_theta(lines, abs_angle=True)
-        lines = np.array(lines, dtype='float32')
-        _, labels, centers = cv2.kmeans(lines[:, 5], 2, None,
+        angles = np.array(lines[:, 5], dtype='float32')
+        _, labels, centers = cv2.kmeans(angles, 2, None,
                                         criteria, 15, flags)
         labels = np.ravel(labels)
     A = lines[labels == 0]

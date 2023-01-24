@@ -191,6 +191,17 @@ def shorten_byinter(ww, hh, vert, hori=None):
     return vert, hori
 
 
+def check_save(title, vert, hori, old_lv, old_lh, image):
+    lv, lh = len(vert), len(hori)
+    if old_lv == lv and old_lh == lh:
+        return old_lv, old_lh
+
+    if algo.debugging():
+        canvas = draw.lines(image, vert, hori)
+        draw.save(title, canvas)
+    return lv, lh
+
+
 def add_outer(ww, hh, vert, hori):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
@@ -460,17 +471,6 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
     x = round(det([d, xdiff]) / div)
     y = round(det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')
-
-
-def check_save(title, vert, hori, old_lv, old_lh, image):
-    lv, lh = len(vert), len(hori)
-    if old_lv == lv and old_lh == lh:
-        return old_lv, old_lh
-
-    if algo.debugging():
-        canvas = draw.lines(image, vert, hori)
-        draw.save(title, canvas)
-    return lv, lh
 
 
 def segments_distance(line0, line1):

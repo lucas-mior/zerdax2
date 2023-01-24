@@ -164,6 +164,33 @@ def sort_lines(vert, hori=None, k=0):
     return vert, hori
 
 
+def shorten_byinter(ww, hh, vert, hori=None):
+    inters = calc_intersections(vert, hori, onlylast=True)
+
+    def _shorten(lines):
+        nlines = []
+        for i, inter in enumerate(inters):
+            line = lines[i]
+            a, b = inter[0], inter[-1]
+            new = np.array([[a[0], a[1], b[0], b[1], 0, 0, 0]], dtype='int32')
+            limit = limit_bydims(new[0, :4], ww, hh)
+            limit = np.ravel(limit)
+            if length(limit) < length(new[0, :4]):
+                x0, y0, x1, y1 = limit[:4]
+            else:
+                x0, y0, x1, y1 = new[0, :4]
+            new = x0, y0, x1, y1, line[4], line[5], line[6]
+            nlines.append(new)
+        lines = np.array(nlines, dtype='int32')
+        return lines
+
+    vert = _shorten(vert)
+    if hori is not None:
+        inters = np.transpose(inters, axes=(1, 0, 2))
+        hori = _shorten(hori)
+    return vert, hori
+
+
 def add_outer(ww, hh, vert, hori):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
@@ -302,33 +329,6 @@ def calc_outer(lines, tol, where, k, ww, hh):
                 else:
                     lines = np.insert(lines, 0, new, axis=0)
     return lines
-
-
-def shorten_byinter(ww, hh, vert, hori=None):
-    inters = calc_intersections(vert, hori, onlylast=True)
-
-    def _shorten(lines):
-        nlines = []
-        for i, inter in enumerate(inters):
-            line = lines[i]
-            a, b = inter[0], inter[-1]
-            new = np.array([[a[0], a[1], b[0], b[1], 0, 0, 0]], dtype='int32')
-            limit = limit_bydims(new[0, :4], ww, hh)
-            limit = np.ravel(limit)
-            if length(limit) < length(new[0, :4]):
-                x0, y0, x1, y1 = limit[:4]
-            else:
-                x0, y0, x1, y1 = new[0, :4]
-            new = x0, y0, x1, y1, line[4], line[5], line[6]
-            nlines.append(new)
-        lines = np.array(nlines, dtype='int32')
-        return lines
-
-    vert = _shorten(vert)
-    if hori is not None:
-        inters = np.transpose(inters, axes=(1, 0, 2))
-        hori = _shorten(hori)
-    return vert, hori
 
 
 def limit_bydims(inters, ww, hh):

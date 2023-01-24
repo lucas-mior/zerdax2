@@ -112,7 +112,7 @@ def split_lines(lines):
     else:
         vert = np.array(B, dtype='int32')
         hori = np.array(A, dtype='int32')
-    for i, line in enumerate(vert):
+    for line in vert:
         if line[1] > line[3]:
             a1, b1 = line[0], line[1]
             line[0], line[1] = line[2], line[3]

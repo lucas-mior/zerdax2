@@ -202,10 +202,7 @@ def add_outer(ww, hh, vert, hori):
     tol = consts.outer_tolerance
 
     def _calc_outer(lines, tol, where, k, ww, hh):
-        if k == 0:
-            dd = ww
-        else:
-            dd = hh
+        dd = ww if k == 0 else hh
         if where == 0:
             ee = 0
             other = 1

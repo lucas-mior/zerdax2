@@ -27,8 +27,7 @@ def find_lines(canny):
     while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.4):
         minlen = max(minlen - 8, minlen0 / 1.2)
         tvotes -= 12
-        lines = cv2.HoughLinesP(canny, 1,
-                                tangle, tvotes, None, minlen, maxgap)
+        lines = cv2.HoughLinesP(canny, 1, tangle, tvotes, None, minlen, maxgap)
         if (ll := lines.shape[0]) < min_before_split:
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue

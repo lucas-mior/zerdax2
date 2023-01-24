@@ -226,8 +226,8 @@ def add_outer(ww, hh, vert, hori):
         if abs(line0[k] - ee) > tol and abs(line0[k+2] - ee) > tol:
             x0, x1 = x
             y0, y1 = y
-            new = np.array([[x0, y0, x1, y1, 0, 0, 0]], dtype='int32')
-            inters = limit_bydims(new[0][:4], ww, hh)
+            new = np.array([x0, y0, x1, y1], dtype='int32')
+            inters = limit_bydims(new, ww, hh)
             if len(inters) != 2:
                 return lines
             if inters[0, k] <= dd and inters[1, k] <= dd:

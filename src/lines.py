@@ -172,13 +172,13 @@ def shorten_byinter(ww, hh, vert, hori=None):
         for i, inter in enumerate(inters):
             line = lines[i]
             a, b = inter[0], inter[-1]
-            new = np.array([[a[0], a[1], b[0], b[1], 0, 0, 0]], dtype='int32')
-            limit = limit_bydims(new[0, :4], ww, hh)
+            new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
+            limit = limit_bydims(new, ww, hh)
             limit = np.ravel(limit)
-            if length(limit) < length(new[0, :4]):
-                x0, y0, x1, y1 = limit[:4]
+            if length(limit) < length(new):
+                x0, y0, x1, y1 = limit
             else:
-                x0, y0, x1, y1 = new[0, :4]
+                x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, line[4], line[5], line[6]
             nlines.append(new)
         lines = np.array(nlines, dtype='int32')

@@ -72,6 +72,98 @@ def find_lines(canny):
     return vert, hori
 
 
+def split_lines(lines):
+    log.info("spliting lines into vertical and horizontal...")
+    if (lines.shape[1] < 6):
+        lines, _ = length_theta(lines)
+    angles = np.array(lines[:, 5], dtype='float32')
+
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
+    flags = cv2.KMEANS_RANDOM_CENTERS
+    _, _, centers = cv2.kmeans(angles, 3, None,
+                               criteria, 15, flags)
+
+    d0 = abs(centers[0] - centers[1])
+    d1 = abs(centers[0] - centers[2])
+    d2 = abs(centers[1] - centers[2])
+
+    maxdiff = consts.angles_max_diff
+    dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
+    dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
+    dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
+
+    if dd0 or dd1 or dd2:
+        _, labels, centers = cv2.kmeans(angles, 2, None,
+                                        criteria, 15, flags)
+        labels = np.ravel(labels)
+    else:
+        # redo kmeans using absolute inclination
+        lines, _ = length_theta(lines, abs_angle=True)
+        angles = np.array(lines[:, 5], dtype='float32')
+        _, labels, centers = cv2.kmeans(angles, 2, None,
+                                        criteria, 15, flags)
+        labels = np.ravel(labels)
+    A = lines[labels == 0]
+    B = lines[labels == 1]
+
+    if abs(centers[1]) < abs(centers[0]):
+        vert = np.array(A, dtype='int32')
+        hori = np.array(B, dtype='int32')
+    else:
+        vert = np.array(B, dtype='int32')
+        hori = np.array(A, dtype='int32')
+    nvert = []
+    for line in vert:
+        x0, y0, x1, y1 = line[:4]
+        if y0 > y1:
+            a1, b1 = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = a1, b1
+        line = [x0, y0, x1, y1, line[4], line[5]]
+        nvert.append(line)
+    vert = np.array(nvert, dtype='int32')
+    return vert, hori
+
+
+def filter_byangle(vert, hori=None, tol=15):
+    log.info("filtering lines by angle accoring to direction...")
+    tol = consts.angle_tolerance
+
+    def _filter(lines):
+        angle = np.median(lines[:, 5])
+        right = np.abs(lines[:, 5] - angle) <= tol
+        return lines[right]
+
+    vert = _filter(vert)
+    if hori is not None:
+        hori = _filter(hori)
+    return vert, hori
+
+
+def sort_lines(vert, hori=None, k=0):
+    log.debug("sorting lines by position and respective direction...")
+
+    def _create(lines, kind):
+        dummy = np.empty((lines.shape[0], 7), dtype='int32')
+        dummy[:, 0:6] = lines[:, 0:6]
+        lines = dummy
+
+        for i, line in enumerate(lines):
+            inter = calc_intersection(line, kind=kind)
+            lines[i, 6] = inter[kind]
+        return lines
+
+    if hori is not None:
+        vert = _create(vert, kind=0)
+        vert = vert[np.argsort(vert[:, 6])]
+        hori = _create(hori, kind=1)
+        hori = hori[np.argsort(hori[:, 6])]
+    else:
+        vert = _create(vert, kind=k)
+        vert = vert[np.argsort(vert[:, 6])]
+    return vert, hori
+
+
 def add_outer(ww, hh, vert, hori):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
@@ -171,98 +263,6 @@ def remove_extras(vert, hori, ww, hh):
     if (lh := hori.shape[0]) > 9:
         hori = _rem_extras(hori, lh, k=1, dd=hh)
 
-    return vert, hori
-
-
-def split_lines(lines):
-    log.info("spliting lines into vertical and horizontal...")
-    if (lines.shape[1] < 6):
-        lines, _ = length_theta(lines)
-    angles = np.array(lines[:, 5], dtype='float32')
-
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    _, _, centers = cv2.kmeans(angles, 3, None,
-                               criteria, 15, flags)
-
-    d0 = abs(centers[0] - centers[1])
-    d1 = abs(centers[0] - centers[2])
-    d2 = abs(centers[1] - centers[2])
-
-    maxdiff = consts.angles_max_diff
-    dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
-    dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
-    dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
-
-    if dd0 or dd1 or dd2:
-        _, labels, centers = cv2.kmeans(angles, 2, None,
-                                        criteria, 15, flags)
-        labels = np.ravel(labels)
-    else:
-        # redo kmeans using absolute inclination
-        lines, _ = length_theta(lines, abs_angle=True)
-        angles = np.array(lines[:, 5], dtype='float32')
-        _, labels, centers = cv2.kmeans(angles, 2, None,
-                                        criteria, 15, flags)
-        labels = np.ravel(labels)
-    A = lines[labels == 0]
-    B = lines[labels == 1]
-
-    if abs(centers[1]) < abs(centers[0]):
-        vert = np.array(A, dtype='int32')
-        hori = np.array(B, dtype='int32')
-    else:
-        vert = np.array(B, dtype='int32')
-        hori = np.array(A, dtype='int32')
-    nvert = []
-    for line in vert:
-        x0, y0, x1, y1 = line[:4]
-        if y0 > y1:
-            a1, b1 = x0, y0
-            x0, y0 = x1, y1
-            x1, y1 = a1, b1
-        line = [x0, y0, x1, y1, line[4], line[5]]
-        nvert.append(line)
-    vert = np.array(nvert, dtype='int32')
-    return vert, hori
-
-
-def sort_lines(vert, hori=None, k=0):
-    log.debug("sorting lines by position and respective direction...")
-
-    def _create(lines, kind):
-        dummy = np.empty((lines.shape[0], 7), dtype='int32')
-        dummy[:, 0:6] = lines[:, 0:6]
-        lines = dummy
-
-        for i, line in enumerate(lines):
-            inter = calc_intersection(line, kind=kind)
-            lines[i, 6] = inter[kind]
-        return lines
-
-    if hori is not None:
-        vert = _create(vert, kind=0)
-        vert = vert[np.argsort(vert[:, 6])]
-        hori = _create(hori, kind=1)
-        hori = hori[np.argsort(hori[:, 6])]
-    else:
-        vert = _create(vert, kind=k)
-        vert = vert[np.argsort(vert[:, 6])]
-    return vert, hori
-
-
-def filter_byangle(vert, hori=None, tol=15):
-    log.info("filtering lines by angle accoring to direction...")
-    tol = consts.angle_tolerance
-
-    def _filter(lines):
-        angle = np.median(lines[:, 5])
-        right = np.abs(lines[:, 5] - angle) <= tol
-        return lines[right]
-
-    vert = _filter(vert)
-    if hori is not None:
-        hori = _filter(hori)
     return vert, hori
 
 

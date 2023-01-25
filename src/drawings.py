@@ -4,6 +4,7 @@ import algorithm as algo
 import cv2
 
 from misc import COLORS, SYMBOLS
+import lines as li
 
 
 def save(name, image):
@@ -15,7 +16,7 @@ def save(name, image):
     cv2.imwrite(title, image)
 
 
-def addweighted(image, canvas, w1=0.5, w2=0.5):
+def addweighted(image, canvas, w1=0.4, w2=0.6):
     cv2.addWeighted(image, w1, canvas, w2, 0, canvas)
     return canvas
 
@@ -36,22 +37,27 @@ def lines(image, vert, hori=None):
     canvas = np.zeros(image.shape, dtype='uint8')
     vert = np.array(vert)
 
-    def _draw_lines(canvas, lines, color, number=True):
+    def _draw_lines(canvas, lines, color, kind=-1, number=True):
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
+            theta = round(li.theta(line))
             cv2.line(canvas, (x0, y0), (x1, y1),
                      color=color, thickness=2)
             if number:
                 x, y = round((x0+x1)/2), round((y0+y1)/2)
-                cv2.putText(canvas, str(i), (x, y),
-                            cv2.FONT_HERSHEY_SIMPLEX, fontScale=1.3,
+                if kind == 0:
+                    y += 10*i
+                else:
+                    x += 10
+                cv2.putText(canvas, f"{i}.{theta}", (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8,
                             color=color, thickness=2)
         return canvas
 
     if hori is not None:
         hori = np.array(hori)
-        canvas = _draw_lines(canvas, vert, (255, 0, 0))
-        canvas = _draw_lines(canvas, hori, (0, 255, 0))
+        canvas = _draw_lines(canvas, vert, (255, 0, 80), kind=0)
+        canvas = _draw_lines(canvas, hori, (0, 255, 0), kind=1)
     else:
         canvas = _draw_lines(canvas, vert, (0, 0, 255), number=False)
 

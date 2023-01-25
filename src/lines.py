@@ -220,15 +220,12 @@ def add_outer(ww, hh, vert, hori):
                 return lines
             if inters[0, k] <= dd and inters[1, k] <= dd:
                 x0, y0, x1, y1 = np.ravel(inters)
-                line = (x0, y0, x1, y1)
-                minlen = consts.min_line_length / 1.5
-                if (r := length(line)) >= minlen:
-                    new = np.array([[x0, y0, x1, y1,
-                                     r, theta(line), 0]], dtype='int32')
-                    if where == -1:
-                        lines = np.append(lines, new, axis=0)
-                    else:
-                        lines = np.insert(lines, 0, new, axis=0)
+                new = np.array([[x0, y0, x1, y1,
+                                 line1[4], line1[5], 0]], dtype='int32')
+                if where == -1:
+                    lines = np.append(lines, new, axis=0)
+                else:
+                    lines = np.insert(lines, 0, new, axis=0)
         return lines
 
     def _add_outer(lines, k):

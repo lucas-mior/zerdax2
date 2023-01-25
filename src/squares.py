@@ -41,7 +41,10 @@ def fill_squares(squares, pieces, force=False):
         if sq[4, 0] == 1:
             continue
         dmax = 0
+        npiece = None
         for piece in pieces:
+            if piece[5] == -1:
+                continue
             x0, y0, x1, y1, _, number = piece[:6]
             xm = round((x0 + x1)/2)
             y = round(y1) - piece_y_tol
@@ -60,10 +63,10 @@ def fill_squares(squares, pieces, force=False):
                         npiece = piece
                         dmax = d
 
-        try:
+        if npiece is not None:
             sq[4] = [1, npiece[5]]
-            pieces.remove(npiece)
-        except Exception:
+            npiece[5] = -1
+        else:
             sq[4] = [0, -1]
     return squares, pieces
 

@@ -40,8 +40,12 @@ def detect_objects(img):
 
     log.info(f"{img.boardbox=}")
 
-    img.pieces = objs[objs[:, 5] != boardnum].tolist()
-    img.pieces = determine_colors(img.pieces, img.BGR)
+    pieces = objs[objs[:, 5] != boardnum]
+    pieces = np.array(pieces, dtype='O')
+    pieces[:, :4] = np.int32(pieces[:, :4])
+
+    img.pieces = determine_colors(pieces, img.BGR)
+    img.pieces = img.pieces[np.argsort(img.pieces[:, 0])]
     img.pieces = process_pieces(img.pieces)
 
     if algo.debugging():
@@ -55,18 +59,19 @@ def determine_colors(pieces, image):
 
     avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
-        x0, y0 = int(p[0])+4, int(p[1])+4
-        x1, y1 = int(p[2])-4, int(p[3])-7
+        x0, y0 = p[0] + 4, p[1] + 4
+        x1, y1 = p[2] - 4, p[3] - 7
         a = image[y0:y1, x0:x1]
         avg_colors[i] = np.median(a, overwrite_input=True)
 
     limits = jenkspy.jenks_breaks(avg_colors, n_classes=2)
 
-    for i, p in enumerate(pieces):
-        if avg_colors[i] <= limits[1]:
-            p[5] += 6
+    black = pieces[avg_colors <= limits[1]]
+    white = pieces[avg_colors > limits[1]]
 
-    return pieces
+    black[:, 5] += 6
+
+    return np.vstack((black, white))
 
 
 def process_pieces(pieces):

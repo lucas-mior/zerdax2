@@ -18,8 +18,8 @@ int32_t segs(int32_t * restrict line0, int32_t * restrict line1){
 }
 
 bool segs_intersect(int32_t *line0, int32_t *line1) {
-    double x0, y0, x1, y1;
-    double xx0, yy0, xx1, yy1;
+    int32_t x0, y0, x1, y1;
+    int32_t xx0, yy0, xx1, yy1;
     x0 = line0[0];
     y0 = line0[1];
     x1 = line0[2];
@@ -38,8 +38,8 @@ bool segs_intersect(int32_t *line0, int32_t *line1) {
     if (delta == 0)
         return false;
 
-    double s = (dx0*(yy0 - y0) + dy0*(x0 - xx0)) / delta;
-    double t = (dx1*(y0 - yy0) + dy1*(xx0 - x0)) / (-delta);
+    double s = ((double)dx0*((double)yy0 - (double)y0) + (double)dy0*((double)x0 - (double)xx0)) / (double)delta;
+    double t = ((double)dx1*((double)y0 - (double)yy0) + (double)dy1*((double)xx0 - (double)x0)) / (double)(-delta);
 
     bool ss = (0 <= s) && (s <= 1);
     bool tt = (0 <= t) && (t <= 1);
@@ -47,7 +47,7 @@ bool segs_intersect(int32_t *line0, int32_t *line1) {
 }
 
 int32_t point_seg_dist(int32_t px, int32_t py, int32_t *line) {
-    double x0, y0, x1, y1;
+    int32_t x0, y0, x1, y1;
     x0 = line[0];
     y0 = line[1];
     x1 = line[2];
@@ -59,7 +59,7 @@ int32_t point_seg_dist(int32_t px, int32_t py, int32_t *line) {
         dy = py - y0;
         goto calc_dist;
     }
-    double t = ((px - x0)*dx + (py - y0)*dy) / (dx*dx + dy*dy);
+    double t = (((double)px - (double)x0)*(double)dx + ((double)py - (double)y0)*(double)dy) / ((double)dx*(double)dx + (double)dy*(double)dy);
 
     if (t < 0) {
         dx = px - x0;

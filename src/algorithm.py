@@ -30,9 +30,10 @@ def algorithm(filename):
 
     vert, hori = find_lines(canny)
 
-    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debugging():
+    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debugging() or True:
         canvas = draw.lines(img.gray3ch, vert, hori)
         draw.save("find_lines", canvas)
+        return "aaaaaaaa"
         if lv != 9 or lh != 9:
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")

@@ -3,7 +3,7 @@ from numpy.ctypeslib import ndpointer as ndp
 import platform
 
 
-def segments_distance(line0, line1):
+def create_func():
     if platform.uname()[0] == "Windows":
         library = r".\segs.dll"
     elif platform.uname()[0] == "Linux":
@@ -15,5 +15,7 @@ def segments_distance(line0, line1):
     func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),
                      ndp(ct.c_int32, flags="C_CONTIGUOUS")]
 
-    dist = func(line0[:4], line1[:4])
-    return dist
+    return func
+
+
+segments_distance = create_func()

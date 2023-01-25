@@ -3,7 +3,7 @@
 #include <math.h>
 
 int32_t min(int32_t const distances[4]) {
-    int i = 0;
+    int32_t i = 0;
     double m = distances[i];
     while (++i < 4) {
         if (distances[i] < m)
@@ -47,8 +47,8 @@ int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * const restr
     y0 = line[1];
     x1 = line[2];
     y1 = line[3];
-    int dx = x1 - x0;
-    int dy = y1 - y0;
+    int32_t dx = x1 - x0;
+    int32_t dy = y1 - y0;
     if ((dx == dy) && (dy == 0)) {
         dx = px - x0;
         dy = py - y0;

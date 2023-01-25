@@ -2,6 +2,7 @@ import numpy as np
 from numpy.linalg import det
 import cv2
 import logging as log
+import jenkspy
 
 import algorithm as algo
 import constants as consts
@@ -73,12 +74,13 @@ def split_lines(lines):
     log.info("spliting lines into vertical and horizontal...")
     if (lines.shape[1] < 6):
         lines, _ = length_theta(lines)
-    angles = np.array(lines[:, 5], dtype='float32')
+    angles = lines[:, 5]
 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 15, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    _, _, centers = cv2.kmeans(angles, 3, None,
-                               criteria, 15, flags)
+    limits = jenkspy.jenks_breaks(angles, n_classes=3)
+    a0 = angles[angles <= limits[1]]
+    a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
+    a2 = angles[limits[2] < angles]
+    centers = [np.median(a0), np.median(a1), np.median(a2)]
 
     d0 = abs(centers[0] - centers[1])
     d1 = abs(centers[0] - centers[2])
@@ -90,25 +92,16 @@ def split_lines(lines):
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
     if dd0 or dd1 or dd2:
-        _, labels, centers = cv2.kmeans(angles, 2, None,
-                                        criteria, 15, flags)
-        labels = np.ravel(labels)
+        limits = jenkspy.jenks_breaks(angles, n_classes=2)
+        hori = lines[angles <= limits[1]]
+        vert = lines[limits[1] < angles]
     else:
-        # redo kmeans using absolute inclination
         lines, _ = length_theta(lines, abs_angle=True)
-        angles = np.array(lines[:, 5], dtype='float32')
-        _, labels, centers = cv2.kmeans(angles, 2, None,
-                                        criteria, 15, flags)
-        labels = np.ravel(labels)
-    A = lines[labels == 0]
-    B = lines[labels == 1]
+        angles = lines[:, 5]
+        limits = jenkspy.jenks_breaks(angles, n_classes=2)
+        hori = lines[angles <= limits[1]]
+        vert = lines[limits[1] < angles]
 
-    if abs(centers[1]) < abs(centers[0]):
-        vert = np.array(A, dtype='int32')
-        hori = np.array(B, dtype='int32')
-    else:
-        vert = np.array(B, dtype='int32')
-        hori = np.array(A, dtype='int32')
     for line in vert:
         if line[1] > line[3]:
             a1, b1 = line[0], line[1]

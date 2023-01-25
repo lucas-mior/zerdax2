@@ -35,7 +35,7 @@ def find_lines(canny):
             continue
         lines_hough = lines[:, 0, :]
         lines = lines_bundle(lines_hough)
-        if algo.debugging():
+        if algo.debug:
             canvas = draw.lines(canny3ch, lines_hough)
             draw.save("hough_lines", canvas)
             canvas = draw.lines(canny3ch, lines)
@@ -187,7 +187,7 @@ def check_save(title, vert, hori, old_lv, old_lh, image):
     if old_lv == lv and old_lh == lh:
         return old_lv, old_lh
 
-    if algo.debugging():
+    if algo.debug:
         canvas = draw.lines(image, vert, hori)
         draw.save(title, canvas)
     return lv, lh

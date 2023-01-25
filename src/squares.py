@@ -17,7 +17,7 @@ def calc_squares(img, inters):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    if algo.debugging():
+    if algo.debug:
         canvas = draw.squares(img.BGR, squares)
         draw.save("A1E4C5H8", canvas)
 
@@ -27,7 +27,7 @@ def calc_squares(img, inters):
         squares, pieces = fill_squares(squares, img.pieces, force=True)
     img.squares, changed = check_colors(img.BGR, squares)
 
-    if algo.debugging() and changed:
+    if algo.debug and changed:
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
     return img

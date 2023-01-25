@@ -13,10 +13,12 @@ import constants as consts
 import drawings as draw
 
 img = None
+debug = False
 
 
 def algorithm(filename):
-    global img
+    global img, debug
+    debug = log.root.level < 20
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]
     img.basename = img.basename.rsplit("/", 1)[-1]
@@ -30,7 +32,7 @@ def algorithm(filename):
 
     vert, hori = find_lines(canny)
 
-    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debugging():
+    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debug:
         canvas = draw.lines(img.gray3ch, vert, hori)
         draw.save("find_lines", canvas)
         if lv != 9 or lh != 9:
@@ -40,7 +42,7 @@ def algorithm(filename):
             exit()
 
     inters = calc_intersections(vert, hori)
-    if (failed := inters.shape != (9, 9, 2)) or debugging():
+    if (failed := inters.shape != (9, 9, 2)) or debug:
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
         if failed:
@@ -56,7 +58,7 @@ def algorithm(filename):
     inters[:, :, 0] += img.x0
     inters[:, :, 1] += img.y0
     inters = np.array(np.round(inters), dtype='int32')
-    if debugging():
+    if debug:
         canvas = draw.points(img.BGR, inters)
         draw.save("intersections", canvas)
 
@@ -65,10 +67,6 @@ def algorithm(filename):
     img.fen = fen.generate(img.squares)
     fen.dump(img.fen)
     return img.fen
-
-
-def debugging():
-    return log.root.level < 20
 
 
 def crop_board_to_size(img):
@@ -85,7 +83,7 @@ def crop_board_to_size(img):
     img.bheigth = round(img.bfact * img.board.shape[0])
 
     img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
-    if debugging():
+    if debug:
         draw.save("board", img.board)
     return img
 
@@ -97,7 +95,7 @@ def pre_process(img):
 
     log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    if debugging():
+    if debug:
         draw.save("gray_board", img.gray)
     log.info("generating 3 channel gray image for drawings...")
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
@@ -108,7 +106,7 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clipLimit=cliplim, tileGridSize=(tgs, tgs))
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
-    if debugging():
+    if debug:
         draw.save("claheG", img.G)
         draw.save("claheV", img.V)
 
@@ -119,7 +117,7 @@ def create_cannys(img):
     log.info("finding edges for gray, and V images...")
     cannyG, got_cannyG = find_edges(img.G, lowpass=lf.ffilter)
     cannyV, got_cannyV = find_edges(img.V, lowpass=lf.ffilter)
-    if not got_cannyG or not got_cannyV or debugging():
+    if not got_cannyG or not got_cannyV or debug:
         draw.save("cannyG", cannyG)
         draw.save("cannyV", cannyV)
     canny = cv2.bitwise_or(cannyG, cannyV)
@@ -147,7 +145,7 @@ def find_edges(image, lowpass):
         wmin = consts.wmingauss
         thigh0 = consts.thighgauss
     canny, got_canny = find_canny(image, wmin, thigh0)
-    if not got_canny or debugging():
+    if not got_canny or debug:
         draw.save("lowpass", image)
     return canny, got_canny
 

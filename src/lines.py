@@ -156,7 +156,7 @@ def sort_lines(vert, hori=None, k=0):
 
 
 def shorten_byinter(ww, hh, vert, hori=None):
-    inters = calc_intersections(vert, hori, onlylast=True)
+    inters = calc_extern_intersections(vert, hori)
 
     def _shorten(lines):
         nlines = []
@@ -387,8 +387,8 @@ def theta_abs(line):
     return np.rad2deg(angle)
 
 
-def calc_intersections(lines0, lines1=None, onlylast=False):
-    log.info("calculating intersections between group(s) of lines...")
+def calc_extern_intersections(lines0, lines1=None):
+    log.info("calculating external intersections between group(s) of lines...")
 
     if lines1 is None:
         lines1 = lines0
@@ -399,9 +399,48 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
         col = []
         for j in range(l1 := lines1.shape[0]):
             xx0, yy0, xx1, yy1, rr, tt, _ = lines1[j]
-            if onlylast and 0 != i != (l0-1) and 0 != j != (l1-1):
+            if 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue
+            if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
+                continue
+
+            dtheta = abs(t - tt)
+            tol0 = consts.min_angle_to_intersect
+            tol1 = 180 - tol0
+            if (dtheta < tol0 or dtheta > tol1):
+                continue
+
+            xdiff = (x0 - x1, xx0 - xx1)
+            ydiff = (y0 - y1, yy0 - yy1)
+
+            div = det([xdiff, ydiff])
+            if div == 0:
+                continue
+
+            d = (det([(x0, y0), (x1, y1)]),
+                 det([(xx0, yy0), (xx1, yy1)]))
+            x = det([d, xdiff]) / div
+            y = det([d, ydiff]) / div
+            col.append((x, y))
+        rows.append(col)
+
+    inter = np.round(rows)
+    return np.array(inter, dtype='int32')
+
+
+def calc_intersections(lines0, lines1=None, onlylast=False):
+    log.info("calculating intersections between group(s) of lines...")
+
+    if lines1 is None:
+        lines1 = lines0
+
+    rows = []
+    for line0 in lines0:
+        x0, y0, x1, y1, r, t, _ = line0
+        col = []
+        for line1 in lines1:
+            xx0, yy0, xx1, yy1, rr, tt, _ = line1
             if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
                 continue
 

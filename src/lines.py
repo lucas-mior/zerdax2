@@ -47,7 +47,7 @@ def find_lines(canny):
         log.info(f"{ll} # [{lv}][{lh}] @",
                  f"{angle}º, {tvotes}, {minlen}, {maxgap}")
 
-    if lv < 9 or lh < 9:
+    if lv != 9 or lh != 9:
         log.warning("Less than 9 lines find in at least one direction")
         canvas = draw.lines(canny3ch, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)

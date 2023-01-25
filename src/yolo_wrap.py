@@ -51,8 +51,9 @@ def detect_objects(img):
 
 
 def determine_colors(pieces, image):
-    avg_colors = np.empty(len(pieces), dtype='int32')
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
         x0, y0 = int(p[0])+4, int(p[1])+4
         x1, y1 = int(p[2])-4, int(p[3])-7

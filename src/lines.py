@@ -45,8 +45,7 @@ def find_lines(canny):
         vert, hori = filter_byangle(vert, hori)
         lv, lh = check_save("filter_byangle", vert, hori, lv, lh, canny3ch)
         ll = lv + lh
-        log.info(f"{ll} # [{lv}][{lh}] @",
-                 f"{angle}º, {tvotes}, {minlen}, {maxgap}")
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes}, {minlen}, {maxgap}")
 
     if lv != 9 or lh != 9:
         log.warning("Less than 9 lines find in at least one direction")

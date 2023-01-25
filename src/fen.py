@@ -24,6 +24,13 @@ def compress(fen):
     return fen
 
 
+def decode(fen):
+    log.info("decoding FEN...")
+    for length in range(8, 1, -1):
+        fen = fen.replace(str(length), "1"*length)
+    return fen
+
+
 def dump(fen):
     invert = "\033[1;7m"
     reset = '\033[0;m'
@@ -44,5 +51,6 @@ def dump(fen):
 
 if __name__ == "__main__":
     for fen in sys.argv[1:]:
+        print(decode(fen))
         print(compress(fen))
         dump(fen)

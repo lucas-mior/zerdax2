@@ -103,6 +103,11 @@ def split_lines(lines):
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
 
+    if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):
+        aux = vert
+        vert = hori
+        hori = aux
+
     for line in vert:
         if line[1] > line[3]:
             a1, b1 = line[0], line[1]

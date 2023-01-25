@@ -4,6 +4,7 @@ import cv2
 import copy
 import numpy as np
 import logging as log
+import jenkspy
 
 import algorithm as algo
 import drawings as draw
@@ -43,32 +44,26 @@ def detect_objects(img):
     img.pieces = determine_colors(img.pieces, img.BGR)
     img.pieces = process_pieces(img.pieces)
 
-    if algo.debugging():
+    if True or algo.debugging():
         canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
     return img
 
 
 def determine_colors(pieces, image):
-    avg_colors = []
+    avg_colors = np.empty(len(pieces), dtype='int32')
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    for p in pieces:
+    for i, p in enumerate(pieces):
         x0, y0 = int(p[0])+4, int(p[1])+4
         x1, y1 = int(p[2])-4, int(p[3])-7
         a = image[y0:y1, x0:x1]
         avg = np.median(a, overwrite_input=True)
-        avg_colors.append(avg)
+        avg_colors[i] = avg
 
-    avg_colors = np.array(avg_colors, dtype='float32')
-
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
-    flags = cv2.KMEANS_RANDOM_CENTERS
-    _, labels, centers = cv2.kmeans(avg_colors, 2, None,
-                                    criteria, 20, flags)
-    blacklabel = int(centers[0] > centers[1])
+    limits = jenkspy.jenks_breaks(avg_colors, n_classes=2)
 
     for i, p in enumerate(pieces):
-        if labels[i] == blacklabel:
+        if avg_colors[i] <= limits[1]:
             p[5] += 6
 
     return pieces

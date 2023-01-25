@@ -402,7 +402,7 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
             if onlylast and 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue
-            if (x0, y0) == (xx0, yy0) and (x1, y1) == (xx0, yy0):
+            if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
                 continue
 
             dtheta = abs(t - tt)

@@ -57,8 +57,7 @@ def determine_colors(pieces, image):
         x0, y0 = int(p[0])+4, int(p[1])+4
         x1, y1 = int(p[2])-4, int(p[3])-7
         a = image[y0:y1, x0:x1]
-        avg = np.median(a, overwrite_input=True)
-        avg_colors[i] = avg
+        avg_colors[i] = np.median(a, overwrite_input=True)
 
     limits = jenkspy.jenks_breaks(avg_colors, n_classes=2)
 

@@ -25,18 +25,20 @@ def compress(fen):
 
 
 def dump(fen):
-    print("  ", "―"*18, sep='')
+    invert = "\033[1;7m"
+    reset = '\033[0;m'
+    print(f"  {invert} A B C D E F G H {reset}")
 
-    fen = re.sub(r'^', "| ", fen)
-    fen = re.sub(r'/', "|\n| ", fen)
-    fen = re.sub(r'$', "|", fen)
+    fen = re.sub(r'^', " ", fen)
+    fen = re.sub(r'/', "\n ", fen)
+    fen = re.sub(r'$', "", fen)
     fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
     for i, line in enumerate(fen.splitlines()):
-        print(8-i, line, sep='')
+        row = 8-i
+        print(f"{invert} {row}{reset}{line}{invert}{row} {reset}", sep='')
 
-    print("  ", "―"*18, sep='')
-    print("   A B C D E F G H ")
+    print(f"  {invert} A B C D E F G H {reset}")
     return
 
 

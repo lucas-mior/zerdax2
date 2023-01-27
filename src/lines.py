@@ -8,7 +8,7 @@ import algorithm as algo
 import constants as consts
 import drawings as draw
 from lines_bundle import lines_bundle
-from segs_dist import segments_distance
+from segments import segments_distance
 
 minlen0 = consts.min_line_length
 

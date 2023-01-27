@@ -5,11 +5,11 @@ import platform
 
 def create_func():
     if platform.uname()[0] == "Windows":
-        library = r".\segs.dll"
+        library = r".\libzerdax.dll"
     elif platform.uname()[0] == "Linux":
-        library = "./segs.so"
+        library = "./libzerdax.so"
     lib = ct.CDLL(library)
-    func = lib.segs
+    func = lib.segments_distance
 
     func.restype = ct.c_double
     func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),

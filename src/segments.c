@@ -72,7 +72,7 @@ int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * const restr
     return sqrt(dx*dx + dy*dy);
 }
 
-int32_t segs(int32_t * const restrict line0, int32_t * const restrict line1){
+int32_t segments_distance(int32_t * const restrict line0, int32_t * const restrict line1){
     if (segs_intersect(line0, line1))
         return 0;
     int32_t distances[4];

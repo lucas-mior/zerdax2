@@ -8,7 +8,7 @@ from squares import calc_squares
 from lines import find_lines, calc_intersections
 import yolo_wrap as yolo
 import fen as fen
-import lffilter as lf
+from filter import filter
 import constants as consts
 import drawings as draw
 
@@ -115,8 +115,8 @@ def pre_process(img):
 
 def create_cannys(img):
     log.info("finding edges for gray, and V images...")
-    cannyG, got_cannyG = find_edges(img.G, lowpass=lf.ffilter)
-    cannyV, got_cannyV = find_edges(img.V, lowpass=lf.ffilter)
+    cannyG, got_cannyG = find_edges(img.G, lowpass=filter)
+    cannyV, got_cannyV = find_edges(img.V, lowpass=filter)
     if not got_cannyG or not got_cannyV or debug:
         draw.save("cannyG", cannyG)
         draw.save("cannyV", cannyV)
@@ -138,7 +138,7 @@ def gauss(image):
 def find_edges(image, lowpass):
     log.info("filtering image...")
     image = lowpass(image)
-    if lowpass == lf.ffilter:
+    if lowpass == filter:
         wmin = consts.wminfilter
         thigh0 = consts.thighfilter
     elif lowpass == gauss:

@@ -56,7 +56,7 @@ void convolute(double * restrict f, int32_t xx, int32_t yy, double * restrict W,
         g[x] = g[x-yy];
 }
 
-void ffilter(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g, double h) {
+void filter(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g, double h) {
     weight_array(f, xx, yy, W, h);
     norm_array(xx, yy, W, N);
     convolute(f, xx, yy, W, N, g);

@@ -1,6 +1,6 @@
 CFLAGS = -O2 -Wall -Wextra -Wpedantic
-OBJ = libffilter.so
-SRC = libffilter.c
+OBJ = libzerdax.so
+SRC = filter.c segments.c
 
 all: libffilter.so
 

@@ -151,7 +151,6 @@ def filter(image):
     return np.array(g, dtype='uint8')
 
 
-
 def find_edges(image, lowpass):
     log.info("filtering image...")
     image = lowpass(image)

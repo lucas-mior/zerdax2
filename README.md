@@ -8,7 +8,7 @@ This program is a work in progress and may not work as expected.
 - Clone and install dependencies
 ```
 $ git clone https://github.com/lucas-mior/zerdax2
-$ cd zerdax2/src
+$ cd zerdax2
 $ pip install -r requirements.txt
 ```
 - Download yolov5 from ultralytics, apply patch and install dependencies

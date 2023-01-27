@@ -8,7 +8,7 @@ from squares import calc_squares
 from lines import find_lines, calc_intersections
 import yolo_wrap as yolo
 import fen as fen
-from filter import filter
+from c_load import filter
 import constants as consts
 import drawings as draw
 

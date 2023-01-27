@@ -1,11 +1,16 @@
-import sys
-import cv2
 import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import numpy as np
 import platform
 
-import drawings as draw
+
+if platform.uname()[0] == "Windows":
+    # library = r".\libzerdax.dll"
+    print("This ṕrogram doesn't work on windows yet")
+    exit(1)
+elif platform.uname()[0] == "Linux":
+    library = "./libzerdax.so"
+lib = ct.CDLL(library)
 
 
 def filter(image, h=1):
@@ -15,13 +20,6 @@ def filter(image, h=1):
     N = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')
 
-    if platform.uname()[0] == "Windows":
-        # library = r".\libzerdax.dll"
-        print("This ṕrogram doesn't work on windows yet")
-        exit(1)
-    elif platform.uname()[0] == "Linux":
-        library = "./libzerdax.so"
-    lib = ct.CDLL(library)
     filter = lib.filter
 
     filter.restype = None
@@ -41,9 +39,14 @@ def filter(image, h=1):
     return np.array(g, dtype='uint8')
 
 
-if __name__ == "__main__":
-    for filename in sys.argv[1:]:
-        image = cv2.imread(filename)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        image = filter(image)
-        draw.save("filter", image)
+def segments_distance():
+    func = lib.segments_distance
+
+    func.restype = ct.c_double
+    func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),
+                     ndp(ct.c_int32, flags="C_CONTIGUOUS")]
+
+    return func
+
+
+segments_distance = segments_distance()

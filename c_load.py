@@ -28,7 +28,7 @@ def lfilter():
 def segments_distance():
     func = lib.segments_distance
 
-    func.restype = ct.c_double
+    func.restype = ct.c_int32
     func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),
                      ndp(ct.c_int32, flags="C_CONTIGUOUS")]
 

@@ -4,7 +4,7 @@
 
 int32_t min(int32_t const distances[4]) {
     int32_t i = 0;
-    double m = distances[i];
+    int32_t m = distances[i];
     while (++i < 4) {
         if (distances[i] < m)
             m = distances[i];

@@ -38,5 +38,16 @@ def segments_distance():
     return func
 
 
+def lines_bundle():
+    func = lib.lines_bundle
+
+    func.restype = ct.c_int32
+    func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),
+                     ndp(ct.c_int32, flags="C_CONTIGUOUS")]
+
+    return func
+
+
 segments_distance = segments_distance()
 lfilter = lfilter()
+lines_bundle = lines_bundle()

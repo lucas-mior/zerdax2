@@ -10,7 +10,6 @@ min_angle = consts.min_angle_to_separate_lines
 
 def lines_bundle(lines, min_dist=min_dist, min_angle=min_angle):
     log.info("bundling similar lines together...")
-    lines, _ = li.length_theta(lines, abs_angle=False)
     groups = merge_lines_into_groups(lines, min_dist, min_angle)
     merged_lines = []
     for group in groups:

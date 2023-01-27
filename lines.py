@@ -7,8 +7,8 @@ import jenkspy
 import algorithm as algo
 import constants as consts
 import drawings as draw
-from lines_bundle import lines_bundle
 from c_load import segments_distance
+from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
 
@@ -34,12 +34,16 @@ def find_lines(canny):
             log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
             continue
         lines_hough = lines[:, 0, :]
-        lines = lines_bundle(lines_hough)
+        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
+        newlines = np.zeros(lines_hough.shape, dtype='int32')
+        nlines = lines_bundle(lines_hough, newlines, len(lines_hough))
+        newlines = newlines[:nlines]
         if algo.debug:
             canvas = draw.lines(canny3ch, lines_hough)
             draw.save("hough_lines", canvas)
-            canvas = draw.lines(canny3ch, lines)
+            canvas = draw.lines(canny3ch, newlines)
             draw.save("lines_bundled", canvas)
+        lines = newlines
         vert, hori = split_lines(lines)
         lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
         vert, hori = filter_byangle(vert, hori)
@@ -344,12 +348,12 @@ def length_theta(vert, hori=None, abs_angle=False):
         angle = theta
 
     def _create(lines):
-        dummy = np.empty((lines.shape[0], 7), dtype='int32')
+        dummy = np.empty((lines.shape[0], 6), dtype='int32')
         dummy[:, 0:4] = lines[:, 0:4]
         lines = dummy[np.argsort(dummy[:, 0])]
 
         for i, line in enumerate(lines):
-            x0, y0, x1, y1, r, t, _ = line
+            x0, y0, x1, y1, r, t = line[:6]
             lines[i, 4] = length((x0, y0, x1, y1))
             lines[i, 5] = angle((x0, y0, x1, y1))
         return np.round(lines)

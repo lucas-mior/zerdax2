@@ -16,7 +16,9 @@ def ffilter(image, h=1):
     g = np.zeros(image.shape, dtype='float64')
 
     if platform.uname()[0] == "Windows":
-        library = r".\libffilter.dll"
+        # library = r".\libffilter.dll"
+        print("This ṕrogram doesn't work on windows yet")
+        exit(1)
     elif platform.uname()[0] == "Linux":
         library = "./libffilter.so"
     lf = ct.CDLL(library)

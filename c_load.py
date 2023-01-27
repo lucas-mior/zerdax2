@@ -2,13 +2,16 @@ import ctypes as ct
 from numpy.ctypeslib import ndpointer as ndp
 import platform
 
-
-if platform.uname()[0] == "Windows":
+uname = platform.uname()[0]
+if uname == "Windows":
     # library = r".\libzerdax.dll"
     print("This ṕrogram doesn't work on windows yet")
     exit(1)
-elif platform.uname()[0] == "Linux":
+elif uname == "Linux":
     library = "./libzerdax.so"
+else:
+    print("Unsuported operating system")
+    exit(1)
 lib = ct.CDLL(library)
 
 

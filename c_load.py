@@ -13,30 +13,17 @@ elif platform.uname()[0] == "Linux":
 lib = ct.CDLL(library)
 
 
-def filter(image, h=1):
-    image = np.array(image, dtype='float64')
-    f = np.copy(image)
-    W = np.zeros(image.shape, dtype='float64')
-    N = np.zeros(image.shape, dtype='float64')
-    g = np.zeros(image.shape, dtype='float64')
+def lfilter():
+    lfilter = lib.filter
 
-    filter = lib.filter
-
-    filter.restype = None
-    filter.argtypes = [ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                       ct.c_size_t, ct.c_size_t,
-                       ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                       ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                       ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                       ct.c_double]
-
-    filter(f, f.shape[0], f.shape[1], W, N, g, h)
-    filter(g, f.shape[0], f.shape[1], W, N, f, h)
-    filter(f, f.shape[0], f.shape[1], W, N, g, h)
-
-    g = np.round(g)
-    g = np.clip(g, 0, 255)
-    return np.array(g, dtype='uint8')
+    lfilter.restype = None
+    lfilter.argtypes = [ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                        ct.c_size_t, ct.c_size_t,
+                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                        ct.c_double]
+    return lfilter
 
 
 def segments_distance():
@@ -50,3 +37,4 @@ def segments_distance():
 
 
 segments_distance = segments_distance()
+lfilter = lfilter()

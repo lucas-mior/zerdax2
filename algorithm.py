@@ -8,7 +8,7 @@ from squares import calc_squares
 from lines import find_lines, calc_intersections
 import yolo_wrap as yolo
 import fen as fen
-from c_load import filter
+from c_load import lfilter
 import constants as consts
 import drawings as draw
 
@@ -133,6 +133,23 @@ def gauss(image):
     gamma = consts.gauss_gamma
     filtered = cv2.GaussianBlur(image, ks, gamma)
     return filtered
+
+
+def filter(image):
+    image = np.array(image, dtype='float64')
+    f = np.copy(image)
+    W = np.zeros(image.shape, dtype='float64')
+    N = np.zeros(image.shape, dtype='float64')
+    g = np.zeros(image.shape, dtype='float64')
+
+    lfilter(f, f.shape[0], f.shape[1], W, N, g, 1)
+    lfilter(g, f.shape[0], f.shape[1], W, N, f, 1)
+    lfilter(f, f.shape[0], f.shape[1], W, N, g, 1)
+
+    g = np.round(g)
+    g = np.clip(g, 0, 255)
+    return np.array(g, dtype='uint8')
+
 
 
 def find_edges(image, lowpass):

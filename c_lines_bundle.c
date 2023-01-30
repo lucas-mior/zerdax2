@@ -26,42 +26,44 @@ static Groups *lasts = NULL;
 static inline void copy_line(int32_t dest[6], int32_t src[6]) {
     for (int i = 0; i < 6; i += 1)
         dest[i] = src[i];
+
     return;
 }
 
-static Group *group_append(Group *group, int32_t line[6]) {
-    group->next = malloc(sizeof(*group));
-    if (!group->next) {
+void *emalloc(size_t size) {
+    void *p;
+    if (!(p = malloc(size))) {
         fprintf(stderr, "Failed to allocate memory");
         exit(1);
     }
+    return p;
+}
+
+static void group_append(Group *group, int32_t line[6]) {
+    group->next = emalloc(sizeof(Group));
+
     group = group->next;
     copy_line(group->line, line);
     group->next = NULL;
-    return group;
+    return;
 }
 
 static void groups_append(int32_t line[6]) {
     Groups *groups = lasts;
-    groups->next = malloc(sizeof(*groups));
-    if (!groups->next) {
-        fprintf(stderr, "Failed to allocate memory");
-        exit(1);
-    }
+    groups->next = emalloc(sizeof(Groups));
     groups = groups->next;
-
-    groups->group = malloc(10*sizeof(Group));
+    groups->next = NULL;
+    groups->group = emalloc(sizeof(Group));
     groups->group->next = NULL;
 
     copy_line(groups->group->line, line);
-    groups->next = NULL;
     lasts = groups;
     return;
 }
 
 static bool check_line_diff(int32_t line1[6], Groups *groups) {
     int32_t min_angle2 = min_angle + 2;
-    Group *group = groups->group;
+    Group *group;
     while (groups) {
         group = groups->group;
         while (group) {
@@ -89,10 +91,11 @@ static bool check_line_diff(int32_t line1[6], Groups *groups) {
 }
 
 int32_t lines_bundle(int32_t lines[][6], int32_t bundled[][6], int32_t n) {
-    Groups *groups = malloc(10*sizeof(Groups));
+    Groups *groups = emalloc(sizeof(Groups));
     firsts = lasts = groups;
     firsts->next = NULL;
-    firsts->group = malloc(10*sizeof(Group));
+    firsts->group = emalloc(sizeof(Group));
+    firsts->group->next = NULL;
     copy_line(firsts->group->line, lines[0]);
 
     for (int32_t i = 1; i < n; i += 1) {
@@ -101,6 +104,7 @@ int32_t lines_bundle(int32_t lines[][6], int32_t bundled[][6], int32_t n) {
         }
         groups = firsts;
     }
+
     groups = firsts;
     int m = 0;
     Group *group;

@@ -18,14 +18,10 @@ static int32_t min(int32_t const distances[4]) {
 static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
     int32_t x0, y0, x1, y1;
     int32_t xx0, yy0, xx1, yy1;
-    x0 = line0[0];
-    y0 = line0[1];
-    x1 = line0[2];
-    y1 = line0[3];
-    xx0 = line1[0];
-    yy0 = line1[1];
-    xx1 = line1[2];
-    yy1 = line1[3];
+    x0 = line0[0]; y0 = line0[1];
+    x1 = line0[2]; y1 = line0[3];
+    xx0 = line1[0]; yy0 = line1[1];
+    xx1 = line1[2]; yy1 = line1[3];
     
     int32_t dx0 = x1 - x0;
     int32_t dy0 = y1 - y0;
@@ -46,10 +42,9 @@ static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
 
 static int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * restrict line) {
     int32_t x0, y0, x1, y1;
-    x0 = line[0];
-    y0 = line[1];
-    x1 = line[2];
-    y1 = line[3];
+    x0 = line[0]; y0 = line[1];
+    x1 = line[2]; y1 = line[3];
+
     int32_t dx = x1 - x0;
     int32_t dy = y1 - y0;
     if ((dx == dy) && (dy == 0)) {

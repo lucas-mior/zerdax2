@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <math.h>
 
-double weight(double * restrict f, int32_t x, int32_t y, int32_t yy, double h) {
+static inline double weight(double * restrict f, int32_t x, int32_t y, int32_t yy, double h) {
     double Gx, Gy;
     double d, w;
 
@@ -13,7 +13,7 @@ double weight(double * restrict f, int32_t x, int32_t y, int32_t yy, double h) {
     return w;
 }
 
-void weight_array(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double h) {
+static void weight_array(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double h) {
     for (int32_t x = 1; x < xx-1; x++) {
         for (int32_t y = 1; y < yy-1; y++) {
             W[yy*x + y] = weight(f, x, y, yy, h);
@@ -21,7 +21,7 @@ void weight_array(double * restrict f, int32_t xx, int32_t yy, double * restrict
     }
 }
 
-void norm_array(int32_t xx, int32_t yy, double * restrict W, double * restrict N) {
+static void norm_array(int32_t xx, int32_t yy, double * restrict W, double * restrict N) {
     for (int32_t x = 1; x < xx - 1; x++) {
         for (int32_t y = 1; y < yy - 1; y++) {
             N[yy*x + y] = 0;
@@ -34,7 +34,7 @@ void norm_array(int32_t xx, int32_t yy, double * restrict W, double * restrict N
     }
 }
 
-void convolute(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g) {
+static void convolute(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g) {
     for (int32_t x = 1; x < xx - 1; x++) {
         for (int32_t y = 1; y < yy - 1; y++) {
             g[yy*x + y] = 0;

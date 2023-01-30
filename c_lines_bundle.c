@@ -7,8 +7,8 @@
 
 #include "c_segments.h"
 
-const int32_t min_dist = 15;
-const int32_t min_angle = 15;
+static const int32_t min_dist = 15;
+static const int32_t min_angle = 15;
 
 typedef struct Group {
     int32_t line[6];
@@ -20,16 +20,16 @@ typedef struct Groups {
     struct Groups *next;
 } Groups;
 
-Groups *firsts = NULL;
-Groups *lasts = NULL;
+static Groups *firsts = NULL;
+static Groups *lasts = NULL;
 
-void copy_line(int32_t dest[6], int32_t src[6]) {
+static inline void copy_line(int32_t dest[6], int32_t src[6]) {
     for (int i = 0; i < 6; i += 1)
         dest[i] = src[i];
     return;
 }
 
-Group *group_append(Group *group, int32_t line[6]) {
+static Group *group_append(Group *group, int32_t line[6]) {
     group->next = malloc(sizeof(*group));
     if (!group->next) {
         fprintf(stderr, "Failed to allocate memory");
@@ -41,7 +41,7 @@ Group *group_append(Group *group, int32_t line[6]) {
     return group;
 }
 
-void groups_append(int32_t line[6]) {
+static void groups_append(int32_t line[6]) {
     Groups *groups = lasts;
     groups->next = malloc(sizeof(*groups));
     if (!groups->next) {
@@ -59,7 +59,7 @@ void groups_append(int32_t line[6]) {
     return;
 }
 
-bool check_line_diff(int32_t line1[6], Groups *groups) {
+static bool check_line_diff(int32_t line1[6], Groups *groups) {
     int32_t min_angle2 = min_angle + 2;
     Group *group = groups->group;
     while (groups) {

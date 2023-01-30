@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-int32_t min(int32_t const distances[4]) {
+static int32_t min(int32_t const distances[4]) {
     int32_t i = 0;
     int32_t m = distances[i];
     while (++i < 4) {
@@ -15,7 +15,7 @@ int32_t min(int32_t const distances[4]) {
     return m;
 }
 
-bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
+static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
     int32_t x0, y0, x1, y1;
     int32_t xx0, yy0, xx1, yy1;
     x0 = line0[0];
@@ -44,7 +44,7 @@ bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
     return ss && tt;
 }
 
-int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * restrict line) {
+static int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * restrict line) {
     int32_t x0, y0, x1, y1;
     x0 = line[0];
     y0 = line[1];

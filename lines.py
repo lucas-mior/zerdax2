@@ -161,7 +161,6 @@ def shorten_byinter(ww, hh, vert, hori=None):
     inters = calc_extern_intersections(vert, hori)
 
     def _shorten(lines):
-        nlines = np.empty(lines.shape, dtype='int32')
         for i, inter in enumerate(inters):
             line = lines[i]
             a, b = inter[0], inter[-1]
@@ -173,8 +172,8 @@ def shorten_byinter(ww, hh, vert, hori=None):
             else:
                 x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, line[4], line[5], line[6]
-            nlines[i] = new
-        return nlines
+            lines[i] = new
+        return lines
 
     vert = _shorten(vert)
     if hori is not None:

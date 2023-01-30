@@ -1,7 +1,14 @@
+/* Filter proposed by Bing Wang and ShaoSheng Fan
+ * "An improved CANNY edge detection algorithm"
+ * 2009 Second International Workshop on Computer Science and Engineering */
+
 #include <stdint.h>
 #include <math.h>
 
-static inline double weight(double * restrict f, int32_t x, int32_t y, int32_t yy, double h) {
+int32_t xx;
+int32_t yy;
+
+static inline double weight(double * restrict f, int32_t x, int32_t y, double h) {
     double Gx, Gy;
     double d, w;
 
@@ -13,15 +20,15 @@ static inline double weight(double * restrict f, int32_t x, int32_t y, int32_t y
     return w;
 }
 
-static void weight_array(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double h) {
+static void weight_array(double * restrict f, double * restrict W, double const h) {
     for (int32_t x = 1; x < xx-1; x++) {
         for (int32_t y = 1; y < yy-1; y++) {
-            W[yy*x + y] = weight(f, x, y, yy, h);
+            W[yy*x + y] = weight(f, x, y, h);
         }
     }
 }
 
-static void norm_array(int32_t xx, int32_t yy, double * restrict W, double * restrict N) {
+static void norm_array(double * restrict W, double * restrict N) {
     for (int32_t x = 1; x < xx - 1; x++) {
         for (int32_t y = 1; y < yy - 1; y++) {
             N[yy*x + y] = 0;
@@ -34,7 +41,7 @@ static void norm_array(int32_t xx, int32_t yy, double * restrict W, double * res
     }
 }
 
-static void convolute(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g) {
+static void convolute(double * restrict f, double * restrict W, double * restrict N, double * restrict g) {
     for (int32_t x = 1; x < xx - 1; x++) {
         for (int32_t y = 1; y < yy - 1; y++) {
             g[yy*x + y] = 0;
@@ -56,8 +63,10 @@ static void convolute(double * restrict f, int32_t xx, int32_t yy, double * rest
         g[x] = g[x-yy];
 }
 
-void filter(double * restrict f, int32_t xx, int32_t yy, double * restrict W, double * restrict N, double * restrict g, double h) {
-    weight_array(f, xx, yy, W, h);
-    norm_array(xx, yy, W, N);
-    convolute(f, xx, yy, W, N, g);
+void filter(double * restrict f, int32_t const ww, int32_t const hh, double * restrict W, double * restrict N, double * restrict g, double const h) {
+    xx = ww;
+    yy = hh;
+    weight_array(f, W, h);
+    norm_array(W, N);
+    convolute(f, W, N, g);
 }

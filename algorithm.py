@@ -1,4 +1,5 @@
 import sys
+import os
 import cv2
 import numpy as np
 import logging as log
@@ -26,11 +27,28 @@ def algorithm(filename):
     img.BGR = cv2.imread(img.filename)
 
     img = yolo.detect_objects(img)
+
+    try:
+        print(img.boardbox)
+    except Exception:
+        msg = f"{img.filename}: bad picture, try again from another angle"
+        print(msg)
+        return msg
+
     img = crop_board_to_size(img)
+    if img.board.shape[0] < 300:
+        msg = f"{img.filename}: bad picture, try again from another angle"
+        print(msg)
+        return msg
     img = pre_process(img)
     canny = create_cannys(img)
+    if debug:
+        draw.save("edges", canny)
 
     vert, hori = find_lines(canny)
+    if vert is None or hori is None:
+        msg = f"{img.filename}: bad picture, try again from another angle"
+        return msg
 
     if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debug:
         canvas = draw.lines(img.gray3ch, vert, hori)
@@ -136,8 +154,7 @@ def gauss(image):
 
 
 def filter(image):
-    image = np.array(image, dtype='float64')
-    f = np.copy(image)
+    f = np.array(image, dtype='float64')
     W = np.zeros(image.shape, dtype='float64')
     N = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')

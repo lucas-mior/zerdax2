@@ -4,7 +4,7 @@ import cv2
 import copy
 import numpy as np
 import logging as log
-import jenkspy
+from jenkspy import jenks_breaks
 
 import algorithm as algo
 import drawings as draw
@@ -38,13 +38,14 @@ def detect_objects(img):
             img.boardbox = np.array(obj[:4], dtype='int32')
             break
 
-    log.info(f"{img.boardbox=}")
+    # log.info(f"{img.boardbox=}")
 
     pieces = objs[objs[:, 5] != boardnum]
     pieces = np.array(pieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])
 
-    img.pieces = determine_colors(pieces, img.BGR)
+    # img.pieces = determine_colors(pieces, img.BGR)
+    img.pieces = pieces
     img.pieces = img.pieces[np.argsort(img.pieces[:, 0])]
     img.pieces = process_pieces(img.pieces)
 
@@ -64,7 +65,7 @@ def determine_colors(pieces, image):
         a = image[y0:y1, x0:x1]
         avg_colors[i] = np.median(a, overwrite_input=True)
 
-    limits = jenkspy.jenks_breaks(avg_colors, n_classes=2)
+    limits = jenks_breaks(avg_colors, n_classes=2)
 
     black = pieces[avg_colors <= limits[1]]
     white = pieces[avg_colors > limits[1]]

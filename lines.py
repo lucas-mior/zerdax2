@@ -2,7 +2,7 @@ import numpy as np
 from numpy.linalg import det
 import cv2
 import logging as log
-import jenkspy
+from jenkspy import jenks_breaks
 
 import algorithm as algo
 import constants as consts
@@ -11,65 +11,153 @@ from c_load import segments_distance
 from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
+canny3ch = None
 
 
 def find_lines(canny):
     log.info("finding all lines of board...")
-    width = canny.shape[1]
-    heigth = canny.shape[0]
+    ww = canny.shape[1]
+    hh = canny.shape[0]
+
+    vert, hori = find_baselines(canny)
+    vert, hori = fix_length_byinter(ww, hh, vert, hori)
+    lv, lh = check_save("fix_length_byinter0", vert, hori, -1, -1)
+
+    vert = fix_lines(vert, 0, ww, hh)
+    hori = fix_lines(hori, 1, ww, hh)
+    vert, hori = fix_length_byinter(ww, hh, vert, hori)
+    lv, lh = check_save("fix_length_byinter1", vert, hori, -1, -1)
+    vert = fix_lines(vert, 0, ww, hh)
+    hori = fix_lines(hori, 1, ww, hh)
+
+    return vert, hori
+
+
+def fix_lines(lines, kind, ww, hh):
+    ll = len(lines)
+    l2 = 0
+    runs = 0
+    while ll != l2 and runs <= 5:
+        ll = l2
+        lines, l2 = rem_outer(lines, l2, kind, ww, hh)
+        if len(lines) >= 7:
+            lines, l2 = rem_wrong(lines, l2, kind, ww, hh)
+        if len(lines) <= 9:
+            lines, l2 = add_outer(lines, l2, kind, ww, hh, force=True)
+        else:
+            lines, l2 = add_outer(lines, l2, kind, ww, hh)
+        if len(lines) >= 7:
+            lines, l2 = rem_middle(lines, l2, kind, ww, hh)
+        lines, l2 = add_middle(lines, l2, kind, ww, hh)
+        lines, l2 = add_middle(lines, l2, kind, ww, hh)
+        if (l2 >= 10):
+            lines, l2 = rem_outer(lines, l2, kind, ww, hh, force=True)
+        runs += 1
+
+    return lines
+
+
+def find_baselines(canny):
+    ww = canny.shape[1]
+    hh = canny.shape[0]
+    distv = round(ww/23)
+    disth = round(hh/23)
+    global canny3ch
     canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
     tangle = np.deg2rad(angle)
     minlen = minlen0
-    maxgap = round(minlen0 / consts.hough_maxgap_factor)
-    tvotes = round(minlen0)
+    maxgap = 4
+    tvotes = tvotes0 = round(minlen0*1.1)
     lv = lh = 0
-    while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.4):
-        minlen = max(minlen - 8, minlen0 / 1.2)
-        tvotes -= 12
+    hori = vert = oldhori = oldvert = None
+    while (lv < 8 or lh < 8):
+        if tvotes <= round(minlen0/1.5) and (minlen <= round(minlen0/1.1)):
+            break
+        minlen = max(minlen - 5, round(minlen0 / 1.1))
+        maxgap = min(maxgap + 2, round(minlen0 / 4))
+        tvotes = max(tvotes - 5, round(minlen0 / 1.5))
         lines = cv2.HoughLinesP(canny, 1, tangle, tvotes, None, minlen, maxgap)
-        if (ll := lines.shape[0]) < min_before_split:
-            log.debug(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
+        if lines is None:
+            log.debug(f"0 @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            maxgap += 5
             continue
+        elif (ll := lines.shape[0]) < min_before_split:
+            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            maxgap += 2
+            continue
+
         lines_hough = lines[:, 0, :]
-        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
-        bundled = np.zeros(lines_hough.shape, dtype='int32')
-        nlines = lines_bundle(lines_hough, bundled, len(lines_hough))
-        lines = bundled[:nlines]
         if algo.debug:
             canvas = draw.lines(canny3ch, lines_hough)
+            ll = len(lines_hough)
+            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
-            canvas = draw.lines(canny3ch, lines)
-            draw.save("lines_bundled", canvas)
-        vert, hori = split_lines(lines)
-        lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
+
+        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
+        if oldhori is not None:
+            hori = oldhori
+            vert, _ = split_lines(lines_hough)
+            lv, lh = check_save("split_lines_oldhori", vert, hori, 0, 0)
+            if vert is None or len(vert) <= 4:
+                minlen -= 20
+                continue
+        elif oldvert is not None:
+            vert = oldvert
+            _, hori = split_lines(lines_hough)
+            lv, lh = check_save("split_lines_oldvert", vert, hori, 0, 0)
+            if hori is None or len(hori) <= 4:
+                minlen -= 20
+                continue
+        else:
+            vert, hori = split_lines(lines_hough)
+        lv, lh = check_save("split_lines", vert, hori, 0, 0)
         vert, hori = filter_byangle(vert, hori)
-        lv, lh = check_save("filter_byangle", vert, hori, lv, lh, canny3ch)
+        lv, lh = check_save("filter_byangle", vert, hori, lv, lh)
+        vert, hori = sort_lines(vert, hori)
+        lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+        if vert is not None:
+            bundled = np.zeros(vert.shape, dtype='int32')
+            nlines = lines_bundle(vert, bundled, len(vert), distv)
+            vert = bundled[:nlines]
+        if hori is not None:
+            bundled = np.zeros(hori.shape, dtype='int32')
+            nlines = lines_bundle(hori, bundled, len(hori), disth)
+            hori = bundled[:nlines]
+        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
+        vert, hori = filter_byinter(vert, hori)
+        lv, lh = check_save("filter_byinter", vert, hori, lv, lh)
+
+        if lh >= 8 and oldhori is None and oldvert is None:
+            oldhori = hori
+            canvas = draw.lines(canny3ch, None, oldhori)
+            draw.save("oldhori", canvas)
+            tvotes = tvotes0
+            maxgap = 5
+        elif lv >= 8 and oldvert is None and oldhori is None:
+            oldvert = vert
+            canvas = draw.lines(canny3ch, None, oldvert)
+            draw.save("oldvert", canvas)
+            tvotes = tvotes0
+            maxgap = 5
+
         ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes}, {minlen}, {maxgap}")
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")
 
     if lv != 9 or lh != 9:
-        log.warning("Less than 9 lines find in at least one direction")
+        log.warning("Wrong lines found in at least one direction")
+        # canvas = draw.lines(canny3ch, vert, hori)
+        # draw.save(f"canny{lv=}_{lh=}", canvas)
+    if lv < 6 or lh < 6:
+        log.error("Less than 6 lines found in at least one direction")
         canvas = draw.lines(canny3ch, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
+        return None, None
 
     vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save("sort_lines", vert, hori, 0, 0, canny3ch)
-    vert, hori = shorten_byinter(width, heigth, vert, hori)
-    lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
-    vert, hori = add_outer(width, heigth, vert, hori)
-    lv, lh = check_save("add_outer", vert, hori, lv, lh, canny3ch)
-    vert, hori = shorten_byinter(width, heigth, vert, hori)
-    lv, lh = check_save("shorten_byinter", vert, hori, -1, -1, canny3ch)
-    vert, hori = remove_extras(vert, hori, width, heigth)
-    lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
-    vert, hori = add_middle(vert, hori)
-    lv, lh = check_save("add_middle", vert, hori, lv, lh, canny3ch)
-    vert, hori = remove_extras(vert, hori, width, heigth)
-    lv, lh = check_save("remove_extras", vert, hori, lv, lh, canny3ch)
-
+    lv, lh = check_save("sort_lines", vert, hori, 0, 0)
     return vert, hori
 
 
@@ -79,31 +167,63 @@ def split_lines(lines):
         lines, _ = length_theta(lines)
     angles = lines[:, 5]
 
-    limits = jenkspy.jenks_breaks(angles, n_classes=3)
-    a0 = angles[angles <= limits[1]]
-    a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
-    a2 = angles[limits[2] < angles]
-    centers = [np.median(a0), np.median(a1), np.median(a2)]
+    def _default(lines, angles):
+        med = abs(np.median(angles))
+        if med < 45*100:
+            vert = None
+            hori = lines[np.abs(angles) < 45*100]
+        else:
+            vert = lines[np.abs(angles) > 45*100]
+            hori = None
+        return vert, hori
 
-    d0 = abs(centers[0] - centers[1])
-    d1 = abs(centers[0] - centers[2])
-    d2 = abs(centers[1] - centers[2])
+    try:
+        limits = jenks_breaks(angles, n_classes=3)
+    except Exception:
+        return _default(lines, angles)
 
-    maxdiff = consts.angles_max_diff
-    dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
-    dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
-    dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
+    if len(limits) >= 4:
+        a0 = angles[angles <= limits[1]]
+        a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
+        a2 = angles[limits[2] < angles]
+        centers = [np.median(a0), np.median(a1), np.median(a2)]
 
-    if dd0 or dd1 or dd2:
-        limits = jenkspy.jenks_breaks(angles, n_classes=2)
-        hori = lines[angles <= limits[1]]
-        vert = lines[limits[1] < angles]
+        d0 = abs(centers[0] - centers[1])
+        d1 = abs(centers[0] - centers[2])
+        d2 = abs(centers[1] - centers[2])
+
+        maxdiff = consts.angles_max_diff
+        dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
+        dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
+        dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
+
+        if dd0 or dd1 or dd2:
+            try:
+                limits = jenks_breaks(angles, n_classes=2)
+            except Exception:
+                return _default(lines, angles)
+            hori = lines[angles <= limits[1]]
+            vert = lines[limits[1] < angles]
+            if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
+                return _default(lines, angles)
+        else:
+            for line in lines:
+                if line[5] < (-45 * 100):
+                    line[5] = -line[5]
+            angles = lines[:, 5]
+            try:
+                limits = jenks_breaks(angles, n_classes=2)
+            except Exception:
+                return _default(lines, angles)
+            hori = lines[angles <= limits[1]]
+            vert = lines[limits[1] < angles]
+            if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
+                return _default(lines, angles)
     else:
-        lines, _ = length_theta(lines, abs_angle=True)
-        angles = lines[:, 5]
-        limits = jenkspy.jenks_breaks(angles, n_classes=2)
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
+        if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
+            return _default(lines, angles)
 
     if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):
         aux = vert
@@ -118,7 +238,7 @@ def split_lines(lines):
     return vert, hori
 
 
-def filter_byangle(vert, hori=None, tol=15):
+def filter_byangle(vert, hori=None):
     log.info("filtering lines by angle accoring to direction...")
     tol = consts.angle_tolerance
 
@@ -127,9 +247,31 @@ def filter_byangle(vert, hori=None, tol=15):
         right = np.abs(lines[:, 5] - angle) <= tol
         return lines[right]
 
-    vert = _filter(vert)
+    if vert is not None:
+        vert = _filter(vert)
     if hori is not None:
         hori = _filter(hori)
+    return vert, hori
+
+
+def filter_byinter(vert, hori=None):
+    log.info("filtering lines by number of intersections ...")
+
+    def _filter(lines):
+        for i, line in enumerate(lines):
+            inters = calc_intersections(np.array([line]), lines, limit=True)
+            if inters is None or len(inters) == 0:
+                continue
+            elif inters.shape[1] >= 4:
+                lines = np.delete(lines, i, axis=0)
+                break
+        return lines
+
+    for j in range(3):
+        if vert is not None:
+            vert = _filter(vert)
+        if hori is not None:
+            hori = _filter(hori)
     return vert, hori
 
 
@@ -137,28 +279,29 @@ def sort_lines(vert, hori=None, k=0):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
-        dummy = np.empty((lines.shape[0], 7), dtype='int32')
-        dummy[:, 0:6] = lines[:, 0:6]
-        lines = dummy
-
+        positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
             inter = calc_intersection(line, kind=kind)
-            lines[i, 6] = inter[kind]
-        return lines
+            positions[i] = inter[kind]
+        return positions
 
     if hori is not None:
-        vert = _create(vert, kind=0)
-        vert = vert[np.argsort(vert[:, 6])]
-        hori = _create(hori, kind=1)
-        hori = hori[np.argsort(hori[:, 6])]
+        positions = _create(hori, kind=1)
+        hori = hori[np.argsort(positions)]
+        if vert is not None:
+            positions = _create(vert, kind=0)
+            vert = vert[np.argsort(positions)]
     else:
-        vert = _create(vert, kind=k)
-        vert = vert[np.argsort(vert[:, 6])]
+        if vert is not None:
+            positions = _create(vert, kind=k)
+            vert = vert[np.argsort(positions)]
     return vert, hori
 
 
-def shorten_byinter(ww, hh, vert, hori=None):
+def fix_length_byinter(ww, hh, vert, hori=None):
     inters = calc_extern_intersections(vert, hori)
+    if inters is None:
+        return vert, hori
 
     def _shorten(lines):
         for i, inter in enumerate(inters):
@@ -166,38 +309,47 @@ def shorten_byinter(ww, hh, vert, hori=None):
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
             limit = limit_bydims(new, ww, hh)
-            limit = np.ravel(limit)
+            limit = np.ravel(limit[:2])
             if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
             else:
                 x0, y0, x1, y1 = new
-            new = x0, y0, x1, y1, line[4], line[5], line[6]
+            new = x0, y0, x1, y1, line[4], line[5]
             lines[i] = new
         return lines
 
-    vert = _shorten(vert)
+    if vert is not None:
+        vert = _shorten(vert)
     if hori is not None:
         inters = np.transpose(inters, axes=(1, 0, 2))
         hori = _shorten(hori)
     return vert, hori
 
 
-def check_save(title, vert, hori, old_lv, old_lh, image):
-    lv, lh = len(vert), len(hori)
+def check_save(title, vert, hori, old_lv, old_lh):
+    global canny3ch
+    number = True
+    lv = 0 if vert is None else len(vert)
+    lh = 0 if hori is None else len(hori)
+
     if old_lv == lv and old_lh == lh:
         return old_lv, old_lh
 
     if algo.debug:
-        canvas = draw.lines(image, vert, hori)
+        if lv > 12 or lh > 12:
+            number = False
+        canvas = draw.lines(canny3ch, vert, hori, number=number)
         draw.save(title, canvas)
     return lv, lh
 
 
-def add_outer(ww, hh, vert, hori):
+def add_outer(lines, ll, k, ww, hh, force=False):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
+    if force:
+        tol = 1
 
-    def _calc_outer(lines, tol, where, k, ww, hh):
+    def _add_outer(lines, tol, where, ww, hh):
         dd = ww if k == 0 else hh
         if where == 0:
             ee = 0
@@ -216,30 +368,111 @@ def add_outer(ww, hh, vert, hori):
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
             inters = limit_bydims(new, ww, hh)
-            if len(inters) != 2:
+            if len(inters) < 2:
                 return lines
+            elif len(inters) > 2:
+                ls = np.array([[inters[0], inters[1]],
+                               [inters[0], inters[2]],
+                               [inters[1], inters[2]]])
+                lens = [length(le.flatten()) for le in ls]
+                inters = ls[np.argmax(lens)]
             if inters[0, k] <= dd and inters[1, k] <= dd:
                 x0, y0, x1, y1 = np.ravel(inters)
+                if length((x0, y0, x1, y1)) < (length(line0)*0.8):
+                    return lines
                 new = np.array([[x0, y0, x1, y1,
-                                 line1[4], line1[5], 0]], dtype='int32')
+                                 line1[4], line1[5]]], dtype='int32')
                 if where == -1:
                     lines = np.append(lines, new, axis=0)
                 else:
                     lines = np.insert(lines, 0, new, axis=0)
         return lines
 
-    def _add_outer(lines, k):
-        for runs in range(2):
-            lines = _calc_outer(lines, tol, 0, k, ww, hh)
-            lines = _calc_outer(lines, tol, -1, k, ww, hh)
+    lines = _add_outer(lines, tol, 0, ww, hh)
+    ll, _ = check_save("add_outer0", lines, None, ll, 0)
+    lines = _add_outer(lines, tol, -1, ww, hh)
+    ll, _ = check_save("add_outer1", lines, None, ll, 0)
+    return lines, ll
+
+
+def rem_middle(lines, ll, kind, ww, hh, force=False):
+    log.info("reming missing middle lines...")
+    tol = consts.middle_tolerance
+
+    def _rem_middle(lines):
+        i = 1
+        dprev1 = segments_distance(lines[i+0], lines[i-1])
+        dprev0 = segments_distance(lines[i+0], lines[i+1])
+        dnext0 = segments_distance(lines[i+1], lines[i+2])
+        dnext1 = segments_distance(lines[i+2], lines[i+3])
+        dnext2 = segments_distance(lines[i+3], lines[i+4])
+        if dprev1 < (dnext0/tol) > dprev0 and dprev1 < (dnext1/tol) > dprev0:
+            if dprev1 < (dnext2/tol) > dprev0:
+                lines = np.delete(lines, i, axis=0)
+                return lines
+        for i in range(3, len(lines) - 3):
+            dprev2 = segments_distance(lines[i-2], lines[i-3])
+            dprev1 = segments_distance(lines[i-1], lines[i-2])
+            dprev0 = segments_distance(lines[i+0], lines[i-1])
+            dnext0 = segments_distance(lines[i+0], lines[i+1])
+            dnext1 = segments_distance(lines[i+1], lines[i+2])
+            dnext2 = segments_distance(lines[i+2], lines[i+3])
+            if dprev0 < (dprev1/tol) and dnext0 < (dnext1/tol):
+                if dprev0 < (dprev2/tol) and dnext0 < (dnext2/tol):
+                    lines = np.delete(lines, i, axis=0)
+                    return lines
         return lines
 
-    vert = _add_outer(vert, 0)
-    hori = _add_outer(hori, 1)
-    return vert, hori
+    lines = _rem_middle(lines)
+    lines = np.flip(lines, axis=0)
+    lines = _rem_middle(lines)
+    lines = np.flip(lines, axis=0)
+    ll, _ = check_save("rem_middle", lines, None, ll, 0)
+    return lines, ll
 
 
-def add_middle(vert, hori):
+def rem_wrong(lines, ll, kind, ww, hh, force=False):
+    log.info("removing wrong middle lines...")
+    tol = consts.middle_tolerance
+
+    def _calc_dists(lines):
+        dists = np.zeros((lines.shape[0], 2), dtype='int32')
+        i = 0
+        dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
+        dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
+        for i in range(1, len(lines) - 1):
+            dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
+            dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
+        i += 1
+        dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
+        dists[i, 1] = segments_distance(lines[i+0], lines[i-1])
+        return dists
+
+    def _rem_wrong(lines, dists):
+        d0 = np.median(dists[:, 0])
+        d1 = np.median(dists[:, 1])
+        med = round((d0 + d1)/2)
+        for i in range(1, len(lines) - 1):
+            if dists[i, 1] < (med/(tol+0.1)) and (med*tol) < dists[i, 0]:
+                if (dists[i-1, 0]/tol) > dists[i, 1]:
+                    lines = np.delete(lines, i, axis=0)
+                elif (dists[i+1, 1]*tol) < dists[i, 0]:
+                    lines = np.delete(lines, i, axis=0)
+                return lines
+        return lines
+
+    dists = _calc_dists(lines)
+    lines = _rem_wrong(lines, dists)
+    lines = np.flip(lines, axis=0)
+    dists = np.flip(dists, axis=0)
+    dists = np.flip(dists, axis=-1)
+    lines = _rem_wrong(lines, dists)
+    lines = np.flip(lines, axis=0)
+    ll, _ = check_save("rem_wrong", lines, None, ll, 0)
+    return lines, ll
+
+
+def add_middle(lines, ll, kind, ww, hh, force=False):
     log.info("adding missing middle lines...")
     tol = consts.middle_tolerance
 
@@ -247,83 +480,97 @@ def add_middle(vert, hori):
         x0, x1 = x
         y0, y1 = y
         new = np.array([[x0, y0, x1, y1,
-                         lines[i-1, 4], lines[i-1, 5], 0]], dtype='int32')
+                         lines[i-1, 4], lines[i-1, 5]]], dtype='int32')
         lines = np.insert(lines, i+1, new, axis=0)
         return lines
 
-    def _add_middle(lines, kind):
-        dthis = segments_distance(lines[0], lines[1])
-        dnext0 = segments_distance(lines[1], lines[2])
-        dnext1 = segments_distance(lines[2], lines[3])
-        x = (lines[1, 0] - lines[2, 0] + lines[1, 0],
-             lines[1, 2] - lines[2, 2] + lines[1, 2])
-        y = (lines[1, 1] - lines[2, 1] + lines[1, 1],
-             lines[1, 3] - lines[2, 3] + lines[1, 3])
-        if dthis > (dnext0*tol) and dthis > (dnext1*tol):
-            lines = _insert(lines, 0, x, y)
-            i = 0
-        for i in range(1, len(lines) - 2):
-            dprev = segments_distance(lines[i+0], lines[i-1])
+    def _add_middle(lines):
+        dnext0 = segments_distance(lines[0], lines[1])
+        dnext1 = segments_distance(lines[1], lines[2])
+        dnext2 = segments_distance(lines[2], lines[3])
+        dnext3 = segments_distance(lines[3], lines[4])
+        if dnext0 > (dnext1*tol) and dnext0 > (dnext2*(tol-0.05)):
+            if dnext0 > (dnext3*(tol-0.10)):
+                x = (2*lines[1, 0] - lines[2, 0],
+                     2*lines[1, 2] - lines[2, 2])
+                y = (2*lines[1, 1] - lines[2, 1],
+                     2*lines[1, 3] - lines[2, 3])
+                lines = _insert(lines, 0, x, y)
+                if segments_distance(lines[0], lines[1]) < (dnext0/(tol+0.9)):
+                    lines = lines[1:]
+                return lines
+        for i in range(2, len(lines) - 3):
+            dprev2 = segments_distance(lines[i-1], lines[i-2])
+            dprev1 = segments_distance(lines[i+0], lines[i-1])
             dthis = segments_distance(lines[i+0], lines[i+1])
-            dnext = segments_distance(lines[i+1], lines[i+2])
-            if dthis > (dprev*tol) and dthis > (dnext*tol):
-                x = (round((lines[i, 0] + lines[i+1, 0])/2),
-                     round((lines[i, 2] + lines[i+1, 2])/2))
-                y = (round((lines[i, 1] + lines[i+1, 1])/2),
-                     round((lines[i, 3] + lines[i+1, 3])/2))
-                lines = _insert(lines, i, x, y)
+            dnext1 = segments_distance(lines[i+1], lines[i+2])
+            dnext2 = segments_distance(lines[i+2], lines[i+3])
+            if dthis > (dprev1*tol) and dthis > (dnext1*tol):
+                if dthis > (dprev2*(tol-0.05)) and dthis > (dnext2*(tol-0.05)):
+                    if dthis > (dprev1*3):
+                        x = (2*lines[i, 0] - lines[i-1, 0],
+                             2*lines[i, 2] - lines[i-1, 2])
+                        y = (2*lines[i, 1] - lines[i-1, 1],
+                             2*lines[i, 3] - lines[i-1, 3])
+                    else:
+                        x = (round((lines[i, 0] + lines[i+1, 0])/2),
+                             round((lines[i, 2] + lines[i+1, 2])/2))
+                        y = (round((lines[i, 1] + lines[i+1, 1])/2),
+                             round((lines[i, 3] + lines[i+1, 3])/2))
+                    lines = _insert(lines, i, x, y)
+                    return lines
+        for i in range(1, len(lines) - 4):
+            dprev0 = segments_distance(lines[i+0], lines[i-1])
+            dnext0 = segments_distance(lines[i+0], lines[i+1])
+            dnext1 = segments_distance(lines[i+1], lines[i+2])
+            dnext2 = segments_distance(lines[i+2], lines[i+3])
+            dnext3 = segments_distance(lines[i+3], lines[i+4])
+            if dnext0 > (dnext1*tol) and dnext0 > (dnext2*(tol-0.05)):
+                if dnext0 > (dprev0*(tol-0.1)) or dnext0 > (dnext3*(tol-0.1)):
+                    x = (round((lines[i, 0] + lines[i+1, 0])/2),
+                         round((lines[i, 2] + lines[i+1, 2])/2))
+                    y = (round((lines[i, 1] + lines[i+1, 1])/2),
+                         round((lines[i, 3] + lines[i+1, 3])/2))
+                    lines = _insert(lines, i, x, y)
+                    return lines
         return lines
 
-    def _adds(lines, kind):
-        lines = _add_middle(lines, kind)
-        lines = np.flip(lines, axis=0)
-        lines = _add_middle(lines, kind)
-        lines = np.flip(lines, axis=0)
-        if len(lines) <= 9:
-            lines = _add_middle(lines, kind)
-            lines = np.flip(lines, axis=0)
-            lines = _add_middle(lines, kind)
-            lines = np.flip(lines, axis=0)
-        return lines
-    vert = _adds(vert, 0)
-    hori = _adds(hori, 1)
-    return vert, hori
+    lines = _add_middle(lines)
+    lines = np.flip(lines, axis=0)
+    ll, _ = check_save("add_middle0", lines, None, ll, 0)
+    lines = _add_middle(lines)
+    lines = np.flip(lines, axis=0)
+    ll, _ = check_save("add_middle1", lines, None, ll, 0)
+    return lines, ll
 
 
-def remove_extras(vert, hori, ww, hh):
-    tol = consts.outer_tolerance
-
-    def _rem_extras(lines, ll, k, dd):
-        if ll == 10:
-            d10 = abs(lines[1, k] - 0)
-            d11 = abs(lines[1, k+2] - 0)
-            d1 = min(d10, d11)
-            d20 = abs(lines[-2, k] - dd)
-            d21 = abs(lines[-2, k+2] - dd)
-            d2 = min(d20, d21)
-            if d1 > tol and d2 < tol:
-                lines = lines[:-1]
-            elif d2 > tol and d1 < tol:
-                lines = lines[1:]
-            elif d2 < d1:
-                lines = lines[:-1]
-            else:
-                lines = lines[1:]
-        elif ll >= 11:
-            log.info("There are 11 or more lines, removing on both sides...")
-            lines = lines[1:-1]
-        if ll >= 12:
-            log.warning("There are 12 or more lines, removing extras again...")
-            lines = _rem_extras(lines, ll-2, k, dd)
-        return lines
-
+def rem_outer(lines, ll, k, ww, hh, force=False):
     log.info("removing extra outer lines...")
-    if (lv := vert.shape[0]) > 9:
-        vert = _rem_extras(vert, lv, k=0, dd=ww)
-    if (lh := hori.shape[0]) > 9:
-        hori = _rem_extras(hori, lh, k=1, dd=hh)
+    tol = consts.outer_tolerance
+    if k == 0:
+        dd = ww
+    else:
+        dd = hh
 
-    return vert, hori
+    d00 = abs(lines[1, k] - 0)
+    d01 = abs(lines[1, k+2] - 0)
+    d0 = min(d00, d01)
+    d10 = abs(lines[-2, k] - dd)
+    d11 = abs(lines[-2, k+2] - dd)
+    d1 = min(d10, d11)
+    if not force:
+        if d0 < tol:
+            lines = lines[1:]
+        if d1 < tol:
+            lines = lines[:-1]
+    else:
+        if d0 < d1:
+            lines = lines[1:]
+        else:
+            lines = lines[:-1]
+
+    ll, _ = check_save("rem_outer", lines, None, ll, 0)
+    return lines, ll
 
 
 def limit_bydims(inters, ww, hh):
@@ -352,8 +599,8 @@ def length_theta(vert, hori=None, abs_angle=False):
         for i, line in enumerate(lines):
             x0, y0, x1, y1, r, t = line[:6]
             lines[i, 4] = length((x0, y0, x1, y1))
-            lines[i, 5] = angle((x0, y0, x1, y1))
-        return np.round(lines)
+            lines[i, 5] = angle((x0, y0, x1, y1))*100
+        return lines
 
     if hori is not None:
         hori = _create(hori)
@@ -389,13 +636,15 @@ def calc_extern_intersections(lines0, lines1=None):
 
     if lines1 is None:
         lines1 = lines0
+    if lines0 is None:
+        return None
 
     rows = []
     for i in range(l0 := lines0.shape[0]):
-        x0, y0, x1, y1, r, t, _ = lines0[i]
+        x0, y0, x1, y1, r, t = lines0[i]
         col = []
         for j in range(l1 := lines1.shape[0]):
-            xx0, yy0, xx1, yy1, rr, tt, _ = lines1[j]
+            xx0, yy0, xx1, yy1, rr, tt = lines1[j]
             if 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue
@@ -404,7 +653,7 @@ def calc_extern_intersections(lines0, lines1=None):
 
             dtheta = abs(t - tt)
             tol0 = consts.min_angle_to_intersect
-            tol1 = 180 - tol0
+            tol1 = 180*100 - tol0
             if (dtheta < tol0 or dtheta > tol1):
                 continue
 
@@ -422,30 +671,39 @@ def calc_extern_intersections(lines0, lines1=None):
             col.append((x, y))
         rows.append(col)
 
-    inter = np.round(rows)
-    return np.array(inter, dtype='int32')
+    try:
+        inter = np.round(rows)
+        return np.array(inter, dtype='int32')
+    except Exception:
+        return None
 
 
-def calc_intersections(lines0, lines1=None, onlylast=False):
-    log.info("calculating intersections between group(s) of lines...")
-
+def calc_intersections(lines0, lines1=None, onlylast=False, limit=False):
     if lines1 is None:
         lines1 = lines0
 
+    maxx0 = np.max([lines0[:, 0], lines0[:, 2]])
+    maxx1 = np.max([lines1[:, 0], lines1[:, 2]])
+    maxy0 = np.max([lines0[:, 1], lines0[:, 3]])
+    maxy1 = np.max([lines1[:, 1], lines1[:, 3]])
+    maxx = max(maxx0, maxx1)
+    maxy = max(maxy0, maxy1)
+
     rows = []
     for line0 in lines0:
-        x0, y0, x1, y1, r, t, _ = line0
+        x0, y0, x1, y1, r, t = line0
         col = []
         for line1 in lines1:
-            xx0, yy0, xx1, yy1, rr, tt, _ = line1
+            xx0, yy0, xx1, yy1, rr, tt = line1
             if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
                 continue
 
-            dtheta = abs(t - tt)
-            tol0 = consts.min_angle_to_intersect
-            tol1 = 180 - tol0
-            if (dtheta < tol0 or dtheta > tol1):
-                continue
+            if not limit:
+                dtheta = abs(t - tt)
+                tol0 = consts.min_angle_to_intersect
+                tol1 = 180*100 - tol0
+                if (dtheta < tol0 or dtheta > tol1):
+                    continue
 
             xdiff = (x0 - x1, xx0 - xx1)
             ydiff = (y0 - y1, yy0 - yy1)
@@ -458,6 +716,8 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
                  det([(xx0, yy0), (xx1, yy1)]))
             x = det([d, xdiff]) / div
             y = det([d, ydiff]) / div
+            if limit and (x < 0 or x > maxx or y < 0 or y > maxy):
+                continue
             col.append((x, y))
         rows.append(col)
 
@@ -466,7 +726,6 @@ def calc_intersections(lines0, lines1=None, onlylast=False):
 
 
 def calc_intersection(line0, ww=500, hh=300, kind=0):
-    log.debug("calculating intersection between 2 lines...")
     if kind == 0:
         line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:

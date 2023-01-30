@@ -35,15 +35,14 @@ def find_lines(canny):
             continue
         lines_hough = lines[:, 0, :]
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
-        newlines = np.zeros(lines_hough.shape, dtype='int32')
-        nlines = lines_bundle(lines_hough, newlines, len(lines_hough))
-        newlines = newlines[:nlines]
+        bundled = np.zeros(lines_hough.shape, dtype='int32')
+        nlines = lines_bundle(lines_hough, bundled, len(lines_hough))
+        lines = bundled[:nlines]
         if algo.debug:
             canvas = draw.lines(canny3ch, lines_hough)
             draw.save("hough_lines", canvas)
-            canvas = draw.lines(canny3ch, newlines)
+            canvas = draw.lines(canny3ch, lines)
             draw.save("lines_bundled", canvas)
-        lines = newlines
         vert, hori = split_lines(lines)
         lv, lh = check_save("split_lines", vert, hori, 0, 0, canny3ch)
         vert, hori = filter_byangle(vert, hori)

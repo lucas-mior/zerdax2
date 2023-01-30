@@ -23,17 +23,17 @@ static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
     xx0 = line1[0]; yy0 = line1[1];
     xx1 = line1[2]; yy1 = line1[3];
     
-    int32_t dx0 = x1 - x0;
-    int32_t dy0 = y1 - y0;
-    int32_t dx1 = xx1 - xx0;
-    int32_t dy1 = yy1 - yy0;
+    int32_t dx = x1 - x0;
+    int32_t dy = y1 - y0;
+    int32_t dxx = xx1 - xx0;
+    int32_t dyy = yy1 - yy0;
 
-    int32_t delta = dx1*dy0 - dy1*dx0;
+    int32_t delta = dxx*dy - dyy*dx;
     if (delta == 0)
         return false;
 
-    double s = (double) (dx0*yy0 - y0 + dy0*x0 - xx0) / (double)delta;
-    double t = (double) (dx1*y0 - yy0 + dy1*xx0 - x0) / (double)(-delta);
+    double s = (double) (dx*yy0 - y0 + dy*x0 - xx0) / (double)delta;
+    double t = (double) (dxx*y0 - yy0 + dyy*xx0 - x0) / (double)(-delta);
 
     bool ss = (0 <= s) && (s <= 1);
     bool tt = (0 <= t) && (t <= 1);

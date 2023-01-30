@@ -43,7 +43,8 @@ def lines_bundle():
 
     func.restype = ct.c_int32
     func.argtypes = [ndp(ct.c_int32, flags="C_CONTIGUOUS"),
-                     ndp(ct.c_int32, flags="C_CONTIGUOUS")]
+                     ndp(ct.c_int32, flags="C_CONTIGUOUS"),
+                     ct.c_int32]
 
     return func
 

@@ -65,8 +65,8 @@ static int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * rest
             dx = px - x1;
             dy = py - y1;
         } else {
-            double near_x = x0 + t*dx;
-            double near_y = y0 + t*dy;
+            double near_x = (double) x0 + t*dx;
+            double near_y = (double) y0 + t*dy;
             dx = px - near_x;
             dy = py - near_y;
         }

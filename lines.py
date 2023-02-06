@@ -138,6 +138,13 @@ def find_baselines(canny):
 
 def split_lines(lines):
     log.info("spliting lines into vertical and horizontal...")
+
+    def _check_split(vert, hori):
+        if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
+            return False
+        else:
+            return True
+
     if (lines.shape[1] < 6):
         lines, _ = length_theta(lines)
     angles = lines[:, 5]
@@ -147,47 +154,41 @@ def split_lines(lines):
     except Exception:
         return None, None
 
-    if len(limits) >= 4:
-        a0 = angles[angles <= limits[1]]
-        a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
-        a2 = angles[limits[2] < angles]
-        centers = [np.median(a0), np.median(a1), np.median(a2)]
+    a0 = angles[angles <= limits[1]]
+    a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
+    a2 = angles[limits[2] < angles]
+    centers = [np.median(a0), np.median(a1), np.median(a2)]
 
-        d0 = abs(centers[0] - centers[1])
-        d1 = abs(centers[0] - centers[2])
-        d2 = abs(centers[1] - centers[2])
+    d0 = abs(centers[0] - centers[1])
+    d1 = abs(centers[0] - centers[2])
+    d2 = abs(centers[1] - centers[2])
 
-        maxdiff = consts.angles_max_diff
-        dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
-        dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
-        dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
+    maxdiff = consts.angles_max_diff
+    dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
+    dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
+    dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
-        if dd0 or dd1 or dd2:
-            try:
-                limits = jenks_breaks(angles, n_classes=2)
-            except Exception:
-                return None, None
-            hori = lines[angles <= limits[1]]
-            vert = lines[limits[1] < angles]
-            if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
-                return None, None
-        else:
-            for line in lines:
-                if line[5] < (-45 * 100):
-                    line[5] = -line[5]
-            angles = lines[:, 5]
-            try:
-                limits = jenks_breaks(angles, n_classes=2)
-            except Exception:
-                return None, None
-            hori = lines[angles <= limits[1]]
-            vert = lines[limits[1] < angles]
-            if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
-                return None, None
-    else:
+    if dd0 or dd1 or dd2:
+        try:
+            limits = jenks_breaks(angles, n_classes=2)
+        except Exception:
+            return None, None
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
-        if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
+        if not _check_split(vert, hori):
+            return None, None
+    else:
+        for line in lines:
+            if line[5] < (-45 * 100):
+                line[5] = -line[5]
+        angles = lines[:, 5]
+        try:
+            limits = jenks_breaks(angles, n_classes=2)
+        except Exception:
+            return None, None
+        hori = lines[angles <= limits[1]]
+        vert = lines[limits[1] < angles]
+        if not _check_split(vert, hori):
             return None, None
 
     if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):

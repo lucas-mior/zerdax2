@@ -3,7 +3,6 @@ import sys
 import cv2
 import copy
 import numpy as np
-import logging as log
 from jenkspy import jenks_breaks
 
 import algorithm as algo

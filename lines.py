@@ -23,6 +23,9 @@ def find_lines(canny):
     vert, hori = fix_length_byinter(ww, hh, vert, hori)
     lv, lh = check_save("fix_length_byinter0", vert, hori, -1, -1)
 
+    if lv == 0 or lh == 0:
+        return None, None
+
     vert = fix_lines(vert, 0, ww, hh)
     hori = fix_lines(hori, 1, ww, hh)
     vert, hori = fix_length_byinter(ww, hh, vert, hori)
@@ -100,7 +103,6 @@ def find_baselines(canny):
         if oldhori is not None:
             hori = oldhori
             vert, _ = split_lines(lines_hough)
-            lv, lh = check_save("split_lines_oldhori", vert, hori, 0, 0)
             if vert is None or len(vert) <= 4:
                 minlen -= 20
                 continue
@@ -132,14 +134,10 @@ def find_baselines(canny):
 
         if lh >= 8 and oldhori is None and oldvert is None:
             oldhori = hori
-            canvas = draw.lines(canny3ch, None, oldhori)
-            draw.save("oldhori", canvas)
             tvotes = tvotes0
             maxgap = 5
         elif lv >= 8 and oldvert is None and oldhori is None:
             oldvert = vert
-            canvas = draw.lines(canny3ch, None, oldvert)
-            draw.save("oldvert", canvas)
             tvotes = tvotes0
             maxgap = 5
 

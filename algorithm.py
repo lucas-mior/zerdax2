@@ -15,14 +15,16 @@ import drawings as draw
 
 img = None
 debug = False
+bad_picture_msg = ""
 
 
 def algorithm(filename):
-    global img, debug
+    global img, debug, bad_picture_msg
     debug = log.root.level < 20
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]
     img.basename = img.basename.rsplit("/", 1)[-1]
+    bad_picture_msg = f"{img.filename}: bad picture, try again from another angle"
 
     img.BGR = cv2.imread(img.filename)
 
@@ -31,15 +33,13 @@ def algorithm(filename):
     try:
         print(img.boardbox)
     except Exception:
-        msg = f"{img.filename}: bad picture, try again from another angle"
-        print(msg)
-        return msg
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     img = crop_board_to_size(img)
     if img.board.shape[0] < 300:
-        msg = f"{img.filename}: bad picture, try again from another angle"
-        print(msg)
-        return msg
+        log.error(bad_picture_msg)
+        return bad_picture_msg
     img = pre_process(img)
     canny = create_cannys(img)
     if debug:
@@ -47,17 +47,21 @@ def algorithm(filename):
 
     vert, hori = find_lines(canny)
     if vert is None or hori is None:
-        msg = f"{img.filename}: bad picture, try again from another angle"
-        return msg
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
-    if (lv := len(vert)) != 9 or (lh := len(hori)) != 9 or debug:
+    canvas = draw.lines(img.gray3ch, vert, hori)
+    draw.save("find_lines", canvas)
+    lv, lh = len(vert), len(hori)
+    if lv != 9 or lh != 9 or debug:
         canvas = draw.lines(img.gray3ch, vert, hori)
         draw.save("find_lines", canvas)
         if lv != 9 or lh != 9:
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")
             log.error(f"Got {lv} vertical and {lh} horizontal lines")
-            exit()
+            log.error(bad_picture_msg)
+            return bad_picture_msg
 
     inters = calc_intersections(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debug:
@@ -67,7 +71,9 @@ def algorithm(filename):
             log.error("There should be 81 intersections",
                       "in 9 rows and 9 columns")
             log.error(f"{inters.shape=}")
-            exit()
+            log.error(bad_picture_msg)
+            return bad_picture_msg
+
     inters = np.array(inters, dtype='float64')
     # scale to input size
     inters[:, :, 0] /= img.bfact

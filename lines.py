@@ -73,9 +73,9 @@ def find_baselines(canny):
     tangle = np.deg2rad(angle)
     minlen = minlen0
     maxgap = 4
-    tvotes = tvotes0 = round(minlen0*1.1)
+    tvotes = round(minlen0*1.1)
     lv = lh = 0
-    hori = vert = oldhori = oldvert = None
+    hori = vert = None
     while (lv < 8 or lh < 8):
         if tvotes <= round(minlen0/1.5) and (minlen <= round(minlen0/1.1)):
             break
@@ -100,46 +100,23 @@ def find_baselines(canny):
             draw.save("hough_lines", canvas)
 
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
-        if oldhori is not None:
-            hori = oldhori
-            vert, _ = split_lines(lines_hough)
-            if vert is None or len(vert) <= 4:
-                minlen -= 20
-                continue
-        elif oldvert is not None:
-            vert = oldvert
-            _, hori = split_lines(lines_hough)
-            lv, lh = check_save("split_lines_oldvert", vert, hori, 0, 0)
-            if hori is None or len(hori) <= 4:
-                minlen -= 20
-                continue
-        else:
-            vert, hori = split_lines(lines_hough)
+        vert, hori = split_lines(lines_hough)
         lv, lh = check_save("split_lines", vert, hori, 0, 0)
         vert, hori = filter_byangle(vert, hori)
         lv, lh = check_save("filter_byangle", vert, hori, lv, lh)
         vert, hori = sort_lines(vert, hori)
         lv, lh = check_save("sort_lines", vert, hori, 0, 0)
-        if vert is not None:
-            bundled = np.zeros(vert.shape, dtype='int32')
-            nlines = lines_bundle(vert, bundled, len(vert), distv)
-            vert = bundled[:nlines]
-        if hori is not None:
-            bundled = np.zeros(hori.shape, dtype='int32')
-            nlines = lines_bundle(hori, bundled, len(hori), disth)
-            hori = bundled[:nlines]
+        if vert is None or hori is None:
+            continue
+        bundled = np.zeros(vert.shape, dtype='int32')
+        nlines = lines_bundle(vert, bundled, len(vert), distv)
+        vert = bundled[:nlines]
+        bundled = np.zeros(hori.shape, dtype='int32')
+        nlines = lines_bundle(hori, bundled, len(hori), disth)
+        hori = bundled[:nlines]
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
         vert, hori = filter_byinter(vert, hori)
         lv, lh = check_save("filter_byinter", vert, hori, lv, lh)
-
-        if lh >= 8 and oldhori is None and oldvert is None:
-            oldhori = hori
-            tvotes = tvotes0
-            maxgap = 5
-        elif lv >= 8 and oldvert is None and oldhori is None:
-            oldvert = vert
-            tvotes = tvotes0
-            maxgap = 5
 
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")

@@ -37,8 +37,6 @@ def detect_objects(img):
             img.boardbox = np.array(obj[:4], dtype='int32')
             break
 
-    # log.info(f"{img.boardbox=}")
-
     pieces = objs[objs[:, 5] != boardnum]
     pieces = np.array(pieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])

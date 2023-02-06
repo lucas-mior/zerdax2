@@ -142,20 +142,10 @@ def split_lines(lines):
         lines, _ = length_theta(lines)
     angles = lines[:, 5]
 
-    def _default(lines, angles):
-        med = abs(np.median(angles))
-        if med < 45*100:
-            vert = None
-            hori = lines[np.abs(angles) < 45*100]
-        else:
-            vert = lines[np.abs(angles) > 45*100]
-            hori = None
-        return vert, hori
-
     try:
         limits = jenks_breaks(angles, n_classes=3)
     except Exception:
-        return _default(lines, angles)
+        return None, None
 
     if len(limits) >= 4:
         a0 = angles[angles <= limits[1]]
@@ -176,11 +166,11 @@ def split_lines(lines):
             try:
                 limits = jenks_breaks(angles, n_classes=2)
             except Exception:
-                return _default(lines, angles)
+                return None, None
             hori = lines[angles <= limits[1]]
             vert = lines[limits[1] < angles]
             if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
-                return _default(lines, angles)
+                return None, None
         else:
             for line in lines:
                 if line[5] < (-45 * 100):
@@ -189,16 +179,16 @@ def split_lines(lines):
             try:
                 limits = jenks_breaks(angles, n_classes=2)
             except Exception:
-                return _default(lines, angles)
+                return None, None
             hori = lines[angles <= limits[1]]
             vert = lines[limits[1] < angles]
             if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
-                return _default(lines, angles)
+                return None, None
     else:
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
         if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
-            return _default(lines, angles)
+            return None, None
 
     if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):
         aux = vert

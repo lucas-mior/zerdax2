@@ -1,6 +1,6 @@
 bwidth = 512
 min_line_length = 280
-margin = 3
+margin = 6
 tileGridSize = 10
 clipLimit = 1.0
 gauss_kernel_shape = (5, 5)

@@ -4,11 +4,12 @@
 
 #include <stdint.h>
 #include <math.h>
+typedef int32_t int32;
 
-int32_t xx;
-int32_t yy;
+int32 xx;
+int32 yy;
 
-static inline double weight(double * restrict f, int32_t x, int32_t y, double h) {
+static inline double weight(double * restrict f, int32 x, int32 y, double h) {
     double Gx, Gy;
     double d, w;
 
@@ -21,19 +22,19 @@ static inline double weight(double * restrict f, int32_t x, int32_t y, double h)
 }
 
 static void weight_array(double * restrict f, double * restrict W, double const h) {
-    for (int32_t x = 1; x < xx-1; x++) {
-        for (int32_t y = 1; y < yy-1; y++) {
+    for (int32 x = 1; x < xx-1; x++) {
+        for (int32 y = 1; y < yy-1; y++) {
             W[yy*x + y] = weight(f, x, y, h);
         }
     }
 }
 
 static void norm_array(double * restrict W, double * restrict N) {
-    for (int32_t x = 1; x < xx - 1; x++) {
-        for (int32_t y = 1; y < yy - 1; y++) {
+    for (int32 x = 1; x < xx - 1; x++) {
+        for (int32 y = 1; y < yy - 1; y++) {
             N[yy*x + y] = 0;
-            for (int32_t i = -1; i <= +1; i++) {
-                for (int32_t j = -1; j <= +1; j++) {
+            for (int32 i = -1; i <= +1; i++) {
+                for (int32 j = -1; j <= +1; j++) {
                     N[yy*x + y] += W[yy*(x+i) + y+j];
                 }
             }
@@ -42,28 +43,28 @@ static void norm_array(double * restrict W, double * restrict N) {
 }
 
 static void convolute(double * restrict f, double * restrict W, double * restrict N, double * restrict g) {
-    for (int32_t x = 1; x < xx - 1; x++) {
-        for (int32_t y = 1; y < yy - 1; y++) {
+    for (int32 x = 1; x < xx - 1; x++) {
+        for (int32 y = 1; y < yy - 1; y++) {
             g[yy*x + y] = 0;
-            for (int32_t i = -1; i <= +1; i++) {
-                for (int32_t j = -1; j <= +1; j++) {
+            for (int32 i = -1; i <= +1; i++) {
+                for (int32 j = -1; j <= +1; j++) {
                     g[yy*x + y] += (W[yy*(x+i) + y+j]*f[yy*(x+i) + y+j]);
                 }
             }
             g[yy*x + y] /= N[yy*x + y];
         }
     }
-    for (int32_t y = 0; y < (yy*xx - 1); y+=yy)
+    for (int32 y = 0; y < (yy*xx - 1); y+=yy)
         g[y] = g[y+1];
-    for (int32_t x = 0; x < yy-1; x++)
+    for (int32 x = 0; x < yy-1; x++)
         g[x] = g[x+yy];
-    for (int32_t y = yy-1; y < (yy*xx - 1); y+=yy)
+    for (int32 y = yy-1; y < (yy*xx - 1); y+=yy)
         g[y] = g[y-1];
-    for (int32_t x = (xx-1)*yy; x < (yy*xx - 1); x++)
+    for (int32 x = (xx-1)*yy; x < (yy*xx - 1); x++)
         g[x] = g[x-yy];
 }
 
-void filter(double * restrict f, int32_t const ww, int32_t const hh, double * restrict W, double * restrict N, double * restrict g, double const h) {
+void filter(double * restrict f, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict g, double const h) {
     xx = ww;
     yy = hh;
     weight_array(f, W, h);

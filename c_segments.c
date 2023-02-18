@@ -5,9 +5,11 @@
 #include <stdbool.h>
 #include <math.h>
 
-static int32_t min(int32_t const distances[4]) {
-    int32_t i = 0;
-    int32_t m = distances[i];
+typedef int32_t int32;
+
+static int32 min(int32 const distances[4]) {
+    int32 i = 0;
+    int32 m = distances[i];
     while (++i < 4) {
         if (distances[i] < m)
             m = distances[i];
@@ -15,20 +17,20 @@ static int32_t min(int32_t const distances[4]) {
     return m;
 }
 
-static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
-    int32_t x0, y0, x1, y1;
-    int32_t xx0, yy0, xx1, yy1;
+static bool segs_intersect(int32 * restrict line0, int32 * restrict line1) {
+    int32 x0, y0, x1, y1;
+    int32 xx0, yy0, xx1, yy1;
     x0 = line0[0]; y0 = line0[1];
     x1 = line0[2]; y1 = line0[3];
     xx0 = line1[0]; yy0 = line1[1];
     xx1 = line1[2]; yy1 = line1[3];
     
-    int32_t dx = x1 - x0;
-    int32_t dy = y1 - y0;
-    int32_t dxx = xx1 - xx0;
-    int32_t dyy = yy1 - yy0;
+    int32 dx = x1 - x0;
+    int32 dy = y1 - y0;
+    int32 dxx = xx1 - xx0;
+    int32 dyy = yy1 - yy0;
 
-    int32_t delta = dxx*dy - dyy*dx;
+    int32 delta = dxx*dy - dyy*dx;
     if (delta == 0)
         return false;
 
@@ -40,13 +42,13 @@ static bool segs_intersect(int32_t * restrict line0, int32_t * restrict line1) {
     return ss && tt;
 }
 
-static int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * restrict line) {
-    int32_t x0, y0, x1, y1;
+static int32 point_seg_dist(int32 const px, int32 const py, int32 * restrict line) {
+    int32 x0, y0, x1, y1;
     x0 = line[0]; y0 = line[1];
     x1 = line[2]; y1 = line[3];
 
-    int32_t dx = x1 - x0;
-    int32_t dy = y1 - y0;
+    int32 dx = x1 - x0;
+    int32 dy = y1 - y0;
     if ((dx == dy) && (dy == 0)) {
         dx = px - x0;
         dy = py - y0;
@@ -69,10 +71,10 @@ static int32_t point_seg_dist(int32_t const px, int32_t const py, int32_t * rest
     return sqrt(dx*dx + dy*dy);
 }
 
-int32_t segments_distance(int32_t * restrict line0, int32_t * restrict line1){
+int32 segments_distance(int32 * restrict line0, int32 * restrict line1){
     if (segs_intersect(line0, line1))
         return 0;
-    int32_t distances[4];
+    int32 distances[4];
     distances[0] = point_seg_dist(line0[0], line0[1], line1);
     distances[1] = point_seg_dist(line0[2], line0[3], line1);
     distances[2] = point_seg_dist(line1[0], line1[1], line0);

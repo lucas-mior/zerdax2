@@ -7,3 +7,5 @@ __pycache__
 *.pt
 *.dll
 yolov5
+*.orig
+*.rej

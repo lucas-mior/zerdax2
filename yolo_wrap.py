@@ -4,10 +4,10 @@ import cv2
 import copy
 import numpy as np
 from jenkspy import jenks_breaks
+from ultralytics import YOLO
 
 import algorithm as algo
 import drawings as draw
-import yolov5.detect as yolo
 import constants as consts
 from misc import SYMBOLS, AMOUNT, NUMBERS
 
@@ -16,29 +16,30 @@ iou = consts.iou_thres
 
 
 def detect_objects(img):
-    objs = yolo.run(weights="best.pt",
-                    source=img.filename,
-                    data="zerdax2.yaml",
-                    nosave=True,  # do not save images/videos
-                    conf_thres=conf,  # confidence threshold
-                    iou_thres=iou,  # NMS IOU threshold
-                    max_det=32,  # maximum detections per image
-                    save_txt=False,  # save results to *.txt
-                    save_conf=True,  # save confidences in --save-txt labels
-                    project='.',  # save results to project/name
-                    name='exp',  # save results to project/name
-                    exist_ok=True,  # existing project/name ok, don't increment
-                    )
+    model = YOLO("zerdax2.pt")
+    objs = model.predict(source=img.filename,
+                         conf=0.25,
+                         iou=0.7,
+                         max_det=32)
+    objs = objs[0].numpy().boxes
 
-    objs = objs[np.argsort(objs[:, 4])][::-1]
+    objs = objs[np.argsort(objs.conf)][::-1]
+
     boardnum = NUMBERS['Board']
     for obj in objs:
-        if obj[5] == boardnum:
-            img.boardbox = np.array(obj[:4], dtype='int32')
+        if obj.cls == boardnum:
+            img.boardbox = np.array(obj.xyxy, dtype='int32')[0]
             break
 
-    pieces = objs[objs[:, 5] != boardnum]
-    pieces = np.array(pieces, dtype='O')
+    pieces = objs[objs.cls != boardnum]
+
+    npieces = []
+    for piece in pieces:
+        x0, y0, x1, y1 = piece.xyxy[0]
+        conf, cls = piece.conf[0], piece.cls[0]
+        npieces.append([x0, y0, x1, y1, conf, cls])
+
+    pieces = np.array(npieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])
     pieces[:, 5] = np.int32(pieces[:, 5])
 

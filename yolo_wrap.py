@@ -40,10 +40,11 @@ def detect_objects(img):
     pieces = objs[objs[:, 5] != boardnum]
     pieces = np.array(pieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])
+    pieces[:, 5] = np.int32(pieces[:, 5])
 
-    # img.pieces = determine_colors(pieces, img.BGR)
+    img.pieces = determine_colors(pieces, img.BGR)
     img.pieces = pieces
-    img.pieces = img.pieces[np.argsort(img.pieces[:, 0])]
+    img.pieces = img.pieces[np.argsort(img.pieces[4])]
     img.pieces = process_pieces(img.pieces)
 
     if algo.debug:
@@ -92,5 +93,5 @@ if __name__ == "__main__":
         img = SimpleNamespace(filename=filename)
         img.BGR = cv2.imread(filename)
         img = detect_objects(img)
-        canvas = draw.boxes(img.pieces, img.BGR)
-        draw.save("yolo", canvas)
+        canvas = draw.boxes(img.BGR, img.pieces)
+        draw.save("yolo", canvas, title="demo.png")

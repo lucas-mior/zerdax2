@@ -6,8 +6,8 @@
 #include <math.h>
 typedef int32_t int32;
 
-int32 xx;
-int32 yy;
+static int32 xx;
+static int32 yy;
 
 static inline double weight(double * restrict f, int32 x, int32 y, double h) {
     double Gx, Gy;

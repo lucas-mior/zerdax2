@@ -8,11 +8,12 @@ from misc import COLORS, SYMBOLS
 import lines as li
 
 
-def save(name, image):
+def save(name, image, title=None):
     if not hasattr(save, "i"):
         save.i = 0
     save.i += 1
-    title = f"{algo.img.basename}_{save.i:04d}_{name}.png"
+    if title is None:
+        title = f"{algo.img.basename}_{save.i:04d}_{name}.png"
     log.info(f"saving {title}...")
     cv2.imwrite(title, image)
     return

@@ -5,4 +5,5 @@
 #include <stdbool.h>
 #include <math.h>
 
-int32_t segments_distance(int32_t * const restrict line0, int32_t * const restrict line1);
+typedef int32_t int32;
+int32 segments_distance(int32 * const restrict line0, int32 * const restrict line1);

@@ -17,12 +17,12 @@ def parse_args(args):
     }
     parser = argparse.ArgumentParser()
     parser.add_argument('filenames', nargs='*')
-    parser.add_argument('--loglevel', dest='level',
+    parser.add_argument('-v', dest='verbose',
                         default='error', choices=loglevels.keys(),
                         help='verbosity level')
     args = parser.parse_args(args)
 
-    level = loglevels[args.level]
+    level = loglevels[args.verbose]
     return args.filenames, level
 
 

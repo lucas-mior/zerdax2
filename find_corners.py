@@ -3,22 +3,19 @@ import numpy as np
 
 import auxiliar as aux
 import drawings as draw
-import lffilter as lf
-import lines as li
-
-from bundle_lines import bundle_lines
 
 WLEN = 640
 
 
 def find_corners(img):
-    img = create_cannys(img)
-    vert, hori = magic_lines(img)
-    inters = aux.calc_intersections(img.gray3ch, vert, hori)
-    canvas = draw.intersections(img.gray3ch, inters)
-    aux.save(img, "intersections", canvas)
+    # img = create_cannys(img)
+    # vert, hori = magic_lines(img)
+    # inters = aux.calc_intersections(img.gray3ch, vert, hori)
+    # canvas = draw.intersections(img.gray3ch, inters)
+    # aux.save(img, "intersections", canvas)
+    inters = None
 
-    img.corners = calc_corners(img, inters)
+    # img.corners = calc_corners(img, inters)
 
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)
@@ -42,91 +39,6 @@ def find_corners(img):
 
     img.squares = np.array(np.round(squares), dtype='int32')
     return img
-
-
-def create_cannys(img):
-    print("finding edges for gray, S, V images...")
-    cannyG = aux.find_edges(img, img.G, lowpass=lf.ffilter)
-    cannyV = aux.find_edges(img, img.V, lowpass=lf.ffilter)
-    # aux.save(img, "cannyG", cannyG)
-    # aux.save(img, "cannyV", cannyV)
-    img.canny = cv2.bitwise_or(cannyG, cannyV)
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_DILATE, kernel)
-    # aux.save(img, "canny_dilate", img.canny)
-    img.canny = cv2.morphologyEx(img.canny, cv2.MORPH_CLOSE, kernel)
-    # aux.save(img, "canny_closed", img.canny)
-    return img
-
-
-def magic_lines(img):
-    print("finding all lines of board...")
-
-    minlen0 = round((img.bwidth + img.bheigth) * 0.3)
-    maxgap = round(minlen0 / 8)
-    tvotes = round(minlen0 / 1.2)
-    angle = 0.5  # degrees
-    tangle = np.deg2rad(angle)  # radians
-
-    gotmin = False
-    minlen = 0
-    for minlen in range(minlen0, round(minlen0 / 1.6), -16):
-        tvotes = round(minlen / 1.2)
-        print(f"trying @{angle}º, {tvotes}, {minlen}, {maxgap}")
-        lines = cv2.HoughLinesP(img.canny, 1,
-                                tangle, tvotes, None, minlen, maxgap)
-        lines = lines[:, 0, :]
-        lines = bundle_lines(lines)
-        if lines is not None and len(lines) >= 12:
-            gotmin = True
-            break
-    if not gotmin:
-        print("magic_lines() failed @ {angle}º, {tvotes}, {minlen}, {maxgap}")
-        # aux.save(img, "lastcanny", img.canny)
-        canvas = draw.lines(img.gray3ch, lines)
-        exit(1)
-
-    canvas = draw.lines(img.gray3ch, lines)
-    # aux.save(img, "hough_magic000", canvas)
-
-    lines, _ = aux.radius_theta(lines)
-    minlen0 = minlen = min(np.mean(lines[:, 4]), 300)
-    maxgap = round(minlen0 / 4)
-    tvotes = round(minlen0 * 1)
-    print(f"{minlen=}")
-    ll = lv = lh = 0
-    while (lv < 9 or lh < 9) and tvotes > (minlen0 / 1.6):
-        minlen = max(minlen - 5, minlen0 / 1.2)
-        tvotes -= 10
-        lines = cv2.HoughLinesP(img.canny, 1,
-                                tangle, tvotes, None, minlen, maxgap)
-        if (ll := len(lines)) < 16:
-            print(f"{ll} @ {angle}, {tvotes}, {minlen}, {maxgap}")
-            continue
-        lines = lines[:, 0, :]
-        lines = bundle_lines(lines)
-        lines, _ = aux.radius_theta(lines)
-        vert, hori = li.split_lines(lines)
-        vert, hori = li.filter_byangle(vert, hori)
-        vert, hori = li.sort_lines(vert, hori)
-        lv, lh = len(vert), len(hori)
-        ll = lv + lh
-        print(f"{ll} # [{lv}][{lh}] @",
-              f"{angle}º, {tvotes}, {minlen}, {maxgap}")
-
-    vert, hori, extras = li.add_outer_wrap(img, vert, hori)
-    # vert, hori = li.add_middle(vert, hori)
-    vert, hori = aux.radius_theta(vert, hori)
-    vert, hori = li.sort_lines(vert, hori)
-    vert, hori = li.remove_extras2(vert, hori, img.bwidth, img.bheigth)
-    # vert, hori = li.add_last_outer(vert, hori, medv, medh)
-    if True or len(vert) != 9 or len(hori) != 9:
-        aux.save(img, "len(vert)!=9 or len(hori)!=9", img.canny)
-
-    canvas = draw.lines(img.gray3ch, vert, hori, extras)
-    aux.save(img, "hough_magic", canvas)
-    return vert, hori
 
 
 def perspective_transform(img):

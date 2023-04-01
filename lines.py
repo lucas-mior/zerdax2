@@ -26,6 +26,10 @@ def find_lines(canny):
     if lv == 0 or lh == 0:
         return None, None
 
+    inters = calc_intersections(vert, hori)
+    corners = calc_corners(inters)
+    print(corners)
+
     vert = fix_lines(vert, 0, ww, hh)
     hori = fix_lines(hori, 1, ww, hh)
     vert, hori = fix_length_byinter(ww, hh, vert, hori)
@@ -34,6 +38,28 @@ def find_lines(canny):
     hori = fix_lines(hori, 1, ww, hh)
 
     return vert, hori
+
+
+def calc_corners(inters):
+    inter = np.copy(inters)
+    print("calculating 4 corners of board...")
+    inter = inter.reshape((-1, 2))
+    psum = np.zeros((inter.shape[0], 3), dtype='int32')
+    psub = np.zeros((inter.shape[0], 3), dtype='int32')
+
+    psum[:, 0] = inter[:, 0]
+    psum[:, 1] = inter[:, 1]
+    psum[:, 2] = inter[:, 0] + inter[:, 1]
+    psub[:, 0] = inter[:, 0]
+    psub[:, 1] = inter[:, 1]
+    psub[:, 2] = inter[:, 0] - inter[:, 1]
+
+    BR = psum[np.argmax(psum[:, 2])][0:2]
+    TR = psub[np.argmax(psub[:, 2])][0:2]
+    BL = psub[np.argmin(psub[:, 2])][0:2]
+    TL = psum[np.argmin(psum[:, 2])][0:2]
+
+    return np.array([BR, BL, TR, TL], dtype='int32')
 
 
 def fix_lines(lines, kind, ww, hh):

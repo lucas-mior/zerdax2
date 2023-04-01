@@ -129,33 +129,6 @@ def magic_lines(img):
     return vert, hori
 
 
-def calc_corners(img, inters):
-    inter = np.copy(inters)
-    print("calculating 4 corners of board...")
-    inter = inter.reshape((-1, 2))
-    psum = np.zeros((inter.shape[0], 3), dtype='int32')
-    psub = np.zeros((inter.shape[0], 3), dtype='int32')
-
-    psum[:, 0] = inter[:, 0]
-    psum[:, 1] = inter[:, 1]
-    psum[:, 2] = inter[:, 0] + inter[:, 1]
-    psub[:, 0] = inter[:, 0]
-    psub[:, 1] = inter[:, 1]
-    psub[:, 2] = inter[:, 0] - inter[:, 1]
-
-    BR = psum[np.argmax(psum[:, 2])][0:2]
-    TR = psub[np.argmax(psub[:, 2])][0:2]
-    BL = psub[np.argmin(psub[:, 2])][0:2]
-    TL = psum[np.argmin(psum[:, 2])][0:2]
-
-    BR, BL, TR, TL = broad_corners(img, BR, BL, TR, TL)
-
-    canvas = draw.corners(img.gray3ch, BR, BL, TR, TL)
-    # aux.save(img, "corners", canvas)
-
-    return np.array([BR, BL, TR, TL], dtype='int32')
-
-
 def perspective_transform(img):
     print("transforming perspective...")
     BR = img.corners[0]
@@ -182,16 +155,3 @@ def perspective_transform(img):
     # aux.save(img, "warpclaheV", img.wv)
 
     return img
-
-
-def broad_corners(img, BR, BL, TR, TL):
-    print("adding margin for corners...")
-    BR[0] = min(img.bwidth-1,  BR[0]+8)
-    BR[1] = min(img.bheigth-1, BR[1]+8)
-    BL[0] = max(0,             BL[0]-8)
-    BL[1] = min(img.bheigth-1, BL[1]+8)
-    TR[0] = min(img.bwidth-1,  TR[0]+8)
-    TR[1] = max(0,             TR[1]-8)
-    TL[0] = max(0,             TL[0]-8)
-    TL[1] = max(0,             TL[1]-8)
-    return BR, BL, TR, TL

@@ -12,6 +12,7 @@ from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
 canny3ch = None
+WLEN = 512
 
 
 def find_lines(canny):
@@ -746,3 +747,153 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
     x = round(det([d, xdiff]) / div)
     y = round(det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')
+
+
+def find_corners(img):
+    # img = create_cannys(img)
+    # vert, hori = magic_lines(img)
+    # inters = aux.calc_intersections(img.gray3ch, vert, hori)
+    # canvas = draw.intersections(img.gray3ch, inters)
+    # aux.save(img, "intersections", canvas)
+    inters = None
+
+    # img.corners = calc_corners(img, inters)
+
+    intersq = inters.reshape(9, 9, 1, 2)
+    intersq = np.flip(intersq, axis=1)
+    squares = np.zeros((8, 8, 4, 2), dtype='int32')
+    for i in range(0, 8):
+        for j in range(0, 8):
+            squares[i, j, 0] = intersq[i, j]
+            squares[i, j, 1] = intersq[i+1, j]
+            squares[i, j, 2] = intersq[i+1, j+1]
+            squares[i, j, 3] = intersq[i, j+1]
+
+    canvas = draw.squares(img.board, squares)
+    draw.save(img, canvas, "A1E4C5H8")
+    squares = np.float32(squares)
+    # scale to input size
+    squares[:, :, :, 0] /= img.bfact
+    squares[:, :, :, 1] /= img.bfact
+    # position board bounding box
+    squares[:, :, :, 0] += img.x0
+    squares[:, :, :, 1] += img.y0
+
+    img.squares = np.array(np.round(squares), dtype='int32')
+    return img
+
+
+def perspective_transform(img):
+    print("transforming perspective...")
+    BR = img.corners[0]
+    BL = img.corners[1]
+    TR = img.corners[2]
+    TL = img.corners[3]
+    orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
+                            (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
+
+    width = WLEN
+    height = WLEN
+    img.wwidth = width
+    img.wheigth = height
+
+    newshape = np.array([[0, 0], [width-1, 0],
+                        [width-1, height-1], [0, height-1]], dtype="float32")
+    print("creating transform matrix...")
+    img.warpMatrix = cv2.getPerspectiveTransform(orig_points, newshape)
+    _, img.warpInvMatrix = cv2.invert(img.warpMatrix)
+    print("warping image...")
+    img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
+    img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
+    # aux.save(img, "warpclaheG", img.wg)
+    # aux.save(img, "warpclaheV", img.wv)
+
+    return img
+
+
+def find_squares(img):
+    print("generating 3 channel gray warp image for drawings...")
+    img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)
+
+    inter = calc_intersections(vert, hori)
+    inter = inter.reshape((-1, 2))
+    canvas = draw.intersections(img.warp3ch, [inter])
+    draw.save(img, canvas, "intersections")
+    if len(inter) != 81:
+        print("There should be exacly 81 intersections")
+        exit(1)
+    squares = calc_squares(img, inter)
+
+    print("transforming squares corners to original coordinate system...")
+    print(f"{squares=}")
+    print(f"{squares.shape=}")
+    sqback = np.zeros(squares.shape, dtype='float32')
+    print(f"{sqback=}")
+    print(f"{sqback.shape=}")
+    for i in range(0, 8):
+        sqback[i] = cv2.perspectiveTransform(squares[i], img.warpInvMatrix)
+    squares = np.round(sqback)
+    squares = np.array(sqback, dtype='int32')
+
+    canvas = draw.squares(img.board, squares)
+    draw.save(img, canvas, "A1E4C5H8")
+
+    # scale to input size
+    sqback[:, :, :, 0] /= img.bfact
+    sqback[:, :, :, 1] /= img.bfact
+    # position board bounding box
+    sqback[:, :, :, 0] += img.x0
+    sqback[:, :, :, 1] += img.y0
+
+    img.squares = np.array(np.round(sqback), dtype='int32')
+    canvas = draw.squares(img.BGR, img.squares)
+    # aux.save(img, "A1E4C5H8", canvas)
+
+    return img
+
+
+def filter_90(lines):
+    rem = np.zeros(lines.shape[0], dtype='uint8')
+
+    for i, t in enumerate(lines[:, 5]):
+        if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
+            rem[i] = 1
+        else:
+            rem[i] = 0
+
+    return lines[rem == 0]
+
+
+def calc_squares(img, inter):
+    print("calculating squares corners...")
+    inter = inter[np.argsort(inter[:, 0])]
+    intersq = np.zeros((9, 9, 2), dtype='int32')
+    interA = inter[0:9]   # A
+    interB = inter[9:18]   # B
+    interC = inter[18:27]  # C
+    interD = inter[27:36]  # D
+    interE = inter[36:45]  # E
+    interF = inter[45:54]  # F
+    interG = inter[54:63]  # G
+    interH = inter[63:72]  # H
+    interZ = inter[72:81]  # right
+
+    intersq[0, :] = interA[np.argsort(interA[:, 1])[::-1]]  # A
+    intersq[1, :] = interB[np.argsort(interB[:, 1])[::-1]]  # B
+    intersq[2, :] = interC[np.argsort(interC[:, 1])[::-1]]  # C
+    intersq[3, :] = interD[np.argsort(interD[:, 1])[::-1]]  # D
+    intersq[4, :] = interE[np.argsort(interE[:, 1])[::-1]]  # E
+    intersq[5, :] = interF[np.argsort(interF[:, 1])[::-1]]  # F
+    intersq[6, :] = interG[np.argsort(interG[:, 1])[::-1]]  # G
+    intersq[7, :] = interH[np.argsort(interH[:, 1])[::-1]]  # H
+    intersq[8, :] = interZ[np.argsort(interZ[:, 1])[::-1]]  # right
+
+    squares = np.zeros((8, 8, 4, 2), dtype='int32')
+    for i in range(0, 8):
+        for j in range(0, 8):
+            squares[i, j, 0] = intersq[i, j]
+            squares[i, j, 1] = intersq[i+1, j]
+            squares[i, j, 2] = intersq[i+1, j+1]
+            squares[i, j, 3] = intersq[i, j+1]
+
+    return np.array(squares, dtype='float32')

@@ -10,7 +10,7 @@ if uname == "Windows":
 elif uname == "Linux":
     library = "./libzerdax.so"
 else:
-    print("Unsuported operating system")
+    print(f"Unsuported operating system: {uname}")
     exit(1)
 lib = ct.CDLL(library)
 

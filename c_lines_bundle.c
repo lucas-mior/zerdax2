@@ -31,7 +31,7 @@ static Group *last = NULL;
 static void *emalloc(size_t size) {
     void *p;
     if (!(p = malloc(size))) {
-        fprintf(stderr, "Failed to allocate memory");
+        fprintf(stderr, "Failed to allocate %zu bytes.", size);
         exit(1);
     }
     return p;

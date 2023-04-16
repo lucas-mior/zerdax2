@@ -12,8 +12,6 @@
 #define I_ANGLE 5
 #define I_LENGTH 4
 
-typedef int32_t int32;
-
 static const int32 min_angle = 15 * 100;
 static const size_t line_size = LINE_FIELDS*sizeof(int32);
 static int32 min_dist;
@@ -28,10 +26,20 @@ typedef struct Group {
 static Group *first = NULL;
 static Group *last = NULL;
 
-static void *emalloc(size_t size) {
+void *ealloc(void *old, size_t size) {
     void *p;
-    if (!(p = malloc(size))) {
-        fprintf(stderr, "Failed to allocate %zu bytes.", size);
+    if ((p = realloc(old, size)) == NULL) {
+        fprintf(stderr, "Failed to allocate %zu bytes.\n", size);
+        exit(1);
+    }
+    return p;
+}
+
+void *ecalloc(size_t nmemb, size_t size) {
+    void *p;
+    if ((p = calloc(nmemb, size)) == NULL) {
+        fprintf(stderr, "Failed to allocate %zu members of %zu bytes each.\n", 
+                        nmemb, size);
         exit(1);
     }
     return p;
@@ -65,7 +73,7 @@ static void append(Group *group, int32 line[LINE_FIELDS]) {
 
 static void groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
-    group->next = emalloc(sizeof(Group));
+    group->next = ealloc(NULL, sizeof(Group));
     group = group->next;
     group->next = NULL;
     group->len = 0;
@@ -99,7 +107,7 @@ static bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
 
 int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 mdist) {
     min_dist = mdist;
-    Group *group = emalloc(sizeof(Group));
+    Group *group = ealloc(NULL, sizeof(Group));
     first = last = group;
     first->next = NULL;
     first->len = 0;

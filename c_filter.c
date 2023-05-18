@@ -43,7 +43,8 @@ static void norm_array(double * restrict W, double * restrict N) {
     }
 }
 
-static void convolute(double * restrict input, double * restrict W, double * restrict N, double * restrict output) {
+static void convolute(double * restrict input, double * restrict W, 
+                      double * restrict N, double * restrict output) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             output[yy*x + y] = 0;
@@ -65,7 +66,9 @@ static void convolute(double * restrict input, double * restrict W, double * res
         output[x] = output[x-yy];
 }
 
-void filter(double * restrict input, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict output, double const h0) {
+void filter(double * restrict input, int32 const ww, int32 const hh, 
+            double * restrict W, double * restrict N, 
+            double * restrict output, double const h0) {
     xx = ww;
     yy = hh;
     h = h0;

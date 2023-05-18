@@ -18,9 +18,12 @@ iou = consts.iou_thres
 def detect_objects(img):
     model = YOLO("zerdax2.pt")
     objs = model.predict(source=img.filename,
-                         conf=0.25,
+                         conf=0.01,
                          iou=0.7,
                          max_det=32)
+    print(f"type(objs) = ", type(objs));
+    print(objs)
+    exit(0);
     objs = objs[0].numpy().boxes
 
     objs = objs[np.argsort(objs.conf)][::-1]

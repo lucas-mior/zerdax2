@@ -27,6 +27,7 @@ def find_lines(canny):
     if lv == 0 or lh == 0:
         return None, None
 
+    vert, hori = expand_borders(ww, hh, vert, hori)
     inters = calc_intersections(vert, hori)
     corners = calc_corners(inters)
     print(corners)
@@ -38,6 +39,9 @@ def find_lines(canny):
     vert = fix_lines(vert, 0, ww, hh)
     hori = fix_lines(hori, 1, ww, hh)
 
+    return vert, hori
+
+def expand_borders(ww, hh, vert, hori):
     return vert, hori
 
 
@@ -294,6 +298,7 @@ def sort_lines(vert, hori=None, k=0):
 def fix_length_byinter(ww, hh, vert, hori=None):
     inters = calc_extern_intersections(vert, hori)
     if inters is None:
+        log.debug("fix_length by inter did not find any intersection")
         return vert, hori
 
     def _shorten(lines):
@@ -805,8 +810,8 @@ def perspective_transform(img):
     print("warping image...")
     img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
     img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    # aux.save(img, "warpclaheG", img.wg)
-    # aux.save(img, "warpclaheV", img.wv)
+    draw.save("warpclaheG", img.wg)
+    draw.save("warpclaheV", img.wv)
 
     return img
 

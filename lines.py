@@ -15,7 +15,7 @@ canny3ch = None
 WLEN = 512
 
 
-def find_lines(canny):
+def find_corners(canny):
     log.info("finding all lines of board...")
     ww = canny.shape[1]
     hh = canny.shape[0]
@@ -27,28 +27,12 @@ def find_lines(canny):
     if lv == 0 or lh == 0:
         return None, None
 
-    vert, hori = expand_borders(ww, hh, vert, hori)
+    vert = add_outer(vert, lv, 0, ww, hh)
+    hori = add_outer(hori, lh, 1, ww, hh)
     inters = calc_intersections(vert, hori)
     corners = calc_corners(inters)
-    print(corners)
-
-    vert = fix_lines(vert, 0, ww, hh)
-    hori = fix_lines(hori, 1, ww, hh)
-    vert, hori = fix_length_byinter(ww, hh, vert, hori)
-    lv, lh = check_save("fix_length_byinter1", vert, hori, -1, -1)
-    vert = fix_lines(vert, 0, ww, hh)
-    hori = fix_lines(hori, 1, ww, hh)
-
-    return vert, hori
-
-def expand_borders(ww, hh, vert, hori):
-
-    def _expand(lines, dim):
-        return lines;
-
-    vert = _expand(vert, ww)
-    hori = _expand(hori, hh)
-    return vert, hori
+    print(f"{corners=}")
+    return corners
 
 
 def calc_corners(inters):

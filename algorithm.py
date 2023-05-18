@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from squares import calc_squares
 from lines import find_lines, calc_intersections
+from perspective import perspective_transform
 import yolo_wrap as yolo
 import fen as fen
 from c_load import lfilter
@@ -43,6 +44,9 @@ def algorithm(filename):
     canny = create_cannys(img)
     if debug:
         draw.save("edges", canny)
+
+    img.corners = find_corners(canny)
+    img = perspective_transform(img)
 
     vert, hori = find_lines(canny)
     if vert is None or hori is None:

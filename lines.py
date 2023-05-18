@@ -42,6 +42,12 @@ def find_lines(canny):
     return vert, hori
 
 def expand_borders(ww, hh, vert, hori):
+
+    def _expand(lines, dim):
+        return lines;
+
+    vert = _expand(vert, ww)
+    hori = _expand(hori, hh)
     return vert, hori
 
 

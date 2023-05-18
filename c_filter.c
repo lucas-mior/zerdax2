@@ -8,8 +8,9 @@ typedef int32_t int32;
 
 static int32 xx;
 static int32 yy;
+static double h;
 
-static inline double weight(double * restrict input, int32 x, int32 y, double const h) {
+static inline double weight(double * restrict input, int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 
@@ -21,10 +22,10 @@ static inline double weight(double * restrict input, int32 x, int32 y, double co
     return w;
 }
 
-static void weight_array(double * restrict input, double * restrict W, double const h) {
+static void weight_array(double * restrict input, double * restrict W) {
     for (int32 x = 1; x < xx-1; x++) {
         for (int32 y = 1; y < yy-1; y++) {
-            W[yy*x + y] = weight(input, x, y, h);
+            W[yy*x + y] = weight(input, x, y);
         }
     }
 }
@@ -64,10 +65,11 @@ static void convolute(double * restrict input, double * restrict W, double * res
         output[x] = output[x-yy];
 }
 
-void filter(double * restrict input, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict output, double const h) {
+void filter(double * restrict input, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict output, double const h0) {
     xx = ww;
     yy = hh;
-    weight_array(input, W, h);
+    h = h0;
+    weight_array(input, W);
     norm_array(W, N);
     convolute(input, W, N, output);
 }

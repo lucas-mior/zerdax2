@@ -9,22 +9,22 @@ typedef int32_t int32;
 static int32 xx;
 static int32 yy;
 
-static inline double weight(double * restrict f, int32 x, int32 y, double const h) {
+static inline double weight(double * restrict input, int32 x, int32 y, double const h) {
     double Gx, Gy;
     double d, w;
 
-    Gx = (f[yy*(x+1) + y] - f[yy*(x-1) + y]) / 2;
-    Gy = (f[yy*x + y+1] - f[yy*x + y-1]) / 2;
+    Gx = (input[yy*(x+1) + y] - input[yy*(x-1) + y]) / 2;
+    Gy = (input[yy*x + y+1] - input[yy*x + y-1]) / 2;
 
     d = sqrt(Gx*Gx + Gy*Gy);
     w = exp(-sqrt(d)/h);
     return w;
 }
 
-static void weight_array(double * restrict f, double * restrict W, double const h) {
+static void weight_array(double * restrict input, double * restrict W, double const h) {
     for (int32 x = 1; x < xx-1; x++) {
         for (int32 y = 1; y < yy-1; y++) {
-            W[yy*x + y] = weight(f, x, y, h);
+            W[yy*x + y] = weight(input, x, y, h);
         }
     }
 }
@@ -42,32 +42,32 @@ static void norm_array(double * restrict W, double * restrict N) {
     }
 }
 
-static void convolute(double * restrict f, double * restrict W, double * restrict N, double * restrict g) {
+static void convolute(double * restrict input, double * restrict W, double * restrict N, double * restrict output) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
-            g[yy*x + y] = 0;
+            output[yy*x + y] = 0;
             for (int32 i = -1; i <= +1; i++) {
                 for (int32 j = -1; j <= +1; j++) {
-                    g[yy*x + y] += (W[yy*(x+i) + y+j]*f[yy*(x+i) + y+j]);
+                    output[yy*x + y] += (W[yy*(x+i) + y+j]*input[yy*(x+i) + y+j]);
                 }
             }
-            g[yy*x + y] /= N[yy*x + y];
+            output[yy*x + y] /= N[yy*x + y];
         }
     }
     for (int32 y = 0; y < (yy*xx - 1); y+=yy)
-        g[y] = g[y+1];
+        output[y] = output[y+1];
     for (int32 x = 0; x < yy-1; x++)
-        g[x] = g[x+yy];
+        output[x] = output[x+yy];
     for (int32 y = yy-1; y < (yy*xx - 1); y+=yy)
-        g[y] = g[y-1];
+        output[y] = output[y-1];
     for (int32 x = (xx-1)*yy; x < (yy*xx - 1); x++)
-        g[x] = g[x-yy];
+        output[x] = output[x-yy];
 }
 
-void filter(double * restrict f, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict g, double const h) {
+void filter(double * restrict input, int32 const ww, int32 const hh, double * restrict W, double * restrict N, double * restrict output, double const h) {
     xx = ww;
     yy = hh;
-    weight_array(f, W, h);
+    weight_array(input, W, h);
     norm_array(W, N);
-    convolute(f, W, N, g);
+    convolute(input, W, N, output);
 }

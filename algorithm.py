@@ -47,17 +47,18 @@ def algorithm(filename):
 
     img.corners = lines.find_corners(canny)
     cannywarp, warp_matrix, warp_invmatrix, width, height = perspective_transform(canny, img.corners)
+    warp3ch = cv2.cvtColor(cannywarp, cv2.COLOR_GRAY2BGR)
 
-    vert, hori = lines.find_wlines(canny)
+    vert, hori = lines.find_wlines(cannywarp)
     if vert is None or hori is None:
         log.error(bad_pic_msg)
         return bad_pic_msg
 
-    canvas = draw.lines(img.gray3ch, vert, hori)
+    canvas = draw.lines(warp3ch, vert, hori)
     draw.save("find_lines", canvas)
     lv, lh = len(vert), len(hori)
     if lv != 9 or lh != 9 or debug:
-        canvas = draw.lines(img.gray3ch, vert, hori)
+        canvas = draw.lines(warp3ch, vert, hori)
         draw.save("find_lines", canvas)
         if lv != 9 or lh != 9:
             log.error("There should be 9 vertical lines and",

@@ -9,7 +9,7 @@ typedef int32_t int32;
 static int32 xx;
 static int32 yy;
 
-static inline double weight(double * restrict f, int32 x, int32 y, double h) {
+static inline double weight(double * restrict f, int32 x, int32 y, double const h) {
     double Gx, Gy;
     double d, w;
 

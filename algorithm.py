@@ -4,9 +4,9 @@ import numpy as np
 import logging as log
 from types import SimpleNamespace
 
-from lines import find_lines, calc_intersections
-from squares import calc_squares
-from perspective import perspective_transform
+import squares as sq
+import lines as lines
+import perspective as perspective
 import yolo_wrap as yolo
 import fen as fen
 from c_load import lfilter
@@ -45,11 +45,10 @@ def algorithm(filename):
     if debug:
         draw.save("edges", canny)
 
-    img.corners = find_corners(canny)
-    
+    img.corners = lines.find_corners(canny)
     cannywarp, warp_matrix, warp_invmatrix, width, height = perspective_transform(canny, img.corners)
 
-    vert, hori = find_lines(canny)
+    vert, hori = lines.find_wlines(canny)
     if vert is None or hori is None:
         log.error(bad_pic_msg)
         return bad_pic_msg

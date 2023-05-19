@@ -51,6 +51,11 @@ def lines(image, vert, hori=None, annotate_number=False):
     canvas = np.zeros(image.shape, dtype='uint8')
 
     def _draw(canvas, lines, color, kind=-1, annotate_number=True):
+        if kind != -1:
+            legend = "vertical" if kind == 0 else "horizontal"
+            cv2.putText(canvas, legend, (20, 20+30*kind),
+                        cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
+                        color=color, thickness=2)
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
             theta = round(li.theta(line))

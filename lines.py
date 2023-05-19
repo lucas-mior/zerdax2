@@ -364,10 +364,10 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     def _add_outer(lines, where):
         dd = ww if k == 0 else hh
         if where == 0:
-            ee = 0
+            ref = 0
             other = 1
         elif where == -1:
-            ee = dd
+            ref = dd
             other = -2
 
         line0 = lines[where]
@@ -375,7 +375,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
 
         x = (2*line0[0] - line1[0], 2*line0[2] - line1[2])
         y = (2*line0[1] - line1[1], 2*line0[3] - line1[3])
-        if abs(line0[k] - ee) > tol and abs(line0[k+2] - ee) > tol:
+        if abs(line0[k] - ref) > tol and abs(line0[k+2] - ref) > tol:
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')

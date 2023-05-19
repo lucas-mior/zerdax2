@@ -11,9 +11,9 @@ import intersections as intersections
 import perspective as perspective
 import yolo_wrap as yolo
 import fen as fen
-from c_load import lfilter
 import constants as consts
 import drawings as draw
+from c_load import lfilter
 
 img = None
 debug = False

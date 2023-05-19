@@ -13,7 +13,7 @@ def find(canny):
     lv, lh = lines.check_save("fix_length_byinter0", vert, hori, -1, -1)
 
     if lv == 0 or lh == 0:
-        return None, None
+        return None
 
     vert, lv = lines.add_outer(vert, lv, 0, canny.shape)
     hori, lh = lines.add_outer(hori, lh, 1, canny.shape)

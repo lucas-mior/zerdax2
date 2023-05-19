@@ -52,10 +52,11 @@ def algorithm(filename):
     canny = create_cannys(img)
 
     board_corners = corners.find(canny)
-    log.info(f"Corners found: {board_corners}")
-    if algo.debug:
+    if (failed := board_corners is None) or algo.debug:
         canvas = draw.corners(img.board, board_corners)
         draw.save("corners", canvas)
+    log.info(f"Corners found: {board_corners}")
+
     canny_warped, warp_inverse_matrix = perspective.warp(canny, board_corners)
     warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 

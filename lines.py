@@ -15,25 +15,6 @@ canny3ch = None
 WLEN = 512
 
 
-def find_corners(canny):
-    log.info("finding all lines of board...")
-    ww = canny.shape[1]
-    hh = canny.shape[0]
-
-    vert, hori = find_baselines(canny)
-    vert, hori = fix_length_byinter(ww, hh, vert, hori)
-    lv, lh = check_save("fix_length_byinter0", vert, hori, -1, -1)
-
-    if lv == 0 or lh == 0:
-        return None, None
-
-    vert, lv = add_outer(vert, lv, 0, ww, hh)
-    hori, lh = add_outer(hori, lh, 1, ww, hh)
-    inters = intersections.calculate_all(vert, hori)
-    corners = calc_corners(inters)
-    return corners
-
-
 def find_wlines(canny):
     ww = canny.shape[1]
     hh = canny.shape[0]
@@ -114,28 +95,6 @@ def find_wlines(canny):
     vert, hori = sort_lines(vert, hori)
     lv, lh = check_save("sort_lines", vert, hori, 0, 0)
     return vert, hori
-
-
-def calc_corners(inters):
-    inter = np.copy(inters)
-    print("calculating 4 corners of board...")
-    inter = inter.reshape((-1, 2))
-    psum = np.zeros((inter.shape[0], 3), dtype='int32')
-    psub = np.zeros((inter.shape[0], 3), dtype='int32')
-
-    psum[:, 0] = inter[:, 0]
-    psum[:, 1] = inter[:, 1]
-    psum[:, 2] = inter[:, 0] + inter[:, 1]
-    psub[:, 0] = inter[:, 0]
-    psub[:, 1] = inter[:, 1]
-    psub[:, 2] = inter[:, 0] - inter[:, 1]
-
-    BR = psum[np.argmax(psum[:, 2])][0:2]
-    TR = psub[np.argmax(psub[:, 2])][0:2]
-    BL = psub[np.argmin(psub[:, 2])][0:2]
-    TL = psum[np.argmin(psum[:, 2])][0:2]
-
-    return np.array([BR, BL, TR, TL], dtype='int32')
 
 
 def fix_lines(lines, kind, ww, hh):
@@ -714,5 +673,4 @@ def filter_90(lines):
             if abs(t) > 4*100:
                 rem[i] = 1
 
-    print("rem: ", rem)
     return lines[rem == 0]

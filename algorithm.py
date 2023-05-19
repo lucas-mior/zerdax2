@@ -5,6 +5,7 @@ import logging as log
 from types import SimpleNamespace
 
 import algorithm as algo
+import corners as corners
 import squares as squares
 import lines as lines
 import intersections as intersections
@@ -53,7 +54,7 @@ def algorithm(filename):
     if algo.debug:
         draw.save("edges", canny)
 
-    img.corners = lines.find_corners(canny)
+    img.corners = corners.find(canny)
     log.info(f"Corners found: {img.corners}")
     if algo.debug:
         canvas = draw.corners(img.board, img.corners)

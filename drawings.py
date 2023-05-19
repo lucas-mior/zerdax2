@@ -52,8 +52,15 @@ def lines(image, vert, hori=None, annotate_number=False):
 
     def _draw(canvas, lines, color, kind=-1, annotate_number=True):
         if kind != -1:
-            legend = "vertical" if kind == 0 else "horizontal"
+            ll = len(lines)
+            legend = f"{ll} vertical" if kind == 0 else f"{ll} horizontal"
             cv2.putText(canvas, legend, (20, 20+30*kind),
+                        cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
+                        color=color, thickness=2)
+        else:
+            ll = len(lines)
+            legend = f"{ll} lines"
+            cv2.putText(canvas, legend, (20, 20),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
                         color=color, thickness=2)
         for i, line in enumerate(lines[:, :4]):

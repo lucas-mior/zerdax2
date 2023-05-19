@@ -590,14 +590,15 @@ def rem_outer(lines, ll, k, image_width, image_height, force=False):
 
 
 def limit_by_dimensions(inters, image_width, image_height):
-    i0 = intersections.calculate_single(inters, image_width, image_height, kind=0)
-    i1 = intersections.calculate_single(inters, image_width, image_height, kind=1)
-    i2 = intersections.calculate_single(inters, image_width, image_height, kind=2)
-    i3 = intersections.calculate_single(inters, image_width, image_height, kind=3)
+    i0 = intersections.calculate_single(inters, image_width, image_height, 0)
+    i1 = intersections.calculate_single(inters, image_width, image_height, 1)
+    i2 = intersections.calculate_single(inters, image_width, image_height, 2)
+    i3 = intersections.calculate_single(inters, image_width, image_height, 3)
     inters = np.array([i0, i1, i2, i3], dtype='int32')
 
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
-                    (inters[:, 0] <= image_width) & (inters[:, 1] <= image_height)]
+                    (inters[:, 0] <= image_width) &
+                    (inters[:, 1] <= image_height)]
     return inters
 
 

@@ -361,7 +361,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     if force:
         tol = 1
 
-    def _add_outer(lines, tol, where, ww, hh):
+    def _add_outer(lines, where):
         dd = ww if k == 0 else hh
         if where == 0:
             ee = 0
@@ -400,9 +400,9 @@ def add_outer(lines, ll, k, ww, hh, force=False):
                     lines = np.insert(lines, 0, new, axis=0)
         return lines
 
-    lines = _add_outer(lines, tol, 0, ww, hh)
+    lines = _add_outer(lines, 0)
     ll, _ = check_save("add_outer0", lines, None, ll, 0)
-    lines = _add_outer(lines, tol, -1, ww, hh)
+    lines = _add_outer(lines, -1)
     ll, _ = check_save("add_outer1", lines, None, ll, 0)
 
     return lines, ll

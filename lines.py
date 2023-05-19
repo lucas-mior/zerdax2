@@ -286,7 +286,8 @@ def filter_byinter(vert, hori=None):
 
     def _filter(lines):
         for i, line in enumerate(lines):
-            inters = intersections.calculate_all(np.array([line]), lines, limit=True)
+            inters = intersections.calculate_all(np.array([line]), lines,
+                                                 limit=True)
             if inters is None or len(inters) == 0:
                 continue
             elif inters.shape[1] >= 4:

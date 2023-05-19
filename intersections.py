@@ -3,8 +3,9 @@ from numpy import linalg
 import logging as log
 import constants as consts
 
+
 def calculate_extern(lines0, lines1=None):
-    log.debug("calculating external intersections between group(s) of lines...")
+    log.debug("calculating external intersections between groups of lines...")
 
     if lines1 is None:
         log.debug("-> calculating all intersections in the same group")

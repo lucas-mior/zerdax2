@@ -6,7 +6,6 @@ import numpy as np
 from jenkspy import jenks_breaks
 from ultralytics import YOLO
 
-import algorithm as algo
 import drawings as draw
 import constants as consts
 from misc import SYMBOLS, AMOUNT, NUMBERS

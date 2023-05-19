@@ -2,9 +2,6 @@ import cv2
 import numpy as np
 import logging as log
 
-import algorithm as algo
-import drawings as draw
-
 
 def calculate(inters):
     intersq = inters.reshape(9, 9, 1, 2)

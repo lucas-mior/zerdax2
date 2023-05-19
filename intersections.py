@@ -4,13 +4,13 @@ import logging as log
 import constants as consts
 
 def calculate_extern(lines0, lines1=None):
-    log.info("calculating external intersections between group(s) of lines...")
+    log.debug("calculating external intersections between group(s) of lines...")
 
     if lines1 is None:
-        log.info("-> calculating all intersections in the same group")
+        log.debug("-> calculating all intersections in the same group")
         lines1 = lines0
     if lines0 is None:
-        log.info("-> line group is empty, returning None.")
+        log.debug("-> line group is empty, returning None.")
         return None
 
     rows = []
@@ -53,9 +53,9 @@ def calculate_extern(lines0, lines1=None):
 
 
 def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
-    log.info("calculating all intersections between group(s) of lines...")
+    log.debug("calculating all intersections between group(s) of lines...")
     if lines1 is None:
-        log.info("-> calculating all intersections in the same group")
+        log.debug("-> calculating all intersections in the same group")
         lines1 = lines0
 
     maxx0 = np.max([lines0[:, 0], lines0[:, 2]])
@@ -102,7 +102,7 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
 
 
 def calculate_single(line0, ww=500, hh=300, kind=0):
-    log.info("calculating intersections between line and boundary line...")
+    log.debug("calculating intersections between line and boundary line...")
     if kind == 0:
         line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:

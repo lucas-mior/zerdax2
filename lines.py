@@ -65,6 +65,7 @@ def find_wlines(canny):
         lv, lh = check_save("sort", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
+
         bundled = np.zeros(vert.shape, dtype='int32')
         nlines = lines_bundle(vert, bundled, len(vert), distv)
         vert = bundled[:nlines]
@@ -141,6 +142,7 @@ def find_baselines(canny):
         lv, lh = check_save("sort", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
+
         bundled = np.zeros(vert.shape, dtype='int32')
         nlines = lines_bundle(vert, bundled, len(vert), distv)
         vert = bundled[:nlines]

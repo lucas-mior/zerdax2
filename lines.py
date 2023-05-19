@@ -283,7 +283,7 @@ def filter_90(lines):
     return lines[remove == 0]
 
 
-def sort(vert, hori=None, k=0):
+def sort(vert, hori=None, kind=0):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
@@ -301,7 +301,7 @@ def sort(vert, hori=None, k=0):
             vert = vert[np.argsort(positions)]
     else:
         if vert is not None:
-            positions = _create(vert, kind=k)
+            positions = _create(vert, kind=kind)
             vert = vert[np.argsort(positions)]
     return vert, hori
 
@@ -352,7 +352,7 @@ def check_save(title, vert, hori, old_lv, old_lh):
     return lv, lh
 
 
-def add_outer(lines, ll, k, image_shape, force=False):
+def add_outer(lines, ll, kind, image_shape, force=False):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
     if force:
@@ -362,7 +362,7 @@ def add_outer(lines, ll, k, image_shape, force=False):
         return lines
 
     def _add_outer(lines, where):
-        limit = image_shape[k-1]
+        limit = image_shape[kind-1]
         if where == 0:
             ref = 0
             other = 1
@@ -375,7 +375,7 @@ def add_outer(lines, ll, k, image_shape, force=False):
 
         x = (2*line0[0] - line1[0], 2*line0[2] - line1[2])
         y = (2*line0[1] - line1[1], 2*line0[3] - line1[3])
-        if abs(line0[k] - ref) > tol and abs(line0[k+2] - ref) > tol:
+        if abs(line0[kind] - ref) > tol and abs(line0[kind+2] - ref) > tol:
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
@@ -388,7 +388,7 @@ def add_outer(lines, ll, k, image_shape, force=False):
                                [inters[1], inters[2]]])
                 lens = [length(le.flatten()) for le in ls]
                 inters = ls[np.argmax(lens)]
-            if inters[0, k] <= limit and inters[1, k] <= limit:
+            if inters[0, kind] <= limit and inters[1, kind] <= limit:
                 x0, y0, x1, y1 = np.ravel(inters)
                 if length((x0, y0, x1, y1)) < (length(line0)*0.8):
                     return lines
@@ -557,16 +557,16 @@ def add_middle(lines, ll):
     return lines, ll
 
 
-def rem_outer(lines, ll, k, image_shape, force=False):
+def rem_outer(lines, ll, kind, image_shape, force=False):
     log.debug("removing extra outer lines...")
     tol = consts.outer_tolerance
-    limit = image_shape[k-1]
+    limit = image_shape[kind-1]
 
-    d00 = abs(lines[1, k] - 0)
-    d01 = abs(lines[1, k+2] - 0)
+    d00 = abs(lines[1, kind] - 0)
+    d01 = abs(lines[1, kind+2] - 0)
     d0 = min(d00, d01)
-    d10 = abs(lines[-2, k] - limit)
-    d11 = abs(lines[-2, k+2] - limit)
+    d10 = abs(lines[-2, kind] - limit)
+    d11 = abs(lines[-2, kind+2] - limit)
     d1 = min(d10, d11)
     if not force:
         if d0 < tol:

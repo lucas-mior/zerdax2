@@ -73,7 +73,7 @@ def algorithm(filename):
 
     inters = lines.calc_intersections(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debug:
-        canvas = draw.points(img.gray3ch, inters)
+        canvas = draw.points(warp3ch, inters)
         draw.save("intersections", canvas)
         if failed:
             log.error("There should be 81 intersections",
@@ -83,6 +83,8 @@ def algorithm(filename):
             return bad_pic_msg
 
     inters = np.array(inters, dtype='float64')
+
+    inters = cv2.perspectiveTransform(inters, warp_invmatrix)
     # scale to input size
     inters[:, :, 0] /= img.bfact
     inters[:, :, 1] /= img.bfact

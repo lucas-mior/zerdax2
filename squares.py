@@ -22,9 +22,9 @@ def calculate(img, inters):
         draw.save("A1E4C5H8", canvas)
 
     log.info("filling squares...")
-    squares, pieces = fill_squares(squares, img.pieces)
+    squares, pieces = fill(squares, img.pieces)
     if len(pieces) > 0:
-        squares, pieces = fill_squares(squares, img.pieces, force=True)
+        squares, pieces = fill(squares, img.pieces, force=True)
     img.squares, changed = check_colors(img.BGR, squares)
 
     if algo.debug and changed:

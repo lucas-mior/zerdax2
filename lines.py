@@ -785,34 +785,6 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
 #     return img
 
 
-def perspective_transform(img):
-    print("transforming perspective...")
-    BR = img.corners[0]
-    BL = img.corners[1]
-    TR = img.corners[2]
-    TL = img.corners[3]
-    orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
-                            (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
-
-    width = WLEN
-    height = WLEN
-    img.wwidth = width
-    img.wheigth = height
-
-    newshape = np.array([[0, 0], [width-1, 0],
-                        [width-1, height-1], [0, height-1]], dtype="float32")
-    print("creating transform matrix...")
-    img.warpMatrix = cv2.getPerspectiveTransform(orig_points, newshape)
-    _, img.warpInvMatrix = cv2.invert(img.warpMatrix)
-    print("warping image...")
-    img.wg = cv2.warpPerspective(img.G, img.warpMatrix, (width, height))
-    img.wv = cv2.warpPerspective(img.V, img.warpMatrix, (width, height))
-    draw.save("warpclaheG", img.wg)
-    draw.save("warpclaheV", img.wv)
-
-    return img
-
-
 def find_squares(img):
     print("generating 3 channel gray warp image for drawings...")
     img.warp3ch = cv2.cvtColor(img.wg, cv2.COLOR_GRAY2BGR)

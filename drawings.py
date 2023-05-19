@@ -24,6 +24,17 @@ def addweighted(image, canvas, w1=0.4, w2=0.6):
     return canvas
 
 
+def corners(image, corners):
+    canvas = np.zeros(image.shape, dtype='uint8')
+
+    for i, c in enumerate(corners):
+        cv2.circle(canvas, c, radius=5,
+                   color=(20+i*40, 0, 100+i*30), thickness=-1)
+
+    canvas = addweighted(image, canvas)
+    return canvas
+
+
 def points(image, inters):
     canvas = np.zeros(image.shape, dtype='uint8')
 

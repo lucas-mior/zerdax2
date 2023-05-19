@@ -15,7 +15,7 @@ canny3ch = None
 WLEN = 512
 
 
-def perspective_transform(canny, corners):
+def transform(canny, corners):
     print("transforming perspective...")
     BR = corners[0]
     BL = corners[1]
@@ -31,7 +31,7 @@ def perspective_transform(canny, corners):
                         [width-1, height-1], [0, height-1]], dtype="float32")
     warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
     _, warp_invmatrix = cv2.invert(warp_matrix)
-    canny_warp = cv2.warpPerspective(canny, img.warp_matrix, (width, height))
-    draw.save("cannywarp", img.wg)
+    canny_warp = cv2.warpPerspective(canny, warp_matrix, (width, height))
+    draw.save("cannywarp", canny_warp)
 
-    return cannywarp, warp_matrix, warp_invmatrix, width, height
+    return canny_warp, warp_matrix, warp_invmatrix, width, height

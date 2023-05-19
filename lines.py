@@ -27,9 +27,10 @@ def find_corners(canny):
     if lv == 0 or lh == 0:
         return None, None
 
-    vert = add_outer(vert, lv, 0, ww, hh)
-    hori = add_outer(hori, lh, 1, ww, hh)
+    vert, lv = add_outer(vert, lv, 0, ww, hh)
+    hori, lh = add_outer(hori, lh, 1, ww, hh)
     inters = calc_intersections(vert, hori)
+    print(f"{inters=}")
     corners = calc_corners(inters)
     print(f"{corners=}")
     return corners
@@ -337,6 +338,9 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     if force:
         tol = 1
 
+    print("add_outer------------")
+    print("type lines:", type(lines))
+
     def _add_outer(lines, tol, where, ww, hh):
         dd = ww if k == 0 else hh
         if where == 0:
@@ -380,6 +384,9 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     ll, _ = check_save("add_outer0", lines, None, ll, 0)
     lines = _add_outer(lines, tol, -1, ww, hh)
     ll, _ = check_save("add_outer1", lines, None, ll, 0)
+
+    print("add)outer return-------------")
+    print("type lines:", type(lines))
     return lines, ll
 
 
@@ -744,38 +751,38 @@ def calc_intersection(line0, ww=500, hh=300, kind=0):
     return np.array((x, y), dtype='int32')
 
 
-def find_corners(img):
-    # img = create_cannys(img)
-    # vert, hori = magic_lines(img)
-    # inters = aux.calc_intersections(img.gray3ch, vert, hori)
-    # canvas = draw.intersections(img.gray3ch, inters)
-    # aux.save(img, "intersections", canvas)
-    inters = None
+# def find_corners(img):
+#     # img = create_cannys(img)
+#     # vert, hori = magic_lines(img)
+#     # inters = aux.calc_intersections(img.gray3ch, vert, hori)
+#     # canvas = draw.intersections(img.gray3ch, inters)
+#     # aux.save(img, "intersections", canvas)
+#     inters = None
 
-    # img.corners = calc_corners(img, inters)
+#     # img.corners = calc_corners(img, inters)
 
-    intersq = inters.reshape(9, 9, 1, 2)
-    intersq = np.flip(intersq, axis=1)
-    squares = np.zeros((8, 8, 4, 2), dtype='int32')
-    for i in range(0, 8):
-        for j in range(0, 8):
-            squares[i, j, 0] = intersq[i, j]
-            squares[i, j, 1] = intersq[i+1, j]
-            squares[i, j, 2] = intersq[i+1, j+1]
-            squares[i, j, 3] = intersq[i, j+1]
+#     intersq = inters.reshape(9, 9, 1, 2)
+#     intersq = np.flip(intersq, axis=1)
+#     squares = np.zeros((8, 8, 4, 2), dtype='int32')
+#     for i in range(0, 8):
+#         for j in range(0, 8):
+#             squares[i, j, 0] = intersq[i, j]
+#             squares[i, j, 1] = intersq[i+1, j]
+#             squares[i, j, 2] = intersq[i+1, j+1]
+#             squares[i, j, 3] = intersq[i, j+1]
 
-    canvas = draw.squares(img.board, squares)
-    draw.save(img, canvas, "A1E4C5H8")
-    squares = np.float32(squares)
-    # scale to input size
-    squares[:, :, :, 0] /= img.bfact
-    squares[:, :, :, 1] /= img.bfact
-    # position board bounding box
-    squares[:, :, :, 0] += img.x0
-    squares[:, :, :, 1] += img.y0
+#     canvas = draw.squares(img.board, squares)
+#     draw.save(img, canvas, "A1E4C5H8")
+#     squares = np.float32(squares)
+#     # scale to input size
+#     squares[:, :, :, 0] /= img.bfact
+#     squares[:, :, :, 1] /= img.bfact
+#     # position board bounding box
+#     squares[:, :, :, 0] += img.x0
+#     squares[:, :, :, 1] += img.y0
 
-    img.squares = np.array(np.round(squares), dtype='int32')
-    return img
+#     img.squares = np.array(np.round(squares), dtype='int32')
+#     return img
 
 
 def perspective_transform(img):

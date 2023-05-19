@@ -46,7 +46,11 @@ def algorithm(filename):
         draw.save("edges", canny)
 
     img.corners = lines.find_corners(canny)
-    cannywarp, warp_matrix, warp_invmatrix, width, height = perspective_transform(canny, img.corners)
+    print(f"corners: {img.corners}")
+    print(f"type: {type(img.corners)}")
+    canvas = draw.corners(img.board, img.corners)
+    draw.save("corners", canvas)
+    cannywarp, warp_matrix, warp_invmatrix, width, height = perspective.transform(canny, img.corners)
     warp3ch = cv2.cvtColor(cannywarp, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_wlines(cannywarp)

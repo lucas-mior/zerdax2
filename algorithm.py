@@ -207,50 +207,52 @@ def find_edges(image, lowpass):
     log.info("filtering image...")
     image = lowpass(image)
     if lowpass == filter:
-        wmin = consts.wminfilter
-        thigh0 = consts.thighfilter
+        canny_mean_threshold = consts.canny_mean_threshold_filter
+        threshold_high0 = consts.threshold_highfilter
     elif lowpass == gauss:
-        wmin = consts.wmingauss
-        thigh0 = consts.thighgauss
-    canny, got_canny = find_canny(image, wmin, thigh0)
+        canny_mean_threshold = consts.canny_mean_threshold_gauss
+        threshold_high0 = consts.threshold_highgauss
+    canny, got_canny = find_canny(image, canny_mean_threshold, threshold_high0)
     if not got_canny or algo.debug:
         draw.save("lowpass", image)
     return canny, got_canny
 
 
-def find_canny(image, wmin=8, thigh0=250):
-    log.info(f"finding edges with Canny until mean >= {wmin:0=.1f}...")
+def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
+    log.info(f"finding edges with Canny until mean >= {canny_mean_threshold:0=.1f}...")
 
     got_canny = False
-    thighmin = consts.thighmin
-    tlowmin = consts.tlowmin
-    thigh = thigh0
-    while thigh >= thighmin:
-        tlow = max(tlowmin, round(thigh*0.8))
-        while tlow >= tlowmin:
-            canny = cv2.Canny(image, tlow, thigh)
-            w = np.mean(canny)
-            if w >= wmin:
-                log.info(f"{w:0=.2f} >= {wmin:0=.1f}, @ {tlow}, {thigh}")
+
+    canny_threshold_high_min = consts.canny_threshold_high_min
+    canny_threshold_low_min = consts.canny_threshold_low_min
+
+    threshold_high = threshold_high0
+    while threshold_high >= canny_threshold_high_min:
+        threshold_low = max(canny_threshold_low_min, round(threshold_high*0.8))
+        while threshold_low >= canny_threshold_low_min:
+            canny = cv2.Canny(image, threshold_low, threshold_high)
+            mean = np.mean(canny)
+            if mean >= canny_mean_threshold:
+                log.info(f"{mean:0=.2f} >= {canny_mean_threshold:0=.1f}, @ {threshold_low}, {threshold_high}")
                 got_canny = True
                 break
             else:
-                log.debug(f"{w:0=.2f} < {wmin:0=.1f}, @ {tlow}, {thigh}")
-                gain = wmin - w
+                log.debug(f"{mean:0=.2f} < {canny_mean_threshold:0=.1f}, @ {threshold_low}, {threshold_high}")
+                gain = canny_mean_threshold - mean
                 diff = round(max(8, gain*8))
-                if tlow <= tlowmin:
+                if threshold_low <= canny_threshold_low_min:
                     break
-                tlow = max(tlowmin, tlow - diff)
+                threshold_low = max(canny_mean_threshold, threshold_low - diff)
 
-        if got_canny or (thigh <= thighmin):
+        if got_canny or (threshold_high <= canny_threshold_high_min):
             break
         else:
-            diff = round(max(6, gain*(thigh/18)))
-            thigh = max(thighmin, thigh - diff)
+            diff = round(max(6, gain*(threshold_high/18)))
+            threshold_high = max(canny_threshold_high_min, threshold_high - diff)
 
     if not got_canny:
-        log.info(f"Failed to find edges with mean >= {wmin:0=.1f}")
-        log.info(f"Last canny thresholds: {tlow, thigh}")
+        log.info(f"Failed to find edges with mean >= {canny_mean_threshold:0=.1f}")
+        log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
 
     return canny, got_canny
 

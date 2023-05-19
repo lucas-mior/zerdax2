@@ -103,7 +103,6 @@ def algorithm(filename):
         draw.save("intersections", canvas)
 
     img.squares = squares.calculate(inters)
-
     if algo.debug:
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
@@ -111,8 +110,8 @@ def algorithm(filename):
     img.squares, pieces = squares.fill(img.squares, img.pieces)
     if len(pieces) > 0:
         img.squares, pieces = squares.fill(img.squares, img.pieces, force=True)
-    img.squares, changed = squares.check_colors(img.BGR, img.squares)
 
+    img.squares, changed = squares.check_colors(img.BGR, img.squares)
     if algo.debug and changed:
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)

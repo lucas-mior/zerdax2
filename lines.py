@@ -84,8 +84,8 @@ def find_wlines(canny):
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")
-        # canvas = draw.lines(canny3ch, vert, hori)
-        # draw.save(f"canny{lv=}_{lh=}", canvas)
+        canvas = draw.lines(canny3ch, vert, hori)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
     if lv < 6 or lh < 6:
         log.error("Less than 6 lines found in at least one direction")
         canvas = draw.lines(canny3ch, vert, hori)

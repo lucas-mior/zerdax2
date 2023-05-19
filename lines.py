@@ -341,7 +341,7 @@ def fix_length_byinter(ww, hh, vert, hori=None):
 
 def check_save(title, vert, hori, old_lv, old_lh):
     global canny3ch
-    number = True
+    annotate_number = True
     lv = 0 if vert is None else len(vert)
     lh = 0 if hori is None else len(hori)
 
@@ -350,8 +350,8 @@ def check_save(title, vert, hori, old_lv, old_lh):
 
     if algo.debug:
         if lv > 12 or lh > 12:
-            number = False
-        canvas = draw.lines(canny3ch, vert, hori, number=number)
+            annotate_number = False
+        canvas = draw.lines(canny3ch, vert, hori, annotate_number)
         draw.save(title, canvas)
     return lv, lh
 

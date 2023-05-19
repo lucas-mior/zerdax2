@@ -47,16 +47,16 @@ def points(image, inters):
     return canvas
 
 
-def lines(image, vert, hori=None, number=False):
+def lines(image, vert, hori=None, annotate_number=False):
     canvas = np.zeros(image.shape, dtype='uint8')
 
-    def _draw(canvas, lines, color, kind=-1, number=True):
+    def _draw(canvas, lines, color, kind=-1, annotate_number=True):
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
             theta = round(li.theta(line))
             cv2.line(canvas, (x0, y0), (x1, y1),
                      color=color, thickness=2)
-            if number:
+            if annotate_number:
                 x, y = x0 + 10, y0 + 10
                 if kind == 0:
                     x += 15*i
@@ -77,14 +77,14 @@ def lines(image, vert, hori=None, number=False):
 
     if hori is not None:
         hori = np.array(hori)
-        canvas = _draw(canvas, hori, (0, 255, 0), kind=1, number=number)
+        canvas = _draw(canvas, hori, (0, 255, 0), 1, annotate_number)
         if vert is not None:
             vert = np.array(vert)
-            canvas = _draw(canvas, vert, (255, 0, 80), kind=0, number=number)
+            canvas = _draw(canvas, vert, (255, 0, 80), 0, annotate_number)
         canvas = addweighted(image, canvas)
     elif vert is not None:
         vert = np.array(vert)
-        canvas = _draw(canvas, vert, (0, 0, 255), number=False)
+        canvas = _draw(canvas, vert, (0, 0, 255), annotate_number=False)
         canvas = addweighted(image, canvas)
 
     return canvas

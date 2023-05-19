@@ -186,9 +186,9 @@ def create_cannys(img):
 
 
 def gauss(image):
-    ks = consts.gauss_kernel_shape
+    kernel = consts.gauss_kernel_shape
     gamma = consts.gauss_gamma
-    filtered = cv2.GaussianBlur(image, ks, gamma)
+    filtered = cv2.GaussianBlur(image, kernel, gamma)
     return filtered
 
 

@@ -1,8 +1,8 @@
 width_board = 512
 min_line_length = 280
 margin = 6
-tileGridSize = 10
-clipLimit = 1.0
+tile_grid_size = 10
+clip_limit = 1.0
 gauss_kernel_shape = (5, 5)
 gauss_gamma = 0.5
 canny_mean_threshold_filter = 9

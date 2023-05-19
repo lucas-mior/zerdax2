@@ -154,9 +154,9 @@ def pre_process(img):
     img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
     log.info("applying distributed histogram equalization to image...")
-    tgs = consts.tileGridSize
-    cliplim = consts.clipLimit
-    clahe = cv2.createCLAHE(clipLimit=cliplim, tileGridSize=(tgs, tgs))
+    grid = (consts.tile_grid_size, consts.tile_grid_size)
+    clip_limit = consts.clip_limit
+    clahe = cv2.createCLAHE(clip_limit, grid)
     img.G = clahe.apply(img.gray)
     img.V = clahe.apply(img.V)
     if algo.debug:

@@ -233,11 +233,13 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
             canny = cv2.Canny(image, threshold_low, threshold_high)
             mean = np.mean(canny)
             if mean >= canny_mean_threshold:
-                log.info(f"{mean:0=.2f} >= {canny_mean_threshold:0=.1f}, @ {threshold_low}, {threshold_high}")
+                log.info(f"{mean:0=.2f} >= {canny_mean_threshold:0=.1f},"
+                         f" @ {threshold_low}, {threshold_high}")
                 got_canny = True
                 break
             else:
-                log.debug(f"{mean:0=.2f} < {canny_mean_threshold:0=.1f}, @ {threshold_low}, {threshold_high}")
+                log.debug(f"{mean:0=.2f} < {canny_mean_threshold:0=.1f},"
+                          f" @ {threshold_low}, {threshold_high}")
                 gain = canny_mean_threshold - mean
                 diff = round(max(8, gain*8))
                 if threshold_low <= canny_threshold_low_min:

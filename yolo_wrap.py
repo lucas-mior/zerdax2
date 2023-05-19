@@ -18,28 +18,27 @@ iou = consts.iou_thres
 def detect_objects(img):
     model = YOLO("zerdax2.pt")
     objs = model.predict(source=img.filename,
-                         conf=0.01,
+                         conf=0.5,
+                         imgsz=640,
                          iou=0.7,
                          max_det=32)
-    print(f"type(objs) = ", type(objs));
-    print(objs)
-    exit(0);
-    objs = objs[0].numpy().boxes
 
-    objs = objs[np.argsort(objs.conf)][::-1]
+    objs = objs[0].boxes
+    confs = np.array(objs.conf.cpu())
+    objs = objs[np.argsort(confs)]
 
     boardnum = NUMBERS['Board']
     for obj in objs:
         if obj.cls == boardnum:
-            img.boardbox = np.array(obj.xyxy, dtype='int32')[0]
+            img.boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
             break
 
     pieces = objs[objs.cls != boardnum]
 
     npieces = []
     for piece in pieces:
-        x0, y0, x1, y1 = piece.xyxy[0]
-        conf, cls = piece.conf[0], piece.cls[0]
+        x0, y0, x1, y1 = piece.xyxy[0].cpu()
+        conf, cls = piece.conf[0].cpu(), piece.cls[0].cpu()
         npieces.append([x0, y0, x1, y1, conf, cls])
 
     pieces = np.array(npieces, dtype='O')
@@ -54,6 +53,8 @@ def detect_objects(img):
     if algo.debug:
         canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
+
+    exit(0)
     return img
 
 

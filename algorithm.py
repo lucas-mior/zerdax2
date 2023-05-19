@@ -60,8 +60,6 @@ def algorithm(filename):
         log.error(bad_picture_message)
         return bad_picture_message
 
-    canvas = draw.lines(warp3ch, vert, hori)
-    draw.save("find_lines", canvas)
     lv, lh = len(vert), len(hori)
     if lv != 9 or lh != 9 or debug:
         canvas = draw.lines(warp3ch, vert, hori)

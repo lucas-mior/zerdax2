@@ -1,10 +1,10 @@
 import numpy as np
-from numpy.linalg import det
 import cv2
 import logging as log
 from jenkspy import jenks_breaks
 
 import algorithm as algo
+import intersections as intersections
 import constants as consts
 import drawings as draw
 from c_load import segments_distance
@@ -29,7 +29,7 @@ def find_corners(canny):
 
     vert, lv = add_outer(vert, lv, 0, ww, hh)
     hori, lh = add_outer(hori, lh, 1, ww, hh)
-    inters = calc_intersections(vert, hori)
+    inters = intersections.calculate_all(vert, hori)
     print(f"{inters=}")
     corners = calc_corners(inters)
     print(f"{corners=}")
@@ -329,7 +329,7 @@ def filter_byinter(vert, hori=None):
 
     def _filter(lines):
         for i, line in enumerate(lines):
-            inters = calc_intersections(np.array([line]), lines, limit=True)
+            inters = intersections.calculate_all(np.array([line]), lines, limit=True)
             if inters is None or len(inters) == 0:
                 continue
             elif inters.shape[1] >= 4:
@@ -351,7 +351,7 @@ def sort_lines(vert, hori=None, k=0):
     def _create(lines, kind):
         positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
-            inter = calc_intersection(line, kind=kind)
+            inter = intersections.calculate_single(line, kind=kind)
             positions[i] = inter[kind]
         return positions
 
@@ -369,7 +369,7 @@ def sort_lines(vert, hori=None, k=0):
 
 
 def fix_length_byinter(ww, hh, vert, hori=None):
-    inters = calc_extern_intersections(vert, hori)
+    inters = intersections.calculate_extern(vert, hori)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
         return vert, hori
@@ -651,10 +651,10 @@ def rem_outer(lines, ll, k, ww, hh, force=False):
 
 
 def limit_bydims(inters, ww, hh):
-    i0 = calc_intersection(inters, ww, hh, kind=0)
-    i1 = calc_intersection(inters, ww, hh, kind=1)
-    i2 = calc_intersection(inters, ww, hh, kind=2)
-    i3 = calc_intersection(inters, ww, hh, kind=3)
+    i0 = intersections.calculate_single(inters, ww, hh, kind=0)
+    i1 = intersections.calculate_single(inters, ww, hh, kind=1)
+    i2 = intersections.calculate_single(inters, ww, hh, kind=2)
+    i3 = intersections.calculate_single(inters, ww, hh, kind=3)
     inters = np.array([i0, i1, i2, i3], dtype='int32')
 
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
@@ -706,131 +706,6 @@ def theta_abs(line):
     x0, y0, x1, y1 = line[:4]
     angle = np.arctan2(abs(y0-y1), abs(x1-x0))
     return np.rad2deg(angle)
-
-
-def calc_extern_intersections(lines0, lines1=None):
-    log.info("calculating external intersections between group(s) of lines...")
-
-    if lines1 is None:
-        lines1 = lines0
-    if lines0 is None:
-        return None
-
-    rows = []
-    for i in range(l0 := lines0.shape[0]):
-        x0, y0, x1, y1, r, t = lines0[i]
-        col = []
-        for j in range(l1 := lines1.shape[0]):
-            xx0, yy0, xx1, yy1, rr, tt = lines1[j]
-            if 0 != i != (l0-1) and 0 != j != (l1-1):
-                col.append((30000, 30000))
-                continue
-            if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
-                continue
-
-            dtheta = abs(t - tt)
-            tol0 = consts.min_angle_to_intersect
-            tol1 = 180*100 - tol0
-            if (dtheta < tol0 or dtheta > tol1):
-                continue
-
-            xdiff = (x0 - x1, xx0 - xx1)
-            ydiff = (y0 - y1, yy0 - yy1)
-
-            div = det([xdiff, ydiff])
-            if div == 0:
-                continue
-
-            d = (det([(x0, y0), (x1, y1)]),
-                 det([(xx0, yy0), (xx1, yy1)]))
-            x = det([d, xdiff]) / div
-            y = det([d, ydiff]) / div
-            col.append((x, y))
-        rows.append(col)
-
-    try:
-        inter = np.round(rows)
-        return np.array(inter, dtype='int32')
-    except Exception:
-        return None
-
-
-def calc_intersections(lines0, lines1=None, onlylast=False, limit=False):
-    if lines1 is None:
-        lines1 = lines0
-
-    maxx0 = np.max([lines0[:, 0], lines0[:, 2]])
-    maxx1 = np.max([lines1[:, 0], lines1[:, 2]])
-    maxy0 = np.max([lines0[:, 1], lines0[:, 3]])
-    maxy1 = np.max([lines1[:, 1], lines1[:, 3]])
-    maxx = max(maxx0, maxx1)
-    maxy = max(maxy0, maxy1)
-
-    rows = []
-    for line0 in lines0:
-        x0, y0, x1, y1, r, t = line0
-        col = []
-        for line1 in lines1:
-            xx0, yy0, xx1, yy1, rr, tt = line1
-            if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
-                continue
-
-            if not limit:
-                dtheta = abs(t - tt)
-                tol0 = consts.min_angle_to_intersect
-                tol1 = 180*100 - tol0
-                if (dtheta < tol0 or dtheta > tol1):
-                    continue
-
-            xdiff = (x0 - x1, xx0 - xx1)
-            ydiff = (y0 - y1, yy0 - yy1)
-
-            div = det([xdiff, ydiff])
-            if div == 0:
-                continue
-
-            d = (det([(x0, y0), (x1, y1)]),
-                 det([(xx0, yy0), (xx1, yy1)]))
-            x = det([d, xdiff]) / div
-            y = det([d, ydiff]) / div
-            if limit and (x < 0 or x > maxx or y < 0 or y > maxy):
-                continue
-            col.append((x, y))
-        rows.append(col)
-
-    inter = np.round(rows)
-    return np.array(inter, dtype='int32')
-
-
-def calc_intersection(line0, ww=500, hh=300, kind=0):
-    if kind == 0:
-        line1 = (50, 0, 400, 0, 0, 0)
-    elif kind == 1:
-        line1 = (0, 50, 0, 400, 0, 0)
-    elif kind == 2:
-        line1 = (50, hh, 400, hh, 0, 0)
-    elif kind == 3:
-        line1 = (ww, 50, ww, 400, 0, 0)
-
-    x0, y0, x1, y1 = line0[:4]
-    xx0, yy0, xx1, yy1 = line1[:4]
-    if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
-        log.warning("lines should not be equal")
-        return (30000, 30000)
-
-    xdiff = (x0 - x1, xx0 - xx1)
-    ydiff = (y0 - y1, yy0 - yy1)
-
-    div = det([xdiff, ydiff])
-    if div == 0:
-        log.warning("div == 0 (parallel lines)")
-        return (30000, 30000)
-
-    d = (det([(x0, y0), (x1, y1)]),
-         det([(xx0, yy0), (xx1, yy1)]))
-    x = round(det([d, xdiff]) / div)
-    y = round(det([d, ydiff]) / div)
-    return np.array((x, y), dtype='int32')
 
 
 def filter_90(lines):

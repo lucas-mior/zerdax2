@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import squares as squares
 import lines as lines
+import intersections as intersections
 import perspective as perspective
 import yolo_wrap as yolo
 import fen as fen
@@ -71,7 +72,7 @@ def algorithm(filename):
             log.error(bad_pic_msg)
             return bad_pic_msg
 
-    inters = lines.calc_intersections(vert, hori)
+    inters = intersections.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debug:
         canvas = draw.points(warp3ch, inters)
         draw.save("intersections", canvas)

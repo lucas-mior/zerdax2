@@ -89,16 +89,7 @@ def algorithm(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    inters = np.array(inters, dtype='float64')
-
-    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
-    # scale to input size
-    inters[:, :, 0] /= img.resize_factor
-    inters[:, :, 1] /= img.resize_factor
-    # position board bounding box
-    inters[:, :, 0] += img.x0
-    inters[:, :, 1] += img.y0
-    inters = np.array(np.round(inters), dtype='int32')
+    inters = translate_inters(img, inters, warp_inverse_matrix)
     if algo.debug:
         canvas = draw.points(img.BGR, inters)
         draw.save("intersections", canvas)
@@ -120,6 +111,20 @@ def algorithm(filename):
     img.fen = fen.generate(img.squares)
     fen.dump(img.fen)
     return img.fen
+
+
+def translate_inters(img, inters, warp_inverse_matrix):
+    inters = np.array(inters, dtype='float64')
+
+    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
+    # scale to input size
+    inters[:, :, 0] /= img.resize_factor
+    inters[:, :, 1] /= img.resize_factor
+    # position board bounding box
+    inters[:, :, 0] += img.x0
+    inters[:, :, 1] += img.y0
+    inters = np.array(np.round(inters), dtype='int32')
+    return inters
 
 
 def crop_board_to_size(img):

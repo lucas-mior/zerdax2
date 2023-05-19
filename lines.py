@@ -912,16 +912,9 @@ def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, t in enumerate(lines[:, 5]):
-        if abs(t - 90*100) > 4*100:
-            print(f"1111")
-            print(f"{abs(t-90*100)=}")
-            if abs(t + 90*100) > 4*100:
-                print(f"2222")
-                print(f"{abs(t+90*100)=}")
-                if abs(t) > 4*100:
-                    print(f"3333")
-                    print(f"abs(t): {abs(t)}")
-                    rem[i] = 1
+        if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
+            if abs(t) > 4*100:
+                rem[i] = 1
 
     print("rem: ", rem)
     return lines[rem == 0]

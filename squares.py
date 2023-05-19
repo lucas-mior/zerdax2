@@ -21,6 +21,7 @@ def calculate(inters):
 
 
 def fill(squares, pieces, force=False):
+    log.info("filling squares...")
     piece_y_tol = abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22
     piece_y_tol = round(piece_y_tol)
     for index in np.ndindex(squares.shape[:2]):

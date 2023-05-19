@@ -107,7 +107,6 @@ def algorithm(filename):
         canvas = draw.squares(img.BGR, img.squares)
         draw.save("A1E4C5H8", canvas)
 
-    log.info("filling squares...")
     img.squares, pieces = squares.fill(img.squares, img.pieces)
     if len(pieces) > 0:
         img.squares, pieces = squares.fill(img.squares, img.pieces, force=True)

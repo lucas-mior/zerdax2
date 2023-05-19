@@ -15,6 +15,13 @@ canny3ch = None
 WLEN = 512
 
 
+def bundle_lines(lines, dist):
+    bundled = np.zeros(lines.shape, dtype='int32')
+    nlines = lines_bundle(lines, bundled, len(lines), dist)
+    lines = bundled[:nlines]
+    return lines
+
+
 def find_wlines(canny):
     image_width = canny.shape[1]
     image_height = canny.shape[0]
@@ -66,12 +73,8 @@ def find_wlines(canny):
         if vert is None or hori is None:
             continue
 
-        bundled = np.zeros(vert.shape, dtype='int32')
-        nlines = lines_bundle(vert, bundled, len(vert), distv)
-        vert = bundled[:nlines]
-        bundled = np.zeros(hori.shape, dtype='int32')
-        nlines = lines_bundle(hori, bundled, len(hori), disth)
-        hori = bundled[:nlines]
+        vert = bundle_lines(vert, distv)
+        hori = bundle_lines(hori, disth)
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
         vert, hori = filter_byinter(vert, hori)
         lv, lh = check_save("filter_byinter", vert, hori, lv, lh)

@@ -7,18 +7,16 @@ import intersect as intersect
 
 def find(canny):
     log.debug("finding all lines of board...")
-    ww = canny.shape[1]
-    hh = canny.shape[0]
 
     vert, hori = lines.find_baselines(canny)
-    vert, hori = lines.fix_length_byinter(ww, hh, vert, hori)
+    vert, hori = lines.fix_length_byinter(canny.shape, vert, hori)
     lv, lh = lines.check_save("fix_length_byinter0", vert, hori, -1, -1)
 
     if lv == 0 or lh == 0:
         return None, None
 
-    vert, lv = lines.add_outer(vert, lv, 0, ww, hh)
-    hori, lh = lines.add_outer(hori, lh, 1, ww, hh)
+    vert, lv = lines.add_outer(vert, lv, 0, canny.shape)
+    hori, lh = lines.add_outer(hori, lh, 1, canny.shape)
     inters = intersect.calculate_all(vert, hori)
     corners = calculate(inters)
     return corners

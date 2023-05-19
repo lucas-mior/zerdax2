@@ -102,16 +102,16 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
     return np.array(inter, dtype='int32')
 
 
-def calculate_single(line0, ww=500, hh=300, kind=0):
+def calculate_single(line0, image_shape=(300, 500), kind=0):
     log.debug("calculating intersections between line and boundary line...")
     if kind == 0:
         line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:
         line1 = (0, 50, 0, 400, 0, 0)
     elif kind == 2:
-        line1 = (50, hh, 400, hh, 0, 0)
+        line1 = (50, image_shape[0], 400, image_shape[0], 0, 0)
     elif kind == 3:
-        line1 = (ww, 50, ww, 400, 0, 0)
+        line1 = (image_shape[1], 50, image_shape[1], 400, 0, 0)
 
     x0, y0, x1, y1 = line0[:4]
     xx0, yy0, xx1, yy1 = line1[:4]
@@ -134,13 +134,15 @@ def calculate_single(line0, ww=500, hh=300, kind=0):
     return np.array((x, y), dtype='int32')
 
 
-def shorten(inters, image_width, image_height):
-    i0 = calculate_single(inters, image_width, image_height, 0)
-    i1 = calculate_single(inters, image_width, image_height, 1)
-    i2 = calculate_single(inters, image_width, image_height, 2)
-    i3 = calculate_single(inters, image_width, image_height, 3)
+def shorten(inters, image_shape):
+    i0 = calculate_single(inters, image_shape, 0)
+    i1 = calculate_single(inters, image_shape, 1)
+    i2 = calculate_single(inters, image_shape, 2)
+    i3 = calculate_single(inters, image_shape, 3)
     inters = np.array([i0, i1, i2, i3], dtype='int32')
 
+    image_width = image_shape[1]
+    image_height = image_shape[0]
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
                     (inters[:, 0] <= image_width) &
                     (inters[:, 1] <= image_height)]

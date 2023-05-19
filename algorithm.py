@@ -42,7 +42,7 @@ def algorithm(filename):
             log.error(bad_picture_message)
             return bad_picture_message
 
-    print(f"Board detected: {img.boardbox}")
+    log.info(f"Board detected: {img.boardbox}")
     img = crop_board_to_size(img)
     if img.board.shape[0] < 300:
         log.error(bad_picture_message)
@@ -54,7 +54,7 @@ def algorithm(filename):
         draw.save("edges", canny)
 
     img.corners = lines.find_corners(canny)
-    print(f"Corners found: {img.corners}")
+    log.info(f"Corners found: {img.corners}")
     canvas = draw.corners(img.board, img.corners)
     draw.save("corners", canvas)
     canny_warped, warp_inverse_matrix = perspective.transform(canny, img.corners)

@@ -12,12 +12,12 @@ WLEN = 512
 
 def warp(canny, corners):
     log.debug("transforming perspective...")
-    BR = corners[0]
-    BL = corners[1]
-    TR = corners[2]
-    TL = corners[3]
-    orig_points = np.array(((TL[0], TL[1]), (TR[0], TR[1]),
-                            (BR[0], BR[1]), (BL[0], BL[1])), dtype="float32")
+    bot_right = corners[0]
+    bot_left = corners[1]
+    top_right = corners[2]
+    top_left = corners[3]
+    orig_points = np.array((top_left, top_right,
+                            bot_right, bot_left), dtype="float32")
 
     width = WLEN
     height = WLEN

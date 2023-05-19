@@ -36,9 +36,9 @@ def calculate(inters):
     psub[:, 1] = inter[:, 1]
     psub[:, 2] = inter[:, 0] - inter[:, 1]
 
-    BR = psum[np.argmax(psum[:, 2])][0:2]
-    TR = psub[np.argmax(psub[:, 2])][0:2]
-    BL = psub[np.argmin(psub[:, 2])][0:2]
-    TL = psum[np.argmin(psum[:, 2])][0:2]
+    bot_right = psum[np.argmax(psum[:, 2])][0:2]
+    top_right = psub[np.argmax(psub[:, 2])][0:2]
+    bot_left = psub[np.argmin(psub[:, 2])][0:2]
+    top_left = psum[np.argmin(psum[:, 2])][0:2]
 
-    return np.array([BR, BL, TR, TL], dtype='int32')
+    return np.array([bot_right, bot_left, top_right, top_left], dtype='int32')

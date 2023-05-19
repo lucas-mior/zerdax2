@@ -144,7 +144,7 @@ def crop_board_to_size(img):
 def pre_process(img):
     log.info("creating HSV representation of image...")
     img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
-    img.V = img.HSV[:, :, 2]
+    img.hsvalue = img.HSV[:, :, 2]
 
     log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
@@ -157,23 +157,23 @@ def pre_process(img):
     grid = (consts.tile_grid_size, consts.tile_grid_size)
     clip_limit = consts.clip_limit
     clahe = cv2.createCLAHE(clip_limit, grid)
-    img.G = clahe.apply(img.gray)
-    img.V = clahe.apply(img.V)
+    img.gray = clahe.apply(img.gray)
+    img.hsvalue = clahe.apply(img.hsvalue)
     if algo.debug:
-        draw.save("claheG", img.G)
-        draw.save("claheV", img.V)
+        draw.save("clahe_gray", img.gray)
+        draw.save("clahe_hsvalue", img.hsvalue)
 
     return img
 
 
 def create_cannys(img):
-    log.info("finding edges for gray, and V images...")
-    cannyG, got_cannyG = find_edges(img.G, lowpass=filter)
-    cannyV, got_cannyV = find_edges(img.V, lowpass=filter)
-    if not got_cannyG or not got_cannyV or algo.debug:
-        draw.save("cannyG", cannyG)
-        draw.save("cannyV", cannyV)
-    canny = cv2.bitwise_or(cannyG, cannyV)
+    log.info("finding edges for gray, and hsvalue images...")
+    canny_gray, got_canny_gray = find_edges(img.gray, lowpass=filter)
+    canny_hsvalue, got_canny_hsvalue = find_edges(img.hsvalue, lowpass=filter)
+    if not got_canny_gray or not got_canny_hsvalue or algo.debug:
+        draw.save("canny_gray", canny_gray)
+        draw.save("canny_hsvalue", canny_hsvalue)
+    canny = cv2.bitwise_or(canny_gray, canny_hsvalue)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)

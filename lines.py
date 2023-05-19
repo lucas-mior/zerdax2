@@ -69,7 +69,7 @@ def find_wlines(canny):
         vert, hori = split(lines_hough)
         lv, lh = check_save("split", vert, hori, 0, 0)
         vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, 0, 0)
+        lv, lh = check_save("sort", vert, hori, lv, lh)
         if vert is None or hori is None:
             continue
 
@@ -142,7 +142,7 @@ def find_baselines(canny):
         vert, hori = filter_byangle(vert, hori)
         lv, lh = check_save("filter_byangle", vert, hori, lv, lh)
         vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, 0, 0)
+        lv, lh = check_save("sort", vert, hori, lv, lh)
         if vert is None or hori is None:
             continue
 

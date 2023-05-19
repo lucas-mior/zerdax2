@@ -29,7 +29,7 @@ def corners(image, corners):
 
     for i, c in enumerate(corners):
         cv2.circle(canvas, c, radius=5,
-                   color=(20+i*40, 0, 100+i*30), thickness=-1)
+                   color=(10+i*50, 0, 100+i*40), thickness=-1)
 
     canvas = addweighted(image, canvas)
     return canvas

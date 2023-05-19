@@ -16,10 +16,10 @@ WLEN = 512
 
 
 def find_wlines(canny):
-    ww = canny.shape[1]
-    hh = canny.shape[0]
-    distv = round(ww/23)
-    disth = round(hh/23)
+    image_width = canny.shape[1]
+    image_height = canny.shape[0]
+    distv = round(image_width/23)
+    disth = round(image_height/23)
     global canny3ch
     canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
@@ -94,10 +94,10 @@ def find_wlines(canny):
 
 
 def find_baselines(canny):
-    ww = canny.shape[1]
-    hh = canny.shape[0]
-    distv = round(ww/23)
-    disth = round(hh/23)
+    image_width = canny.shape[1]
+    image_height = canny.shape[0]
+    distv = round(image_width/23)
+    disth = round(image_height/23)
     global canny3ch
     canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
@@ -309,7 +309,7 @@ def sort(vert, hori=None, k=0):
     return vert, hori
 
 
-def fix_length_byinter(ww, hh, vert, hori=None):
+def fix_length_byinter(image_width, image_height, vert, hori=None):
     inters = intersections.calculate_extern(vert, hori)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
@@ -320,7 +320,7 @@ def fix_length_byinter(ww, hh, vert, hori=None):
             line = lines[i]
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
-            limit = limit_by_dimensions(new, ww, hh)
+            limit = limit_by_dimensions(new, image_width, image_height)
             limit = np.ravel(limit[:2])
             if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
@@ -355,7 +355,7 @@ def check_save(title, vert, hori, old_lv, old_lh):
     return lv, lh
 
 
-def add_outer(lines, ll, k, ww, hh, force=False):
+def add_outer(lines, ll, k, image_width, image_height, force=False):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
     if force:
@@ -365,7 +365,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
         return lines
 
     def _add_outer(lines, where):
-        dd = ww if k == 0 else hh
+        dd = image_width if k == 0 else image_height
         if where == 0:
             ref = 0
             other = 1
@@ -382,7 +382,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
-            inters = limit_by_dimensions(new, ww, hh)
+            inters = limit_by_dimensions(new, image_width, image_height)
             if len(inters) < 2:
                 return lines
             elif len(inters) > 2:
@@ -411,7 +411,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     return lines, ll
 
 
-def rem_middle(lines, ll, kind, ww, hh, force=False):
+def rem_middle(lines, ll, kind, image_width, image_height, force=False):
     log.info("reming missing middle lines...")
     tol = consts.middle_tolerance
 
@@ -447,7 +447,7 @@ def rem_middle(lines, ll, kind, ww, hh, force=False):
     return lines, ll
 
 
-def rem_wrong(lines, ll, kind, ww, hh, force=False):
+def rem_wrong(lines, ll, kind, image_width, image_height, force=False):
     log.info("removing wrong middle lines...")
     tol = consts.middle_tolerance
 
@@ -488,7 +488,7 @@ def rem_wrong(lines, ll, kind, ww, hh, force=False):
     return lines, ll
 
 
-def add_middle(lines, ll, kind, ww, hh, force=False):
+def add_middle(lines, ll, kind, image_width, image_height, force=False):
     log.info("adding missing middle lines...")
     tol = consts.middle_tolerance
 
@@ -560,13 +560,13 @@ def add_middle(lines, ll, kind, ww, hh, force=False):
     return lines, ll
 
 
-def rem_outer(lines, ll, k, ww, hh, force=False):
+def rem_outer(lines, ll, k, image_width, image_height, force=False):
     log.debug("removing extra outer lines...")
     tol = consts.outer_tolerance
     if k == 0:
-        dd = ww
+        dd = image_width
     else:
-        dd = hh
+        dd = image_height
 
     d00 = abs(lines[1, k] - 0)
     d01 = abs(lines[1, k+2] - 0)
@@ -589,15 +589,15 @@ def rem_outer(lines, ll, k, ww, hh, force=False):
     return lines, ll
 
 
-def limit_by_dimensions(inters, ww, hh):
-    i0 = intersections.calculate_single(inters, ww, hh, kind=0)
-    i1 = intersections.calculate_single(inters, ww, hh, kind=1)
-    i2 = intersections.calculate_single(inters, ww, hh, kind=2)
-    i3 = intersections.calculate_single(inters, ww, hh, kind=3)
+def limit_by_dimensions(inters, image_width, image_height):
+    i0 = intersections.calculate_single(inters, image_width, image_height, kind=0)
+    i1 = intersections.calculate_single(inters, image_width, image_height, kind=1)
+    i2 = intersections.calculate_single(inters, image_width, image_height, kind=2)
+    i3 = intersections.calculate_single(inters, image_width, image_height, kind=3)
     inters = np.array([i0, i1, i2, i3], dtype='int32')
 
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
-                    (inters[:, 0] <= ww) & (inters[:, 1] <= hh)]
+                    (inters[:, 0] <= image_width) & (inters[:, 1] <= image_height)]
     return inters
 
 

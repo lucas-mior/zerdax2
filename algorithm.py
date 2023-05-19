@@ -50,8 +50,6 @@ def algorithm(filename):
 
     img = pre_process(img)
     canny = create_cannys(img)
-    if algo.debug:
-        draw.save("edges", canny)
 
     board_corners = corners.find(canny)
     log.info(f"Corners found: {board_corners}")
@@ -89,10 +87,6 @@ def algorithm(filename):
             return bad_picture_msg
 
     inters = translate_inters(img, inters, warp_inverse_matrix)
-    if algo.debug:
-        canvas = draw.points(img.BGR, inters)
-        draw.save("intersections", canvas)
-
     board_squares = squares.calculate(inters)
     if algo.debug:
         canvas = draw.squares(img.BGR, board_squares)
@@ -123,6 +117,10 @@ def translate_inters(img, inters, warp_inverse_matrix):
     inters[:, :, 0] += img.x0
     inters[:, :, 1] += img.y0
     inters = np.array(np.round(inters), dtype='int32')
+
+    if algo.debug:
+        canvas = draw.points(img.BGR, inters)
+        draw.save("intersections", canvas)
     return inters
 
 
@@ -182,6 +180,8 @@ def create_cannys(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
+    if algo.debug:
+        draw.save("edges", canny)
     return canny
 
 

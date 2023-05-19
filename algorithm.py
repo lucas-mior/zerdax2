@@ -30,20 +30,20 @@ def algorithm(filename):
 
     img.BGR = cv2.imread(img.filename)
 
-    img.boardbox, img.pieces = yolo.detect_objects(img.filename)
+    boardbox, pieces = yolo.detect_objects(img.filename)
 
-    img.pieces = yolo.determine_colors(img.pieces, img.BGR)
-    img.pieces = yolo.process_pieces(img.pieces)
+    pieces = yolo.determine_colors(pieces, img.BGR)
+    pieces = yolo.process_pieces(pieces)
 
-    if (failed := img.boardbox is None) or algo.debug:
-        canvas = draw.boxes(img.BGR, img.pieces)
+    if (failed := boardbox is None) or algo.debug:
+        canvas = draw.boxes(img.BGR, pieces)
         draw.save("yolo", canvas)
         if failed:
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    log.info(f"Board detected: {img.boardbox}")
-    img = crop_board_to_size(img)
+    log.info(f"Board detected: {boardbox}")
+    img = crop_board_to_size(img, boardbox)
     if img.board.shape[0] < 300:
         log.error(bad_picture_msg)
         return bad_picture_msg
@@ -53,12 +53,12 @@ def algorithm(filename):
     if algo.debug:
         draw.save("edges", canny)
 
-    img.corners = corners.find(canny)
-    log.info(f"Corners found: {img.corners}")
+    board_corners = corners.find(canny)
+    log.info(f"Corners found: {board_corners}")
     if algo.debug:
-        canvas = draw.corners(img.board, img.corners)
+        canvas = draw.corners(img.board, board_corners)
         draw.save("corners", canvas)
-    canny_warped, warp_inverse_matrix = perspective.warp(canny, img.corners)
+    canny_warped, warp_inverse_matrix = perspective.warp(canny, board_corners)
     warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_wlines(canny_warped)
@@ -93,23 +93,23 @@ def algorithm(filename):
         canvas = draw.points(img.BGR, inters)
         draw.save("intersections", canvas)
 
-    img.squares = squares.calculate(inters)
+    board_squares = squares.calculate(inters)
     if algo.debug:
-        canvas = draw.squares(img.BGR, img.squares)
+        canvas = draw.squares(img.BGR, board_squares)
         draw.save("A1E4C5H8", canvas)
 
-    img.squares, pieces = squares.fill(img.squares, img.pieces)
+    board_squares, pieces = squares.fill(board_squares, pieces)
     if len(pieces) > 0:
-        img.squares, pieces = squares.fill(img.squares, img.pieces, force=True)
+        board_squares, pieces = squares.fill(board_squares, pieces, force=True)
 
-    img.squares, changed = squares.check_colors(img.BGR, img.squares)
+    board_squares, changed = squares.check_colors(img.BGR, board_squares)
     if algo.debug and changed:
-        canvas = draw.squares(img.BGR, img.squares)
+        canvas = draw.squares(img.BGR, board_squares)
         draw.save("A1E4C5H8", canvas)
 
-    img.fen = fen.generate(img.squares)
-    fen.dump(img.fen)
-    return img.fen
+    board_fen = fen.generate(board_squares)
+    fen.dump(board_fen)
+    return board_fen
 
 
 def translate_inters(img, inters, warp_inverse_matrix):
@@ -126,9 +126,9 @@ def translate_inters(img, inters, warp_inverse_matrix):
     return inters
 
 
-def crop_board_to_size(img):
+def crop_board_to_size(img, boardbox):
     log.info("cropping image to board box...")
-    x0, y0, x1, y1 = img.boardbox
+    x0, y0, x1, y1 = boardbox
     d = consts.margin
     img.x0, img.y0 = x0 - d, y0 - d
     img.x1, img.y1 = x1 + d, y1 + d

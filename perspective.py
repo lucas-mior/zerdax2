@@ -1,22 +1,17 @@
 import numpy as np
-from numpy.linalg import det
 import cv2
 import logging as log
-from jenkspy import jenks_breaks
 
-import algorithm as algo
 import constants as consts
 import drawings as draw
-from c_load import segments_distance
-from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
 canny3ch = None
 WLEN = 512
 
 
-def transform(canny, corners):
-    print("transforming perspective...")
+def warp(canny, corners):
+    log.debug("transforming perspective...")
     BR = corners[0]
     BL = corners[1]
     TR = corners[2]

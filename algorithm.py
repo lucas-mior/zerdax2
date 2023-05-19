@@ -18,16 +18,16 @@ from c_load import lfilter
 
 img = None
 debug = False
-bad_picture_message = ""
+bad_picture_msg = ""
 
 
 def algorithm(filename):
-    global img, debug, bad_picture_message
+    global img, debug, bad_picture_msg
     debug = log.root.level < 20
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]
     img.basename = img.basename.rsplit("/", 1)[-1]
-    bad_picture_message = f"{img.filename}: bad picture, try again from another angle"
+    bad_picture_msg = f"{img.filename}: bad picture, change the camera angle"
 
     img.BGR = cv2.imread(img.filename)
 
@@ -40,14 +40,14 @@ def algorithm(filename):
         canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
         if failed:
-            log.error(bad_picture_message)
-            return bad_picture_message
+            log.error(bad_picture_msg)
+            return bad_picture_msg
 
     log.info(f"Board detected: {img.boardbox}")
     img = crop_board_to_size(img)
     if img.board.shape[0] < 300:
-        log.error(bad_picture_message)
-        return bad_picture_message
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     img = pre_process(img)
     canny = create_cannys(img)
@@ -59,13 +59,13 @@ def algorithm(filename):
     if algo.debug:
         canvas = draw.corners(img.board, img.corners)
         draw.save("corners", canvas)
-    canny_warped, warp_inverse_matrix = perspective.transform(canny, img.corners)
+    canny_warped, warp_inverse_matrix = perspective.warp(canny, img.corners)
     warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_wlines(canny_warped)
     if vert is None or hori is None:
-        log.error(bad_picture_message)
-        return bad_picture_message
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     lv, lh = len(vert), len(hori)
     if (failed := (lv != 9 or lh != 9)) or algo.debug:
@@ -75,8 +75,8 @@ def algorithm(filename):
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")
             log.error(f"Got {lv} vertical and {lh} horizontal lines")
-            log.error(bad_picture_message)
-            return bad_picture_message
+            log.error(bad_picture_msg)
+            return bad_picture_msg
 
     inters = intersections.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or algo.debug:
@@ -86,8 +86,8 @@ def algorithm(filename):
             log.error("There should be 81 intersections",
                       "in 9 rows and 9 columns")
             log.error(f"{inters.shape=}")
-            log.error(bad_picture_message)
-            return bad_picture_message
+            log.error(bad_picture_msg)
+            return bad_picture_msg
 
     inters = np.array(inters, dtype='float64')
 
@@ -130,7 +130,7 @@ def crop_board_to_size(img):
     img.x1, img.y1 = x1 + d, y1 + d
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
 
-    log.info(f"reducing cropped image to default size ({consts.width_board})...")
+    log.info("reducing cropped image to default size...")
     img.width_board = consts.width_board
     img.resize_factor = img.width_board / img.board.shape[1]
     img.height_board = round(img.resize_factor * img.board.shape[0])
@@ -219,7 +219,8 @@ def find_edges(image, lowpass):
 
 
 def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
-    log.info(f"finding edges with Canny until mean >= {canny_mean_threshold:0=.1f}...")
+    log.info(f"finding edges with Canny until "
+             f"mean >= {canny_mean_threshold:0=.1f}...")
 
     got_canny = False
 
@@ -248,12 +249,13 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
 
         if got_canny or (threshold_high <= canny_threshold_high_min):
             break
-        else:
-            diff = round(max(6, gain*(threshold_high/18)))
-            threshold_high = max(canny_threshold_high_min, threshold_high - diff)
+
+        diff = round(max(6, gain*(threshold_high/18)))
+        threshold_high = max(canny_threshold_high_min, threshold_high - diff)
 
     if not got_canny:
-        log.info(f"Failed to find edges with mean >= {canny_mean_threshold:0=.1f}")
+        log.info(f"Failed to find edges with"
+                 f"mean >= {canny_mean_threshold:0=.1f}")
         log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
 
     return canny, got_canny

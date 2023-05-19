@@ -33,12 +33,13 @@ def detect_objects(img):
             img.boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
             break
 
-    pieces = objs[objs.cls != boardnum]
+    # pieces = objs[objs.cls != boardnum]
+    pieces = objs
 
     npieces = []
     for piece in pieces:
         x0, y0, x1, y1 = piece.xyxy[0].cpu()
-        conf, cls = piece.conf[0].cpu(), piece.cls[0].cpu()
+        conf, cls = float(piece.conf[0].cpu()), float(piece.cls[0].cpu())
         npieces.append([x0, y0, x1, y1, conf, cls])
 
     pieces = np.array(npieces, dtype='O')
@@ -47,7 +48,7 @@ def detect_objects(img):
 
     img.pieces = determine_colors(pieces, img.BGR)
     img.pieces = pieces
-    img.pieces = img.pieces[np.argsort(img.pieces[4])]
+    # img.pieces = img.pieces[np.argsort(img.pieces[4])]
     img.pieces = process_pieces(img.pieces)
 
     if algo.debug:

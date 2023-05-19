@@ -59,12 +59,12 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
         log.debug("-> calculating all intersections in the same group")
         lines1 = lines0
 
-    maxx0 = np.max([lines0[:, 0], lines0[:, 2]])
-    maxx1 = np.max([lines1[:, 0], lines1[:, 2]])
-    maxy0 = np.max([lines0[:, 1], lines0[:, 3]])
-    maxy1 = np.max([lines1[:, 1], lines1[:, 3]])
-    maxx = max(maxx0, maxx1)
-    maxy = max(maxy0, maxy1)
+    max_x0 = np.max([lines0[:, 0], lines0[:, 2]])
+    max_x1 = np.max([lines1[:, 0], lines1[:, 2]])
+    max_y0 = np.max([lines0[:, 1], lines0[:, 3]])
+    max_y1 = np.max([lines1[:, 1], lines1[:, 3]])
+    max_x = max(max_x0, max_x1)
+    max_y = max(max_y0, max_y1)
 
     rows = []
     for line0 in lines0:
@@ -93,7 +93,7 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
                  linalg.det([(xx0, yy0), (xx1, yy1)]))
             x = linalg.det([d, xdiff]) / div
             y = linalg.det([d, ydiff]) / div
-            if limit and (x < 0 or x > maxx or y < 0 or y > maxy):
+            if limit and (x < 0 or x > max_x or y < 0 or y > max_y):
                 continue
             col.append((x, y))
         rows.append(col)

@@ -360,6 +360,9 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     tol = consts.outer_tolerance
     if force:
         tol = 1
+    if ll < 5:
+        log.warning("only 5 lines passed to add_outer. returning")
+        return lines
 
     def _add_outer(lines, where):
         dd = ww if k == 0 else hh

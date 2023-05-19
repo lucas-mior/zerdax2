@@ -15,9 +15,9 @@ conf = consts.conf_thres
 iou = consts.iou_thres
 
 
-def detect_objects(img):
+def detect_objects(filename):
     model = YOLO("zerdax2.pt")
-    objs = model.predict(source=img.filename,
+    objs = model.predict(source=filename,
                          conf=0.5,
                          imgsz=640,
                          iou=0.7,
@@ -27,10 +27,11 @@ def detect_objects(img):
     confs = np.array(objs.conf.cpu())
     objs = objs[np.argsort(confs)]
 
+    boardbox = None
     boardnum = NUMBERS['Board']
     for obj in objs:
         if obj.cls == boardnum:
-            img.boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
+            boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
             break
 
     pieces = objs[objs.cls != boardnum]
@@ -46,16 +47,7 @@ def detect_objects(img):
     pieces[:, :4] = np.int32(pieces[:, :4])
     pieces[:, 5] = np.int32(pieces[:, 5])
 
-    img.pieces = determine_colors(pieces, img.BGR)
-    img.pieces = pieces
-    # img.pieces = img.pieces[np.argsort(img.pieces[4])]
-    img.pieces = process_pieces(img.pieces)
-
-    if algo.debug:
-        canvas = draw.boxes(img.BGR, img.pieces)
-        draw.save("yolo", canvas)
-
-    return img
+    return boardbox, pieces
 
 
 def determine_colors(pieces, image):

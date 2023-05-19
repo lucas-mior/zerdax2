@@ -30,14 +30,20 @@ def algorithm(filename):
 
     img.BGR = cv2.imread(img.filename)
 
-    img = yolo.detect_objects(img)
+    img.boardbox, img.pieces = yolo.detect_objects(img.filename)
 
-    try:
-        print(f"Board detected: {img.boardbox}")
-    except Exception:
+    img.pieces = yolo.determine_colors(img.pieces, img.BGR)
+    img.pieces = yolo.process_pieces(img.pieces)
+
+    if algo.debug:
+        canvas = draw.boxes(img.BGR, img.pieces)
+        draw.save("yolo", canvas)
+
+    if img.boardbox is None:
         log.error(bad_picture_message)
         return bad_picture_message
 
+    print(f"Board detected: {img.boardbox}")
     img = crop_board_to_size(img)
     if img.board.shape[0] < 300:
         log.error(bad_picture_message)
@@ -61,10 +67,10 @@ def algorithm(filename):
         return bad_picture_message
 
     lv, lh = len(vert), len(hori)
-    if lv != 9 or lh != 9 or debug:
+    if (failed := (lv != 9 or lh != 9)) or debug:
         canvas = draw.lines(warp3ch, vert, hori)
         draw.save("find_lines", canvas)
-        if lv != 9 or lh != 9:
+        if failed:
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")
             log.error(f"Got {lv} vertical and {lh} horizontal lines")

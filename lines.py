@@ -157,8 +157,8 @@ def find_baselines(canny):
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")
-        # canvas = draw.lines(canny3ch, vert, hori)
-        # draw.save(f"canny{lv=}_{lh=}", canvas)
+        canvas = draw.lines(canny3ch, vert, hori)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
     if lv < 6 or lh < 6:
         log.error("Less than 6 lines found in at least one direction")
         canvas = draw.lines(canny3ch, vert, hori)
@@ -274,6 +274,17 @@ def filter_byinter(vert, hori=None):
         if hori is not None:
             hori = _filter(hori)
     return vert, hori
+
+
+def filter_90(lines):
+    remove = np.zeros(lines.shape[0], dtype='uint8')
+
+    for i, t in enumerate(lines[:, 5]):
+        if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
+            if abs(t) > 4*100:
+                remove[i] = 1
+
+    return lines[remove == 0]
 
 
 def sort(vert, hori=None, k=0):
@@ -548,7 +559,7 @@ def add_middle(lines, ll, kind, ww, hh, force=False):
 
 
 def rem_outer(lines, ll, k, ww, hh, force=False):
-    log.info("removing extra outer lines...")
+    log.debug("removing extra outer lines...")
     tol = consts.outer_tolerance
     if k == 0:
         dd = ww
@@ -632,14 +643,3 @@ def theta_abs(line):
     x0, y0, x1, y1 = line[:4]
     angle = np.arctan2(abs(y0-y1), abs(x1-x0))
     return np.rad2deg(angle)
-
-
-def filter_90(lines):
-    remove = np.zeros(lines.shape[0], dtype='uint8')
-
-    for i, t in enumerate(lines[:, 5]):
-        if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
-            if abs(t) > 4*100:
-                remove[i] = 1
-
-    return lines[remove == 0]

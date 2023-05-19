@@ -35,13 +35,12 @@ def algorithm(filename):
     img.pieces = yolo.determine_colors(img.pieces, img.BGR)
     img.pieces = yolo.process_pieces(img.pieces)
 
-    if algo.debug:
+    if (failed := img.boardbox is None) or algo.debug:
         canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
-
-    if img.boardbox is None:
-        log.error(bad_picture_message)
-        return bad_picture_message
+        if failed:
+            log.error(bad_picture_message)
+            return bad_picture_message
 
     print(f"Board detected: {img.boardbox}")
     img = crop_board_to_size(img)

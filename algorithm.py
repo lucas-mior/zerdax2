@@ -16,16 +16,16 @@ import drawings as draw
 
 img = None
 debug = False
-bad_pic_msg = ""
+bad_picture_message = ""
 
 
 def algorithm(filename):
-    global img, debug, bad_pic_msg
+    global img, debug, bad_picture_message
     debug = log.root.level < 20
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]
     img.basename = img.basename.rsplit("/", 1)[-1]
-    bad_pic_msg = f"{img.filename}: bad picture, try again from another angle"
+    bad_picture_message = f"{img.filename}: bad picture, try again from another angle"
 
     img.BGR = cv2.imread(img.filename)
 
@@ -34,30 +34,30 @@ def algorithm(filename):
     try:
         print(f"Board detected: {img.boardbox}")
     except Exception:
-        log.error(bad_pic_msg)
-        return bad_pic_msg
+        log.error(bad_picture_message)
+        return bad_picture_message
 
     img = crop_board_to_size(img)
     if img.board.shape[0] < 300:
-        log.error(bad_pic_msg)
-        return bad_pic_msg
+        log.error(bad_picture_message)
+        return bad_picture_message
+
     img = pre_process(img)
     canny = create_cannys(img)
     if debug:
         draw.save("edges", canny)
 
     img.corners = lines.find_corners(canny)
-    print(f"corners: {img.corners}")
-    print(f"type: {type(img.corners)}")
+    print(f"Corners found: {img.corners}")
     canvas = draw.corners(img.board, img.corners)
     draw.save("corners", canvas)
-    cannywarp, warp_invmatrix = perspective.transform(canny, img.corners)
-    warp3ch = cv2.cvtColor(cannywarp, cv2.COLOR_GRAY2BGR)
+    canny_warped, warp_inverse_matrix = perspective.transform(canny, img.corners)
+    warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
-    vert, hori = lines.find_wlines(cannywarp)
+    vert, hori = lines.find_wlines(canny_warped)
     if vert is None or hori is None:
-        log.error(bad_pic_msg)
-        return bad_pic_msg
+        log.error(bad_picture_message)
+        return bad_picture_message
 
     canvas = draw.lines(warp3ch, vert, hori)
     draw.save("find_lines", canvas)
@@ -69,8 +69,8 @@ def algorithm(filename):
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")
             log.error(f"Got {lv} vertical and {lh} horizontal lines")
-            log.error(bad_pic_msg)
-            return bad_pic_msg
+            log.error(bad_picture_message)
+            return bad_picture_message
 
     inters = intersections.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debug:
@@ -80,15 +80,15 @@ def algorithm(filename):
             log.error("There should be 81 intersections",
                       "in 9 rows and 9 columns")
             log.error(f"{inters.shape=}")
-            log.error(bad_pic_msg)
-            return bad_pic_msg
+            log.error(bad_picture_message)
+            return bad_picture_message
 
     inters = np.array(inters, dtype='float64')
 
-    inters = cv2.perspectiveTransform(inters, warp_invmatrix)
+    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
     # scale to input size
-    inters[:, :, 0] /= img.bfact
-    inters[:, :, 1] /= img.bfact
+    inters[:, :, 0] /= img.resize_factor
+    inters[:, :, 1] /= img.resize_factor
     # position board bounding box
     inters[:, :, 0] += img.x0
     inters[:, :, 1] += img.y0
@@ -112,12 +112,12 @@ def crop_board_to_size(img):
     img.x1, img.y1 = x1 + d, y1 + d
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
 
-    log.info(f"reducing cropped image to default size ({consts.bwidth})...")
-    img.bwidth = consts.bwidth
-    img.bfact = img.bwidth / img.board.shape[1]
-    img.bheigth = round(img.bfact * img.board.shape[0])
+    log.info(f"reducing cropped image to default size ({consts.width_board})...")
+    img.width_board = consts.width_board
+    img.resize_factor = img.width_board / img.board.shape[1]
+    img.height_board = round(img.resize_factor * img.board.shape[0])
 
-    img.board = cv2.resize(img.board, (img.bwidth, img.bheigth))
+    img.board = cv2.resize(img.board, (img.width_board, img.height_board))
     if debug:
         draw.save("board", img.board)
     return img

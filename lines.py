@@ -76,8 +76,6 @@ def find_wlines(canny):
         vert = bundle_lines(vert, distv)
         hori = bundle_lines(hori, disth)
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
-        vert, hori = filter_byinter(vert, hori)
-        lv, lh = check_save("filter_byinter", vert, hori, lv, lh)
 
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")

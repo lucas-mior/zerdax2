@@ -18,11 +18,10 @@ from c_load import lfilter
 
 img = None
 debug = False
-bad_picture_msg = ""
 
 
 def algorithm(filename):
-    global img, debug, bad_picture_msg
+    global img, debug
     debug = log.root.level < 20
     img = SimpleNamespace(filename=filename)
     img.basename = filename.rsplit(".", 1)[0]

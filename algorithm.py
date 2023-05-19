@@ -4,6 +4,7 @@ import numpy as np
 import logging as log
 from types import SimpleNamespace
 
+import algorithm as algo
 import squares as squares
 import lines as lines
 import intersections as intersections
@@ -97,7 +98,21 @@ def algorithm(filename):
         canvas = draw.points(img.BGR, inters)
         draw.save("intersections", canvas)
 
-    img = squares.calculate(img, inters)
+    img.squares = squares.calculate(inters)
+
+    if algo.debug:
+        canvas = draw.squares(img.BGR, img.squares)
+        draw.save("A1E4C5H8", canvas)
+
+    log.info("filling squares...")
+    img.squares, pieces = squares.fill(img.squares, img.pieces)
+    if len(pieces) > 0:
+        img.squares, pieces = squares.fill(img.squares, img.pieces, force=True)
+    img.squares, changed = squares.check_colors(img.BGR, img.squares)
+
+    if algo.debug and changed:
+        canvas = draw.squares(img.BGR, img.squares)
+        draw.save("A1E4C5H8", canvas)
 
     img.fen = fen.generate(img.squares)
     fen.dump(img.fen)

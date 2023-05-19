@@ -1,4 +1,4 @@
-bwidth = 512
+width_board = 512
 min_line_length = 280
 margin = 6
 tileGridSize = 10

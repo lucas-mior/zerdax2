@@ -6,7 +6,7 @@ import algorithm as algo
 import drawings as draw
 
 
-def calculate(img, inters):
+def calculate(inters):
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)
     squares = np.zeros((8, 8, 5, 2), dtype='int32')
@@ -17,20 +17,7 @@ def calculate(img, inters):
             squares[i, j, 2] = intersq[i+1, j+1]
             squares[i, j, 3] = intersq[i, j+1]
 
-    if algo.debug:
-        canvas = draw.squares(img.BGR, squares)
-        draw.save("A1E4C5H8", canvas)
-
-    log.info("filling squares...")
-    squares, pieces = fill(squares, img.pieces)
-    if len(pieces) > 0:
-        squares, pieces = fill(squares, img.pieces, force=True)
-    img.squares, changed = check_colors(img.BGR, squares)
-
-    if algo.debug and changed:
-        canvas = draw.squares(img.BGR, img.squares)
-        draw.save("A1E4C5H8", canvas)
-    return img
+    return squares
 
 
 def fill(squares, pieces, force=False):

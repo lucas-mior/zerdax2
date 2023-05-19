@@ -58,7 +58,7 @@ def algorithm(filename):
     log.info(f"Corners found: {board_corners}")
 
     canny_warped, warp_inverse_matrix = perspective.warp(canny, board_corners)
-    warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
+    canny_warped_3channels = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_wlines(canny_warped)
     if vert is None or hori is None:
@@ -67,7 +67,7 @@ def algorithm(filename):
 
     lv, lh = len(vert), len(hori)
     if (failed := (lv != 9 or lh != 9)) or algo.debug:
-        canvas = draw.lines(warp3ch, vert, hori)
+        canvas = draw.lines(canny_warped_3channels, vert, hori)
         draw.save("find_lines", canvas)
         if failed:
             log.error("There should be 9 vertical lines and",
@@ -78,7 +78,7 @@ def algorithm(filename):
 
     inters = intersect.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or algo.debug:
-        canvas = draw.points(warp3ch, inters)
+        canvas = draw.points(canny_warped_3channels, inters)
         draw.save("intersections", canvas)
         if failed:
             log.error("There should be 81 intersections",
@@ -153,8 +153,6 @@ def pre_process(img):
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
     if algo.debug:
         draw.save("gray_board", img.gray)
-    log.info("generating 3 channel gray image for drawings...")
-    img.gray3ch = cv2.cvtColor(img.gray, cv2.COLOR_GRAY2BGR)
 
     log.info("applying distributed histogram equalization to image...")
     grid = (consts.tile_grid_size, consts.tile_grid_size)

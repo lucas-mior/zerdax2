@@ -5,8 +5,6 @@ import logging as log
 import constants as consts
 import drawings as draw
 
-minlen0 = consts.min_line_length
-canny3ch = None
 WLEN = 512
 
 

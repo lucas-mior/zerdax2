@@ -11,7 +11,7 @@ from c_load import segments_distance
 from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
-canny3ch = None
+canny_3channels = None
 WLEN = 512
 
 
@@ -26,8 +26,8 @@ def find_wlines(canny):
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
     disth = round(image_shape[0]/23)
-    global canny3ch
-    canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+    global canny_3channels
+    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -55,14 +55,14 @@ def find_wlines(canny):
 
         lines_hough = lines[:, 0, :]
         if algo.debug:
-            canvas = draw.lines(canny3ch, lines_hough)
+            canvas = draw.lines(canny_3channels, lines_hough)
             ll = len(lines_hough)
             log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
 
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
         lines_hough = filter_90(lines_hough)
-        canvas = draw.lines(canny3ch, lines_hough)
+        canvas = draw.lines(canny_3channels, lines_hough)
         draw.save("filter90", canvas)
 
         vert, hori = split(lines_hough)
@@ -81,11 +81,11 @@ def find_wlines(canny):
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")
-        canvas = draw.lines(canny3ch, vert, hori)
+        canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
     if lv < 6 or lh < 6:
         log.error("Less than 6 lines found in at least one direction")
-        canvas = draw.lines(canny3ch, vert, hori)
+        canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
 
@@ -98,8 +98,8 @@ def find_baselines(canny):
     image_shape = canny.shape
     distv = round(image_shape[0]/23)
     disth = round(image_shape[1]/23)
-    global canny3ch
-    canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+    global canny_3channels
+    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -127,7 +127,7 @@ def find_baselines(canny):
 
         lines_hough = lines[:, 0, :]
         if algo.debug:
-            canvas = draw.lines(canny3ch, lines_hough)
+            canvas = draw.lines(canny_3channels, lines_hough)
             ll = len(lines_hough)
             log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
@@ -153,11 +153,11 @@ def find_baselines(canny):
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")
-        canvas = draw.lines(canny3ch, vert, hori)
+        canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
     if lv < 6 or lh < 6:
         log.error("Less than 6 lines found in at least one direction")
-        canvas = draw.lines(canny3ch, vert, hori)
+        canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
 
@@ -336,7 +336,7 @@ def fix_length_byinter(image_shape, vert, hori=None):
 
 
 def check_save(title, vert, hori, old_lv, old_lh):
-    global canny3ch
+    global canny_3channels
     annotate_number = True
     lv = 0 if vert is None else len(vert)
     lh = 0 if hori is None else len(hori)
@@ -347,7 +347,7 @@ def check_save(title, vert, hori, old_lv, old_lh):
     if algo.debug:
         if lv > 12 or lh > 12:
             annotate_number = False
-        canvas = draw.lines(canny3ch, vert, hori, annotate_number)
+        canvas = draw.lines(canny_3channels, vert, hori, annotate_number)
         draw.save(title, canvas)
     return lv, lh
 

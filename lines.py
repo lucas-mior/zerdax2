@@ -57,7 +57,6 @@ def find_wlines(canny):
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
         lines_hough = filter_90(lines_hough)
         canvas = draw.lines(canny3ch, lines_hough)
-        ll = len(lines_hough)
         draw.save("filter90", canvas)
 
         vert, hori = split(lines_hough)

@@ -313,7 +313,7 @@ def fix_length_byinter(ww, hh, vert, hori=None):
             line = lines[i]
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
-            limit = limit_bydims(new, ww, hh)
+            limit = limit_by_dimensions(new, ww, hh)
             limit = np.ravel(limit[:2])
             if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
@@ -375,7 +375,7 @@ def add_outer(lines, ll, k, ww, hh, force=False):
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
-            inters = limit_bydims(new, ww, hh)
+            inters = limit_by_dimensions(new, ww, hh)
             if len(inters) < 2:
                 return lines
             elif len(inters) > 2:
@@ -584,7 +584,7 @@ def rem_outer(lines, ll, k, ww, hh, force=False):
     return lines, ll
 
 
-def limit_bydims(inters, ww, hh):
+def limit_by_dimensions(inters, ww, hh):
     i0 = intersections.calculate_single(inters, ww, hh, kind=0)
     i1 = intersections.calculate_single(inters, ww, hh, kind=1)
     i2 = intersections.calculate_single(inters, ww, hh, kind=2)
@@ -643,11 +643,11 @@ def theta_abs(line):
 
 
 def filter_90(lines):
-    rem = np.zeros(lines.shape[0], dtype='uint8')
+    remove = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, t in enumerate(lines[:, 5]):
         if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
             if abs(t) > 4*100:
-                rem[i] = 1
+                remove[i] = 1
 
-    return lines[rem == 0]
+    return lines[remove == 0]

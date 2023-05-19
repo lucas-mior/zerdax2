@@ -55,8 +55,9 @@ def algorithm(filename):
 
     img.corners = lines.find_corners(canny)
     log.info(f"Corners found: {img.corners}")
-    canvas = draw.corners(img.board, img.corners)
-    draw.save("corners", canvas)
+    if algo.debug:
+        canvas = draw.corners(img.board, img.corners)
+        draw.save("corners", canvas)
     canny_warped, warp_inverse_matrix = perspective.transform(canny, img.corners)
     warp3ch = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 

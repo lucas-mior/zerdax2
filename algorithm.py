@@ -8,7 +8,7 @@ import algorithm as algo
 import corners as corners
 import squares as squares
 import lines as lines
-import intersections as intersections
+import intersect as intersect
 import perspective as perspective
 import yolo_wrap as yolo
 import fen as fen
@@ -78,7 +78,7 @@ def algorithm(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    inters = intersections.calculate_all(vert, hori)
+    inters = intersect.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or algo.debug:
         canvas = draw.points(warp3ch, inters)
         draw.save("intersections", canvas)

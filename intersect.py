@@ -132,3 +132,16 @@ def calculate_single(line0, ww=500, hh=300, kind=0):
     x = round(linalg.det([d, xdiff]) / div)
     y = round(linalg.det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')
+
+
+def shorten(inters, image_width, image_height):
+    i0 = calculate_single(inters, image_width, image_height, 0)
+    i1 = calculate_single(inters, image_width, image_height, 1)
+    i2 = calculate_single(inters, image_width, image_height, 2)
+    i3 = calculate_single(inters, image_width, image_height, 3)
+    inters = np.array([i0, i1, i2, i3], dtype='int32')
+
+    inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
+                    (inters[:, 0] <= image_width) &
+                    (inters[:, 1] <= image_height)]
+    return inters

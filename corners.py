@@ -2,7 +2,7 @@ import numpy as np
 import logging as log
 
 import lines as lines
-import intersections as intersections
+import intersect as intersect
 
 
 def find(canny):
@@ -19,7 +19,7 @@ def find(canny):
 
     vert, lv = lines.add_outer(vert, lv, 0, ww, hh)
     hori, lh = lines.add_outer(hori, lh, 1, ww, hh)
-    inters = intersections.calculate_all(vert, hori)
+    inters = intersect.calculate_all(vert, hori)
     corners = calculate(inters)
     return corners
 

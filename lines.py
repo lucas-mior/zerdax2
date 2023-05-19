@@ -4,7 +4,7 @@ import logging as log
 from jenkspy import jenks_breaks
 
 import algorithm as algo
-import intersections as intersections
+import intersect as intersect
 import constants as consts
 import drawings as draw
 from c_load import segments_distance
@@ -255,11 +255,11 @@ def filter_byangle(vert, hori=None):
 
 def filter_byinter(vert, hori=None):
     log.info("filtering lines by number of intersections ...")
+    limit = True
 
     def _filter(lines):
         for i, line in enumerate(lines):
-            inters = intersections.calculate_all(np.array([line]), lines,
-                                                 limit=True)
+            inters = intersect.calculate_all(np.array([line]), lines, limit)
             if inters is None or len(inters) == 0:
                 continue
             elif inters.shape[1] >= 4:
@@ -292,7 +292,7 @@ def sort(vert, hori=None, k=0):
     def _create(lines, kind):
         positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
-            inter = intersections.calculate_single(line, kind=kind)
+            inter = intersect.calculate_single(line, kind=kind)
             positions[i] = inter[kind]
         return positions
 
@@ -310,7 +310,7 @@ def sort(vert, hori=None, k=0):
 
 
 def fix_length_byinter(image_width, image_height, vert, hori=None):
-    inters = intersections.calculate_extern(vert, hori)
+    inters = intersect.calculate_extern(vert, hori)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
         return vert, hori
@@ -320,7 +320,7 @@ def fix_length_byinter(image_width, image_height, vert, hori=None):
             line = lines[i]
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
-            limit = limit_by_dimensions(new, image_width, image_height)
+            limit = intersect.shorten(new, image_width, image_height)
             limit = np.ravel(limit[:2])
             if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
@@ -382,7 +382,7 @@ def add_outer(lines, ll, k, image_width, image_height, force=False):
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
-            inters = limit_by_dimensions(new, image_width, image_height)
+            inters = intersect.shorten(new, image_width, image_height)
             if len(inters) < 2:
                 return lines
             elif len(inters) > 2:
@@ -587,19 +587,6 @@ def rem_outer(lines, ll, k, image_width, image_height, force=False):
 
     ll, _ = check_save("rem_outer", lines, None, ll, 0)
     return lines, ll
-
-
-def limit_by_dimensions(inters, image_width, image_height):
-    i0 = intersections.calculate_single(inters, image_width, image_height, 0)
-    i1 = intersections.calculate_single(inters, image_width, image_height, 1)
-    i2 = intersections.calculate_single(inters, image_width, image_height, 2)
-    i3 = intersections.calculate_single(inters, image_width, image_height, 3)
-    inters = np.array([i0, i1, i2, i3], dtype='int32')
-
-    inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
-                    (inters[:, 0] <= image_width) &
-                    (inters[:, 1] <= image_height)]
-    return inters
 
 
 def length_theta(vert, hori=None, abs_angle=False):

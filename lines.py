@@ -97,30 +97,6 @@ def find_wlines(canny):
     return vert, hori
 
 
-def fix_lines(lines, kind, ww, hh):
-    ll = len(lines)
-    l2 = 0
-    runs = 0
-    while ll != l2 and runs <= 5:
-        ll = l2
-        lines, l2 = rem_outer(lines, l2, kind, ww, hh)
-        if len(lines) >= 7:
-            lines, l2 = rem_wrong(lines, l2, kind, ww, hh)
-        if len(lines) <= 9:
-            lines, l2 = add_outer(lines, l2, kind, ww, hh, force=True)
-        else:
-            lines, l2 = add_outer(lines, l2, kind, ww, hh)
-        if len(lines) >= 7:
-            lines, l2 = rem_middle(lines, l2, kind, ww, hh)
-        lines, l2 = add_middle(lines, l2, kind, ww, hh)
-        lines, l2 = add_middle(lines, l2, kind, ww, hh)
-        if (l2 >= 10):
-            lines, l2 = rem_outer(lines, l2, kind, ww, hh, force=True)
-        runs += 1
-
-    return lines
-
-
 def find_baselines(canny):
     ww = canny.shape[1]
     hh = canny.shape[0]

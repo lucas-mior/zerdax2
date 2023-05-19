@@ -33,7 +33,7 @@ def detect_objects(img):
             img.boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
             break
 
-    # pieces = objs[objs.cls != boardnum]
+    pieces = objs[objs.cls != boardnum]
     pieces = objs
 
     npieces = []
@@ -55,7 +55,6 @@ def detect_objects(img):
         canvas = draw.boxes(img.BGR, img.pieces)
         draw.save("yolo", canvas)
 
-    exit(0)
     return img
 
 

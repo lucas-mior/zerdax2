@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import det
+from numpy import linalg
 import logging as log
 import constants as consts
 
@@ -34,14 +34,14 @@ def calculate_extern(lines0, lines1=None):
             xdiff = (x0 - x1, xx0 - xx1)
             ydiff = (y0 - y1, yy0 - yy1)
 
-            div = det([xdiff, ydiff])
+            div = linalg.det([xdiff, ydiff])
             if div == 0:
                 continue
 
-            d = (det([(x0, y0), (x1, y1)]),
-                 det([(xx0, yy0), (xx1, yy1)]))
-            x = det([d, xdiff]) / div
-            y = det([d, ydiff]) / div
+            d = (linalg.det([(x0, y0), (x1, y1)]),
+                 linalg.det([(xx0, yy0), (xx1, yy1)]))
+            x = linalg.det([d, xdiff]) / div
+            y = linalg.det([d, ydiff]) / div
             col.append((x, y))
         rows.append(col)
 
@@ -84,14 +84,14 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
             xdiff = (x0 - x1, xx0 - xx1)
             ydiff = (y0 - y1, yy0 - yy1)
 
-            div = det([xdiff, ydiff])
+            div = linalg.det([xdiff, ydiff])
             if div == 0:
                 continue
 
-            d = (det([(x0, y0), (x1, y1)]),
-                 det([(xx0, yy0), (xx1, yy1)]))
-            x = det([d, xdiff]) / div
-            y = det([d, ydiff]) / div
+            d = (linalg.det([(x0, y0), (x1, y1)]),
+                 linalg.det([(xx0, yy0), (xx1, yy1)]))
+            x = linalg.det([d, xdiff]) / div
+            y = linalg.det([d, ydiff]) / div
             if limit and (x < 0 or x > maxx or y < 0 or y > maxy):
                 continue
             col.append((x, y))
@@ -121,13 +121,13 @@ def calculate_single(line0, ww=500, hh=300, kind=0):
     xdiff = (x0 - x1, xx0 - xx1)
     ydiff = (y0 - y1, yy0 - yy1)
 
-    div = det([xdiff, ydiff])
+    div = linalg.det([xdiff, ydiff])
     if div == 0:
         log.warning("div == 0 (parallel lines)")
         return (30000, 30000)
 
-    d = (det([(x0, y0), (x1, y1)]),
-         det([(xx0, yy0), (xx1, yy1)]))
-    x = round(det([d, xdiff]) / div)
-    y = round(det([d, ydiff]) / div)
+    d = (linalg.det([(x0, y0), (x1, y1)]),
+         linalg.det([(xx0, yy0), (xx1, yy1)]))
+    x = round(linalg.det([d, xdiff]) / div)
+    y = round(linalg.det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')

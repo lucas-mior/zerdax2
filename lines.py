@@ -236,11 +236,11 @@ def split(lines):
 
 def filter_byangle(vert, hori=None):
     log.info("filtering lines by angle accoring to direction...")
-    tol = consts.angle_tolerance
+    tolerance = consts.angle_tolerance
 
     def _filter(lines):
         angle = np.median(lines[:, 5])
-        right = np.abs(lines[:, 5] - angle) <= tol
+        right = np.abs(lines[:, 5] - angle) <= tolerance
         return lines[right]
 
     if vert is not None:

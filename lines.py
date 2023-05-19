@@ -30,9 +30,7 @@ def find_corners(canny):
     vert, lv = add_outer(vert, lv, 0, ww, hh)
     hori, lh = add_outer(hori, lh, 1, ww, hh)
     inters = intersections.calculate_all(vert, hori)
-    print(f"{inters=}")
     corners = calc_corners(inters)
-    print(f"{corners=}")
     return corners
 
 

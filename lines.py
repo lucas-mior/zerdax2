@@ -365,12 +365,12 @@ def add_outer(lines, ll, k, image_width, image_height, force=False):
         return lines
 
     def _add_outer(lines, where):
-        dd = image_width if k == 0 else image_height
+        limit = image_width if k == 0 else image_height
         if where == 0:
             ref = 0
             other = 1
         elif where == -1:
-            ref = dd
+            ref = limit
             other = -2
 
         line0 = lines[where]
@@ -391,7 +391,7 @@ def add_outer(lines, ll, k, image_width, image_height, force=False):
                                [inters[1], inters[2]]])
                 lens = [length(le.flatten()) for le in ls]
                 inters = ls[np.argmax(lens)]
-            if inters[0, k] <= dd and inters[1, k] <= dd:
+            if inters[0, k] <= limit and inters[1, k] <= limit:
                 x0, y0, x1, y1 = np.ravel(inters)
                 if length((x0, y0, x1, y1)) < (length(line0)*0.8):
                     return lines
@@ -564,15 +564,15 @@ def rem_outer(lines, ll, k, image_width, image_height, force=False):
     log.debug("removing extra outer lines...")
     tol = consts.outer_tolerance
     if k == 0:
-        dd = image_width
+        limit = image_width
     else:
-        dd = image_height
+        limit = image_height
 
     d00 = abs(lines[1, k] - 0)
     d01 = abs(lines[1, k+2] - 0)
     d0 = min(d00, d01)
-    d10 = abs(lines[-2, k] - dd)
-    d11 = abs(lines[-2, k+2] - dd)
+    d10 = abs(lines[-2, k] - limit)
+    d11 = abs(lines[-2, k+2] - limit)
     d1 = min(d10, d11)
     if not force:
         if d0 < tol:

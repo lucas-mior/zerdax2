@@ -3,12 +3,12 @@ from numpy.ctypeslib import ndpointer as ndp
 import platform
 
 uname = platform.uname()[0]
-if uname == "Windows":
+if uname == "Linux":
+    library = "./libzerdax.so"
+elif uname == "Windows":
     # library = r".\libzerdax.dll"
     print("This ṕrogram doesn't work on windows yet")
     exit(1)
-elif uname == "Linux":
-    library = "./libzerdax.so"
 else:
     print(f"Unsuported operating system: {uname}")
     exit(1)

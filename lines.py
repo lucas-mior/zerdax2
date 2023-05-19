@@ -54,19 +54,16 @@ def find_wlines(canny):
             log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
 
-        canvas = draw.lines(canny3ch, lines_hough)
-        draw.save("hough_lines", canvas)
-
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
         lines_hough = filter_90(lines_hough)
         canvas = draw.lines(canny3ch, lines_hough)
         ll = len(lines_hough)
         draw.save("filter90", canvas)
 
-        vert, hori = split_lines(lines_hough)
-        lv, lh = check_save("split_lines", vert, hori, 0, 0)
-        vert, hori = sort_lines(vert, hori)
-        lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+        vert, hori = split(lines_hough)
+        lv, lh = check_save("split", vert, hori, 0, 0)
+        vert, hori = sort(vert, hori)
+        lv, lh = check_save("sort", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
         bundled = np.zeros(vert.shape, dtype='int32')
@@ -92,8 +89,8 @@ def find_wlines(canny):
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
 
-    vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+    vert, hori = sort(vert, hori)
+    lv, lh = check_save("sort", vert, hori, 0, 0)
     return vert, hori
 
 
@@ -137,12 +134,12 @@ def find_baselines(canny):
             draw.save("hough_lines", canvas)
 
         lines_hough, _ = length_theta(lines_hough, abs_angle=False)
-        vert, hori = split_lines(lines_hough)
-        lv, lh = check_save("split_lines", vert, hori, 0, 0)
+        vert, hori = split(lines_hough)
+        lv, lh = check_save("split", vert, hori, 0, 0)
         vert, hori = filter_byangle(vert, hori)
         lv, lh = check_save("filter_byangle", vert, hori, lv, lh)
-        vert, hori = sort_lines(vert, hori)
-        lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+        vert, hori = sort(vert, hori)
+        lv, lh = check_save("sort", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
         bundled = np.zeros(vert.shape, dtype='int32')
@@ -168,12 +165,12 @@ def find_baselines(canny):
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
 
-    vert, hori = sort_lines(vert, hori)
-    lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+    vert, hori = sort(vert, hori)
+    lv, lh = check_save("sort", vert, hori, 0, 0)
     return vert, hori
 
 
-def split_lines(lines):
+def split(lines):
     log.info("spliting lines into vertical and horizontal...")
 
     def _check_split(vert, hori):
@@ -279,7 +276,7 @@ def filter_byinter(vert, hori=None):
     return vert, hori
 
 
-def sort_lines(vert, hori=None, k=0):
+def sort(vert, hori=None, k=0):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
@@ -354,9 +351,6 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     if force:
         tol = 1
 
-    print("add_outer------------")
-    print("type lines:", type(lines))
-
     def _add_outer(lines, tol, where, ww, hh):
         dd = ww if k == 0 else hh
         if where == 0:
@@ -401,8 +395,6 @@ def add_outer(lines, ll, k, ww, hh, force=False):
     lines = _add_outer(lines, tol, -1, ww, hh)
     ll, _ = check_save("add_outer1", lines, None, ll, 0)
 
-    print("add)outer return-------------")
-    print("type lines:", type(lines))
     return lines, ll
 
 

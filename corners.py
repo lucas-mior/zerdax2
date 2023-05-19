@@ -6,7 +6,7 @@ import intersections as intersections
 
 
 def find(canny):
-    log.info("finding all lines of board...")
+    log.debug("finding all lines of board...")
     ww = canny.shape[1]
     hh = canny.shape[0]
 
@@ -25,8 +25,8 @@ def find(canny):
 
 
 def calculate(inters):
+    log.debug("calculating 4 corners of board...")
     inter = np.copy(inters)
-    print("calculating 4 corners of board...")
     inter = inter.reshape((-1, 2))
     psum = np.zeros((inter.shape[0], 3), dtype='int32')
     psub = np.zeros((inter.shape[0], 3), dtype='int32')

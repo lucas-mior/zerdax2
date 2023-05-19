@@ -4,7 +4,7 @@ import numpy as np
 import logging as log
 from types import SimpleNamespace
 
-import squares as sq
+import squares as squares
 import lines as lines
 import perspective as perspective
 import yolo_wrap as yolo
@@ -31,7 +31,7 @@ def algorithm(filename):
     img = yolo.detect_objects(img)
 
     try:
-        print(img.boardbox)
+        print(f"Board detected: {img.boardbox}")
     except Exception:
         log.error(bad_pic_msg)
         return bad_pic_msg
@@ -50,7 +50,7 @@ def algorithm(filename):
     print(f"type: {type(img.corners)}")
     canvas = draw.corners(img.board, img.corners)
     draw.save("corners", canvas)
-    cannywarp, warp_matrix, warp_invmatrix, width, height = perspective.transform(canny, img.corners)
+    cannywarp, warp_invmatrix = perspective.transform(canny, img.corners)
     warp3ch = cv2.cvtColor(cannywarp, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_wlines(cannywarp)
@@ -71,7 +71,7 @@ def algorithm(filename):
             log.error(bad_pic_msg)
             return bad_pic_msg
 
-    inters = calc_intersections(vert, hori)
+    inters = lines.calc_intersections(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or debug:
         canvas = draw.points(img.gray3ch, inters)
         draw.save("intersections", canvas)
@@ -94,7 +94,7 @@ def algorithm(filename):
         canvas = draw.points(img.BGR, inters)
         draw.save("intersections", canvas)
 
-    img = calc_squares(img, inters)
+    img = squares.calculate(img, inters)
 
     img.fen = fen.generate(img.squares)
     fen.dump(img.fen)

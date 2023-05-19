@@ -29,9 +29,11 @@ def transform(canny, corners):
 
     newshape = np.array([[0, 0], [width-1, 0],
                         [width-1, height-1], [0, height-1]], dtype="float32")
+
     warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
     _, warp_invmatrix = cv2.invert(warp_matrix)
+
     canny_warp = cv2.warpPerspective(canny, warp_matrix, (width, height))
     draw.save("cannywarp", canny_warp)
 
-    return canny_warp, warp_matrix, warp_invmatrix, width, height
+    return canny_warp, warp_invmatrix

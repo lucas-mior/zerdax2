@@ -36,6 +36,88 @@ def find_corners(canny):
     return corners
 
 
+def find_wlines(canny):
+    ww = canny.shape[1]
+    hh = canny.shape[0]
+    distv = round(ww/23)
+    disth = round(hh/23)
+    global canny3ch
+    canny3ch = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+    min_before_split = consts.min_lines_before_split
+
+    angle = consts.hough_angle_resolution
+    tangle = np.deg2rad(angle)
+    minlen = minlen0
+    maxgap = 4
+    tvotes = round(minlen0*1.1)
+    lv = lh = 0
+    hori = vert = None
+    while (lv < 8 or lh < 8):
+        if tvotes <= round(minlen0/1.5) and (minlen <= round(minlen0/1.1)):
+            break
+        minlen = max(minlen - 5, round(minlen0 / 1.1))
+        maxgap = min(maxgap + 2, round(minlen0 / 4))
+        tvotes = max(tvotes - 5, round(minlen0 / 1.5))
+        lines = cv2.HoughLinesP(canny, 1, tangle, tvotes, None, minlen, maxgap)
+        if lines is None:
+            log.debug(f"0 @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            maxgap += 5
+            continue
+        elif (ll := lines.shape[0]) < min_before_split:
+            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            maxgap += 2
+            continue
+
+        lines_hough = lines[:, 0, :]
+        if algo.debug:
+            canvas = draw.lines(canny3ch, lines_hough)
+            ll = len(lines_hough)
+            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            draw.save("hough_lines", canvas)
+
+        canvas = draw.lines(canny3ch, lines_hough)
+        draw.save("hough_lines", canvas)
+
+        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
+        lines_hough = filter_90(lines_hough)
+        canvas = draw.lines(canny3ch, lines_hough)
+        ll = len(lines_hough)
+        draw.save("filter90", canvas)
+
+        vert, hori = split_lines(lines_hough)
+        lv, lh = check_save("split_lines", vert, hori, 0, 0)
+        vert, hori = sort_lines(vert, hori)
+        lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+        if vert is None or hori is None:
+            continue
+        bundled = np.zeros(vert.shape, dtype='int32')
+        nlines = lines_bundle(vert, bundled, len(vert), distv)
+        vert = bundled[:nlines]
+        bundled = np.zeros(hori.shape, dtype='int32')
+        nlines = lines_bundle(hori, bundled, len(hori), disth)
+        hori = bundled[:nlines]
+        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
+        vert, hori = filter_byinter(vert, hori)
+        lv, lh = check_save("filter_byinter", vert, hori, lv, lh)
+
+        ll = lv + lh
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")
+
+    if lv != 9 or lh != 9:
+        log.warning("Wrong lines found in at least one direction")
+        # canvas = draw.lines(canny3ch, vert, hori)
+        # draw.save(f"canny{lv=}_{lh=}", canvas)
+    if lv < 6 or lh < 6:
+        log.error("Less than 6 lines found in at least one direction")
+        canvas = draw.lines(canny3ch, vert, hori)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
+        return None, None
+
+    vert, hori = sort_lines(vert, hori)
+    lv, lh = check_save("sort_lines", vert, hori, 0, 0)
+    return vert, hori
+
+
 def calc_corners(inters):
     inter = np.copy(inters)
     print("calculating 4 corners of board...")
@@ -830,11 +912,18 @@ def filter_90(lines):
     rem = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, t in enumerate(lines[:, 5]):
-        if abs(t - 90) > 4 and abs(t + 90) > 4 and abs(t) > 4:
-            rem[i] = 1
-        else:
-            rem[i] = 0
+        if abs(t - 90*100) > 4*100:
+            print(f"1111")
+            print(f"{abs(t-90*100)=}")
+            if abs(t + 90*100) > 4*100:
+                print(f"2222")
+                print(f"{abs(t+90*100)=}")
+                if abs(t) > 4*100:
+                    print(f"3333")
+                    print(f"abs(t): {abs(t)}")
+                    rem[i] = 1
 
+    print("rem: ", rem)
     return lines[rem == 0]
 
 

@@ -6,7 +6,7 @@ import algorithm as algo
 import drawings as draw
 
 
-def calc_squares(img, inters):
+def calculate(img, inters):
     intersq = inters.reshape(9, 9, 1, 2)
     intersq = np.flip(intersq, axis=1)
     squares = np.zeros((8, 8, 5, 2), dtype='int32')
@@ -33,7 +33,7 @@ def calc_squares(img, inters):
     return img
 
 
-def fill_squares(squares, pieces, force=False):
+def fill(squares, pieces, force=False):
     piece_y_tol = abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22
     piece_y_tol = round(piece_y_tol)
     for index in np.ndindex(squares.shape[:2]):

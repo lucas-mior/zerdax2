@@ -56,8 +56,7 @@ def find_warped_lines(canny):
         vert, hori = sort(vert, hori)
         lv, lh = check_save("sort", vert, hori, lv, lh)
 
-        vert = bundle_lines(vert, distv)
-        hori = bundle_lines(hori, disth)
+        vert, hori = bundle_lines(vert, distv, hori, disth)
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
 
         ll = lv + lh
@@ -117,8 +116,7 @@ def find_baselines(canny):
         vert, hori = sort(vert, hori)
         lv, lh = check_save("sort", vert, hori, lv, lh)
 
-        vert = bundle_lines(vert, distv)
-        hori = bundle_lines(hori, disth)
+        vert, hori = bundle_lines(vert, distv, hori, disth)
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
         vert, hori = angles.filter_intersecting(vert, hori)
         lv, lh = check_save("filter_intersecting", vert, hori, lv, lh)
@@ -139,11 +137,18 @@ def find_baselines(canny):
     return vert, hori
 
 
-def bundle_lines(lines, dist):
-    bundled = np.zeros(lines.shape, dtype='int32')
-    nlines = lines_bundle(lines, bundled, len(lines), dist)
-    lines = bundled[:nlines]
-    return lines
+def bundle_lines(vert, distv, hori=None, disth=None):
+
+    def _bundle_lines(lines, dist):
+        bundled = np.zeros(lines.shape, dtype='int32')
+        nlines = lines_bundle(lines, bundled, len(lines), dist)
+        lines = bundled[:nlines]
+        return lines
+
+    if hori is not None:
+        hori = _bundle_lines(hori, disth)
+    vert = _bundle_lines(vert, distv)
+    return vert, hori
 
 
 def fix_warped_lines(canny, vert, hori):

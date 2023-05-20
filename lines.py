@@ -127,6 +127,19 @@ def fix_warped_lines(canny, vert, hori):
     return vert, hori
 
 
+def hough_wrapper(canny, hough_angle, hough_threshold,
+                  hough_min_length, hough_max_gap):
+
+    lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
+                            None, hough_min_length, hough_max_gap)
+    if lines is None:
+        ll = 0
+    else:
+        lines = lines[:, 0, :]
+        ll = len(lines)
+    return lines, ll
+
+
 def find_baselines(canny):
     log.debug("finding all lines of board...")
     image_shape = canny.shape
@@ -152,28 +165,21 @@ def find_baselines(canny):
         hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
         hough_threshold = max(hough_threshold - 5,
                               round(hough_min_length0 / 1.5))
-        lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
-                                None, hough_min_length, hough_max_gap)
-        if lines is None:
-            log.debug(f"0 @ {angle}, {hough_threshold=}, "
-                      f"{hough_min_length=}, {hough_max_gap=}")
-            hough_max_gap += 5
-            continue
-        elif (ll := lines.shape[0]) < min_before_split:
+        lines, ll = hough_wrapper(canny, hough_angle, hough_threshold,
+                                  hough_min_length, hough_max_gap)
+        if ll < min_before_split:
             log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
                       f"{hough_min_length=}, {hough_max_gap=}")
             hough_max_gap += 2
             continue
 
-        lines_hough = lines[:, 0, :]
         if algo.debug:
-            canvas = draw.lines(canny_3channels, lines_hough)
-            ll = len(lines_hough)
+            canvas = draw.lines(canny_3channels, lines)
             log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
                       f"{hough_min_length=}, {hough_max_gap=}")
             draw.save("hough_lines", canvas)
 
-        vert, hori = angles.split(lines_hough)
+        vert, hori = angles.split(lines)
         lv, lh = check_save("split", vert, hori, 0, 0)
         vert, hori = angles.filter_misdirected(vert, hori)
         lv, lh = check_save("filter_misdirected", vert, hori, lv, lh)

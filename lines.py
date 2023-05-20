@@ -96,6 +96,12 @@ def find_wlines(canny):
 
 
 def fix_wlines(canny, vert, hori):
+
+    def _fix_wlines(lines, kind):
+        return lines
+
+    vert = _fix_wlines(vert, 0)
+    hori = _fix_wlines(hori, 1)
     return vert, hori
 
 

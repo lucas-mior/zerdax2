@@ -98,6 +98,8 @@ def find_wlines(canny):
 def fix_wlines(canny, vert, hori):
 
     def _fix_wlines(lines, kind):
+        lines, _ = rem_wrong(lines, len(lines))
+        lines, _ = add_outer(lines, len(lines), kind, canny.shape)
         return lines
 
     vert = _fix_wlines(vert, 0)

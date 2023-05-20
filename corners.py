@@ -33,4 +33,23 @@ def find(canny):
     top_right = psub[np.argmax(psub[:, 2])][0:2]
     bot_right = psum[np.argmax(psum[:, 2])][0:2]
     bot_left = psub[np.argmin(psub[:, 2])][0:2]
+    corners = broad([top_left, top_right, bot_right, bot_left], canny.shape)
+    return corners
+
+
+def broad(corners, image_shape):
+    width = image_shape[1] - 1
+    height = image_shape[0] - 1
+    top_left = corners[0]
+    top_right = corners[1]
+    bot_right = corners[2]
+    bot_left = corners[3]
+    top_left[0] = max(0,       top_left[0] - 4)
+    top_left[1] = max(0,       top_left[1] - 4)
+    top_right[0] = min(width,  top_right[0] + 4)
+    top_right[1] = max(0,      top_right[1] - 4)
+    bot_right[0] = min(width,  bot_right[0] + 4)
+    bot_right[1] = min(height, bot_right[1] + 4)
+    bot_left[0] = max(0,       bot_left[0] - 4)
+    bot_left[1] = min(height,  bot_left[1] + 4)
     return np.array([top_left, top_right, bot_right, bot_left], dtype='int32')

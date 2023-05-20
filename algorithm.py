@@ -42,7 +42,7 @@ def algorithm(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    log.info(f"Board detected: {board.box}")
+    log.info(f"board detected: {board.box}")
     img = crop_board_to_size(img, board.box)
     if img.board.shape[0] < consts.min_boardbox_height:
         log.error(bad_picture_msg)
@@ -55,7 +55,7 @@ def algorithm(filename):
     if (failed := board.corners is None) or algo.debug:
         canvas = draw.corners(img.board, board.corners)
         draw.save("corners", canvas)
-    log.info(f"Corners found: {board.corners}")
+    log.info(f"corners found: {board.corners}")
 
     canny_warped, warp_inverse_matrix = perspective.warp(canny, board.corners)
     canny_warped_3channels = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
@@ -70,7 +70,7 @@ def algorithm(filename):
         canvas = draw.lines(canny_warped_3channels, vert, hori)
         draw.save("find_warped_lines", canvas)
         if failed:
-            log.error("There should be 9 vertical lines and",
+            log.error("there should be 9 vertical lines and",
                       "9 horizontal lines")
             log.error(f"Got {lv} vertical and {lh} horizontal lines")
             log.error(bad_picture_msg)
@@ -81,7 +81,7 @@ def algorithm(filename):
         canvas = draw.points(canny_warped_3channels, inters)
         draw.save("intersections", canvas)
         if failed:
-            log.error("There should be 81 intersections",
+            log.error("there should be 81 intersections",
                       "in 9 rows and 9 columns")
             log.error(f"{inters.shape=}")
             log.error(bad_picture_msg)

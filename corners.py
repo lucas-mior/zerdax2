@@ -18,23 +18,18 @@ def find(canny):
     vert, lv = lines.add_outer(vert, lv, 0, canny.shape)
     hori, lh = lines.add_outer(hori, lh, 1, canny.shape)
     inters = intersect.calculate_all(vert, hori)
-    corners = calculate(inters)
-    return corners
 
-
-def calculate(inters):
     log.debug("calculating 4 corners of board...")
-    inter = np.copy(inters)
-    inter = inter.reshape((-1, 2))
-    psum = np.zeros((inter.shape[0], 3), dtype='int32')
-    psub = np.zeros((inter.shape[0], 3), dtype='int32')
+    inters = inters.reshape((-1, 2))
+    psum = np.zeros((inters.shape[0], 3), dtype='int32')
+    psub = np.zeros((inters.shape[0], 3), dtype='int32')
 
-    psum[:, 0] = inter[:, 0]
-    psum[:, 1] = inter[:, 1]
-    psum[:, 2] = inter[:, 0] + inter[:, 1]
-    psub[:, 0] = inter[:, 0]
-    psub[:, 1] = inter[:, 1]
-    psub[:, 2] = inter[:, 0] - inter[:, 1]
+    psum[:, 0] = inters[:, 0]
+    psum[:, 1] = inters[:, 1]
+    psum[:, 2] = inters[:, 0] + inters[:, 1]
+    psub[:, 0] = inters[:, 0]
+    psub[:, 1] = inters[:, 1]
+    psub[:, 2] = inters[:, 0] - inters[:, 1]
 
     top_left = psum[np.argmin(psum[:, 2])][0:2]
     top_right = psub[np.argmax(psub[:, 2])][0:2]

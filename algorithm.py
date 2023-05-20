@@ -160,10 +160,10 @@ def pre_process(img):
     clahe = cv2.createCLAHE(clip_limit, grid)
     img.gray = clahe.apply(img.gray)
     img.hsvalue = clahe.apply(img.hsvalue)
+
     if algo.debug:
         draw.save("clahe_gray", img.gray)
         draw.save("clahe_hsvalue", img.hsvalue)
-
     return img
 
 

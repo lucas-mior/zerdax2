@@ -60,10 +60,11 @@ def find_warped_lines(canny):
 
         vert, hori = angles.split(lines)
         lv, lh = check_save("split", vert, hori, 0, 0)
-        vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, lv, lh)
         if vert is None or hori is None:
             continue
+
+        vert, hori = sort(vert, hori)
+        lv, lh = check_save("sort", vert, hori, lv, lh)
 
         vert = bundle_lines(vert, distv)
         hori = bundle_lines(hori, disth)
@@ -172,12 +173,13 @@ def find_baselines(canny):
 
         vert, hori = angles.split(lines)
         lv, lh = check_save("split", vert, hori, 0, 0)
+        if vert is None or hori is None:
+            continue
+
         vert, hori = angles.filter_misdirected(vert, hori)
         lv, lh = check_save("filter_misdirected", vert, hori, lv, lh)
         vert, hori = sort(vert, hori)
         lv, lh = check_save("sort", vert, hori, lv, lh)
-        if vert is None or hori is None:
-            continue
 
         vert = bundle_lines(vert, distv)
         hori = bundle_lines(hori, disth)

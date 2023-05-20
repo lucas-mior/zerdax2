@@ -1,4 +1,5 @@
 width_board = 512
+min_boardbox_height = 300
 min_line_length = 280
 margin = 6
 tile_grid_size = 10

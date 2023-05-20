@@ -44,7 +44,7 @@ def algorithm(filename):
 
     log.info(f"Board detected: {boardbox}")
     img = crop_board_to_size(img, boardbox)
-    if img.board.shape[0] < 300:
+    if img.board.shape[0] < consts.min_boardbox_height:
         log.error(bad_picture_msg)
         return bad_picture_msg
 

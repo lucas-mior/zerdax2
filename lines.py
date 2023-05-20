@@ -73,15 +73,12 @@ def find_warped_lines(canny):
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
-    if lv != 9 or lh != 9:
-        log.warning("Wrong lines found in at least one direction")
+    if (failed := lv < 6 or lh < 6) or algo.debug:
         canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
-    if lv < 6 or lh < 6:
-        log.error("Less than 6 lines found in at least one direction")
-        canvas = draw.lines(canny_3channels, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
-        return None, None
+        if failed:
+            log.error("Less than 6 lines found in at least one direction")
+            return None, None
 
     vert, hori = sort(vert, hori)
     lv, lh = check_save("sort", vert, hori, lv, lh)
@@ -192,15 +189,12 @@ def find_baselines(canny):
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
-    if lv != 9 or lh != 9:
-        log.warning("Wrong lines found in at least one direction")
+    if (failed := lv < 6 or lh < 6) or algo.debug:
         canvas = draw.lines(canny_3channels, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
-    if lv < 6 or lh < 6:
-        log.error("Less than 6 lines found in at least one direction")
-        canvas = draw.lines(canny_3channels, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
-        return None, None
+        if failed:
+            log.error("Less than 6 lines found in at least one direction")
+            return None, None
 
     vert, hori = sort(vert, hori)
     lv, lh = check_save("sort", vert, hori, 0, 0)

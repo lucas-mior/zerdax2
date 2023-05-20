@@ -101,7 +101,7 @@ def fix_warped_lines(canny, vert, hori):
     def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
         lines, ll = add_outer(lines, ll, kind, canny.shape)
-        lines, ll = rem_outer(lines, ll, kind, canny.shape, force=(ll > 9))
+        lines, ll = rem_outer(lines, ll, kind, canny.shape)
         lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
         return lines, ll
@@ -464,7 +464,7 @@ def add_middle(lines, ll):
     return lines, ll
 
 
-def rem_outer(lines, ll, kind, image_shape, force=False):
+def rem_outer(lines, ll, kind, image_shape):
     log.debug("removing extra outer lines...")
     tolerance = consts.outer_tolerance
     limit = image_shape[kind-1]
@@ -474,17 +474,17 @@ def rem_outer(lines, ll, kind, image_shape, force=False):
 
     d00 = abs(lines[1, kind] - 0)
     d01 = abs(lines[1, kind+2] - 0)
-    d0 = min(d00, d01)
+    space0 = min(d00, d01)
     d10 = abs(lines[-2, kind] - limit)
     d11 = abs(lines[-2, kind+2] - limit)
-    d1 = min(d10, d11)
-    if not force:
-        if d0 < tolerance:
+    space1 = min(d10, d11)
+    if ll <= 9:
+        if space0 < tolerance:
             lines = lines[1:]
-        if d1 < tolerance:
+        if space1 < tolerance:
             lines = lines[:-1]
-    else:
-        if d0 < d1:
+    else:  # always remove the outest line when ll > 9
+        if space0 < space1:
             lines = lines[1:]
         else:
             lines = lines[:-1]

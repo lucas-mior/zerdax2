@@ -44,18 +44,13 @@ def find_warped_lines(canny):
             continue
 
         lines = angles.filter_not_right(lines, canny_3channels)
-
         vert, hori = angles.split(lines)
-        lv, lh = check_save("split", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
 
         vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, lv, lh)
-
         vert, hori = bundle_lines(vert, distv, hori, disth)
-        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
-
+        lv, lh = len(vert), len(hori)
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
@@ -68,8 +63,7 @@ def find_warped_lines(canny):
             return None, None
 
     vert, hori = sort(vert, hori)
-    lv, lh = check_save("sort", vert, hori, lv, lh)
-    vert, hori = fix_warped_lines(canny, vert, hori)
+    vert, hori = fix_warped_lines(vert, hori, canny.shape)
     return vert, hori
 
 
@@ -104,19 +98,14 @@ def find_baselines(canny):
             continue
 
         vert, hori = angles.split(lines)
-        lv, lh = check_save("split", vert, hori, 0, 0)
         if vert is None or hori is None:
             continue
 
-        vert, hori = angles.filter_misdirected(vert, hori)
-        lv, lh = check_save("filter_misdirected", vert, hori, lv, lh)
+        vert, hori = angles.filter_misdirected(vert, hori, canny_3channels)
         vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, lv, lh)
-
         vert, hori = bundle_lines(vert, distv, hori, disth)
-        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
         vert, hori = angles.filter_intersecting(vert, hori)
-        lv, lh = check_save("filter_intersecting", vert, hori, lv, lh)
+        lv, lh = len(vert), len(hori)
 
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
@@ -130,7 +119,6 @@ def find_baselines(canny):
             return None, None
 
     vert, hori = sort(vert, hori)
-    lv, lh = check_save("sort", vert, hori, 0, 0)
     return vert, hori
 
 
@@ -148,14 +136,14 @@ def bundle_lines(vert, distv, hori=None, disth=None):
     return vert, hori
 
 
-def fix_warped_lines(canny, vert, hori):
+def fix_warped_lines(vert, hori, image_shape):
     global canny_3channels
 
     def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
-        lines, ll = add_outer(lines, ll, kind, canny.shape)
-        lines, ll = rem_outer(lines, ll, kind, canny.shape)
-        lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
+        lines, ll = add_outer(lines, ll, kind, image_shape)
+        lines, ll = rem_outer(lines, ll, kind, image_shape)
+        lines, ll = add_outer(lines, ll, kind, image_shape, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
         return lines, ll
 

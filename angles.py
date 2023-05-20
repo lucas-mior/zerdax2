@@ -67,7 +67,7 @@ def split(lines):
     return vert, hori
 
 
-def filter_misdirected(vert, hori=None):
+def filter_misdirected(vert, hori, canny_3channels):
     log.info("filtering lines by angle accoring to direction...")
     tolerance = consts.angle_tolerance
 
@@ -76,10 +76,12 @@ def filter_misdirected(vert, hori=None):
         right = np.abs(lines[:, 5] - angle) <= tolerance
         return lines[right]
 
-    if vert is not None:
-        vert = _filter(vert)
-    if hori is not None:
-        hori = _filter(hori)
+    vert = _filter(vert)
+    hori = _filter(hori)
+
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save("filter_misdirected", canvas)
     return vert, hori
 
 

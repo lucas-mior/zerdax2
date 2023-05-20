@@ -14,13 +14,6 @@ minlen0 = consts.min_line_length
 canny_3channels = None
 
 
-def bundle_lines(lines, dist):
-    bundled = np.zeros(lines.shape, dtype='int32')
-    nlines = lines_bundle(lines, bundled, len(lines), dist)
-    lines = bundled[:nlines]
-    return lines
-
-
 def find_wlines(canny):
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
@@ -94,6 +87,13 @@ def find_wlines(canny):
 
     vert, hori = fix_wlines(canny, vert, hori)
     return vert, hori
+
+
+def bundle_lines(lines, dist):
+    bundled = np.zeros(lines.shape, dtype='int32')
+    nlines = lines_bundle(lines, bundled, len(lines), dist)
+    lines = bundled[:nlines]
+    return lines
 
 
 def fix_wlines(canny, vert, hori):

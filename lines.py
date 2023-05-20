@@ -23,7 +23,6 @@ def find_warped_lines(canny):
     min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
-    hough_angle = np.deg2rad(angle)
     hough_min_length = hough_min_length0
     hough_max_gap = 4
     hough_threshold = round(hough_min_length0*1.1)
@@ -38,20 +37,11 @@ def find_warped_lines(canny):
         hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
         hough_threshold = max(hough_threshold - 5,
                               round(hough_min_length0 / 1.5))
-        lines, ll = hough_wrapper(canny, hough_angle, hough_threshold,
+        lines, ll = hough_wrapper(canny, hough_threshold,
                                   hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
-            log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
-                      f"{hough_min_length=}, {hough_max_gap=}")
             hough_max_gap += 2
             continue
-
-        if algo.debug:
-            canvas = draw.lines(canny_3channels, lines)
-            ll = len(lines)
-            log.debug(f"{ll} @ {angle}º, {hough_threshold=}, "
-                      f"{hough_min_length=}, {hough_max_gap=}")
-            draw.save("hough_lines", canvas)
 
         lines = angles.filter_not_right(lines)
         if algo.debug:
@@ -87,6 +77,68 @@ def find_warped_lines(canny):
     return vert, hori
 
 
+def find_baselines(canny):
+    log.debug("finding all lines of board...")
+    image_shape = canny.shape
+    distv = round(image_shape[0]/23)
+    disth = round(image_shape[1]/23)
+    global canny_3channels
+    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+    min_lines_before_split = consts.min_lines_before_split
+
+    angle = consts.hough_angle_resolution
+    hough_min_length = hough_min_length0
+    hough_max_gap = 4
+    hough_threshold = round(hough_min_length0*1.1)
+    lv = lh = 0
+    hori = vert = None
+    while (lv < 8 or lh < 8):
+        if hough_threshold <= round(hough_min_length0/1.5):
+            if hough_min_length <= round(hough_min_length0/1.1):
+                break
+        hough_min_length = max(hough_min_length - 5,
+                               round(hough_min_length0 / 1.1))
+        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
+        hough_threshold = max(hough_threshold - 5,
+                              round(hough_min_length0 / 1.5))
+        lines, ll = hough_wrapper(canny, hough_threshold,
+                                  hough_min_length, hough_max_gap)
+        if ll < min_lines_before_split:
+            hough_max_gap += 2
+            continue
+
+        vert, hori = angles.split(lines)
+        lv, lh = check_save("split", vert, hori, 0, 0)
+        if vert is None or hori is None:
+            continue
+
+        vert, hori = angles.filter_misdirected(vert, hori)
+        lv, lh = check_save("filter_misdirected", vert, hori, lv, lh)
+        vert, hori = sort(vert, hori)
+        lv, lh = check_save("sort", vert, hori, lv, lh)
+
+        vert = bundle_lines(vert, distv)
+        hori = bundle_lines(hori, disth)
+        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
+        vert, hori = angles.filter_intersecting(vert, hori)
+        lv, lh = check_save("filter_intersecting", vert, hori, lv, lh)
+
+        ll = lv + lh
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+                 f"{hough_min_length=},{hough_max_gap=}")
+
+    if (failed := lv < 6 or lh < 6) or algo.debug:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
+        if failed:
+            log.error("Less than 6 lines found in at least one direction")
+            return None, None
+
+    vert, hori = sort(vert, hori)
+    lv, lh = check_save("sort", vert, hori, 0, 0)
+    return vert, hori
+
+
 def bundle_lines(lines, dist):
     bundled = np.zeros(lines.shape, dtype='int32')
     nlines = lines_bundle(lines, bundled, len(lines), dist)
@@ -119,9 +171,10 @@ def fix_warped_lines(canny, vert, hori):
     return vert, hori
 
 
-def hough_wrapper(canny, hough_angle, hough_threshold,
-                  hough_min_length, hough_max_gap):
-
+def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
+    global canny_3channels
+    angle = consts.hough_angle_resolution
+    hough_angle = np.deg2rad(angle)
     lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
                             None, hough_min_length, hough_max_gap)
     if lines is None:
@@ -129,78 +182,13 @@ def hough_wrapper(canny, hough_angle, hough_threshold,
     else:
         lines = lines[:, 0, :]
         ll = len(lines)
+
+    log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
+              f"{hough_min_length=}, {hough_max_gap=}")
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, lines)
+        draw.save("hough_lines", canvas)
     return lines, ll
-
-
-def find_baselines(canny):
-    log.debug("finding all lines of board...")
-    image_shape = canny.shape
-    distv = round(image_shape[0]/23)
-    disth = round(image_shape[1]/23)
-    global canny_3channels
-    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
-    min_lines_before_split = consts.min_lines_before_split
-
-    angle = consts.hough_angle_resolution
-    hough_angle = np.deg2rad(angle)
-    hough_min_length = hough_min_length0
-    hough_max_gap = 4
-    hough_threshold = round(hough_min_length0*1.1)
-    lv = lh = 0
-    hori = vert = None
-    while (lv < 8 or lh < 8):
-        if hough_threshold <= round(hough_min_length0/1.5):
-            if hough_min_length <= round(hough_min_length0/1.1):
-                break
-        hough_min_length = max(hough_min_length - 5,
-                               round(hough_min_length0 / 1.1))
-        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
-        hough_threshold = max(hough_threshold - 5,
-                              round(hough_min_length0 / 1.5))
-        lines, ll = hough_wrapper(canny, hough_angle, hough_threshold,
-                                  hough_min_length, hough_max_gap)
-        if ll < min_lines_before_split:
-            log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
-                      f"{hough_min_length=}, {hough_max_gap=}")
-            hough_max_gap += 2
-            continue
-
-        if algo.debug:
-            canvas = draw.lines(canny_3channels, lines)
-            log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
-                      f"{hough_min_length=}, {hough_max_gap=}")
-            draw.save("hough_lines", canvas)
-
-        vert, hori = angles.split(lines)
-        lv, lh = check_save("split", vert, hori, 0, 0)
-        if vert is None or hori is None:
-            continue
-
-        vert, hori = angles.filter_misdirected(vert, hori)
-        lv, lh = check_save("filter_misdirected", vert, hori, lv, lh)
-        vert, hori = sort(vert, hori)
-        lv, lh = check_save("sort", vert, hori, lv, lh)
-
-        vert = bundle_lines(vert, distv)
-        hori = bundle_lines(hori, disth)
-        lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
-        vert, hori = angles.filter_intersecting(vert, hori)
-        lv, lh = check_save("filter_intersecting", vert, hori, lv, lh)
-
-        ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
-                 f"{hough_min_length=},{hough_max_gap=}")
-
-    if (failed := lv < 6 or lh < 6) or algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
-        if failed:
-            log.error("Less than 6 lines found in at least one direction")
-            return None, None
-
-    vert, hori = sort(vert, hori)
-    lv, lh = check_save("sort", vert, hori, 0, 0)
-    return vert, hori
 
 
 def sort(vert, hori=None, kind=0):

@@ -423,12 +423,12 @@ def add_middle(lines, ll):
         for i in range(2, len(lines) - 3):
             dprev2 = segments_distance(lines[i-1], lines[i-2])
             dprev1 = segments_distance(lines[i+0], lines[i-1])
-            dthis = segments_distance(lines[i+0], lines[i+1])
+            dthis0 = segments_distance(lines[i+0], lines[i+1])
             dnext1 = segments_distance(lines[i+1], lines[i+2])
             dnext2 = segments_distance(lines[i+2], lines[i+3])
-            if dthis > (dprev1*tol) and dthis > (dnext1*tol):
-                if dthis > (dprev2*tol) and dthis > (dnext2*tol):
-                    if dthis > (dprev1*3):
+            if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
+                if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
+                    if dthis0 > (dprev1*3):
                         x = (2*lines[i, 0] - lines[i-1, 0],
                              2*lines[i, 2] - lines[i-1, 2])
                         y = (2*lines[i, 1] - lines[i-1, 1],

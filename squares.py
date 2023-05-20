@@ -53,6 +53,11 @@ def fill(squares, pieces, force=False):
             npiece[5] = -1
         else:
             sq[4] = [0, -1]
+
+    if len(pieces) > 0 and not force:
+        squares, pieces = fill(squares, pieces, force=True)
+        return squares, pieces
+
     return squares, pieces
 
 

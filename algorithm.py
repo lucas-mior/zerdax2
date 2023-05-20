@@ -83,9 +83,6 @@ def algorithm(filename):
         draw.save("A1E4C5H8", canvas)
 
     board_squares, pieces = squares.fill(board.squares, board.pieces)
-    if len(pieces) > 0:
-        board_squares, pieces = squares.fill(board.squares, pieces, force=True)
-
     board.squares, changed = squares.check_colors(img.BGR, board.squares)
     if algo.debug and changed:
         canvas = draw.squares(img.BGR, board.squares)

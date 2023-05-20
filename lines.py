@@ -122,6 +122,26 @@ def find_baselines(canny):
     return vert, hori
 
 
+def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
+    global canny_3channels
+    angle = consts.hough_angle_resolution
+    hough_angle = np.deg2rad(angle)
+    lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
+                            None, hough_min_length, hough_max_gap)
+    if lines is None:
+        ll = 0
+    else:
+        lines = lines[:, 0, :]
+        ll = len(lines)
+
+    log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
+              f"{hough_min_length=}, {hough_max_gap=}")
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, lines)
+        draw.save("hough_lines", canvas)
+    return lines, ll
+
+
 def bundle_lines(vert, distv, hori, disth):
 
     def _bundle_lines(lines, dist):
@@ -162,26 +182,6 @@ def fix_warped_lines(vert, hori, image_shape):
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
     return vert, hori
-
-
-def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
-    global canny_3channels
-    angle = consts.hough_angle_resolution
-    hough_angle = np.deg2rad(angle)
-    lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
-                            None, hough_min_length, hough_max_gap)
-    if lines is None:
-        ll = 0
-    else:
-        lines = lines[:, 0, :]
-        ll = len(lines)
-
-    log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
-              f"{hough_min_length=}, {hough_max_gap=}")
-    if algo.debug:
-        canvas = draw.lines(canny_3channels, lines)
-        draw.save("hough_lines", canvas)
-    return lines, ll
 
 
 def sort(vert, hori, kind=0):

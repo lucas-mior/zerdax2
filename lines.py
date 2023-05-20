@@ -90,6 +90,12 @@ def find_wlines(canny):
 
     vert, hori = sort(vert, hori)
     lv, lh = check_save("sort", vert, hori, 0, 0)
+
+    vert, hori = fix_wlines(canny, vert, hori)
+    return vert, hori
+
+
+def fix_wlines(canny, vert, hori):
     return vert, hori
 
 

@@ -2,9 +2,11 @@ import numpy as np
 import logging as log
 from jenkspy import jenks_breaks
 
+import algorithm as algo
 import lines as li
 import constants as consts
 import intersect as intersect
+import drawings as draw
 
 
 def split(lines):
@@ -103,7 +105,7 @@ def filter_intersecting(vert, hori=None):
     return vert, hori
 
 
-def filter_not_right(lines):
+def filter_not_right(lines, canny_3channels):
     lines, _ = li.length_theta(lines)
     remove = np.zeros(lines.shape[0], dtype='uint8')
 
@@ -111,5 +113,9 @@ def filter_not_right(lines):
         if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
             if abs(t) > 4*100:
                 remove[i] = 1
+    lines = lines[remove == 0]
 
-    return lines[remove == 0]
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, lines)
+        draw.save("filter90", canvas)
+    return lines

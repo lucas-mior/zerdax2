@@ -43,10 +43,7 @@ def find_warped_lines(canny):
             hough_max_gap += 2
             continue
 
-        lines = angles.filter_not_right(lines)
-        if algo.debug:
-            canvas = draw.lines(canny_3channels, lines)
-            draw.save("filter90", canvas)
+        lines = angles.filter_not_right(lines, canny_3channels)
 
         vert, hori = angles.split(lines)
         lv, lh = check_save("split", vert, hori, 0, 0)

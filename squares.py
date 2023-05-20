@@ -22,8 +22,8 @@ def fill(squares, pieces, force=False):
     piece_y_tol = abs(squares[0, 0, 0, 1] - squares[7, 7, 0, 1]) / 22
     piece_y_tol = round(piece_y_tol)
     for index in np.ndindex(squares.shape[:2]):
-        sq = squares[index]
-        if sq[4, 0] == 1:
+        square = squares[index]
+        if square[4, 0] == 1:
             continue
         dmax = 0
         npiece = None
@@ -34,25 +34,28 @@ def fill(squares, pieces, force=False):
             xm = round((x0 + x1)/2)
             y = round(y1) - piece_y_tol
             if not force:
-                if (d := cv2.pointPolygonTest(sq[:4], (xm, y), True)) >= 0:
-                    if d > dmax:
+                dist = cv2.pointPolygonTest(square[:4], (xm, y), True)
+                if dist >= 0:
+                    if dist > dmax:
                         npiece = piece
-                        dmax = d
+                        dmax = dist
             else:
-                if (d := cv2.pointPolygonTest(sq[:4], (xm, y-5), True)) >= 0:
-                    if d > dmax:
+                dist1 = cv2.pointPolygonTest(square[:4], (xm, y-5), True)
+                dist2 = cv2.pointPolygonTest(square[:4], (xm, y+2), True)
+                if dist1 >= 0:
+                    if dist1 > dmax:
                         npiece = piece
-                        dmax = d
-                elif (d := cv2.pointPolygonTest(sq[:4], (xm, y+2), True)) >= 0:
-                    if d > dmax:
+                        dmax = dist
+                elif dist2 >= 0:
+                    if dist2 > dmax:
                         npiece = piece
-                        dmax = d
+                        dmax = dist2
 
         if npiece is not None:
-            sq[4] = [1, npiece[5]]
+            square[4] = [1, npiece[5]]
             npiece[5] = -1
         else:
-            sq[4] = [0, -1]
+            square[4] = [0, -1]
 
     if len(pieces) > 0 and not force:
         squares, pieces = fill(squares, pieces, force=True)
@@ -78,8 +81,8 @@ def check_colors(image, squares):
         return squares
 
     def _calc_means(col, row):
-        sq = np.copy(squares[col, row])
-        contour = sq[:4]
+        square = np.copy(squares[col, row])
+        contour = square[:4]
         frame = cv2.boundingRect(contour)
         x0, y0, dx, dy = frame
         contour[:, 0] -= x0
@@ -90,9 +93,9 @@ def check_colors(image, squares):
         mask0 = cv2.bitwise_not(mask1)
         mean0 = round(cv2.mean(b, mask=mask0)[0])
         mean1 = round(cv2.mean(b, mask=mask1)[0])
-        if sq[4, 1] < 0:  # no piece
+        if square[4, 1] < 0:  # no piece
             pass
-        elif sq[4, 1] <= 6:  # white piece
+        elif square[4, 1] <= 6:  # white piece
             mean1 -= 30
         else:  # black piece
             mean1 += 30

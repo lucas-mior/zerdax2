@@ -466,7 +466,7 @@ def add_middle(lines, ll):
 
 def rem_outer(lines, ll, kind, image_shape, force=False):
     log.debug("removing extra outer lines...")
-    tol = consts.outer_tolerance
+    tolerance = consts.outer_tolerance
     limit = image_shape[kind-1]
     if ll < 7:
         log.warning("Less than 7 lines passed to rem_outer, returning...")
@@ -479,9 +479,9 @@ def rem_outer(lines, ll, kind, image_shape, force=False):
     d11 = abs(lines[-2, kind+2] - limit)
     d1 = min(d10, d11)
     if not force:
-        if d0 < tol:
+        if d0 < tolerance:
             lines = lines[1:]
-        if d1 < tol:
+        if d1 < tolerance:
             lines = lines[:-1]
     else:
         if d0 < d1:

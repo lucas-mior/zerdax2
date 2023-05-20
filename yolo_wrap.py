@@ -89,6 +89,6 @@ if __name__ == "__main__":
     for filename in sys.argv[1:]:
         img = SimpleNamespace(filename=filename)
         img.BGR = cv2.imread(filename)
-        img = detect_objects(img)
-        canvas = draw.boxes(img.BGR, img.pieces)
+        boardbox, pieces = detect_objects(img.filename)
+        canvas = draw.boxes(img.BGR, pieces)
         draw.save("yolo", canvas, title="demo.png")

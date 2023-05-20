@@ -9,7 +9,6 @@ import corners as corners
 import squares as squares
 import lines as lines
 import intersect as intersect
-import perspective as perspective
 import yolo_wrap as yolo
 import fen as fen
 import constants as consts
@@ -57,7 +56,7 @@ def algorithm(filename):
         draw.save("corners", canvas)
 
     log.info(f"corners found: {board.corners}")
-    canny_warped, warp_inverse_matrix = perspective.warp(canny, board.corners)
+    canny_warped, warp_inverse_matrix = warp(canny, board.corners)
     canny_warped_3channels = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_warped_lines(canny_warped)
@@ -245,6 +244,30 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
                  f"mean >= {canny_mean_threshold:0=.1f}")
         log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
     return canny, got_canny
+
+
+def warp(canny, corners):
+    log.debug("transforming perspective...")
+    top_left = corners[0]
+    top_right = corners[1]
+    bot_right = corners[2]
+    bot_left = corners[3]
+    orig_points = np.array((top_left, top_right,
+                            bot_right, bot_left), dtype="float32")
+
+    width = consts.warped_dimension - 1
+    height = consts.warped_dimension - 1
+
+    newshape = [[0, 0], [width, 0], [width, height], [0, height]]
+    newshape = np.array(newshape, dtype='float32')
+    warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
+    _, warp_inverse_matrix = cv2.invert(warp_matrix)
+
+    canny_warped = cv2.warpPerspective(canny, warp_matrix, (width, height))
+    if algo.debug:
+        draw.save("canny_warped", canny_warped)
+
+    return canny_warped, warp_inverse_matrix
 
 
 if __name__ == "__main__":

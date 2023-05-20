@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "c_segments.h"
+#include "c_declarations.h"
 
 static int32 min(int32 const distances[4]) {
     int32 i = 0;

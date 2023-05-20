@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "c_segments.h"
+#include "c_declarations.h"
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
@@ -25,25 +25,6 @@ typedef struct Group {
 
 static Group *first = NULL;
 static Group *last = NULL;
-
-void *ealloc(void *old, size_t size) {
-    void *p;
-    if ((p = realloc(old, size)) == NULL) {
-        fprintf(stderr, "Failed to allocate %zu bytes.\n", size);
-        exit(1);
-    }
-    return p;
-}
-
-void *ecalloc(size_t nmemb, size_t size) {
-    void *p;
-    if ((p = calloc(nmemb, size)) == NULL) {
-        fprintf(stderr, "Failed to allocate %zu members of %zu bytes each.\n", 
-                        nmemb, size);
-        exit(1);
-    }
-    return p;
-}
 
 static int32 compare(const void *a, const void *b) {
     int32 *c = (int32 *) a;
@@ -73,7 +54,7 @@ static void append(Group *group, int32 line[LINE_FIELDS]) {
 
 static void groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
-    group->next = ealloc(NULL, sizeof(Group));
+    group->next = util_alloc(NULL, sizeof(Group));
     group = group->next;
     group->next = NULL;
     group->len = 0;
@@ -107,7 +88,7 @@ static bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
 
 int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 mdist) {
     min_dist = mdist;
-    Group *group = ealloc(NULL, sizeof(Group));
+    Group *group = util_alloc(NULL, sizeof(Group));
     first = last = group;
     first->next = NULL;
     first->len = 0;

@@ -6,4 +6,7 @@
 #include <math.h>
 
 typedef int32_t int32;
-int32 segments_distance(int32 * const restrict line0, int32 * const restrict line1);
+
+int32 segments_distance(int32 * restrict, int32 * restrict);
+void *util_alloc(void *, size_t);
+void *util_calloc(size_t, size_t);

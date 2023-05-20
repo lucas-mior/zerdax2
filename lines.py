@@ -89,7 +89,7 @@ def find_wlines(canny):
         return None, None
 
     vert, hori = sort(vert, hori)
-    lv, lh = check_save("sort", vert, hori, 0, 0)
+    lv, lh = check_save("sort", vert, hori, lv, lh)
 
     vert, hori = fix_wlines(canny, vert, hori)
     return vert, hori
@@ -98,15 +98,19 @@ def find_wlines(canny):
 def fix_wlines(canny, vert, hori):
 
     def _fix_wlines(lines, kind):
-        lines, _ = rem_wrong(lines, len(lines))
-        lines, ll = add_outer(lines, len(lines), kind, canny.shape)
-        lines, _ = rem_outer(lines, len(lines), kind, canny.shape, ll > 9)
-        lines, _ = add_outer(lines, len(lines), kind, canny.shape, ll < 9)
-        lines, _ = add_middle(lines, len(lines))
+        lines, ll = rem_wrong(lines, len(lines))
+        lines, ll = add_outer(lines, ll, kind, canny.shape)
+        lines, ll = rem_outer(lines, ll, kind, canny.shape, force=(ll > 9))
+        lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
+        lines, ll = add_middle(lines, ll)
         return lines
 
     vert = _fix_wlines(vert, 0)
     hori = _fix_wlines(hori, 1)
+    if len(vert) != 9:
+        vert = _fix_wlines(vert, 0)
+    if len(hori) != 9:
+        hori = _fix_wlines(hori, 1)
     return vert, hori
 
 
@@ -375,7 +379,7 @@ def add_outer(lines, ll, kind, image_shape, force=False):
     if force:
         tol = 1
     if ll < 5:
-        log.warning("only 5 lines passed to add_outer. returning")
+        log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
 
     def _add_outer(lines, where):
@@ -418,10 +422,8 @@ def add_outer(lines, ll, kind, image_shape, force=False):
         return lines
 
     lines = _add_outer(lines, 0)
-    ll, _ = check_save("add_outer0", lines, None, ll, 0)
     lines = _add_outer(lines, -1)
-    ll, _ = check_save("add_outer1", lines, None, ll, 0)
-
+    ll, _ = check_save("add_outer", lines, None, ll, 0)
     return lines, ll
 
 
@@ -464,6 +466,9 @@ def rem_middle(lines, ll):
 def rem_wrong(lines, ll):
     log.info("removing wrong middle lines...")
     tol = consts.middle_tolerance
+    if ll < 7:
+        log.warning("Less than 7 lines passed to rem_wrong, returning...")
+        return lines, ll
 
     def _calc_dists(lines):
         dists = np.zeros((lines.shape[0], 2), dtype='int32')
@@ -482,6 +487,7 @@ def rem_wrong(lines, ll):
         d0 = np.median(dists[:, 0])
         d1 = np.median(dists[:, 1])
         med = round((d0 + d1)/2)
+        log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
             if dists[i, 1] < (med/tol) and (med*tol) < dists[i, 0]:
                 lines = np.delete(lines, i, axis=0)
@@ -498,6 +504,9 @@ def rem_wrong(lines, ll):
 def add_middle(lines, ll):
     log.info("adding missing middle lines...")
     tol = consts.middle_tolerance
+    if ll < 5 or ll > 10:
+        log.warning(f"{ll} lines passed to add_middle, returning...")
+        return lines, ll
 
     def _insert(lines, i, x, y):
         x0, x1 = x
@@ -560,10 +569,9 @@ def add_middle(lines, ll):
 
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
-    ll, _ = check_save("add_middle0", lines, None, ll, 0)
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
-    ll, _ = check_save("add_middle1", lines, None, ll, 0)
+    ll, _ = check_save("add_middle", lines, None, ll, 0)
     return lines, ll
 
 
@@ -571,6 +579,9 @@ def rem_outer(lines, ll, kind, image_shape, force=False):
     log.debug("removing extra outer lines...")
     tol = consts.outer_tolerance
     limit = image_shape[kind-1]
+    if ll < 7:
+        log.warning("Less than 7 lines passed to rem_outer, returning...")
+        return lines, ll
 
     d00 = abs(lines[1, kind] - 0)
     d01 = abs(lines[1, kind+2] - 0)

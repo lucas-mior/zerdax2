@@ -417,8 +417,6 @@ def add_middle(lines, ll):
                 y = (2*lines[1, 1] - lines[2, 1],
                      2*lines[1, 3] - lines[2, 3])
                 lines = _insert(lines, 0, x, y)
-                if segments_distance(lines[0], lines[1]) < (dnext0/(tol+0.9)):
-                    lines = lines[1:]
                 return lines
         for i in range(2, len(lines) - 3):
             dprev2 = segments_distance(lines[i-1], lines[i-2])
@@ -428,16 +426,10 @@ def add_middle(lines, ll):
             dnext2 = segments_distance(lines[i+2], lines[i+3])
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
-                    if dthis0 > (dprev1*3):
-                        x = (2*lines[i, 0] - lines[i-1, 0],
-                             2*lines[i, 2] - lines[i-1, 2])
-                        y = (2*lines[i, 1] - lines[i-1, 1],
-                             2*lines[i, 3] - lines[i-1, 3])
-                    else:
-                        x = (round((lines[i, 0] + lines[i+1, 0])/2),
-                             round((lines[i, 2] + lines[i+1, 2])/2))
-                        y = (round((lines[i, 1] + lines[i+1, 1])/2),
-                             round((lines[i, 3] + lines[i+1, 3])/2))
+                    x = (2*lines[i, 0] - lines[i-1, 0],
+                         2*lines[i, 2] - lines[i-1, 2])
+                    y = (2*lines[i, 1] - lines[i-1, 1],
+                         2*lines[i, 3] - lines[i-1, 3])
                     lines = _insert(lines, i, x, y)
                     return lines
         for i in range(1, len(lines) - 4):

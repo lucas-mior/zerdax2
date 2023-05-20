@@ -181,7 +181,8 @@ def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
     return lines, ll
 
 
-def sort(vert, hori=None, kind=0):
+def sort(vert, hori, kind=0):
+    global canny_3channels
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
@@ -191,16 +192,14 @@ def sort(vert, hori=None, kind=0):
             positions[i] = inter[kind]
         return positions
 
-    if hori is not None:
-        positions = _create(hori, kind=1)
-        hori = hori[np.argsort(positions)]
-        if vert is not None:
-            positions = _create(vert, kind=0)
-            vert = vert[np.argsort(positions)]
-    else:
-        if vert is not None:
-            positions = _create(vert, kind=kind)
-            vert = vert[np.argsort(positions)]
+    positions = _create(hori, 1)
+    hori = hori[np.argsort(positions)]
+    positions = _create(vert, 0)
+    vert = vert[np.argsort(positions)]
+
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save("sort_lines", canvas)
     return vert, hori
 
 

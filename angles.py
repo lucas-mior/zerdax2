@@ -119,5 +119,5 @@ def filter_not_right(lines, canny_3channels):
 
     if algo.debug:
         canvas = draw.lines(canny_3channels, lines)
-        draw.save("filter90", canvas)
+        draw.save("filter_not_right", canvas)
     return lines

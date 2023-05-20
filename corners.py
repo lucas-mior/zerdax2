@@ -6,8 +6,6 @@ import intersect as intersect
 
 
 def find(canny):
-    log.debug("finding all lines of board...")
-
     vert, hori = lines.find_baselines(canny)
     vert, hori = lines.fix_length_byinter(canny.shape, vert, hori)
     lv, lh = lines.check_save("fix_length_byinter0", vert, hori, -1, -1)

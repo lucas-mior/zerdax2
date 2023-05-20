@@ -95,6 +95,7 @@ def find_wlines(canny):
 
 
 def find_baselines(canny):
+    log.debug("finding all lines of board...")
     image_shape = canny.shape
     distv = round(image_shape[0]/23)
     disth = round(image_shape[1]/23)

@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import logging as log
 
-import constants as consts
 import drawings as draw
 
 WLEN = 512

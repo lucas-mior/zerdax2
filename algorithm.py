@@ -66,12 +66,9 @@ def algorithm(filename):
         return bad_picture_msg
 
     lv, lh = len(vert), len(hori)
-    print(f"{lv=}, {lh=}")
-    print("vert: ", vert)
-    print("hori: ", hori)
     if (failed := (lv != 9 or lh != 9)) or algo.debug:
         canvas = draw.lines(canny_warped_3channels, vert, hori)
-        draw.save("find_lines", canvas)
+        draw.save("find_wlines", canvas)
         if failed:
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")

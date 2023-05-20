@@ -103,7 +103,6 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
 
 
 def calculate_single(line0, image_shape=(300, 500), kind=0):
-    log.debug("calculating intersections between line and boundary line...")
     if kind == 0:
         line1 = (50, 0, 400, 0, 0, 0)
     elif kind == 1:

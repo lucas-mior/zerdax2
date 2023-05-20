@@ -364,13 +364,13 @@ def rem_wrong(lines, ll):
         dists = np.zeros((lines.shape[0], 2), dtype='int32')
         i = 0
         dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
-        dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
+        dists[i, 1] = dists[i, 0]
         for i in range(1, len(lines) - 1):
             dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
             dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
         i += 1
         dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
-        dists[i, 1] = segments_distance(lines[i+0], lines[i-1])
+        dists[i, 1] = dists[i, 0]
         return dists
 
     def _rem_wrong(lines, dists):

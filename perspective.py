@@ -16,12 +16,11 @@ def warp(canny, corners):
     orig_points = np.array((top_left, top_right,
                             bot_right, bot_left), dtype="float32")
 
-    width = consts.warped_dimension
-    height = consts.warped_dimension
+    width = consts.warped_dimension - 1
+    height = consts.warped_dimension - 1
 
-    newshape = np.array([[0, 0], [width-1, 0],
-                        [width-1, height-1], [0, height-1]], dtype="float32")
-
+    newshape = [[0, 0], [width, 0], [width, height], [0, height]]
+    newshape = np.array(newshape, dtype='float32')
     warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
     _, warp_inverse_matrix = cv2.invert(warp_matrix)
 

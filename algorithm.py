@@ -31,7 +31,6 @@ def algorithm(filename):
     img.BGR = cv2.imread(img.filename)
 
     boardbox, pieces = yolo.detect_objects(img.filename)
-
     pieces = yolo.determine_colors(pieces, img.BGR)
     pieces = yolo.process_pieces(pieces)
 

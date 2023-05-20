@@ -128,9 +128,9 @@ def translate_inters(img, inters, warp_inverse_matrix):
 def crop_board_to_size(img, boardbox):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = boardbox
-    d = consts.margin
-    img.x0, img.y0 = x0 - d, y0 - d
-    img.x1, img.y1 = x1 + d, y1 + d
+    margin = consts.margin
+    img.x0, img.y0 = x0 - margin, y0 - margin
+    img.x1, img.y1 = x1 + margin, y1 + margin
     img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
 
     log.info("reducing cropped image to default size...")

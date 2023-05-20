@@ -23,6 +23,4 @@ outer_tolerance = 3
 middle_tolerance = 1.4
 angles_max_diff = 22.5 * 100
 angle_tolerance = 15 * 100
-conf_thres = 0.5
-iou_thres = 0.45
 warped_dimension = 512

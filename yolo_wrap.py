@@ -7,11 +7,7 @@ from jenkspy import jenks_breaks
 from ultralytics import YOLO
 
 import drawings as draw
-import constants as consts
 from misc import SYMBOLS, AMOUNT, NUMBERS
-
-conf = consts.conf_thres
-iou = consts.iou_thres
 
 
 def detect_objects(filename):
@@ -40,8 +36,9 @@ def detect_objects(filename):
     npieces = []
     for piece in pieces:
         x0, y0, x1, y1 = piece.xyxy[0].cpu()
-        conf, cls = float(piece.conf[0].cpu()), float(piece.cls[0].cpu())
-        npieces.append([x0, y0, x1, y1, conf, cls])
+        confidence = float(piece.conf[0].cpu())
+        klass = float(piece.cls[0].cpu())
+        npieces.append([x0, y0, x1, y1, confidence, klass])
 
     pieces = np.array(npieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])

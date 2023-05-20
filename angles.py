@@ -16,8 +16,7 @@ def split(lines):
         else:
             return True
 
-    if (lines.shape[1] < 6):
-        lines, _ = li.length_theta(lines)
+    lines, _ = li.length_theta(lines)
     angles = lines[:, 5]
 
     try:
@@ -114,6 +113,7 @@ def filter_intersecting(vert, hori=None):
 
 
 def filter_not_right(lines):
+    lines, _ = li.length_theta(lines)
     remove = np.zeros(lines.shape[0], dtype='uint8')
 
     for i, t in enumerate(lines[:, 5]):

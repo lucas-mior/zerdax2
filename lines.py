@@ -52,7 +52,6 @@ def find_warped_lines(canny):
             log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
 
-        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
         lines_hough = angles.filter_not_right(lines_hough)
         if algo.debug:
             canvas = draw.lines(canny_3channels, lines_hough)
@@ -159,7 +158,6 @@ def find_baselines(canny):
             log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
             draw.save("hough_lines", canvas)
 
-        lines_hough, _ = length_theta(lines_hough, abs_angle=False)
         vert, hori = angles.split(lines_hough)
         lv, lh = check_save("split", vert, hori, 0, 0)
         vert, hori = angles.filter_misdirected(vert, hori)

@@ -15,6 +15,7 @@ canny_3channels = None
 
 
 def find_warped_lines(canny):
+    log.debug("finding all lines of warped board...")
     global canny_3channels
     canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     image_shape = canny.shape
@@ -50,6 +51,7 @@ def find_warped_lines(canny):
 
         vert, hori = sort(vert, hori)
         vert, hori = bundle_lines(vert, distv, hori, disth)
+
         lv, lh = len(vert), len(hori)
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
@@ -69,11 +71,11 @@ def find_warped_lines(canny):
 
 def find_baselines(canny):
     log.debug("finding all lines of board...")
+    global canny_3channels
+    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     image_shape = canny.shape
     distv = round(image_shape[0]/23)
     disth = round(image_shape[1]/23)
-    global canny_3channels
-    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -105,8 +107,8 @@ def find_baselines(canny):
         vert, hori = sort(vert, hori)
         vert, hori = bundle_lines(vert, distv, hori, disth)
         vert, hori = angles.filter_intersecting(vert, hori, canny_3channels)
-        lv, lh = len(vert), len(hori)
 
+        lv, lh = len(vert), len(hori)
         ll = lv + lh
         log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")

@@ -10,7 +10,7 @@ import drawings as draw
 from c_load import segments_distance
 from c_load import lines_bundle
 
-minlen0 = consts.min_line_length
+hough_min_length0 = consts.min_line_length
 canny_3channels = None
 
 
@@ -23,33 +23,40 @@ def find_warped_lines(canny):
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
-    tangle = np.deg2rad(angle)
-    minlen = minlen0
-    maxgap = 4
-    tvotes = round(minlen0*1.1)
+    hough_angle = np.deg2rad(angle)
+    hough_min_length = hough_min_length0
+    hough_max_gap = 4
+    hough_threshold = round(hough_min_length0*1.1)
     lv = lh = 0
     hori = vert = None
     while (lv < 8 or lh < 8):
-        if tvotes <= round(minlen0/1.5) and (minlen <= round(minlen0/1.1)):
-            break
-        minlen = max(minlen - 5, round(minlen0 / 1.1))
-        maxgap = min(maxgap + 2, round(minlen0 / 4))
-        tvotes = max(tvotes - 5, round(minlen0 / 1.5))
-        lines = cv2.HoughLinesP(canny, 1, tangle, tvotes, None, minlen, maxgap)
+        if hough_threshold <= round(hough_min_length0/1.5):
+            if (hough_min_length <= round(hough_min_length0/1.1)):
+                break
+        hough_min_length = max(hough_min_length - 5,
+                               round(hough_min_length0 / 1.1))
+        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
+        hough_threshold = max(hough_threshold - 5,
+                              round(hough_min_length0 / 1.5))
+        lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
+                                None, hough_min_length, hough_max_gap)
         if lines is None:
-            log.debug(f"0 @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
-            maxgap += 5
+            log.debug(f"0 @ {angle}º, {hough_threshold=}, ",
+                      f"{hough_min_length=}, {hough_max_gap=}")
+            hough_max_gap += 5
             continue
         elif (ll := lines.shape[0]) < min_before_split:
-            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
-            maxgap += 2
+            log.debug(f"{ll} @ {angle}º, {hough_threshold=}, "
+                      f"{hough_min_length=}, {hough_max_gap=}")
+            hough_max_gap += 2
             continue
 
         lines_hough = lines[:, 0, :]
         if algo.debug:
             canvas = draw.lines(canny_3channels, lines_hough)
             ll = len(lines_hough)
-            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            log.debug(f"{ll} @ {angle}º, {hough_threshold=}, "
+                      f"{hough_min_length=}, {hough_max_gap=}")
             draw.save("hough_lines", canvas)
 
         lines_hough = angles.filter_not_right(lines_hough)
@@ -69,7 +76,8 @@ def find_warped_lines(canny):
         lv, lh = check_save("lines_bundled", vert, hori, lv, lh)
 
         ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+                 f"{hough_min_length=},{hough_max_gap=}")
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")
@@ -129,33 +137,40 @@ def find_baselines(canny):
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
-    tangle = np.deg2rad(angle)
-    minlen = minlen0
-    maxgap = 4
-    tvotes = round(minlen0*1.1)
+    hough_angle = np.deg2rad(angle)
+    hough_min_length = hough_min_length0
+    hough_max_gap = 4
+    hough_threshold = round(hough_min_length0*1.1)
     lv = lh = 0
     hori = vert = None
     while (lv < 8 or lh < 8):
-        if tvotes <= round(minlen0/1.5) and (minlen <= round(minlen0/1.1)):
-            break
-        minlen = max(minlen - 5, round(minlen0 / 1.1))
-        maxgap = min(maxgap + 2, round(minlen0 / 4))
-        tvotes = max(tvotes - 5, round(minlen0 / 1.5))
-        lines = cv2.HoughLinesP(canny, 1, tangle, tvotes, None, minlen, maxgap)
+        if hough_threshold <= round(hough_min_length0/1.5):
+            if hough_min_length <= round(hough_min_length0/1.1):
+                break
+        hough_min_length = max(hough_min_length - 5,
+                               round(hough_min_length0 / 1.1))
+        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
+        hough_threshold = max(hough_threshold - 5,
+                              round(hough_min_length0 / 1.5))
+        lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
+                                None, hough_min_length, hough_max_gap)
         if lines is None:
-            log.debug(f"0 @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
-            maxgap += 5
+            log.debug(f"0 @ {angle}, {hough_threshold=}, "
+                      f"{hough_min_length=}, {hough_max_gap=}")
+            hough_max_gap += 5
             continue
         elif (ll := lines.shape[0]) < min_before_split:
-            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
-            maxgap += 2
+            log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
+                      f"{hough_min_length=}, {hough_max_gap=}")
+            hough_max_gap += 2
             continue
 
         lines_hough = lines[:, 0, :]
         if algo.debug:
             canvas = draw.lines(canny_3channels, lines_hough)
             ll = len(lines_hough)
-            log.debug(f"{ll} @ {angle}, {tvotes=}, {minlen=}, {maxgap=}")
+            log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
+                      f"{hough_min_length=}, {hough_max_gap=}")
             draw.save("hough_lines", canvas)
 
         vert, hori = angles.split(lines_hough)
@@ -174,7 +189,8 @@ def find_baselines(canny):
         lv, lh = check_save("filter_intersecting", vert, hori, lv, lh)
 
         ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {tvotes=},{minlen=},{maxgap=}")
+        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+                 f"{hough_min_length=},{hough_max_gap=}")
 
     if lv != 9 or lh != 9:
         log.warning("Wrong lines found in at least one direction")

@@ -36,8 +36,8 @@ def detect_objects(filename):
     npieces = []
     for piece in pieces:
         x0, y0, x1, y1 = piece.xyxy[0].cpu()
-        confidence = float(piece.conf[0].cpu())
-        klass = float(piece.cls[0].cpu())
+        confidence = np.float64(piece.conf[0].cpu())
+        klass = np.int32(piece.cls[0].cpu())
         npieces.append([x0, y0, x1, y1, confidence, klass])
 
     pieces = np.array(npieces, dtype='O')

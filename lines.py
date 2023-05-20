@@ -20,7 +20,7 @@ def find_warped_lines(canny):
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
     disth = round(image_shape[0]/23)
-    min_before_split = consts.min_lines_before_split
+    min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
@@ -40,7 +40,7 @@ def find_warped_lines(canny):
                               round(hough_min_length0 / 1.5))
         lines, ll = hough_wrapper(canny, hough_angle, hough_threshold,
                                   hough_min_length, hough_max_gap)
-        if ll < min_before_split:
+        if ll < min_lines_before_split:
             log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
                       f"{hough_min_length=}, {hough_max_gap=}")
             hough_max_gap += 2
@@ -141,7 +141,7 @@ def find_baselines(canny):
     disth = round(image_shape[1]/23)
     global canny_3channels
     canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
-    min_before_split = consts.min_lines_before_split
+    min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
@@ -161,7 +161,7 @@ def find_baselines(canny):
                               round(hough_min_length0 / 1.5))
         lines, ll = hough_wrapper(canny, hough_angle, hough_threshold,
                                   hough_min_length, hough_max_gap)
-        if ll < min_before_split:
+        if ll < min_lines_before_split:
             log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
                       f"{hough_min_length=}, {hough_max_gap=}")
             hough_max_gap += 2

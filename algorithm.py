@@ -65,17 +65,6 @@ def algorithm(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    lv, lh = len(vert), len(hori)
-    if (failed := (lv != 9 or lh != 9)) or algo.debug:
-        canvas = draw.lines(canny_warped_3channels, vert, hori)
-        draw.save("find_warped_lines", canvas)
-        if failed:
-            log.error("there should be 9 vertical lines and",
-                      "9 horizontal lines")
-            log.error(f"Got {lv} vertical and {lh} horizontal lines")
-            log.error(bad_picture_msg)
-            return bad_picture_msg
-
     inters = intersect.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or algo.debug:
         canvas = draw.points(canny_warped_3channels, inters)

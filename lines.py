@@ -84,7 +84,6 @@ def find_warped_lines(canny):
 
     vert, hori = sort(vert, hori)
     lv, lh = check_save("sort", vert, hori, lv, lh)
-
     vert, hori = fix_warped_lines(canny, vert, hori)
     return vert, hori
 
@@ -97,6 +96,7 @@ def bundle_lines(lines, dist):
 
 
 def fix_warped_lines(canny, vert, hori):
+    global canny_3channels
 
     def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
@@ -104,14 +104,19 @@ def fix_warped_lines(canny, vert, hori):
         lines, ll = rem_outer(lines, ll, kind, canny.shape, force=(ll > 9))
         lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
-        return lines
+        return lines, ll
 
-    vert = _fix_warped_lines(vert, 0)
-    hori = _fix_warped_lines(hori, 1)
-    if len(vert) != 9:
-        vert = _fix_warped_lines(vert, 0)
-    if len(hori) != 9:
-        hori = _fix_warped_lines(hori, 1)
+    vert, lv = _fix_warped_lines(vert, 0)
+    hori, lh = _fix_warped_lines(hori, 1)
+    if lv != 9:
+        vert, lv = _fix_warped_lines(vert, 0)
+    if lh != 9:
+        hori, lh = _fix_warped_lines(hori, 1)
+
+    if lv != 9 or lh != 9:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save(f"canny{lv=}_{lh=}", canvas)
+        return None, None
     return vert, hori
 
 

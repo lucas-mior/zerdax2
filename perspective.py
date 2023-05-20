@@ -2,9 +2,8 @@ import numpy as np
 import cv2
 import logging as log
 
+import constants as consts
 import drawings as draw
-
-WLEN = 512
 
 
 def warp(canny, corners):
@@ -16,8 +15,8 @@ def warp(canny, corners):
     orig_points = np.array((top_left, top_right,
                             bot_right, bot_left), dtype="float32")
 
-    width = WLEN
-    height = WLEN
+    width = consts.warped_dimension
+    height = consts.warped_dimension
 
     newshape = np.array([[0, 0], [width-1, 0],
                         [width-1, height-1], [0, height-1]], dtype="float32")

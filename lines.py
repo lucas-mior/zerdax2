@@ -12,7 +12,6 @@ from c_load import lines_bundle
 
 minlen0 = consts.min_line_length
 canny_3channels = None
-WLEN = 512
 
 
 def bundle_lines(lines, dist):

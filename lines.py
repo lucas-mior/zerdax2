@@ -99,9 +99,9 @@ def fix_wlines(canny, vert, hori):
 
     def _fix_wlines(lines, kind):
         lines, _ = rem_wrong(lines, len(lines))
-        lines, _ = add_outer(lines, len(lines), kind, canny.shape)
-        lines, _ = rem_outer(lines, len(lines), kind, canny.shape, force=True)
-        lines, _ = add_outer(lines, len(lines), kind, canny.shape)
+        lines, ll = add_outer(lines, len(lines), kind, canny.shape)
+        lines, _ = rem_outer(lines, len(lines), kind, canny.shape, ll > 9)
+        lines, _ = add_outer(lines, len(lines), kind, canny.shape, ll < 9)
         lines, _ = add_middle(lines, len(lines))
         return lines
 
@@ -482,22 +482,15 @@ def rem_wrong(lines, ll):
         d0 = np.median(dists[:, 0])
         d1 = np.median(dists[:, 1])
         med = round((d0 + d1)/2)
-        for i in range(1, len(lines) - 1):
-            if dists[i, 1] < (med/(tol+0.1)) and (med*tol) < dists[i, 0]:
-                if (dists[i-1, 0]/tol) > dists[i, 1]:
-                    lines = np.delete(lines, i, axis=0)
-                elif (dists[i+1, 1]*tol) < dists[i, 0]:
-                    lines = np.delete(lines, i, axis=0)
+        for i in range(0, len(lines)):
+            if dists[i, 1] < (med/tol) and (med*tol) < dists[i, 0]:
+                lines = np.delete(lines, i, axis=0)
                 return lines
         return lines
 
     dists = _calc_dists(lines)
     lines = _rem_wrong(lines, dists)
-    lines = np.flip(lines, axis=0)
-    dists = np.flip(dists, axis=0)
-    dists = np.flip(dists, axis=-1)
     lines = _rem_wrong(lines, dists)
-    lines = np.flip(lines, axis=0)
     ll, _ = check_save("rem_wrong", lines, None, ll, 0)
     return lines, ll
 
@@ -519,8 +512,8 @@ def add_middle(lines, ll):
         dnext1 = segments_distance(lines[1], lines[2])
         dnext2 = segments_distance(lines[2], lines[3])
         dnext3 = segments_distance(lines[3], lines[4])
-        if dnext0 > (dnext1*tol) and dnext0 > (dnext2*(tol-0.05)):
-            if dnext0 > (dnext3*(tol-0.10)):
+        if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
+            if dnext0 > (dnext3*tol):
                 x = (2*lines[1, 0] - lines[2, 0],
                      2*lines[1, 2] - lines[2, 2])
                 y = (2*lines[1, 1] - lines[2, 1],
@@ -536,7 +529,7 @@ def add_middle(lines, ll):
             dnext1 = segments_distance(lines[i+1], lines[i+2])
             dnext2 = segments_distance(lines[i+2], lines[i+3])
             if dthis > (dprev1*tol) and dthis > (dnext1*tol):
-                if dthis > (dprev2*(tol-0.05)) and dthis > (dnext2*(tol-0.05)):
+                if dthis > (dprev2*tol) and dthis > (dnext2*tol):
                     if dthis > (dprev1*3):
                         x = (2*lines[i, 0] - lines[i-1, 0],
                              2*lines[i, 2] - lines[i-1, 2])
@@ -555,8 +548,8 @@ def add_middle(lines, ll):
             dnext1 = segments_distance(lines[i+1], lines[i+2])
             dnext2 = segments_distance(lines[i+2], lines[i+3])
             dnext3 = segments_distance(lines[i+3], lines[i+4])
-            if dnext0 > (dnext1*tol) and dnext0 > (dnext2*(tol-0.05)):
-                if dnext0 > (dprev0*(tol-0.1)) or dnext0 > (dnext3*(tol-0.1)):
+            if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
+                if dnext0 > (dprev0*tol) or dnext0 > (dnext3*tol):
                     x = (round((lines[i, 0] + lines[i+1, 0])/2),
                          round((lines[i, 2] + lines[i+1, 2])/2))
                     y = (round((lines[i, 1] + lines[i+1, 1])/2),

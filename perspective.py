@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import logging as log
 
+import algorithm as algo
 import constants as consts
 import drawings as draw
 
@@ -25,6 +26,7 @@ def warp(canny, corners):
     _, warp_inverse_matrix = cv2.invert(warp_matrix)
 
     canny_warped = cv2.warpPerspective(canny, warp_matrix, (width, height))
-    draw.save("canny_warped", canny_warped)
+    if algo.debug:
+        draw.save("canny_warped", canny_warped)
 
     return canny_warped, warp_inverse_matrix

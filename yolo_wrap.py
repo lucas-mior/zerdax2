@@ -12,26 +12,26 @@ from misc import SYMBOLS, AMOUNT, NUMBERS
 
 def detect_objects(filename):
     model = YOLO("zerdax2.pt")
-    objs = model.predict(source=filename,
-                         conf=0.5,
-                         device="cpu",
-                         imgsz=640,
-                         iou=0.7,
-                         max_det=32)
+    objects = model.predict(source=filename,
+                            conf=0.5,
+                            device="cpu",
+                            imgsz=640,
+                            iou=0.7,
+                            max_det=32)
 
-    objs = objs[0].boxes
-    confs = np.array(objs.conf.cpu())
-    objs = objs[np.argsort(confs)]
+    objects = objects[0].boxes
+    confidences = np.array(objects.conf.cpu())
+    objects = objects[np.argsort(confidences)]
 
     boardbox = None
     boardnum = NUMBERS['Board']
-    for obj in objs:
+    for obj in objects:
         if obj.cls == boardnum:
             boardbox = np.array(obj.xyxy.cpu(), dtype='int32')[0]
             break
 
-    pieces = objs[objs.cls != boardnum]
-    pieces = objs
+    pieces = objects[objects.cls != boardnum]
+    pieces = objects
 
     npieces = []
     for piece in pieces:

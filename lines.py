@@ -15,11 +15,11 @@ canny_3channels = None
 
 
 def find_warped_lines(canny):
+    global canny_3channels
+    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
     disth = round(image_shape[0]/23)
-    global canny_3channels
-    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     min_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution

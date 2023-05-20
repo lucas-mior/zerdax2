@@ -31,17 +31,17 @@ def detect_objects(filename):
             break
 
     pieces = objects[objects.cls != boardnum]
-    pieces = objects
 
     npieces = []
     for piece in pieces:
         x0, y0, x1, y1 = piece.xyxy[0].cpu()
-        confidence = np.float64(piece.conf[0].cpu())
-        klass = np.int32(piece.cls[0].cpu())
+        confidence = piece.conf[0].cpu()
+        klass = piece.cls[0].cpu()
         npieces.append([x0, y0, x1, y1, confidence, klass])
 
     pieces = np.array(npieces, dtype='O')
     pieces[:, :4] = np.int32(pieces[:, :4])
+    pieces[:, 4] = np.float64(pieces[:, 4])
     pieces[:, 5] = np.int32(pieces[:, 5])
 
     return boardbox, pieces

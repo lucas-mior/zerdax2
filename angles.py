@@ -20,7 +20,6 @@ def split(lines):
 
     lines, _ = li.length_theta(lines)
     angles = lines[:, 5]
-
     limits = jenks_breaks(angles, n_classes=3)
 
     a0 = angles[angles <= limits[1]]

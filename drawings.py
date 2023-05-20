@@ -123,7 +123,7 @@ def squares(image, squares):
     return canvas
 
 
-def boxes(image, pieces):
+def boxes(image, pieces, boardbox=None):
     canvas = np.zeros(image.shape, dtype='uint8')
     thick = round(2.4 * (image.shape[0] / 1280))
 

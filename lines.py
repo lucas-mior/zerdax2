@@ -11,13 +11,10 @@ from c_load import segments_distance
 from c_load import lines_bundle
 
 hough_min_length0 = consts.min_line_length
-canny_3channels = None
 
 
 def find_warped_lines(canny):
     log.debug("finding all lines of warped board...")
-    global canny_3channels
-    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
     disth = round(image_shape[0]/23)
@@ -44,12 +41,12 @@ def find_warped_lines(canny):
             hough_max_gap += 2
             continue
 
-        lines = angles.filter_not_right(lines, canny_3channels)
+        lines = angles.filter_not_right(lines, canny)
         vert, hori = angles.split(lines)
         if vert is None or hori is None:
             continue
 
-        vert, hori = sort(vert, hori)
+        vert, hori = sort(vert, hori, canny)
         vert, hori = bundle_lines(vert, distv, hori, disth)
 
         lv, lh = len(vert), len(hori)
@@ -58,21 +55,19 @@ def find_warped_lines(canny):
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori)
+    vert, hori = sort(vert, hori, canny)
     vert, hori = fix_warped_lines(vert, hori, canny.shape)
     return vert, hori
 
 
 def find_baselines(canny):
     log.debug("finding all lines of board...")
-    global canny_3channels
-    canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
     image_shape = canny.shape
     distv = round(image_shape[0]/23)
     disth = round(image_shape[1]/23)
@@ -103,10 +98,10 @@ def find_baselines(canny):
         if vert is None or hori is None:
             continue
 
-        vert, hori = angles.filter_misdirected(vert, hori, canny_3channels)
-        vert, hori = sort(vert, hori)
-        vert, hori = bundle_lines(vert, distv, hori, disth)
-        vert, hori = angles.filter_intersecting(vert, hori, canny_3channels)
+        vert, hori = angles.filter_misdirected(vert, hori, canny)
+        vert, hori = sort(vert, hori, canny)
+        vert, hori = bundle_lines(vert, distv, hori, disth, canny)
+        vert, hori = angles.filter_intersecting(vert, hori, canny)
 
         lv, lh = len(vert), len(hori)
         ll = lv + lh
@@ -114,18 +109,17 @@ def find_baselines(canny):
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori)
+    vert, hori = sort(vert, hori, canny)
     return vert, hori
 
 
 def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
-    global canny_3channels
     angle = consts.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
     lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
@@ -139,12 +133,12 @@ def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
     log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
               f"{hough_min_length=}, {hough_max_gap=}")
     if algo.debug:
-        canvas = draw.lines(canny_3channels, lines)
+        canvas = draw.lines(canny, lines)
         draw.save("hough_lines", canvas)
     return lines, ll
 
 
-def bundle_lines(vert, distv, hori, disth):
+def bundle_lines(vert, distv, hori, disth, canny):
 
     def _bundle_lines(lines, dist):
         bundled = np.zeros(lines.shape, dtype='int32')
@@ -156,19 +150,18 @@ def bundle_lines(vert, distv, hori, disth):
     vert = _bundle_lines(vert, distv)
 
     if algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save("bundle_lines", canvas)
     return vert, hori
 
 
-def fix_warped_lines(vert, hori, image_shape):
-    global canny_3channels
+def fix_warped_lines(vert, hori, canny):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
-        lines, ll = add_outer(lines, ll, kind, image_shape)
-        lines, ll = rem_outer(lines, ll, kind, image_shape)
-        lines, ll = add_outer(lines, ll, kind, image_shape, force=(ll < 9))
+        lines, ll = add_outer(lines, ll, kind, canny.shape)
+        lines, ll = rem_outer(lines, ll, kind, canny.shape)
+        lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
         return lines, ll
 
@@ -180,14 +173,13 @@ def fix_warped_lines(vert, hori, image_shape):
         hori, lh = _fix_warped_lines(hori, 1)
 
     if lv != 9 or lh != 9:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save(f"canny{lv=}_{lh=}", canvas)
         return None, None
     return vert, hori
 
 
-def sort(vert, hori, kind=0):
-    global canny_3channels
+def sort(vert, hori, canny, kind=0):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
@@ -203,7 +195,7 @@ def sort(vert, hori, kind=0):
     vert = vert[np.argsort(positions)]
 
     if algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save("sort_lines", canvas)
     return vert, hori
 
@@ -235,23 +227,6 @@ def fix_length_byinter(image_shape, vert, hori=None):
         inters = np.transpose(inters, axes=(1, 0, 2))
         hori = _shorten(hori)
     return vert, hori
-
-
-def check_save(title, vert, hori, old_lv, old_lh):
-    global canny_3channels
-    annotate_number = True
-    lv = 0 if vert is None else len(vert)
-    lh = 0 if hori is None else len(hori)
-
-    if old_lv == lv and old_lh == lh:
-        return old_lv, old_lh
-
-    if algo.debug:
-        if lv > 12 or lh > 12:
-            annotate_number = False
-        canvas = draw.lines(canny_3channels, vert, hori, annotate_number)
-        draw.save(title, canvas)
-    return lv, lh
 
 
 def add_outer(lines, ll, kind, image_shape, force=False):
@@ -304,7 +279,6 @@ def add_outer(lines, ll, kind, image_shape, force=False):
 
     lines = _add_outer(lines, 0)
     lines = _add_outer(lines, -1)
-    ll, _ = check_save("add_outer", lines, None, ll, 0)
     return lines, ll
 
 
@@ -343,7 +317,6 @@ def rem_middle(lines, ll):
     lines = np.flip(lines, axis=0)
     lines = _rem_middle(lines)
     lines = np.flip(lines, axis=0)
-    ll, _ = check_save("rem_middle", lines, None, ll, 0)
     return lines, ll
 
 
@@ -381,7 +354,6 @@ def rem_wrong(lines, ll):
     dists = _calc_distances(lines)
     lines = _rem_wrong(lines, dists)
     lines = _rem_wrong(lines, dists)
-    ll, _ = check_save("rem_wrong", lines, None, ll, 0)
     return lines, ll
 
 
@@ -447,7 +419,6 @@ def add_middle(lines, ll):
     lines = np.flip(lines, axis=0)
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
-    ll, _ = check_save("add_middle", lines, None, ll, 0)
     return lines, ll
 
 
@@ -476,7 +447,6 @@ def rem_outer(lines, ll, kind, image_shape):
         else:
             lines = lines[:-1]
 
-    ll, _ = check_save("rem_outer", lines, None, ll, 0)
     return lines, ll
 
 

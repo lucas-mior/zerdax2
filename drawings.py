@@ -7,6 +7,8 @@ import logging as log
 from misc import COLORS, SYMBOLS
 import lines as li
 
+# canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+
 
 def save(name, image, title=None):
     if not hasattr(save, "i"):

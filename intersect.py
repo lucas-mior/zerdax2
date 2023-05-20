@@ -128,6 +128,7 @@ def calculate_single(line0, image_shape=(300, 500), kind=0):
 
     d = (linalg.det([(x0, y0), (x1, y1)]),
          linalg.det([(xx0, yy0), (xx1, yy1)]))
+
     x = round(linalg.det([d, xdiff]) / div)
     y = round(linalg.det([d, ydiff]) / div)
     return np.array((x, y), dtype='int32')

@@ -34,7 +34,6 @@ def segments_distance():
     func.restype = ct.c_int32
     func.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_int32, flags="C_CONTIGUOUS")]
-
     return func
 
 
@@ -45,7 +44,6 @@ def lines_bundle():
     func.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
                      ct.c_int32, ct.c_int32]
-
     return func
 
 

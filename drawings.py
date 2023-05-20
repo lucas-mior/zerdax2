@@ -14,7 +14,7 @@ def save(name, image, title=None):
     save.i += 1
     if title is None:
         title = f"{algo.img.basename}_{save.i:04d}_{name}.png"
-    log.info(f"saving {title}...")
+    log.debug(f"saving {title}...")
     cv2.imwrite(title, image)
     return
 

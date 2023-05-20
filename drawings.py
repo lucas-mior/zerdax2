@@ -37,10 +37,11 @@ def corners(image, corners):
 
 def points(image, inters):
     canvas = np.zeros(image.shape, dtype='uint8')
+    radius = round(5+(image.shape[1]/512))
 
     for i, row in enumerate(inters):
         for j, p in enumerate(row):
-            cv2.circle(canvas, p, radius=5,
+            cv2.circle(canvas, p, radius,
                        color=(20+i*20, 0, 100+j*15), thickness=-1)
 
     canvas = addweighted(image, canvas)

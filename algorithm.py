@@ -87,9 +87,9 @@ def algorithm(filename):
         board_squares, pieces = squares.fill(board.squares, pieces, force=True)
 
     board.squares, changed = squares.check_colors(img.BGR, board.squares)
-    # if algo.debug and changed:
-    canvas = draw.squares(img.BGR, board.squares)
-    draw.save("A1E4C5H8", canvas)
+    if algo.debug and changed:
+        canvas = draw.squares(img.BGR, board.squares)
+        draw.save("A1E4C5H8", canvas)
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)

@@ -40,4 +40,4 @@ def calculate(inters):
     top_right = psub[np.argmax(psub[:, 2])][0:2]
     bot_right = psum[np.argmax(psum[:, 2])][0:2]
     bot_left = psub[np.argmin(psub[:, 2])][0:2]
-    return np.array([bot_right, bot_left, top_right, top_left], dtype='int32')
+    return np.array([top_left, top_right, bot_right, bot_left], dtype='int32')

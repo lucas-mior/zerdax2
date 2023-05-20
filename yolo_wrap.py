@@ -18,6 +18,7 @@ def detect_objects(filename):
     model = YOLO("zerdax2.pt")
     objs = model.predict(source=filename,
                          conf=0.5,
+                         device="cpu",
                          imgsz=640,
                          iou=0.7,
                          max_det=32)

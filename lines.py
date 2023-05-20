@@ -100,6 +100,9 @@ def fix_wlines(canny, vert, hori):
     def _fix_wlines(lines, kind):
         lines, _ = rem_wrong(lines, len(lines))
         lines, _ = add_outer(lines, len(lines), kind, canny.shape)
+        lines, _ = rem_outer(lines, len(lines), kind, canny.shape, force=True)
+        lines, _ = add_outer(lines, len(lines), kind, canny.shape)
+        lines, _ = add_middle(lines, len(lines))
         return lines
 
     vert = _fix_wlines(vert, 0)

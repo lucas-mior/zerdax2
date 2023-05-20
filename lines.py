@@ -405,11 +405,11 @@ def add_outer(lines, ll, kind, image_shape, force=False):
             if len(inters) < 2:
                 return lines
             elif len(inters) > 2:
-                ls = np.array([[inters[0], inters[1]],
-                               [inters[0], inters[2]],
-                               [inters[1], inters[2]]])
-                lens = [length(le.flatten()) for le in ls]
-                inters = ls[np.argmax(lens)]
+                segments = np.array([[inters[0], inters[1]],
+                                     [inters[0], inters[2]],
+                                     [inters[1], inters[2]]])
+                lengths = [length(segment.flatten()) for segment in segments]
+                inters = segments[np.argmax(lengths)]
             if inters[0, kind] <= limit and inters[1, kind] <= limit:
                 x0, y0, x1, y1 = np.ravel(inters)
                 if length((x0, y0, x1, y1)) < (length(line0)*0.8):

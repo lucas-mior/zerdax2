@@ -9,7 +9,7 @@ import constants as consts
 def find(canny):
     vert, hori = lines.find_baselines(canny)
     vert, hori = lines.fix_length_byinter(canny.shape, vert, hori)
-    lv, lh = lines.check_save("fix_length_byinter0", vert, hori, -1, -1)
+    lv, lh = len(vert), len(hori)
 
     if lv == 0 or lh == 0:
         return None

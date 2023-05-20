@@ -8,14 +8,14 @@ import constants as consts
 
 def find(canny):
     vert, hori = lines.find_baselines(canny)
-    vert, hori = lines.fix_length_byinter(canny.shape, vert, hori)
+    vert, hori = lines.fix_length_byinter(vert, hori)
     lv, lh = len(vert), len(hori)
 
     if lv == 0 or lh == 0:
         return None
 
-    vert, lv = lines.add_outer(vert, lv, 0, canny.shape)
-    hori, lh = lines.add_outer(hori, lh, 1, canny.shape)
+    vert, lv = lines.add_outer(vert, lv, 0)
+    hori, lh = lines.add_outer(hori, lh, 1)
     inters = intersect.calculate_all(vert, hori)
 
     log.debug("calculating 4 corners of board...")

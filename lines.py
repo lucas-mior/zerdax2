@@ -11,13 +11,13 @@ from c_load import segments_distance
 from c_load import lines_bundle
 
 hough_min_length0 = consts.min_line_length
+gcanny = None
 
 
 def find_warped_lines(canny):
+    global gcanny
+    gcanny = canny
     log.debug("finding all lines of warped board...")
-    image_shape = canny.shape
-    distv = round(image_shape[1]/23)
-    disth = round(image_shape[0]/23)
     min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -35,19 +35,18 @@ def find_warped_lines(canny):
         hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
         hough_threshold = max(hough_threshold - 5,
                               round(hough_min_length0 / 1.5))
-        lines, ll = hough_wrapper(canny, hough_threshold,
-                                  hough_min_length, hough_max_gap)
+        lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
             hough_max_gap += 2
             continue
 
-        lines = angles.filter_not_right(lines, canny)
+        lines = angles.filter_not_right(lines, gcanny)
         vert, hori = angles.split(lines)
         if vert is None or hori is None:
             continue
 
-        vert, hori = sort(vert, hori, canny)
-        vert, hori = bundle_lines(vert, distv, hori, disth, canny)
+        vert, hori = sort(vert, hori)
+        vert, hori = bundle_lines(vert, hori)
 
         lv, lh = len(vert), len(hori)
         ll = lv + lh
@@ -55,22 +54,21 @@ def find_warped_lines(canny):
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
-        canvas = draw.lines(canny, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
+        canvas = draw.lines(gcanny, vert, hori)
+        draw.save(f"gcanny{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori, canny)
-    vert, hori = fix_warped_lines(vert, hori, canny)
+    vert, hori = sort(vert, hori)
+    vert, hori = fix_warped_lines(vert, hori)
     return vert, hori
 
 
 def find_baselines(canny):
+    global gcanny
+    gcanny = canny
     log.debug("finding all lines of board...")
-    image_shape = canny.shape
-    distv = round(image_shape[0]/23)
-    disth = round(image_shape[1]/23)
     min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
@@ -88,8 +86,7 @@ def find_baselines(canny):
         hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
         hough_threshold = max(hough_threshold - 5,
                               round(hough_min_length0 / 1.5))
-        lines, ll = hough_wrapper(canny, hough_threshold,
-                                  hough_min_length, hough_max_gap)
+        lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
             hough_max_gap += 2
             continue
@@ -98,10 +95,10 @@ def find_baselines(canny):
         if vert is None or hori is None:
             continue
 
-        vert, hori = angles.filter_misdirected(vert, hori, canny)
-        vert, hori = sort(vert, hori, canny)
-        vert, hori = bundle_lines(vert, distv, hori, disth, canny)
-        vert, hori = angles.filter_intersecting(vert, hori, canny)
+        vert, hori = angles.filter_misdirected(vert, hori, gcanny)
+        vert, hori = sort(vert, hori)
+        vert, hori = bundle_lines(vert, hori)
+        vert, hori = angles.filter_intersecting(vert, hori, gcanny)
 
         lv, lh = len(vert), len(hori)
         ll = lv + lh
@@ -109,20 +106,20 @@ def find_baselines(canny):
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
-        canvas = draw.lines(canny, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
+        canvas = draw.lines(gcanny, vert, hori)
+        draw.save(f"gcanny{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori, canny)
+    vert, hori = sort(vert, hori)
     return vert, hori
 
 
-def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
+def hough(hough_threshold, hough_min_length, hough_max_gap):
     angle = consts.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
-    lines = cv2.HoughLinesP(canny, 1, hough_angle, hough_threshold,
+    lines = cv2.HoughLinesP(gcanny, 1, hough_angle, hough_threshold,
                             None, hough_min_length, hough_max_gap)
     if lines is None:
         ll = 0
@@ -133,12 +130,14 @@ def hough_wrapper(canny, hough_threshold, hough_min_length, hough_max_gap):
     log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
               f"{hough_min_length=}, {hough_max_gap=}")
     if algo.debug:
-        canvas = draw.lines(canny, lines)
+        canvas = draw.lines(gcanny, lines)
         draw.save("hough_lines", canvas)
     return lines, ll
 
 
-def bundle_lines(vert, distv, hori, disth, canny):
+def bundle_lines(vert, hori):
+    distv = round(gcanny.shape[1]/23)
+    disth = round(gcanny.shape[0]/23)
 
     def _bundle_lines(lines, dist):
         bundled = np.zeros(lines.shape, dtype='int32')
@@ -150,18 +149,18 @@ def bundle_lines(vert, distv, hori, disth, canny):
     vert = _bundle_lines(vert, distv)
 
     if algo.debug:
-        canvas = draw.lines(canny, vert, hori, annotate_number=True)
+        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("bundle_lines", canvas)
     return vert, hori
 
 
-def fix_warped_lines(vert, hori, canny):
+def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
-        lines, ll = add_outer(lines, ll, kind, canny.shape)
-        lines, ll = rem_outer(lines, ll, kind, canny.shape)
-        lines, ll = add_outer(lines, ll, kind, canny.shape, force=(ll < 9))
+        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = rem_outer(lines, ll, kind)
+        lines, ll = add_outer(lines, ll, kind, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
         return lines, ll
 
@@ -173,19 +172,19 @@ def fix_warped_lines(vert, hori, canny):
         hori, lh = _fix_warped_lines(hori, 1)
 
     if lv != 9 or lh != 9:
-        canvas = draw.lines(canny, vert, hori)
-        draw.save(f"canny{lv=}_{lh=}", canvas)
+        canvas = draw.lines(gcanny, vert, hori)
+        draw.save(f"gcanny{lv=}_{lh=}", canvas)
         return None, None
     return vert, hori
 
 
-def sort(vert, hori, canny):
+def sort(vert, hori):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
         positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
-            inter = intersect.calculate_single(line, kind=kind)
+            inter = intersect.calculate_single(line, gcanny, kind=kind)
             positions[i] = inter[kind]
         return positions
 
@@ -195,12 +194,12 @@ def sort(vert, hori, canny):
     vert = vert[np.argsort(positions)]
 
     if algo.debug:
-        canvas = draw.lines(canny, vert, hori, annotate_number=True)
+        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("sort_lines", canvas)
     return vert, hori
 
 
-def fix_length_byinter(image_shape, vert, hori=None):
+def fix_length_byinter(vert, hori=None):
     inters = intersect.calculate_extern(vert, hori)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
@@ -211,7 +210,7 @@ def fix_length_byinter(image_shape, vert, hori=None):
             line = lines[i]
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
-            limit = intersect.shorten(new, image_shape)
+            limit = intersect.shorten(new, gcanny)
             limit = np.ravel(limit[:2])
             if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
@@ -229,7 +228,7 @@ def fix_length_byinter(image_shape, vert, hori=None):
     return vert, hori
 
 
-def add_outer(lines, ll, kind, image_shape, force=False):
+def add_outer(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
     tol = consts.outer_tolerance
     if force:
@@ -239,7 +238,7 @@ def add_outer(lines, ll, kind, image_shape, force=False):
         return lines
 
     def _add_outer(lines, where):
-        limit = image_shape[kind-1]
+        limit = gcanny.shape[kind-1]
         if where == 0:
             ref = 0
             other = 1
@@ -256,7 +255,7 @@ def add_outer(lines, ll, kind, image_shape, force=False):
             x0, x1 = x
             y0, y1 = y
             new = np.array([x0, y0, x1, y1], dtype='int32')
-            inters = intersect.shorten(new, image_shape)
+            inters = intersect.shorten(new, gcanny)
             if len(inters) < 2:
                 return lines
             elif len(inters) > 2:
@@ -279,6 +278,10 @@ def add_outer(lines, ll, kind, image_shape, force=False):
 
     lines = _add_outer(lines, 0)
     lines = _add_outer(lines, -1)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("add_outer", canvas)
     return lines, len(lines)
 
 
@@ -317,6 +320,10 @@ def rem_middle(lines, ll):
     lines = np.flip(lines, axis=0)
     lines = _rem_middle(lines)
     lines = np.flip(lines, axis=0)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("rem_middle", canvas)
     return lines, ll
 
 
@@ -354,6 +361,10 @@ def rem_wrong(lines, ll):
     dists = _calc_distances(lines)
     lines = _rem_wrong(lines, dists)
     lines = _rem_wrong(lines, dists)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("rem_wrong", canvas)
     return lines, len(lines)
 
 
@@ -419,13 +430,17 @@ def add_middle(lines, ll):
     lines = np.flip(lines, axis=0)
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("add_middle", canvas)
     return lines, len(lines)
 
 
-def rem_outer(lines, ll, kind, image_shape):
+def rem_outer(lines, ll, kind):
     log.debug("removing extra outer lines...")
     tolerance = consts.outer_tolerance
-    limit = image_shape[kind-1]
+    limit = gcanny.shape[kind-1]
     if ll < 7:
         log.warning("Less than 7 lines passed to rem_outer, returning...")
         return lines, ll
@@ -447,6 +462,9 @@ def rem_outer(lines, ll, kind, image_shape):
         else:
             lines = lines[:-1]
 
+    if algo.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("rem_outer", canvas)
     return lines, len(lines)
 
 

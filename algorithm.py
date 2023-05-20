@@ -123,22 +123,18 @@ def crop_board_to_size(img, boardbox):
     img.width_board = consts.width_board
     img.resize_factor = img.width_board / img.board.shape[1]
     img.height_board = round(img.resize_factor * img.board.shape[0])
-
     img.board = cv2.resize(img.board, (img.width_board, img.height_board))
+
     if algo.debug:
         draw.save("board", img.board)
     return img
 
 
 def pre_process(img):
-    log.info("creating HSV representation of image...")
+    log.info("creating HSV and gray representation of image...")
     img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
     img.hsvalue = img.HSV[:, :, 2]
-
-    log.info("converting image to grayscale...")
     img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
-    if algo.debug:
-        draw.save("gray_board", img.gray)
 
     log.info("applying distributed histogram equalization to image...")
     grid = (consts.tile_grid_size, consts.tile_grid_size)
@@ -165,6 +161,7 @@ def create_cannys(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
+
     if algo.debug:
         draw.save("edges", canny)
     return canny
@@ -202,6 +199,7 @@ def find_edges(image, lowpass):
         canny_mean_threshold = consts.canny_mean_threshold_gauss
         threshold_high0 = consts.threshold_highgauss
     canny, got_canny = find_canny(image, canny_mean_threshold, threshold_high0)
+
     if not got_canny or algo.debug:
         draw.save("lowpass", image)
     return canny, got_canny
@@ -246,7 +244,6 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
         log.info(f"Failed to find edges with"
                  f"mean >= {canny_mean_threshold:0=.1f}")
         log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
-
     return canny, got_canny
 
 

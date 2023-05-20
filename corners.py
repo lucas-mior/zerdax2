@@ -3,6 +3,7 @@ import logging as log
 
 import lines as lines
 import intersect as intersect
+import constants as consts
 
 
 def find(canny):
@@ -38,18 +39,19 @@ def find(canny):
 
 
 def broad(corners, image_shape):
+    margin = consts.corners_margin
     width = image_shape[1] - 1
     height = image_shape[0] - 1
     top_left = corners[0]
     top_right = corners[1]
     bot_right = corners[2]
     bot_left = corners[3]
-    top_left[0] = max(0,       top_left[0] - 4)
-    top_left[1] = max(0,       top_left[1] - 4)
-    top_right[0] = min(width,  top_right[0] + 4)
-    top_right[1] = max(0,      top_right[1] - 4)
-    bot_right[0] = min(width,  bot_right[0] + 4)
-    bot_right[1] = min(height, bot_right[1] + 4)
-    bot_left[0] = max(0,       bot_left[0] - 4)
-    bot_left[1] = min(height,  bot_left[1] + 4)
+    top_left[0] = max(0,       top_left[0] - margin)
+    top_left[1] = max(0,       top_left[1] - margin)
+    top_right[0] = min(width,  top_right[0] + margin)
+    top_right[1] = max(0,      top_right[1] - margin)
+    bot_right[0] = min(width,  bot_right[0] + margin)
+    bot_right[1] = min(height, bot_right[1] + margin)
+    bot_left[0] = max(0,       bot_left[0] - margin)
+    bot_left[1] = min(height,  bot_left[1] + margin)
     return np.array([top_left, top_right, bot_right, bot_left], dtype='int32')

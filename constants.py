@@ -12,6 +12,7 @@ canny_mean_threshold_gauss = 13
 threshold_highgauss = 220
 canny_threshold_high_min = 30
 canny_threshold_low_min = 10
+corners_margin = 4
 
 min_angle_to_intersect = 20 * 100
 min_dist_to_separate_lines = 15

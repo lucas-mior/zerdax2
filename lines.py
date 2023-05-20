@@ -150,7 +150,7 @@ def bundle_lines(vert, distv, hori, disth, canny):
     vert = _bundle_lines(vert, distv)
 
     if algo.debug:
-        canvas = draw.lines(canny, vert, hori)
+        canvas = draw.lines(canny, vert, hori, annotate_number=True)
         draw.save("bundle_lines", canvas)
     return vert, hori
 
@@ -195,7 +195,7 @@ def sort(vert, hori, canny):
     vert = vert[np.argsort(positions)]
 
     if algo.debug:
-        canvas = draw.lines(canny, vert, hori)
+        canvas = draw.lines(canny, vert, hori, annotate_number=True)
         draw.save("sort_lines", canvas)
     return vert, hori
 

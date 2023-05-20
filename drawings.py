@@ -64,7 +64,7 @@ def lines(image, vert, hori=None, annotate_number=False):
     image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
 
-    def _draw(canvas, lines, color, kind=-1, annotate_number=True):
+    def _draw(canvas, lines, color, kind=-1):
         if kind != -1:
             ll = len(lines)
             legend = f"{ll} vertical" if kind == 0 else f"{ll} horizontal"
@@ -103,14 +103,14 @@ def lines(image, vert, hori=None, annotate_number=False):
 
     if hori is not None:
         hori = np.array(hori)
-        canvas = _draw(canvas, hori, (0, 255, 0), 1, annotate_number)
+        canvas = _draw(canvas, hori, (0, 255, 0), 1)
         if vert is not None:
             vert = np.array(vert)
-            canvas = _draw(canvas, vert, (255, 0, 80), 0, annotate_number)
+            canvas = _draw(canvas, vert, (255, 0, 80), 0)
         canvas = addweighted(image, canvas)
     elif vert is not None:
         vert = np.array(vert)
-        canvas = _draw(canvas, vert, (0, 0, 255), annotate_number=False)
+        canvas = _draw(canvas, vert, (0, 0, 255))
         canvas = addweighted(image, canvas)
 
     return canvas

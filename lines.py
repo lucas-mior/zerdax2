@@ -26,7 +26,7 @@ def find_warped_lines(canny):
     hough_min_length = hough_min_length0
     hough_max_gap = 4
     hough_threshold = round(hough_min_length0*1.1)
-    lv = lh = 0
+    ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:
         if hough_threshold <= round(hough_min_length0/1.5):
@@ -89,7 +89,7 @@ def find_baselines(canny):
     hough_min_length = hough_min_length0
     hough_max_gap = 4
     hough_threshold = round(hough_min_length0*1.1)
-    lv = lh = 0
+    ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:
         if hough_threshold <= round(hough_min_length0/1.5):

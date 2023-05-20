@@ -1,4 +1,4 @@
-path: tmp
+path: datasets/zerdax2
 train: images/train/
 val: images/val/
 test: images/test/

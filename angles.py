@@ -67,7 +67,7 @@ def split(lines):
     return vert, hori
 
 
-def filter_misdirected(vert, hori, canny_3channels):
+def filter_misdirected(vert, hori, canny):
     log.info("filtering lines by angle accoring to direction...")
     tolerance = consts.angle_tolerance
 
@@ -80,12 +80,12 @@ def filter_misdirected(vert, hori, canny_3channels):
     hori = _filter(hori)
 
     if algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save("filter_misdirected", canvas)
     return vert, hori
 
 
-def filter_intersecting(vert, hori, canny_3channels):
+def filter_intersecting(vert, hori, canny):
     log.info("filtering lines by number of intersections ...")
     limit = True
 
@@ -104,12 +104,12 @@ def filter_intersecting(vert, hori, canny_3channels):
         hori = _filter(hori)
 
     if algo.debug:
-        canvas = draw.lines(canny_3channels, vert, hori)
+        canvas = draw.lines(canny, vert, hori)
         draw.save("filter_intersecting", canvas)
     return vert, hori
 
 
-def filter_not_right(lines, canny_3channels):
+def filter_not_right(lines, canny):
     lines, _ = li.length_theta(lines)
     remove = np.zeros(lines.shape[0], dtype='uint8')
 
@@ -120,6 +120,6 @@ def filter_not_right(lines, canny_3channels):
     lines = lines[remove == 0]
 
     if algo.debug:
-        canvas = draw.lines(canny_3channels, lines)
+        canvas = draw.lines(canny, lines)
         draw.save("filter_not_right", canvas)
     return lines

@@ -7,7 +7,14 @@ import logging as log
 from misc import COLORS, SYMBOLS
 import lines as li
 
-# canny_3channels = cv2.cvtColor(canny, cv2.COLOR_GRAY2BGR)
+
+def make_3channel(image):
+    if len(image.shape) == 2:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    elif len(image.shape) != 3:
+        log.error(f"image.shape: {image.shape}")
+        exit(1)
+    return image
 
 
 def save(name, image, title=None):
@@ -22,11 +29,13 @@ def save(name, image, title=None):
 
 
 def addweighted(image, canvas, w1=0.4, w2=0.6):
+    image = make_3channel(image)
     cv2.addWeighted(image, w1, canvas, w2, 0, canvas)
     return canvas
 
 
 def corners(image, corners):
+    image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
 
     for i, c in enumerate(corners):
@@ -38,6 +47,7 @@ def corners(image, corners):
 
 
 def points(image, inters):
+    image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
     radius = round(5+(image.shape[1]/512))
 
@@ -51,6 +61,7 @@ def points(image, inters):
 
 
 def lines(image, vert, hori=None, annotate_number=False):
+    image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
 
     def _draw(canvas, lines, color, kind=-1, annotate_number=True):
@@ -106,6 +117,7 @@ def lines(image, vert, hori=None, annotate_number=False):
 
 
 def squares(image, squares):
+    image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
     scale = 2.5 * (image.shape[1]/1920)
 
@@ -126,6 +138,7 @@ def squares(image, squares):
 
 
 def boxes(image, pieces, boardbox=None):
+    image = make_3channel(image)
     canvas = np.zeros(image.shape, dtype='uint8')
     thick = round(2.4 * (image.shape[0] / 1280))
 

@@ -47,7 +47,7 @@ def find_warped_lines(canny):
             continue
 
         vert, hori = sort(vert, hori, canny)
-        vert, hori = bundle_lines(vert, distv, hori, disth)
+        vert, hori = bundle_lines(vert, distv, hori, disth, canny)
 
         lv, lh = len(vert), len(hori)
         ll = lv + lh
@@ -62,7 +62,7 @@ def find_warped_lines(canny):
             return None, None
 
     vert, hori = sort(vert, hori, canny)
-    vert, hori = fix_warped_lines(vert, hori, canny.shape)
+    vert, hori = fix_warped_lines(vert, hori, canny)
     return vert, hori
 
 
@@ -179,7 +179,7 @@ def fix_warped_lines(vert, hori, canny):
     return vert, hori
 
 
-def sort(vert, hori, canny, kind=0):
+def sort(vert, hori, canny):
     log.debug("sorting lines by position and respective direction...")
 
     def _create(lines, kind):
@@ -279,7 +279,7 @@ def add_outer(lines, ll, kind, image_shape, force=False):
 
     lines = _add_outer(lines, 0)
     lines = _add_outer(lines, -1)
-    return lines, ll
+    return lines, len(lines)
 
 
 def rem_middle(lines, ll):
@@ -354,7 +354,7 @@ def rem_wrong(lines, ll):
     dists = _calc_distances(lines)
     lines = _rem_wrong(lines, dists)
     lines = _rem_wrong(lines, dists)
-    return lines, ll
+    return lines, len(lines)
 
 
 def add_middle(lines, ll):
@@ -419,7 +419,7 @@ def add_middle(lines, ll):
     lines = np.flip(lines, axis=0)
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
-    return lines, ll
+    return lines, len(lines)
 
 
 def rem_outer(lines, ll, kind, image_shape):
@@ -447,7 +447,7 @@ def rem_outer(lines, ll, kind, image_shape):
         else:
             lines = lines[:-1]
 
-    return lines, ll
+    return lines, len(lines)
 
 
 def length_theta(vert, hori=None, abs_angle=False):

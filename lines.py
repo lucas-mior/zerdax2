@@ -104,7 +104,7 @@ def find_baselines(canny):
         vert, hori = angles.filter_misdirected(vert, hori, canny_3channels)
         vert, hori = sort(vert, hori)
         vert, hori = bundle_lines(vert, distv, hori, disth)
-        vert, hori = angles.filter_intersecting(vert, hori)
+        vert, hori = angles.filter_intersecting(vert, hori, canny_3channels)
         lv, lh = len(vert), len(hori)
 
         ll = lv + lh
@@ -122,7 +122,7 @@ def find_baselines(canny):
     return vert, hori
 
 
-def bundle_lines(vert, distv, hori=None, disth=None):
+def bundle_lines(vert, distv, hori, disth):
 
     def _bundle_lines(lines, dist):
         bundled = np.zeros(lines.shape, dtype='int32')
@@ -130,9 +130,12 @@ def bundle_lines(vert, distv, hori=None, disth=None):
         lines = bundled[:nlines]
         return lines
 
-    if hori is not None:
-        hori = _bundle_lines(hori, disth)
+    hori = _bundle_lines(hori, disth)
     vert = _bundle_lines(vert, distv)
+
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save("bundle_lines", canvas)
     return vert, hori
 
 

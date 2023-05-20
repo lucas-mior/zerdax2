@@ -85,7 +85,7 @@ def filter_misdirected(vert, hori, canny_3channels):
     return vert, hori
 
 
-def filter_intersecting(vert, hori=None):
+def filter_intersecting(vert, hori, canny_3channels):
     log.info("filtering lines by number of intersections ...")
     limit = True
 
@@ -100,10 +100,12 @@ def filter_intersecting(vert, hori=None):
         return lines
 
     for j in range(3):
-        if vert is not None:
-            vert = _filter(vert)
-        if hori is not None:
-            hori = _filter(hori)
+        vert = _filter(vert)
+        hori = _filter(hori)
+
+    if algo.debug:
+        canvas = draw.lines(canny_3channels, vert, hori)
+        draw.save("filter_intersecting", canvas)
     return vert, hori
 
 

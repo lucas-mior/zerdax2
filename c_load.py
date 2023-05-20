@@ -16,16 +16,16 @@ lib = ct.CDLL(library)
 
 
 def lfilter():
-    lfilter = lib.filter
+    func = lib.filter
 
-    lfilter.restype = None
-    lfilter.argtypes = [ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                        ct.c_size_t, ct.c_size_t,
-                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                        ndp(ct.c_double, flags="C_CONTIGUOUS"),
-                        ct.c_double]
-    return lfilter
+    func.restype = None
+    func.argtypes = [ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                     ct.c_size_t, ct.c_size_t,
+                     ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                     ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                     ndp(ct.c_double, flags="C_CONTIGUOUS"),
+                     ct.c_double]
+    return func
 
 
 def segments_distance():

@@ -319,6 +319,9 @@ def add_outer(lines, ll, kind, image_shape, force=False):
 def rem_middle(lines, ll):
     log.info("reming missing middle lines...")
     tol = consts.middle_tolerance
+    if ll < 7:
+        log.warning("Less than 7 lines passed to rem_middle, returning...")
+        return lines, ll
 
     def _rem_middle(lines):
         i = 1

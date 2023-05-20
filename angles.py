@@ -19,10 +19,7 @@ def split(lines):
     lines, _ = li.length_theta(lines)
     angles = lines[:, 5]
 
-    try:
-        limits = jenks_breaks(angles, n_classes=3)
-    except Exception:
-        return None, None
+    limits = jenks_breaks(angles, n_classes=3)
 
     a0 = angles[angles <= limits[1]]
     a1 = angles[(limits[1] < angles) & (angles <= limits[2])]
@@ -39,10 +36,7 @@ def split(lines):
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
 
     if dd0 or dd1 or dd2:
-        try:
-            limits = jenks_breaks(angles, n_classes=2)
-        except Exception:
-            return None, None
+        limits = jenks_breaks(angles, n_classes=2)
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
         if not _check_split(vert, hori):
@@ -52,10 +46,7 @@ def split(lines):
             if line[5] < (-45 * 100):
                 line[5] = -line[5]
         angles = lines[:, 5]
-        try:
-            limits = jenks_breaks(angles, n_classes=2)
-        except Exception:
-            return None, None
+        limits = jenks_breaks(angles, n_classes=2)
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
         if not _check_split(vert, hori):

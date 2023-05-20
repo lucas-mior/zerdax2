@@ -14,7 +14,7 @@ minlen0 = consts.min_line_length
 canny_3channels = None
 
 
-def find_wlines(canny):
+def find_warped_lines(canny):
     image_shape = canny.shape
     distv = round(image_shape[1]/23)
     disth = round(image_shape[0]/23)
@@ -85,7 +85,7 @@ def find_wlines(canny):
     vert, hori = sort(vert, hori)
     lv, lh = check_save("sort", vert, hori, lv, lh)
 
-    vert, hori = fix_wlines(canny, vert, hori)
+    vert, hori = fix_warped_lines(canny, vert, hori)
     return vert, hori
 
 
@@ -96,9 +96,9 @@ def bundle_lines(lines, dist):
     return lines
 
 
-def fix_wlines(canny, vert, hori):
+def fix_warped_lines(canny, vert, hori):
 
-    def _fix_wlines(lines, kind):
+    def _fix_warped_lines(lines, kind):
         lines, ll = rem_wrong(lines, len(lines))
         lines, ll = add_outer(lines, ll, kind, canny.shape)
         lines, ll = rem_outer(lines, ll, kind, canny.shape, force=(ll > 9))
@@ -106,12 +106,12 @@ def fix_wlines(canny, vert, hori):
         lines, ll = add_middle(lines, ll)
         return lines
 
-    vert = _fix_wlines(vert, 0)
-    hori = _fix_wlines(hori, 1)
+    vert = _fix_warped_lines(vert, 0)
+    hori = _fix_warped_lines(hori, 1)
     if len(vert) != 9:
-        vert = _fix_wlines(vert, 0)
+        vert = _fix_warped_lines(vert, 0)
     if len(hori) != 9:
-        hori = _fix_wlines(hori, 1)
+        hori = _fix_warped_lines(hori, 1)
     return vert, hori
 
 

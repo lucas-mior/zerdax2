@@ -60,7 +60,7 @@ def algorithm(filename):
     canny_warped, warp_inverse_matrix = perspective.warp(canny, board_corners)
     canny_warped_3channels = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
-    vert, hori = lines.find_wlines(canny_warped)
+    vert, hori = lines.find_warped_lines(canny_warped)
     if vert is None or hori is None:
         log.error(bad_picture_msg)
         return bad_picture_msg
@@ -68,7 +68,7 @@ def algorithm(filename):
     lv, lh = len(vert), len(hori)
     if (failed := (lv != 9 or lh != 9)) or algo.debug:
         canvas = draw.lines(canny_warped_3channels, vert, hori)
-        draw.save("find_wlines", canvas)
+        draw.save("find_warped_lines", canvas)
         if failed:
             log.error("There should be 9 vertical lines and",
                       "9 horizontal lines")

@@ -107,7 +107,7 @@ def translate_inters(img, inters, warp_inverse_matrix):
 
     if algo.debug:
         canvas = draw.points(img.BGR, inters)
-        draw.save("intersections", canvas)
+        draw.save("translated_intersections", canvas)
     return inters
 
 

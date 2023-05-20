@@ -82,7 +82,7 @@ def algorithm(filename):
         canvas = draw.squares(img.BGR, board.squares)
         draw.save("A1E4C5H8", canvas)
 
-    board_squares, pieces = squares.fill(board.squares, board.pieces)
+    board.squares, pieces = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(img.BGR, board.squares)
     if algo.debug and changed:
         canvas = draw.squares(img.BGR, board.squares)

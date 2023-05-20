@@ -17,7 +17,7 @@ static int32 min(int32 const distances[4]) {
     return m;
 }
 
-static bool segs_intersect(int32 * restrict line0, int32 * restrict line1) {
+static bool segments_intersect(int32 * restrict line0, int32 * restrict line1) {
     int32 x0, y0, x1, y1;
     int32 xx0, yy0, xx1, yy1;
     x0 = line0[0]; y0 = line0[1];
@@ -42,7 +42,7 @@ static bool segs_intersect(int32 * restrict line0, int32 * restrict line1) {
     return ss && tt;
 }
 
-static int32 point_seg_dist(int32 const px, int32 const py, int32 * restrict line) {
+static int32 distance_point_segment(int32 const px, int32 const py, int32 * restrict line) {
     int32 x0, y0, x1, y1;
     x0 = line[0]; y0 = line[1];
     x1 = line[2]; y1 = line[3];
@@ -73,12 +73,12 @@ static int32 point_seg_dist(int32 const px, int32 const py, int32 * restrict lin
 }
 
 int32 segments_distance(int32 * restrict line0, int32 * restrict line1){
-    if (segs_intersect(line0, line1))
+    if (segments_intersect(line0, line1))
         return 0;
     int32 distances[4];
-    distances[0] = point_seg_dist(line0[0], line0[1], line1);
-    distances[1] = point_seg_dist(line0[2], line0[3], line1);
-    distances[2] = point_seg_dist(line1[0], line1[1], line0);
-    distances[3] = point_seg_dist(line1[2], line1[3], line0);
+    distances[0] = distance_point_segment(line0[0], line0[1], line1);
+    distances[1] = distance_point_segment(line0[2], line0[3], line1);
+    distances[2] = distance_point_segment(line1[0], line1[1], line0);
+    distances[3] = distance_point_segment(line1[2], line1[3], line0);
     return min(distances);
 }

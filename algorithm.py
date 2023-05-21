@@ -5,7 +5,6 @@ import logging as log
 from types import SimpleNamespace
 
 import algorithm as algo
-import corners as corners
 import squares as squares
 import lines as lines
 import intersect as intersect
@@ -49,7 +48,7 @@ def algorithm(filename):
 
     canny = create_canny(img.board)
 
-    board.corners = corners.find(canny)
+    board.corners = find_corners(canny)
     if (failed := board.corners is None) or algo.debug:
         canvas = draw.corners(img.board, board.corners)
         draw.save("corners", canvas)
@@ -251,6 +250,52 @@ def translate_inters(img, inters, warp_inverse_matrix):
         canvas = draw.points(img.BGR, inters)
         draw.save("translated_intersections", canvas)
     return inters
+
+
+def find_corners(canny):
+    vert, hori = lines.find_baselines(canny)
+    vert, hori = lines.fix_length_byinter(vert, hori)
+    lv, lh = len(vert), len(hori)
+
+    if lv == 0 or lh == 0:
+        return None
+
+    vert, lv = lines.add_outer(vert, lv, 0)
+    hori, lh = lines.add_outer(hori, lh, 1)
+    inters = intersect.calculate_all(vert, hori)
+
+    log.debug("calculating 4 corners of board...")
+    inters = inters.reshape((-1, 2))
+    psum = np.zeros((inters.shape[0], 3), dtype='int32')
+    psub = np.zeros((inters.shape[0], 3), dtype='int32')
+
+    psum[:, 0] = inters[:, 0]
+    psum[:, 1] = inters[:, 1]
+    psum[:, 2] = inters[:, 0] + inters[:, 1]
+    psub[:, 0] = inters[:, 0]
+    psub[:, 1] = inters[:, 1]
+    psub[:, 2] = inters[:, 0] - inters[:, 1]
+
+    top_left = psum[np.argmin(psum[:, 2])][0:2]
+    top_right = psub[np.argmax(psub[:, 2])][0:2]
+    bot_right = psum[np.argmax(psum[:, 2])][0:2]
+    bot_left = psub[np.argmin(psub[:, 2])][0:2]
+
+    log.debug("broading 4 corners of board...")
+    margin = consts.corners_margin
+
+    width = canny.shape[1] - 1
+    height = canny.shape[0] - 1
+
+    top_left[0] = max(0,       top_left[0] - margin)
+    top_left[1] = max(0,       top_left[1] - margin)
+    top_right[0] = min(width,  top_right[0] + margin)
+    top_right[1] = max(0,      top_right[1] - margin)
+    bot_right[0] = min(width,  bot_right[0] + margin)
+    bot_right[1] = min(height, bot_right[1] + margin)
+    bot_left[0] = max(0,       bot_left[0] - margin)
+    bot_left[1] = min(height,  bot_left[1] + margin)
+    return np.array([top_left, top_right, bot_right, bot_left], dtype='int32')
 
 
 if __name__ == "__main__":

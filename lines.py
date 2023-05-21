@@ -138,17 +138,19 @@ def hough(hough_threshold, hough_min_length, hough_max_gap):
 def bundle_lines(vert, hori):
     distv = round(gcanny.shape[1]/23)
     disth = round(gcanny.shape[0]/23)
+    old_lv = len(vert)
+    old_lh = len(hori)
 
     def _bundle_lines(lines, dist):
         bundled = np.zeros(lines.shape, dtype='int32')
         nlines = lines_bundle(lines, bundled, len(lines), dist)
         lines = bundled[:nlines]
-        return lines
+        return lines, nlines
 
-    hori = _bundle_lines(hori, disth)
-    vert = _bundle_lines(vert, distv)
+    vert, lv = _bundle_lines(vert, distv)
+    hori, lh = _bundle_lines(hori, disth)
 
-    if algo.debug:
+    if algo.debug and (old_lv != lv or old_lh != lh):
         canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("bundle_lines", canvas)
     return vert, hori

@@ -54,7 +54,7 @@ def find_warped_lines(canny):
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
         canvas = draw.lines(gcanny, vert, hori)
-        draw.save(f"gcanny{lv=}_{lh=}", canvas)
+        draw.save(f"warped_lines_{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None
@@ -105,7 +105,7 @@ def find_diagonal_lines(canny):
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
         canvas = draw.lines(gcanny, vert, hori)
-        draw.save(f"gcanny{lv=}_{lh=}", canvas)
+        draw.save(f"diagonal_lines_{lv=}_{lh=}", canvas)
         if failed:
             log.error("Less than 6 lines found in at least one direction")
             return None, None

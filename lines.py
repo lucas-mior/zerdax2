@@ -10,20 +10,21 @@ import drawings as draw
 from c_load import segments_distance
 from c_load import lines_bundle
 
-hough_min_length0 = consts.min_line_length
 gcanny = None
+min_lines_before_split = consts.min_lines_before_split
+hough_min_length0 = consts.hough_min_length
+hough_max_gap = consts.hough_max_gap
 
 
 def find_warped_lines(canny):
-    global gcanny
+    global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
     gcanny = canny
     log.debug("finding all lines of warped board...")
-    min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0
-    hough_max_gap = 4
-    hough_threshold = round(hough_min_length0*1.1)
+    hough_threshold = hough_min_length0*1.1
+
     ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:
@@ -64,15 +65,14 @@ def find_warped_lines(canny):
 
 
 def find_diagonal_lines(canny):
-    global gcanny
+    global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
     gcanny = canny
     log.debug("finding all lines of board...")
-    min_lines_before_split = consts.min_lines_before_split
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0
-    hough_max_gap = 4
-    hough_threshold = round(hough_min_length0*1.1)
+    hough_threshold = hough_min_length0*1.1
+
     ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:

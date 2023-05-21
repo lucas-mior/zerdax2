@@ -12,7 +12,7 @@ min_dist_to_separate_lines = 15
 min_angle_to_separate_lines = 15 * 100
 
 margin = 6
-corners_margin = 4
+corners_margin = 2
 tile_grid_size = 10
 clip_limit = 1.0
 canny_mean_threshold = 9

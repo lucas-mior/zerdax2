@@ -49,8 +49,7 @@ def find_warped_lines(canny):
         vert, hori = bundle_lines(vert, hori)
 
         lv, lh = len(vert), len(hori)
-        ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+        log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:
@@ -101,8 +100,7 @@ def find_diagonal_lines(canny):
         vert, hori = filter_intersecting(vert, hori)
 
         lv, lh = len(vert), len(hori)
-        ll = lv + lh
-        log.info(f"{ll} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+        log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algo.debug:

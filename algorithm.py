@@ -36,6 +36,7 @@ def algorithm(filename):
         canvas = draw.boxes(BGR, board.pieces)
         draw.save("yolo", canvas)
         if failed:
+            log.error("Could not find board on picture")
             log.error(bad_picture_msg)
             return bad_picture_msg
 

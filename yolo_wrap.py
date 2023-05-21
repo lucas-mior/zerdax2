@@ -1,4 +1,3 @@
-from types import SimpleNamespace
 import sys
 import cv2
 import copy

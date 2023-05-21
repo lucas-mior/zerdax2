@@ -42,7 +42,7 @@ def algorithm(filename):
             return bad_picture_msg
 
     log.info(f"board detected: {board.box}")
-    img = crop_board_to_size(img, board.box)
+    img = crop_image(img, board.box)
     if img.board.shape[0] < consts.min_boardbox_height:
         log.error(bad_picture_msg)
         return bad_picture_msg
@@ -110,7 +110,7 @@ def translate_inters(img, inters, warp_inverse_matrix):
     return inters
 
 
-def crop_board_to_size(img, boardbox):
+def crop_image(img, boardbox):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = boardbox
     margin = consts.margin

@@ -110,6 +110,8 @@ def find_diagonal_lines(canny):
 
     vert, hori = sort(vert, hori)
     vert, hori = fix_length_byinter(vert, hori)
+    vert, lv = add_outer(vert, len(vert), 0)
+    hori, lh = add_outer(hori, len(hori), 1)
     return vert, hori
 
 

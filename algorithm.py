@@ -249,13 +249,9 @@ def translate_inters(img, inters, warp_inverse_matrix):
 
 def find_corners(canny):
     vert, hori = lines.find_diagonal_lines(canny)
-    lv, lh = len(vert), len(hori)
-
-    if lv == 0 or lh == 0:
+    if vert is None or hori is None:
         return None
 
-    vert, lv = lines.add_outer(vert, lv, 0)
-    hori, lh = lines.add_outer(hori, lh, 1)
     inters = intersect.calculate_all(vert, hori)
 
     log.debug("calculating 4 corners of board...")

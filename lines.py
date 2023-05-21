@@ -157,9 +157,9 @@ def bundle_lines(vert, hori):
 def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
-        lines, ll = rem_wrong(lines, len(lines))
+        lines, ll = remove_wrong(lines, len(lines))
         lines, ll = add_outer(lines, ll, kind)
-        lines, ll = rem_outer(lines, ll, kind)
+        lines, ll = remove_outer(lines, ll, kind)
         lines, ll = add_outer(lines, ll, kind, force=(ll < 9))
         lines, ll = add_middle(lines, ll)
         return lines, ll
@@ -285,14 +285,14 @@ def add_outer(lines, ll, kind, force=False):
     return lines, len(lines)
 
 
-def rem_middle(lines, ll):
+def remove_middle(lines, ll):
     log.info("reming missing middle lines...")
     tol = consts.middle_tolerance
     if ll < 7:
-        log.warning("Less than 7 lines passed to rem_middle, returning...")
+        log.warning("Less than 7 lines passed to remove_middle, returning...")
         return lines, ll
 
-    def _rem_middle(lines):
+    def _remove_middle(lines):
         i = 1
         dprev1 = segments_distance(lines[i+0], lines[i-1])
         dprev0 = segments_distance(lines[i+0], lines[i+1])
@@ -316,22 +316,22 @@ def rem_middle(lines, ll):
                     return lines
         return lines
 
-    lines = _rem_middle(lines)
+    lines = _remove_middle(lines)
     lines = np.flip(lines, axis=0)
-    lines = _rem_middle(lines)
+    lines = _remove_middle(lines)
     lines = np.flip(lines, axis=0)
 
     if algo.debug:
         canvas = draw.lines(gcanny, lines)
-        draw.save("rem_middle", canvas)
+        draw.save("remove_middle", canvas)
     return lines, ll
 
 
-def rem_wrong(lines, ll):
+def remove_wrong(lines, ll):
     log.info("removing wrong middle lines...")
     tol = consts.middle_tolerance
     if ll < 7:
-        log.warning("Less than 7 lines passed to rem_wrong, returning...")
+        log.warning("Less than 7 lines passed to remove_wrong, returning...")
         return lines, ll
 
     def _calculate_distances(lines):
@@ -347,7 +347,7 @@ def rem_wrong(lines, ll):
         dists[i, 1] = dists[i, 0]
         return dists
 
-    def _rem_wrong(lines, dists):
+    def _remove_wrong(lines, dists):
         d0 = np.median(dists[:, 0])
         d1 = np.median(dists[:, 1])
         med = round((d0 + d1)/2)
@@ -359,12 +359,12 @@ def rem_wrong(lines, ll):
         return lines
 
     dists = _calculate_distances(lines)
-    lines = _rem_wrong(lines, dists)
-    lines = _rem_wrong(lines, dists)
+    lines = _remove_wrong(lines, dists)
+    lines = _remove_wrong(lines, dists)
 
     if algo.debug:
         canvas = draw.lines(gcanny, lines)
-        draw.save("rem_wrong", canvas)
+        draw.save("remove_wrong", canvas)
     return lines, len(lines)
 
 
@@ -437,12 +437,12 @@ def add_middle(lines, ll):
     return lines, len(lines)
 
 
-def rem_outer(lines, ll, kind):
+def remove_outer(lines, ll, kind):
     log.debug("removing extra outer lines...")
     tolerance = consts.outer_tolerance
     limit = gcanny.shape[kind-1]
     if ll < 7:
-        log.warning("Less than 7 lines passed to rem_outer, returning...")
+        log.warning("Less than 7 lines passed to remove_outer, returning...")
         return lines, ll
 
     d00 = abs(lines[1, kind] - 0)
@@ -464,7 +464,7 @@ def rem_outer(lines, ll, kind):
 
     if algo.debug:
         canvas = draw.lines(gcanny, lines)
-        draw.save("rem_outer", canvas)
+        draw.save("remove_outer", canvas)
     return lines, len(lines)
 
 

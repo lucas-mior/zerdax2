@@ -361,6 +361,13 @@ def add_outer_diagonal(lines, ll, kind, force=False):
                 print("that is the case!")
                 return lines
             new = np.array([x0, y0, x1, y1, line1[4], line1[5]], dtype='int32')
+            dmin = min(abs(new[kind]-ref), abs(new[kind+2]-ref))
+            if where == -1:
+                new[kind] += dmin
+                new[kind+2] += dmin
+            else:
+                new[kind] -= dmin
+                new[kind+2] -= dmin
             new = np.array([new], dtype='int32')
             if where == -1:
                 lines = np.append(lines, new, axis=0)

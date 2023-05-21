@@ -48,7 +48,7 @@ def algorithm(filename):
         return bad_picture_msg
 
     img = pre_process(img)
-    canny = create_cannys(img)
+    canny = create_cannys(img.gray, img.hsvalue)
 
     board.corners = corners.find(canny)
     if (failed := board.corners is None) or algo.debug:
@@ -148,10 +148,11 @@ def pre_process(img):
     return img
 
 
-def create_cannys(img):
+def create_cannys(gray, hsvalue):
     log.info("finding edges for gray, and hsvalue images...")
-    canny_gray, got_canny_gray = find_edges(img.gray, lowpass=filter)
-    canny_hsvalue, got_canny_hsvalue = find_edges(img.hsvalue, lowpass=filter)
+    canny_gray, got_canny_gray = find_edges(gray, lowpass=filter)
+    canny_hsvalue, got_canny_hsvalue = find_edges(hsvalue, lowpass=filter)
+
     if not got_canny_gray or not got_canny_hsvalue or algo.debug:
         draw.save("canny_gray", canny_gray)
         draw.save("canny_hsvalue", canny_hsvalue)

@@ -286,7 +286,7 @@ def add_outer(lines, ll, kind, force=False):
     lines = _add_outer(lines, 0)
     lines = _add_outer(lines, -1)
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("add_outer", canvas)
     return lines, len(lines)
@@ -328,10 +328,10 @@ def remove_middle(lines, ll):
     lines = _remove_middle(lines)
     lines = np.flip(lines, axis=0)
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_middle", canvas)
-    return lines, ll
+    return lines, len(lines)
 
 
 def remove_wrong(lines, ll):
@@ -369,7 +369,7 @@ def remove_wrong(lines, ll):
     lines = _remove_wrong(lines, dists)
     lines = _remove_wrong(lines, dists)
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_wrong", canvas)
     return lines, len(lines)
@@ -438,7 +438,7 @@ def add_middle(lines, ll):
     lines = _add_middle(lines)
     lines = np.flip(lines, axis=0)
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("add_middle", canvas)
     return lines, len(lines)
@@ -469,7 +469,7 @@ def remove_outer(lines, ll, kind):
         else:
             lines = lines[:-1]
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_outer", canvas)
     return lines, len(lines)
@@ -581,16 +581,19 @@ def split(lines):
 def filter_misdirected(vert, hori):
     log.info("filtering lines by angle accoring to direction...")
     tolerance = consts.angle_tolerance
+    changed = False
 
     def _filter(lines):
+        nonlocal changed
         angle = np.median(lines[:, 5])
         right = np.abs(lines[:, 5] - angle) <= tolerance
+        changed = np.any(~right)
         return lines[right]
 
     vert = _filter(vert)
     hori = _filter(hori)
 
-    if algo.debug:
+    if algo.debug and changed:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save("filter_misdirected", canvas)
     return vert, hori
@@ -599,14 +602,17 @@ def filter_misdirected(vert, hori):
 def filter_intersecting(vert, hori):
     log.info("filtering lines by number of intersections ...")
     limit = True
+    changed = False
 
     def _filter(lines):
+        nonlocal changed
         for i, line in enumerate(lines):
             inters = intersect.calculate_all(np.array([line]), lines, limit)
             if inters is None or len(inters) == 0:
                 continue
             elif inters.shape[1] >= 4:
                 lines = np.delete(lines, i, axis=0)
+                changed = True
                 break
         return lines
 
@@ -614,7 +620,7 @@ def filter_intersecting(vert, hori):
         vert = _filter(vert)
         hori = _filter(hori)
 
-    if algo.debug:
+    if algo.debug and changed:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save("filter_intersecting", canvas)
     return vert, hori
@@ -623,14 +629,16 @@ def filter_intersecting(vert, hori):
 def filter_not_right(lines):
     lines, _ = length_theta(lines)
     remove = np.zeros(lines.shape[0], dtype='uint8')
+    changed = False
 
     for i, t in enumerate(lines[:, 5]):
         if abs(t - 90*100) > 4*100 and abs(t + 90*100) > 4*100:
             if abs(t) > 4*100:
                 remove[i] = 1
+                changed = True
     lines = lines[remove == 0]
 
-    if algo.debug:
+    if algo.debug and changed:
         canvas = draw.lines(gcanny, lines)
         draw.save("filter_not_right", canvas)
     return lines

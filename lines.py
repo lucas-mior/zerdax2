@@ -65,7 +65,7 @@ def find_warped_lines(canny):
     return vert, hori
 
 
-def find_baselines(canny):
+def find_diagonal_lines(canny):
     global gcanny
     gcanny = canny
     log.debug("finding all lines of board...")

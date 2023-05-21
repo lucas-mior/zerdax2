@@ -253,7 +253,7 @@ def translate_inters(img, inters, warp_inverse_matrix):
 
 
 def find_corners(canny):
-    vert, hori = lines.find_baselines(canny)
+    vert, hori = lines.find_diagonal_lines(canny)
     vert, hori = lines.fix_length_byinter(vert, hori)
     lv, lh = len(vert), len(hori)
 

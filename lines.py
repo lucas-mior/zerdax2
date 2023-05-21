@@ -317,7 +317,7 @@ def add_outer_warped(lines, ll, kind, force=False):
 
     if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
-        draw.save("add_outer", canvas)
+        draw.save("add_outer_warped", canvas)
     return lines, len(lines)
 
 
@@ -380,7 +380,7 @@ def add_outer_diagonal(lines, ll, kind, force=False):
 
     if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
-        draw.save("add_outer", canvas)
+        draw.save("add_outer_diagonal", canvas)
     return lines, len(lines)
 
 

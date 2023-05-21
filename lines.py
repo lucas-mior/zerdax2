@@ -165,25 +165,21 @@ def fix_warped_lines(vert, hori):
         lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
+    def _fix_outer(lines, ll, kind):
+        old_ll = 0
+        while ll < 9 and old_ll != len(lines):
+            old_ll = len(lines)
+            lines, ll = add_outer(lines, ll, kind)
+        old_ll = 0
+        while ll > 9 and old_ll != len(lines):
+            old_ll = len(lines)
+            lines, ll = remove_outer(lines, ll, kind)
+        return lines, ll
+
     vert, lv = _fix_warped_lines(vert, 0)
     hori, lh = _fix_warped_lines(hori, 1)
-
-    if lv < 9:
-        vert, lv = add_outer(vert, lv, 0)
-    if lv < 9:
-        vert, lv = add_outer(vert, lv, 0)
-    if lv > 9:
-        vert, lv = remove_outer(vert, lv, 0)
-    if lv > 9:
-        vert, lv = remove_outer(vert, lv, 0)
-    if lh < 9:
-        hori, lh = add_outer(hori, lh, 1)
-    if lh < 9:
-        hori, lh = add_outer(hori, lh, 1)
-    if lh > 9:
-        hori, lh = remove_outer(hori, lh, 1)
-    if lh > 9:
-        hori, lh = remove_outer(hori, lh, 1)
+    vert, lv = _fix_outer(vert, lv, 0)
+    hori, lh = _fix_outer(hori, lh, 1)
 
     if lv != 9 or lh != 9:
         canvas = draw.lines(gcanny, vert, hori)

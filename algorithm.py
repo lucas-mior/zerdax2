@@ -128,8 +128,8 @@ def create_canny(image):
     log.info("finding edges for gray and hsvalue images...")
     canny_gray = find_edges(gray)
     canny_hsvalue = find_edges(hsvalue)
-
     canny = cv2.bitwise_or(canny_gray, canny_hsvalue)
+
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)

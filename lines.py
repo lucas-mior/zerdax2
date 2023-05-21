@@ -296,7 +296,7 @@ def add_outer(lines, ll, kind, force=False):
         if inters[0, kind] <= limit and inters[1, kind] <= limit:
             x0, y0, x1, y1 = np.ravel(inters)
             if length((x0, y0, x1, y1)) < (length(line0)*0.7):
-                print("that is the case!")
+                log.warning("add_outer: line is shorter than next")
                 return lines
             new = np.array([[x0, y0, x1, y1,
                              line1[4], line1[5]]], dtype='int32')

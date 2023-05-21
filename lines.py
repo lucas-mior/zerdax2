@@ -497,10 +497,13 @@ def add_middle(lines, ll):
                     return lines
         return lines
 
-    lines = _add_middle(lines)
-    lines = np.flip(lines, axis=0)
-    lines = _add_middle(lines)
-    lines = np.flip(lines, axis=0)
+    old_ll = 0
+    while old_ll != len(lines):
+        old_ll = len(lines)
+        lines = _add_middle(lines)
+        lines = np.flip(lines, axis=0)
+        lines = _add_middle(lines)
+        lines = np.flip(lines, axis=0)
 
     if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)

@@ -41,12 +41,12 @@ def algorithm(filename):
             return bad_picture_msg
 
     log.info(f"board detected: {board.box}")
-    img = crop_image(img, board.box)
-    if img.board.shape[0] < consts.min_boardbox_height:
+    board.image, translate_params = crop_image(img.BGR, board.box)
+    if board.image.shape[0] < consts.min_boardbox_height:
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    canny = create_canny(img.board)
+    canny = create_canny(board.image)
 
     board.corners = find_corners(canny)
     if board.corners is None:
@@ -72,7 +72,11 @@ def algorithm(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    inters = translate_inters(img, inters, warp_inverse_matrix)
+    inters = translate_inters(inters, warp_inverse_matrix, translate_params)
+    if algo.debug:
+        canvas = draw.points(img.BGR, inters)
+        draw.save("translated_intersections", canvas)
+
     board.squares = squares.calculate(inters)
     if algo.debug:
         canvas = draw.squares(img.BGR, board.squares)
@@ -89,23 +93,28 @@ def algorithm(filename):
     return board.fen
 
 
-def crop_image(img, boardbox):
+def crop_image(image, boardbox):
     log.info("cropping image to board box...")
+    translate_params = SimpleNamespace()
     x0, y0, x1, y1 = boardbox
     margin = consts.margin
-    img.x0, img.y0 = x0 - margin, y0 - margin
-    img.x1, img.y1 = x1 + margin, y1 + margin
-    img.board = img.BGR[img.y0:img.y1, img.x0:img.x1]
+    x0, y0 = x0 - margin, y0 - margin
+    x1, y1 = x1 + margin, y1 + margin
+    cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")
-    img.width_board = consts.width_board
-    img.resize_factor = img.width_board / img.board.shape[1]
-    img.height_board = round(img.resize_factor * img.board.shape[0])
-    img.board = cv2.resize(img.board, (img.width_board, img.height_board))
+    width_board = consts.width_board
+    resize_factor = width_board / cropped.shape[1]
+    height_board = round(resize_factor * cropped.shape[0])
+    cropped = cv2.resize(cropped, (width_board, height_board))
+
+    translate_params.x0 = x0
+    translate_params.y0 = y0
+    translate_params.resize_factor = resize_factor
 
     if algo.debug:
-        draw.save("board", img.board)
-    return img
+        draw.save("cropped", cropped)
+    return cropped, translate_params
 
 
 def create_canny(image):
@@ -212,8 +221,7 @@ def warp(canny, corners):
     TR = corners[1]
     BR = corners[2]
     BL = corners[3]
-    orig_points = np.array((TL, TR,
-                            BR, BL), dtype="float32")
+    orig_points = np.array((TL, TR, BR, BL), dtype="float32")
 
     width = consts.warped_dimension - 1
     height = consts.warped_dimension - 1
@@ -229,21 +237,18 @@ def warp(canny, corners):
     return canny_warped, warp_inverse_matrix
 
 
-def translate_inters(img, inters, warp_inverse_matrix):
+def translate_inters(inters, warp_inverse_matrix, translate_params):
+    # go back to original perspective
     inters = np.array(inters, dtype='float64')
-
     inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
     # scale to input size
-    inters[:, :, 0] /= img.resize_factor
-    inters[:, :, 1] /= img.resize_factor
+    inters[:, :, 0] /= translate_params.resize_factor
+    inters[:, :, 1] /= translate_params.resize_factor
     # position board bounding box
-    inters[:, :, 0] += img.x0
-    inters[:, :, 1] += img.y0
+    inters[:, :, 0] += translate_params.x0
+    inters[:, :, 1] += translate_params.y0
     inters = np.array(np.round(inters), dtype='int32')
 
-    if algo.debug:
-        canvas = draw.points(img.BGR, inters)
-        draw.save("translated_intersections", canvas)
     return inters
 
 

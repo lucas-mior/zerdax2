@@ -109,9 +109,7 @@ def find_diagonal_lines(canny):
             return None, None
 
     vert, hori = sort(vert, hori)
-    vert, hori = fix_length_byinter(vert, hori)
-    vert, lv = add_outer(vert, len(vert), 0)
-    hori, lh = add_outer(hori, len(hori), 1)
+    vert, hori = fix_diagonal_lines(vert, hori)
     return vert, hori
 
 
@@ -177,6 +175,13 @@ def fix_warped_lines(vert, hori):
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"gcanny{lv=}_{lh=}", canvas)
         return None, None
+    return vert, hori
+
+
+def fix_diagonal_lines(vert, hori):
+    vert, hori = fix_length_byinter(vert, hori)
+    vert, lv = add_outer(vert, len(vert), 0)
+    hori, lh = add_outer(hori, len(hori), 1)
     return vert, hori
 
 

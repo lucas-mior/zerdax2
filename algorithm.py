@@ -56,7 +56,6 @@ def algorithm(filename):
 
     log.info(f"corners found: {board.corners}")
     canny_warped, warp_inverse_matrix = warp(canny, board.corners)
-    canny_warped_3channels = cv2.cvtColor(canny_warped, cv2.COLOR_GRAY2BGR)
 
     vert, hori = lines.find_warped_lines(canny_warped)
     if vert is None or hori is None:
@@ -65,7 +64,7 @@ def algorithm(filename):
 
     inters = intersect.calculate_all(vert, hori)
     if (failed := inters.shape != (9, 9, 2)) or algo.debug:
-        canvas = draw.points(canny_warped_3channels, inters)
+        canvas = draw.points(canny_warped, inters)
         draw.save("intersections", canvas)
         if failed:
             log.error("there should be 81 intersections",

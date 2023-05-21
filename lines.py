@@ -159,9 +159,9 @@ def bundle_lines(vert, hori):
 def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
-        lines, ll = add_outer(lines, len(lines), kind)
+        lines, ll = add_outer_warped(lines, len(lines), kind)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = add_middle(lines, ll)
         return lines, ll
 
@@ -175,17 +175,17 @@ def fix_warped_lines(vert, hori):
         hori, lh = _fix_warped_lines(hori, 1)
 
     if lv < 9:
-        vert, lv = add_outer(vert, lv, 0)
+        vert, lv = add_outer_warped(vert, lv, 0)
     if lv < 9:
-        vert, lv = add_outer(vert, lv, 0)
+        vert, lv = add_outer_warped(vert, lv, 0)
     if lv > 9:
         vert, lv = remove_outer(vert, lv, 0)
     if lv > 9:
         vert, lv = remove_outer(vert, lv, 0)
     if lh < 9:
-        hori, lh = add_outer(hori, lh, 1)
+        hori, lh = add_outer_warped(hori, lh, 1)
     if lh < 9:
-        hori, lh = add_outer(hori, lh, 1)
+        hori, lh = add_outer_warped(hori, lh, 1)
     if lh > 9:
         hori, lh = remove_outer(hori, lh, 1)
     if lh > 9:
@@ -200,14 +200,14 @@ def fix_warped_lines(vert, hori):
 
 def fix_diagonal_lines(vert, hori):
     vert, hori = fix_length_byinter(vert, hori)
-    vert, lv = add_outer(vert, len(vert), 0)
-    hori, lh = add_outer(hori, len(hori), 1)
+    vert, lv = add_outer_diagonal(vert, len(vert), 0)
+    hori, lh = add_outer_diagonal(hori, len(hori), 1)
     vert, hori = fix_length_byinter(vert, hori)
-    vert, lv = add_outer(vert, len(vert), 0)
-    hori, lh = add_outer(hori, len(hori), 1)
+    vert, lv = add_outer_diagonal(vert, len(vert), 0)
+    hori, lh = add_outer_diagonal(hori, len(hori), 1)
     vert, hori = fix_length_byinter(vert, hori)
-    vert, lv = add_outer(vert, len(vert), 0)
-    hori, lh = add_outer(hori, len(hori), 1)
+    vert, lv = add_outer_diagonal(vert, len(vert), 0)
+    hori, lh = add_outer_diagonal(hori, len(hori), 1)
     return vert, hori
 
 
@@ -265,7 +265,63 @@ def fix_length_byinter(vert, hori=None):
     return vert, hori
 
 
-def add_outer(lines, ll, kind, force=False):
+def add_outer_warped(lines, ll, kind, force=False):
+    log.info("adding missing outer lines...")
+    tol = 2
+    if ll < 5:
+        log.warning("Less than 5 lines passed to add_outer, returning...")
+        return lines
+
+    def _add_outer(lines, where):
+        limit = gcanny.shape[kind-1]
+        if where == 0:
+            ref = 0
+            other = 1
+        elif where == -1:
+            ref = limit
+            other = -2
+
+        line0 = lines[where]
+        line1 = lines[other]
+
+        if abs(line0[kind] - ref) < tol or abs(line0[kind+2] - ref) < tol:
+            return lines
+
+        x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
+        y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
+        new = np.array([x0, y0, x1, y1], dtype='int32')
+        inters = intersect.shorten(new, gcanny)
+        if len(inters) < 2:
+            return lines
+        elif len(inters) > 2:
+            segments = np.array([[inters[0], inters[1]],
+                                 [inters[0], inters[2]],
+                                 [inters[1], inters[2]]])
+            lengths = [length(segment.flatten()) for segment in segments]
+            inters = segments[np.argmax(lengths)]
+        if inters[0, kind] <= limit and inters[1, kind] <= limit:
+            x0, y0, x1, y1 = np.ravel(inters)
+            if length((x0, y0, x1, y1)) < (length(line0)*0.7):
+                print("that is the case!")
+                return lines
+            new = np.array([[x0, y0, x1, y1,
+                             line1[4], line1[5]]], dtype='int32')
+            if where == -1:
+                lines = np.append(lines, new, axis=0)
+            else:
+                lines = np.insert(lines, 0, new, axis=0)
+        return lines
+
+    lines = _add_outer(lines, 0)
+    lines = _add_outer(lines, -1)
+
+    if algo.debug and ll != len(lines):
+        canvas = draw.lines(gcanny, lines)
+        draw.save("add_outer", canvas)
+    return lines, len(lines)
+
+
+def add_outer_diagonal(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
     tol = 2
     if ll < 5:

@@ -19,7 +19,7 @@ static int32 min_dist;
 typedef struct Group {
     int32 lines[MAX_LINES_IN_GROUP][LINE_FIELDS];
     int32 angles[MAX_LINES_IN_GROUP];
-    int32 len;
+    int32 length;
     struct Group *next;
 } Group;
 
@@ -32,23 +32,23 @@ static int32 compare(const void *a, const void *b) {
     return *c - *d;
 }
 
-static double median(int32 *array, int32 len) {
-    qsort(array, len, sizeof(int32), compare);
-    if ((len % 2) == 0) {
-        return (double) (array[(int)((len/2) - 1)] + array[(int) (len/2)]) / (double) 2.0;
+static double median(int32 *array, int32 length) {
+    qsort(array, length, sizeof(int32), compare);
+    if ((length % 2) == 0) {
+        return (double) (array[(int)((length/2) - 1)] + array[(int) (length/2)]) / (double) 2.0;
     } else {
-        return (double) array[(int)(len/2)];
+        return (double) array[(int)(length/2)];
     }
 }
 
 static void append(Group *group, int32 line[LINE_FIELDS]) {
-    int32 j = group->len;
+    int32 j = group->length;
     if (j >= MAX_LINES_IN_GROUP)
         return;
 
     group->angles[j] = line[I_ANGLE];
     memcpy(group->lines[j], line, line_size);
-    group->len += 1;
+    group->length += 1;
     return;
 }
 
@@ -57,7 +57,7 @@ static void groups_append(int32 line[LINE_FIELDS]) {
     group->next = util_alloc(NULL, sizeof(Group));
     group = group->next;
     group->next = NULL;
-    group->len = 0;
+    group->length = 0;
     append(group, line);
     last = group;
     return;
@@ -66,7 +66,7 @@ static void groups_append(int32 line[LINE_FIELDS]) {
 static bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
     int32 min_angle2 = min_angle + 2;
     while (group) {
-        for (int i = 0; i < group->len; i += 1) {
+        for (int i = 0; i < group->length; i += 1) {
             int32 *line0 = group->lines[i];
             int32 dtheta = abs(line1[I_ANGLE] - line0[I_ANGLE]);
             if (dtheta < min_angle) {
@@ -91,7 +91,7 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int
     Group *group = util_alloc(NULL, sizeof(Group));
     first = last = group;
     first->next = NULL;
-    first->len = 0;
+    first->length = 0;
     append(group, lines[0]);
 
     for (int32 i = 1; i < n; i += 1) {
@@ -105,10 +105,10 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int
     group = group->next;
     m += 1;
     while (group) {
-        double med = median(group->angles, group->len);
+        double med = median(group->angles, group->length);
         int32 *best_line = group->lines[0];
         double min_diff = fabs(med - (double) best_line[I_ANGLE]);
-        for (int i = 1; i < group->len; i += 1) {
+        for (int i = 1; i < group->length; i += 1) {
             int32 *line = group->lines[i];
             double diff = fabs(med - (double)line[I_ANGLE]);
             if (diff < min_diff) {

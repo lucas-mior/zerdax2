@@ -94,6 +94,7 @@ def find_diagonal_lines(canny):
 
         vert, hori = filter_misdirected(vert, hori)
         vert, hori = sort(vert, hori)
+        vert, hori = filter_misdirected2(vert, hori)
         vert, hori = bundle_lines(vert, hori)
         vert, hori = filter_intersecting(vert, hori)
 
@@ -392,6 +393,44 @@ def remove_middle(lines, ll):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_middle", canvas)
     return lines, len(lines)
+
+
+def filter_misdirected2(vert, hori):
+    log.info("removing wrong middle lines...")
+
+    def _calculate_diffs(lines):
+        dists = np.zeros((lines.shape[0], 2), dtype='int32')
+        i = 0
+        dists[i, 0] = abs(lines[i+0, 5] - lines[i+1, 5])
+        dists[i, 1] = dists[i, 0]
+        for i in range(1, len(lines) - 1):
+            dists[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
+            dists[i, 1] = abs(lines[i+0, 5] - lines[i+1, 5])
+        i += 1
+        dists[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
+        dists[i, 1] = dists[i, 0]
+        return dists
+
+    def _remove_misdirected(lines, dists):
+        d0 = np.median(dists[:, 0])
+        d1 = np.median(dists[:, 1])
+        med = round((d0 + d1)/2)
+        log.debug(f"median diff between lines: {med}")
+        for i in range(0, len(lines)):
+            if dists[i, 1] > (med*2) or (med/2) > dists[i, 0]:
+                lines = np.delete(lines, i, axis=0)
+                return lines
+        return lines
+
+    diffs_vert = _calculate_diffs(vert)
+    diffs_hori = _calculate_diffs(hori)
+    vert = _remove_misdirected(vert, diffs_vert)
+    hori = _remove_misdirected(hori, diffs_hori)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, vert, hori)
+        draw.save("filter_misdirected2", canvas)
+    return vert, hori
 
 
 def remove_wrong(lines, ll):

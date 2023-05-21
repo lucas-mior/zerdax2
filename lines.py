@@ -205,6 +205,7 @@ def fix_diagonal_lines(vert, hori):
     vert, hori = fix_length_byinter(vert, hori)
     vert, lv = add_outer(vert, len(vert), 0)
     hori, lh = add_outer(hori, len(hori), 1)
+    vert, hori = fix_length_byinter(vert, hori)
     vert, lv = add_outer(vert, len(vert), 0)
     hori, lh = add_outer(hori, len(hori), 1)
     return vert, hori
@@ -266,7 +267,7 @@ def fix_length_byinter(vert, hori=None):
 
 def add_outer(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
-    tol = 0
+    tol = 2
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines

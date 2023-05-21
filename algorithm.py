@@ -167,13 +167,6 @@ def create_cannys(gray, hsvalue):
     return canny
 
 
-def gauss(image):
-    kernel = consts.gauss_kernel_shape
-    gamma = consts.gauss_gamma
-    filtered = cv2.GaussianBlur(image, kernel, gamma)
-    return filtered
-
-
 def filter(image):
     f = np.array(image, dtype='float64')
     W = np.zeros(image.shape, dtype='float64')
@@ -192,12 +185,8 @@ def filter(image):
 def find_edges(image, lowpass):
     log.info("filtering image...")
     image = lowpass(image)
-    if lowpass == filter:
-        canny_mean_threshold = consts.canny_mean_threshold_filter
-        threshold_high0 = consts.threshold_highfilter
-    elif lowpass == gauss:
-        canny_mean_threshold = consts.canny_mean_threshold_gauss
-        threshold_high0 = consts.threshold_highgauss
+    canny_mean_threshold = consts.canny_mean_threshold_filter
+    threshold_high0 = consts.threshold_highfilter
     canny, got_canny = find_canny(image, canny_mean_threshold, threshold_high0)
 
     if not got_canny or algo.debug:

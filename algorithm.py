@@ -90,24 +90,6 @@ def algorithm(filename):
     return board.fen
 
 
-def translate_inters(img, inters, warp_inverse_matrix):
-    inters = np.array(inters, dtype='float64')
-
-    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
-    # scale to input size
-    inters[:, :, 0] /= img.resize_factor
-    inters[:, :, 1] /= img.resize_factor
-    # position board bounding box
-    inters[:, :, 0] += img.x0
-    inters[:, :, 1] += img.y0
-    inters = np.array(np.round(inters), dtype='int32')
-
-    if algo.debug:
-        canvas = draw.points(img.BGR, inters)
-        draw.save("translated_intersections", canvas)
-    return inters
-
-
 def crop_image(img, boardbox):
     log.info("cropping image to board box...")
     x0, y0, x1, y1 = boardbox
@@ -148,16 +130,14 @@ def create_canny(image):
     canny_gray = find_edges(gray)
     canny_hsvalue = find_edges(hsvalue)
 
-    if algo.debug:
-        draw.save("canny_gray", canny_gray)
-        draw.save("canny_hsvalue", canny_hsvalue)
-
     canny = cv2.bitwise_or(canny_gray, canny_hsvalue)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
 
     if algo.debug:
+        draw.save("canny_gray", canny_gray)
+        draw.save("canny_hsvalue", canny_hsvalue)
         draw.save("canny", canny)
     return canny
 
@@ -253,6 +233,24 @@ def warp(canny, corners):
         draw.save("canny_warped", canny_warped)
 
     return canny_warped, warp_inverse_matrix
+
+
+def translate_inters(img, inters, warp_inverse_matrix):
+    inters = np.array(inters, dtype='float64')
+
+    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
+    # scale to input size
+    inters[:, :, 0] /= img.resize_factor
+    inters[:, :, 1] /= img.resize_factor
+    # position board bounding box
+    inters[:, :, 0] += img.x0
+    inters[:, :, 1] += img.y0
+    inters = np.array(np.round(inters), dtype='int32')
+
+    if algo.debug:
+        canvas = draw.points(img.BGR, inters)
+        draw.save("translated_intersections", canvas)
+    return inters
 
 
 if __name__ == "__main__":

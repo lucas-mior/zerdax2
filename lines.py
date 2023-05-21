@@ -334,7 +334,7 @@ def rem_wrong(lines, ll):
         log.warning("Less than 7 lines passed to rem_wrong, returning...")
         return lines, ll
 
-    def _calc_distances(lines):
+    def _calculate_distances(lines):
         dists = np.zeros((lines.shape[0], 2), dtype='int32')
         i = 0
         dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
@@ -358,7 +358,7 @@ def rem_wrong(lines, ll):
                 return lines
         return lines
 
-    dists = _calc_distances(lines)
+    dists = _calculate_distances(lines)
     lines = _rem_wrong(lines, dists)
     lines = _rem_wrong(lines, dists)
 

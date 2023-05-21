@@ -80,7 +80,7 @@ def check_colors(image, squares):
             squares = np.rot90(squares, k=-1)
         return squares
 
-    def _calc_means(col, row):
+    def _calculate_means(col, row):
         square = np.copy(squares[col, row])
         contour = square[:4]
         frame = cv2.boundingRect(contour)
@@ -104,7 +104,7 @@ def check_colors(image, squares):
     change_votes = 0
     for col in range(7):
         row = 7 - col
-        mean1, mean0 = _calc_means(col, row)
+        mean1, mean0 = _calculate_means(col, row)
         if mean1 < mean0:
             change_votes += 1
             if mean0 - mean1 > 40:

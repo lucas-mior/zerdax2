@@ -84,8 +84,7 @@ def process_pieces(pieces):
 
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
-        img = SimpleNamespace(filename=filename)
-        img.BGR = cv2.imread(filename)
-        boardbox, pieces = detect_objects(img.filename)
-        canvas = draw.boxes(img.BGR, pieces, boardbox)
+        BGR = cv2.imread(filename)
+        boardbox, pieces = detect_objects(filename)
+        canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("yolo", canvas, title="demo.png")

@@ -47,8 +47,8 @@ def algorithm(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    img = pre_process(img)
-    canny = create_cannys(img.gray, img.hsvalue)
+    gray, hsvalue = pre_process(img.board)
+    canny = create_cannys(gray, hsvalue)
 
     board.corners = corners.find(canny)
     if (failed := board.corners is None) or algo.debug:
@@ -129,23 +129,23 @@ def crop_image(img, boardbox):
     return img
 
 
-def pre_process(img):
-    log.info("creating HSV and gray representation of image...")
-    img.HSV = cv2.cvtColor(img.board, cv2.COLOR_BGR2HSV)
-    img.hsvalue = img.HSV[:, :, 2]
-    img.gray = cv2.cvtColor(img.board, cv2.COLOR_BGR2GRAY)
+def pre_process(image):
+    log.info("pre-processing image...")
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsvalue = hsv[:, :, 2]
 
     log.info("applying distributed histogram equalization to image...")
     grid = (consts.tile_grid_size, consts.tile_grid_size)
     clip_limit = consts.clip_limit
     clahe = cv2.createCLAHE(clip_limit, grid)
-    img.gray = clahe.apply(img.gray)
-    img.hsvalue = clahe.apply(img.hsvalue)
+    gray = clahe.apply(gray)
+    hsvalue = clahe.apply(hsvalue)
 
     if algo.debug:
-        draw.save("clahe_gray", img.gray)
-        draw.save("clahe_hsvalue", img.hsvalue)
-    return img
+        draw.save("clahe_gray", gray)
+        draw.save("clahe_hsvalue", hsvalue)
+    return gray, hsvalue
 
 
 def create_cannys(gray, hsvalue):

@@ -14,34 +14,33 @@ import constants as consts
 import drawings as draw
 from c_load import lfilter
 
-img = None
+basename = ""
 debug = False
 
 
 def algorithm(filename):
-    global img, debug
+    global basename, debug
     debug = log.root.level < 20
-    img = SimpleNamespace(filename=filename)
-    img.basename = filename.rsplit(".", 1)[0]
-    img.basename = img.basename.rsplit("/", 1)[-1]
-    bad_picture_msg = f"{img.filename}: bad picture, change the camera angle"
+    basename = filename.rsplit(".", 1)[0]
+    basename = basename.rsplit("/", 1)[-1]
+    bad_picture_msg = f"{filename}: bad picture, change the camera angle"
 
-    img.BGR = cv2.imread(img.filename)
+    BGR = cv2.imread(filename)
 
     board = SimpleNamespace()
-    board.box, board.pieces = yolo.detect_objects(img.filename)
-    board.pieces = yolo.determine_colors(board.pieces, img.BGR)
+    board.box, board.pieces = yolo.detect_objects(filename)
+    board.pieces = yolo.determine_colors(board.pieces, BGR)
     board.pieces = yolo.process_pieces(board.pieces)
 
     if (failed := board.box is None) or algo.debug:
-        canvas = draw.boxes(img.BGR, board.pieces)
+        canvas = draw.boxes(BGR, board.pieces)
         draw.save("yolo", canvas)
         if failed:
             log.error(bad_picture_msg)
             return bad_picture_msg
 
     log.info(f"board detected: {board.box}")
-    board.image, translate_params = crop_image(img.BGR, board.box)
+    board.image, translate_params = crop_image(BGR, board.box)
     if board.image.shape[0] < consts.min_boardbox_height:
         log.error(bad_picture_msg)
         return bad_picture_msg
@@ -74,18 +73,18 @@ def algorithm(filename):
 
     inters = translate_inters(inters, warp_inverse_matrix, translate_params)
     if algo.debug:
-        canvas = draw.points(img.BGR, inters)
+        canvas = draw.points(BGR, inters)
         draw.save("translated_intersections", canvas)
 
     board.squares = squares.calculate(inters)
     if algo.debug:
-        canvas = draw.squares(img.BGR, board.squares)
+        canvas = draw.squares(BGR, board.squares)
         draw.save("A1E4C5H8", canvas)
 
     board.squares, pieces = squares.fill(board.squares, board.pieces)
-    board.squares, changed = squares.check_colors(img.BGR, board.squares)
+    board.squares, changed = squares.check_colors(BGR, board.squares)
     if algo.debug and changed:
-        canvas = draw.squares(img.BGR, board.squares)
+        canvas = draw.squares(BGR, board.squares)
         draw.save("A1E4C5H8", canvas)
 
     board.fen = fen.generate(board.squares)

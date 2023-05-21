@@ -141,7 +141,8 @@ def create_canny(image):
     return canny
 
 
-def lowpass(image):
+def find_edges(image):
+    log.info("filtering image...")
     f = np.array(image, dtype='float64')
     W = np.zeros(image.shape, dtype='float64')
     N = np.zeros(image.shape, dtype='float64')
@@ -153,18 +154,13 @@ def lowpass(image):
 
     g = np.round(g)
     g = np.clip(g, 0, 255)
-    return np.array(g, dtype='uint8')
+    g = np.array(g, dtype='uint8')
+    if algo.debug:
+        draw.save("lowpass", g)
 
-
-def find_edges(image):
-    log.info("filtering image...")
-    image = lowpass(image)
     canny_mean_threshold = consts.canny_mean_threshold_filter
     threshold_high0 = consts.threshold_highfilter
-    canny = find_canny(image, canny_mean_threshold, threshold_high0)
-
-    if algo.debug:
-        draw.save("lowpass", image)
+    canny = find_canny(g, canny_mean_threshold, threshold_high0)
     return canny
 
 

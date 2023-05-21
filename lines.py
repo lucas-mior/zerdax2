@@ -252,10 +252,8 @@ def add_outer(lines, ll, kind, force=False):
         if abs(line0[kind] - ref) < tol or abs(line0[kind+2] - ref) < tol:
             return lines
 
-        x = (2*line0[0] - line1[0], 2*line0[2] - line1[2])
-        y = (2*line0[1] - line1[1], 2*line0[3] - line1[3])
-        x0, x1 = x
-        y0, y1 = y
+        x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
+        y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
         new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
         if len(inters) < 2:

@@ -146,14 +146,14 @@ def create_canny(image):
         draw.save("clahe_hsvalue", hsvalue)
 
     log.info("finding edges for gray and hsvalue images...")
-    canny_gray, got_canny_gray = find_edges(gray)
-    canny_hsvalue, got_canny_hsvalue = find_edges(hsvalue)
+    canny_gray = find_edges(gray)
+    canny_hsvalue = find_edges(hsvalue)
 
-    if not got_canny_gray or not got_canny_hsvalue or algo.debug:
+    if algo.debug:
         draw.save("canny_gray", canny_gray)
         draw.save("canny_hsvalue", canny_hsvalue)
-    canny = cv2.bitwise_or(canny_gray, canny_hsvalue)
 
+    canny = cv2.bitwise_or(canny_gray, canny_hsvalue)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
@@ -183,11 +183,11 @@ def find_edges(image):
     image = lowpass(image)
     canny_mean_threshold = consts.canny_mean_threshold_filter
     threshold_high0 = consts.threshold_highfilter
-    canny, got_canny = find_canny(image, canny_mean_threshold, threshold_high0)
+    canny = find_canny(image, canny_mean_threshold, threshold_high0)
 
-    if not got_canny or algo.debug:
+    if algo.debug:
         draw.save("lowpass", image)
-    return canny, got_canny
+    return canny
 
 
 def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
@@ -229,7 +229,7 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
         log.info(f"Failed to find edges with"
                  f"mean >= {canny_mean_threshold:0=.1f}")
         log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
-    return canny, got_canny
+    return canny
 
 
 def warp(canny, corners):

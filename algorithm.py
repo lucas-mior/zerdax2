@@ -49,9 +49,9 @@ def algorithm(filename):
     canny = create_canny(img.board)
 
     board.corners = find_corners(canny)
-    if (failed := board.corners is None) or algo.debug:
-        canvas = draw.corners(img.board, board.corners)
-        draw.save("corners", canvas)
+    if board.corners is None:
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     log.info(f"corners found: {board.corners}")
     canny_warped, warp_inverse_matrix = warp(canny, board.corners)
@@ -212,12 +212,12 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
 
 def warp(canny, corners):
     log.debug("transforming perspective...")
-    top_left = corners[0]
-    top_right = corners[1]
-    bot_right = corners[2]
-    bot_left = corners[3]
-    orig_points = np.array((top_left, top_right,
-                            bot_right, bot_left), dtype="float32")
+    TL = corners[0]
+    TR = corners[1]
+    BR = corners[2]
+    BL = corners[3]
+    orig_points = np.array((TL, TR,
+                            BR, BL), dtype="float32")
 
     width = consts.warped_dimension - 1
     height = consts.warped_dimension - 1
@@ -276,10 +276,10 @@ def find_corners(canny):
     psub[:, 1] = inters[:, 1]
     psub[:, 2] = inters[:, 0] - inters[:, 1]
 
-    top_left = psum[np.argmin(psum[:, 2])][0:2]
-    top_right = psub[np.argmax(psub[:, 2])][0:2]
-    bot_right = psum[np.argmax(psum[:, 2])][0:2]
-    bot_left = psub[np.argmin(psub[:, 2])][0:2]
+    TL = psum[np.argmin(psum[:, 2])][0:2]
+    TR = psub[np.argmax(psub[:, 2])][0:2]
+    BR = psum[np.argmax(psum[:, 2])][0:2]
+    BL = psub[np.argmin(psub[:, 2])][0:2]
 
     log.debug("broading 4 corners of board...")
     margin = consts.corners_margin
@@ -287,15 +287,20 @@ def find_corners(canny):
     width = canny.shape[1] - 1
     height = canny.shape[0] - 1
 
-    top_left[0] = max(0,       top_left[0] - margin)
-    top_left[1] = max(0,       top_left[1] - margin)
-    top_right[0] = min(width,  top_right[0] + margin)
-    top_right[1] = max(0,      top_right[1] - margin)
-    bot_right[0] = min(width,  bot_right[0] + margin)
-    bot_right[1] = min(height, bot_right[1] + margin)
-    bot_left[0] = max(0,       bot_left[0] - margin)
-    bot_left[1] = min(height,  bot_left[1] + margin)
-    return np.array([top_left, top_right, bot_right, bot_left], dtype='int32')
+    TL[0] = max(0,      TL[0] - margin)
+    TL[1] = max(0,      TL[1] - margin)
+    TR[0] = min(width,  TR[0] + margin)
+    TR[1] = max(0,      TR[1] - margin)
+    BR[0] = min(width,  BR[0] + margin)
+    BR[1] = min(height, BR[1] + margin)
+    BL[0] = max(0,      BL[0] - margin)
+    BL[1] = min(height, BL[1] + margin)
+
+    corners = np.array([TL, TR, BR, BL], dtype='int32')
+    if algo.debug:
+        canvas = draw.corners(canny, corners)
+        draw.save("corners", canvas)
+    return corners
 
 
 if __name__ == "__main__":

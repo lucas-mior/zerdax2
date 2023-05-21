@@ -323,7 +323,7 @@ def add_outer_warped(lines, ll, kind, force=False):
 
 def add_outer_diagonal(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
-    tol = 2
+    tol = 0
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
@@ -340,7 +340,7 @@ def add_outer_diagonal(lines, ll, kind, force=False):
         line0 = lines[where]
         line1 = lines[other]
 
-        if abs(line0[kind] - ref) < tol or abs(line0[kind+2] - ref) < tol:
+        if abs(line0[kind] - ref) <= tol or abs(line0[kind+2] - ref) <= tol:
             return lines
 
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
@@ -360,8 +360,8 @@ def add_outer_diagonal(lines, ll, kind, force=False):
             if length((x0, y0, x1, y1)) < (length(line0)*0.7):
                 print("that is the case!")
                 return lines
-            new = np.array([[x0, y0, x1, y1,
-                             line1[4], line1[5]]], dtype='int32')
+            new = np.array([x0, y0, x1, y1, line1[4], line1[5]], dtype='int32')
+            new = np.array([new], dtype='int32')
             if where == -1:
                 lines = np.append(lines, new, axis=0)
             else:

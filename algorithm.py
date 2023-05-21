@@ -226,11 +226,10 @@ def warp(canny, corners):
     newshape = np.array(newshape, dtype='float32')
     warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
     _, warp_inverse_matrix = cv2.invert(warp_matrix)
-
     canny_warped = cv2.warpPerspective(canny, warp_matrix, (width, height))
+
     if algo.debug:
         draw.save("canny_warped", canny_warped)
-
     return canny_warped, warp_inverse_matrix
 
 

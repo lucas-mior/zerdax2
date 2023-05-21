@@ -19,7 +19,7 @@ hough_max_gap = consts.hough_max_gap
 def find_warped_lines(canny):
     global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
     gcanny = canny
-    log.debug("finding all lines of warped board...")
+    log.debug("finding right angled lines of warped board...")
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0
@@ -67,7 +67,7 @@ def find_warped_lines(canny):
 def find_diagonal_lines(canny):
     global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
     gcanny = canny
-    log.debug("finding all lines of board...")
+    log.debug("finding diagonal lines of original board...")
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0

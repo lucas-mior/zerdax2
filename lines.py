@@ -181,16 +181,16 @@ def fix_warped_lines(vert, hori):
 def sort(vert, hori):
     log.debug("sorting lines by position and respective direction...")
 
-    def _create(lines, kind):
+    def _criteria(lines, kind):
         positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
             inter = intersect.calculate_single(line, gcanny, kind=kind)
             positions[i] = inter[kind]
         return positions
 
-    positions = _create(hori, 1)
+    positions = _criteria(hori, 1)
     hori = hori[np.argsort(positions)]
-    positions = _create(vert, 0)
+    positions = _criteria(vert, 0)
     vert = vert[np.argsort(positions)]
 
     if algo.debug:
@@ -474,7 +474,7 @@ def length_theta(vert, hori=None, abs_angle=False):
     else:
         angle = theta
 
-    def _create(lines):
+    def _calculate(lines):
         dummy = np.empty((lines.shape[0], 6), dtype='int32')
         dummy[:, 0:4] = lines[:, 0:4]
         lines = dummy[np.argsort(dummy[:, 0])]
@@ -486,8 +486,8 @@ def length_theta(vert, hori=None, abs_angle=False):
         return lines
 
     if hori is not None:
-        hori = _create(hori)
-    vert = _create(vert)
+        hori = _calculate(hori)
+    vert = _calculate(vert)
     return vert, hori
 
 

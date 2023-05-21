@@ -166,8 +166,8 @@ def find_edges(image):
     if algo.debug:
         draw.save("lowpass", g)
 
-    canny_mean_threshold = consts.canny_mean_threshold_filter
-    threshold_high0 = consts.threshold_highfilter
+    canny_mean_threshold = consts.canny_mean_threshold
+    threshold_high0 = consts.canny_threshold_high
     canny = find_canny(g, canny_mean_threshold, threshold_high0)
     return canny
 

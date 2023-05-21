@@ -15,8 +15,8 @@ margin = 6
 corners_margin = 4
 tile_grid_size = 10
 clip_limit = 1.0
-canny_mean_threshold_filter = 9
-threshold_highfilter = 250
+canny_mean_threshold = 9
+canny_threshold_high = 250
 canny_threshold_high_min = 30
 canny_threshold_low_min = 10
 

@@ -249,31 +249,33 @@ def add_outer(lines, ll, kind, force=False):
         line0 = lines[where]
         line1 = lines[other]
 
+        if abs(line0[kind] - ref) < tol or abs(line0[kind+2] - ref) < tol:
+            return lines
+
         x = (2*line0[0] - line1[0], 2*line0[2] - line1[2])
         y = (2*line0[1] - line1[1], 2*line0[3] - line1[3])
-        if abs(line0[kind] - ref) > tol and abs(line0[kind+2] - ref) > tol:
-            x0, x1 = x
-            y0, y1 = y
-            new = np.array([x0, y0, x1, y1], dtype='int32')
-            inters = intersect.shorten(new, gcanny)
-            if len(inters) < 2:
+        x0, x1 = x
+        y0, y1 = y
+        new = np.array([x0, y0, x1, y1], dtype='int32')
+        inters = intersect.shorten(new, gcanny)
+        if len(inters) < 2:
+            return lines
+        elif len(inters) > 2:
+            segments = np.array([[inters[0], inters[1]],
+                                 [inters[0], inters[2]],
+                                 [inters[1], inters[2]]])
+            lengths = [length(segment.flatten()) for segment in segments]
+            inters = segments[np.argmax(lengths)]
+        if inters[0, kind] <= limit and inters[1, kind] <= limit:
+            x0, y0, x1, y1 = np.ravel(inters)
+            if length((x0, y0, x1, y1)) < (length(line0)*0.8):
                 return lines
-            elif len(inters) > 2:
-                segments = np.array([[inters[0], inters[1]],
-                                     [inters[0], inters[2]],
-                                     [inters[1], inters[2]]])
-                lengths = [length(segment.flatten()) for segment in segments]
-                inters = segments[np.argmax(lengths)]
-            if inters[0, kind] <= limit and inters[1, kind] <= limit:
-                x0, y0, x1, y1 = np.ravel(inters)
-                if length((x0, y0, x1, y1)) < (length(line0)*0.8):
-                    return lines
-                new = np.array([[x0, y0, x1, y1,
-                                 line1[4], line1[5]]], dtype='int32')
-                if where == -1:
-                    lines = np.append(lines, new, axis=0)
-                else:
-                    lines = np.insert(lines, 0, new, axis=0)
+            new = np.array([[x0, y0, x1, y1,
+                             line1[4], line1[5]]], dtype='int32')
+            if where == -1:
+                lines = np.append(lines, new, axis=0)
+            else:
+                lines = np.insert(lines, 0, new, axis=0)
         return lines
 
     lines = _add_outer(lines, 0)

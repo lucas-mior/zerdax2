@@ -27,14 +27,13 @@ def find_warped_lines(canny):
     ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:
-        if hough_threshold <= round(hough_min_length0/1.5):
-            if (hough_min_length <= round(hough_min_length0/1.1)):
+        if hough_threshold <= (hough_min_length0/1.5):
+            if hough_min_length <= (hough_min_length0/1.1):
                 break
-        hough_min_length = max(hough_min_length - 5,
-                               round(hough_min_length0 / 1.1))
-        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
-        hough_threshold = max(hough_threshold - 5,
-                              round(hough_min_length0 / 1.5))
+        hough_min_length = max(hough_min_length - 5, hough_min_length0 / 1.1)
+        hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
+        hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.5)
+
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
             hough_max_gap += 2
@@ -77,14 +76,13 @@ def find_diagonal_lines(canny):
     ll = lv = lh = 0
     hori = vert = None
     while lv < 8 or lh < 8:
-        if hough_threshold <= round(hough_min_length0/1.5):
-            if hough_min_length <= round(hough_min_length0/1.1):
+        if hough_threshold <= (hough_min_length0/1.5):
+            if hough_min_length <= (hough_min_length0/1.1):
                 break
-        hough_min_length = max(hough_min_length - 5,
-                               round(hough_min_length0 / 1.1))
-        hough_max_gap = min(hough_max_gap + 2, round(hough_min_length0 / 4))
-        hough_threshold = max(hough_threshold - 5,
-                              round(hough_min_length0 / 1.5))
+        hough_min_length = max(hough_min_length - 5, hough_min_length0 / 1.1)
+        hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
+        hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.5)
+
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
             hough_max_gap += 2
@@ -118,6 +116,9 @@ def find_diagonal_lines(canny):
 def hough(hough_threshold, hough_min_length, hough_max_gap):
     angle = consts.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
+    hough_min_length = round(hough_min_length)
+    hough_max_gap = round(hough_max_gap)
+    hough_threshold = round(hough_threshold)
     lines = cv2.HoughLinesP(gcanny, 1, hough_angle, hough_threshold,
                             None, hough_min_length, hough_max_gap)
     if lines is None:

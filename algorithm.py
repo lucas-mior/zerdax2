@@ -257,6 +257,9 @@ def find_corners(canny):
         return None
 
     inters = intersect.calculate_all(vert, hori)
+    if algo.debug:
+        canvas = draw.points(canny, inters)
+        draw.save("warped_inters", canvas)
 
     log.debug("calculating 4 corners of board...")
     inters = inters.reshape((-1, 2))
@@ -278,17 +281,14 @@ def find_corners(canny):
     log.debug("broading 4 corners of board...")
     margin = consts.corners_margin
 
-    width = canny.shape[1] - 1
-    height = canny.shape[0] - 1
-
-    TL[0] = max(0,      TL[0] - margin)
-    TL[1] = max(0,      TL[1] - margin)
-    TR[0] = min(width,  TR[0] + margin)
-    TR[1] = max(0,      TR[1] - margin)
-    BR[0] = min(width,  BR[0] + margin)
-    BR[1] = min(height, BR[1] + margin)
-    BL[0] = max(0,      BL[0] - margin)
-    BL[1] = min(height, BL[1] + margin)
+    TL[0] = TL[0] - margin
+    TL[1] = TL[1] - margin
+    TR[0] = TR[0] + margin
+    TR[1] = TR[1] - margin
+    BR[0] = BR[0] + margin
+    BR[1] = BR[1] + margin
+    BL[0] = BL[0] - margin
+    BL[1] = BL[1] + margin
 
     corners = np.array([TL, TR, BR, BL], dtype='int32')
     if algo.debug:

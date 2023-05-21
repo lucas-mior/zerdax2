@@ -27,7 +27,7 @@ def find_warped_lines(canny):
 
     ll = lv = lh = 0
     hori = vert = None
-    while lv < 8 or lh < 8:
+    while lv < 7 or lh < 7:
         if hough_threshold <= (hough_min_length0/1.5):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
@@ -75,7 +75,7 @@ def find_diagonal_lines(canny):
 
     ll = lv = lh = 0
     hori = vert = None
-    while lv < 8 or lh < 8:
+    while lv < 7 or lh < 7:
         if hough_threshold <= (hough_min_length0/1.5):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
@@ -162,7 +162,7 @@ def fix_warped_lines(vert, hori):
         lines, ll = remove_wrong(lines, len(lines))
         lines, ll = add_outer(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind, force=(ll < 9))
+        lines, ll = add_outer(lines, ll, kind)
         lines, ll = add_middle(lines, ll)
         return lines, ll
 
@@ -173,7 +173,16 @@ def fix_warped_lines(vert, hori):
     if lh != 9:
         hori, lh = _fix_warped_lines(hori, 1)
 
-    if algo.debug or lv != 9 or lh != 9:
+    if lv < 9:
+        vert, lv = add_outer(vert, lv, 0)
+    if lv < 9:
+        vert, lv = add_outer(vert, lv, 0)
+    if lv > 9:
+        vert, lv = remove_outer(vert, lv, 0)
+    if lv > 9:
+        vert, lv = remove_outer(vert, lv, 0)
+
+    if lv != 9 or lh != 9:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"fix_warped_{lv=}_{lh=}", canvas)
         return None, None
@@ -182,6 +191,8 @@ def fix_warped_lines(vert, hori):
 
 def fix_diagonal_lines(vert, hori):
     vert, hori = fix_length_byinter(vert, hori)
+    vert, lv = add_outer(vert, len(vert), 0)
+    hori, lh = add_outer(hori, len(hori), 1)
     vert, lv = add_outer(vert, len(vert), 0)
     hori, lh = add_outer(hori, len(hori), 1)
     return vert, hori
@@ -234,14 +245,16 @@ def fix_length_byinter(vert, hori=None):
     if hori is not None:
         inters = np.transpose(inters, axes=(1, 0, 2))
         hori = _shorten(hori)
+
+    if algo.debug:
+        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
+        draw.save("fix_length_byinter", canvas)
     return vert, hori
 
 
 def add_outer(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
-    tol = consts.outer_tolerance
-    if force:
-        tol = 1
+    tol = 0
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
@@ -275,7 +288,8 @@ def add_outer(lines, ll, kind, force=False):
             inters = segments[np.argmax(lengths)]
         if inters[0, kind] <= limit and inters[1, kind] <= limit:
             x0, y0, x1, y1 = np.ravel(inters)
-            if length((x0, y0, x1, y1)) < (length(line0)*0.8):
+            if length((x0, y0, x1, y1)) < (length(line0)*0.7):
+                print("that is the case!")
                 return lines
             new = np.array([[x0, y0, x1, y1,
                              line1[4], line1[5]]], dtype='int32')

@@ -54,9 +54,7 @@ def calculate_extern(lines0, lines1=None):
 
 
 def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
-    log.debug("calculating all intersections between group(s) of lines...")
     if lines1 is None:
-        log.debug("-> calculating all intersections in the same group")
         lines1 = lines0
 
     max_x0 = np.max([lines0[:, 0], lines0[:, 2]])

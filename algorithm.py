@@ -47,8 +47,7 @@ def algorithm(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    gray, hsvalue = pre_process(img.board)
-    canny = create_cannys(gray, hsvalue)
+    canny = create_canny(img.board)
 
     board.corners = corners.find(canny)
     if (failed := board.corners is None) or algo.debug:
@@ -129,7 +128,7 @@ def crop_image(img, boardbox):
     return img
 
 
-def pre_process(image):
+def create_canny(image):
     log.info("pre-processing image...")
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -145,13 +144,10 @@ def pre_process(image):
     if algo.debug:
         draw.save("clahe_gray", gray)
         draw.save("clahe_hsvalue", hsvalue)
-    return gray, hsvalue
 
-
-def create_cannys(gray, hsvalue):
-    log.info("finding edges for gray, and hsvalue images...")
-    canny_gray, got_canny_gray = find_edges(gray, lowpass=filter)
-    canny_hsvalue, got_canny_hsvalue = find_edges(hsvalue, lowpass=filter)
+    log.info("finding edges for gray and hsvalue images...")
+    canny_gray, got_canny_gray = find_edges(gray)
+    canny_hsvalue, got_canny_hsvalue = find_edges(hsvalue)
 
     if not got_canny_gray or not got_canny_hsvalue or algo.debug:
         draw.save("canny_gray", canny_gray)
@@ -163,11 +159,11 @@ def create_cannys(gray, hsvalue):
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
 
     if algo.debug:
-        draw.save("edges", canny)
+        draw.save("canny", canny)
     return canny
 
 
-def filter(image):
+def lowpass(image):
     f = np.array(image, dtype='float64')
     W = np.zeros(image.shape, dtype='float64')
     N = np.zeros(image.shape, dtype='float64')
@@ -182,7 +178,7 @@ def filter(image):
     return np.array(g, dtype='uint8')
 
 
-def find_edges(image, lowpass):
+def find_edges(image):
     log.info("filtering image...")
     image = lowpass(image)
     canny_mean_threshold = consts.canny_mean_threshold_filter

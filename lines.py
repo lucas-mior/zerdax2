@@ -159,13 +159,14 @@ def bundle_lines(vert, hori):
 def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
-        lines, ll = remove_wrong(lines, len(lines))
-        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = add_outer(lines, len(lines), kind)
         lines, ll = remove_outer(lines, ll, kind)
         lines, ll = add_outer(lines, ll, kind)
         lines, ll = add_middle(lines, ll)
         return lines, ll
 
+    vert, lv = remove_wrong(vert, len(vert))
+    hori, lh = remove_wrong(hori, len(hori))
     vert, lv = _fix_warped_lines(vert, 0)
     hori, lh = _fix_warped_lines(hori, 1)
     if lv != 9:

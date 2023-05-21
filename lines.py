@@ -295,7 +295,7 @@ def add_outer(lines, ll, kind, force=False):
 
 
 def remove_middle(lines, ll):
-    log.info("reming missing middle lines...")
+    log.info("removing wrong middle lines...")
     tol = consts.middle_tolerance
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_middle, returning...")

@@ -195,6 +195,7 @@ def fix_diagonal_lines(vert, hori):
         old_lv, old_lh = len(vert), len(hori)
         vert, hori = fix_length_byinter(vert, hori)
         vert, _ = add_outer(vert, len(vert), 0)
+        vert, hori = fix_length_byinter(vert, hori)
         hori, _ = add_outer(hori, len(hori), 1)
 
     vert, lv = extend_outer(vert, len(vert), 0)
@@ -275,7 +276,10 @@ def add_outer(lines, ll, kind, force=False):
         line0 = lines[where]
         line1 = lines[other]
 
-        if abs(line0[kind] - ref) < tol or abs(line0[kind+2] - ref) < tol:
+        space1 = abs(line0[kind] - ref)
+        space2 = abs(line0[kind+2] - ref)
+        space_old = min(space1, space2)
+        if space_old < tol:
             return lines
 
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
@@ -295,6 +299,10 @@ def add_outer(lines, ll, kind, force=False):
             x0, y0, x1, y1 = np.ravel(inters)
             if length((x0, y0, x1, y1)) < (length(line0)*0.7):
                 log.warning("add_outer: line is shorter than next")
+                return lines
+            spacenew = min(abs(new[kind] - ref), abs(new[kind+2] - ref))
+            if spacenew >= space_old:
+                log.warning("add_outer: wrong change")
                 return lines
             new = np.array([[x0, y0, x1, y1,
                              line1[4], line1[5]]], dtype='int32')

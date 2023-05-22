@@ -407,25 +407,25 @@ def filter_misdirected2(vert, hori):
     log.info("filtering lines by angle with next line")
 
     def _calculate_diffs(lines):
-        dists = np.zeros((lines.shape[0], 2), dtype='int32')
+        diffs = np.zeros((lines.shape[0], 2), dtype='int32')
         i = 0
-        dists[i, 0] = abs(lines[i+0, 5] - lines[i+1, 5])
-        dists[i, 1] = dists[i, 0]
+        diffs[i, 0] = abs(lines[i+0, 5] - lines[i+1, 5])
+        diffs[i, 1] = diffs[i, 0]
         for i in range(1, len(lines) - 1):
-            dists[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
-            dists[i, 1] = abs(lines[i+0, 5] - lines[i+1, 5])
+            diffs[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
+            diffs[i, 1] = abs(lines[i+0, 5] - lines[i+1, 5])
         i += 1
-        dists[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
-        dists[i, 1] = dists[i, 0]
-        return dists
+        diffs[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
+        diffs[i, 1] = diffs[i, 0]
+        return diffs
 
-    def _remove_misdirected(lines, dists):
-        d0 = np.median(dists[:, 0])
-        d1 = np.median(dists[:, 1])
+    def _remove_misdirected(lines, diffs):
+        d0 = np.median(diffs[:, 0])
+        d1 = np.median(diffs[:, 1])
         med = round((d0 + d1)/2)
         log.debug(f"median diff between lines: {med}")
         for i in range(0, len(lines)):
-            if dists[i, 1] > (med*2) or (med/2) > dists[i, 0]:
+            if diffs[i, 1] > (med*2) or (med/2) > diffs[i, 0]:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines

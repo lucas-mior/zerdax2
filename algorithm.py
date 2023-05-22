@@ -268,20 +268,16 @@ def find_corners(canny):
 
     log.debug("calculating 4 corners of board...")
     inters = inters.reshape((-1, 2))
-    psum = np.zeros((inters.shape[0], 3), dtype='int32')
-    psub = np.zeros((inters.shape[0], 3), dtype='int32')
+    points_sum = np.zeros((inters.shape[0]), dtype='int32')
+    points_sub = np.zeros((inters.shape[0]), dtype='int32')
 
-    psum[:, 0] = inters[:, 0]
-    psum[:, 1] = inters[:, 1]
-    psum[:, 2] = inters[:, 0] + inters[:, 1]
-    psub[:, 0] = inters[:, 0]
-    psub[:, 1] = inters[:, 1]
-    psub[:, 2] = inters[:, 0] - inters[:, 1]
+    points_sum[:] = inters[:, 0] + inters[:, 1]
+    points_sub[:] = inters[:, 0] - inters[:, 1]
 
-    TL = psum[np.argmin(psum[:, 2])][0:2]
-    TR = psub[np.argmax(psub[:, 2])][0:2]
-    BR = psum[np.argmax(psum[:, 2])][0:2]
-    BL = psub[np.argmin(psub[:, 2])][0:2]
+    TL = inters[np.argmin(points_sum)]
+    TR = inters[np.argmax(points_sub)]
+    BR = inters[np.argmax(points_sum)]
+    BL = inters[np.argmin(points_sub)]
 
     log.debug("broading 4 corners of board...")
     margin = constants.corners_margin

@@ -36,7 +36,7 @@ def save(name, image, title=None):
     return
 
 
-def addweighted(image, canvas, w1=0.4, w2=0.6):
+def add_weighted(image, canvas, w1=0.4, w2=0.6):
     image = adapt(image)
     cv2.addWeighted(image, w1, canvas, w2, 0, canvas)
     return canvas
@@ -67,7 +67,7 @@ def corners(image, corners):
         cv2.circle(canvas, c, radius,
                    color=(10+i*50, 0, 100+i*40), thickness=-1)
 
-    canvas = addweighted(image, canvas)
+    canvas = add_weighted(image, canvas)
     return canvas
 
 
@@ -81,7 +81,7 @@ def points(image, inters):
             cv2.circle(canvas, p, radius,
                        color=(20+i*20, 0, 100+j*15), thickness=-1)
 
-    canvas = addweighted(image, canvas)
+    canvas = add_weighted(image, canvas)
     return canvas
 
 
@@ -133,11 +133,11 @@ def lines(image, vert, hori=None, annotate_number=False):
         if vert is not None:
             vert = np.array(vert)
             canvas = _draw(canvas, vert, (255, 0, 80), 0)
-        canvas = addweighted(image, canvas)
+        canvas = add_weighted(image, canvas)
     elif vert is not None:
         vert = np.array(vert)
         canvas = _draw(canvas, vert, (0, 0, 255))
-        canvas = addweighted(image, canvas)
+        canvas = add_weighted(image, canvas)
 
     return canvas
 
@@ -159,7 +159,7 @@ def squares(image, squares):
     canvas = _draw_square(canvas, squares[2, 4, :4], [0, 0, 255], "C5")
     canvas = _draw_square(canvas, squares[7, 7, :4], [0, 255, 255], "H8")
 
-    canvas = addweighted(image, canvas)
+    canvas = add_weighted(image, canvas)
     return canvas
 
 
@@ -184,7 +184,7 @@ def boxes(image, pieces, boardbox=None):
         cv2.putText(canvas, "Board", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
-    canvas = addweighted(image, canvas)
+    canvas = add_weighted(image, canvas)
     return canvas
 
 
@@ -192,5 +192,5 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         image = cv2.imread(sys.argv[1])
         canvas = cv2.imread(sys.argv[2])
-        canvas = addweighted(image, canvas)
-        save("addweighted", canvas)
+        canvas = add_weighted(image, canvas)
+        save("add_weighted", canvas)

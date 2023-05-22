@@ -263,7 +263,7 @@ def fix_length_byinter(vert, hori=None):
     return vert, hori
 
 
-def add_outer(lines, ll, kind, force=False):
+def add_outer(lines, ll, kind):
     log.info("adding missing outer lines...")
     outer_tolerance = 2
     if ll < 5:

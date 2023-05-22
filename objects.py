@@ -87,5 +87,6 @@ if __name__ == "__main__":
     for filename in sys.argv[1:]:
         BGR = cv2.imread(filename)
         boardbox, pieces = detect(BGR)
+        pieces = determine_colors(pieces, BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("detection", canvas, title="detection.png")

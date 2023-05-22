@@ -11,15 +11,16 @@ from c_load import segments_distance
 from c_load import lines_bundle
 
 gcanny = None
-min_lines_before_split = consts.min_lines_before_split
-hough_min_length0 = consts.hough_min_length
-hough_max_gap = consts.hough_max_gap
 
 
 def find_warped_lines(canny):
-    global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
+    global gcanny
     gcanny = canny
     log.debug("finding right angled lines of warped board...")
+
+    min_lines_before_split = consts.min_lines_before_split
+    hough_min_length0 = consts.hough_min_length
+    hough_max_gap = consts.hough_max_gap
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0
@@ -65,9 +66,12 @@ def find_warped_lines(canny):
 
 
 def find_diagonal_lines(canny):
-    global gcanny, min_lines_before_split, hough_max_gap, hough_min_length0
+    global gcanny
     gcanny = canny
     log.debug("finding diagonal lines of original board...")
+    min_lines_before_split = consts.min_lines_before_split
+    hough_min_length0 = consts.hough_min_length
+    hough_max_gap = consts.hough_max_gap
 
     angle = consts.hough_angle_resolution
     hough_min_length = hough_min_length0

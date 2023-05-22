@@ -383,15 +383,18 @@ def filter_misdirected2(vert, hori):
         med = round((d0 + d1)/2)
         log.debug(f"median diff between lines: {med}")
         for i in range(0, len(lines)):
-            if diffs[i, 0] > (med*2) < diffs[i, 1]:
+            if diffs[i, 0] > (med*3) < diffs[i, 1]:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines
 
-    diffs_vert = _calculate_diffs(vert)
-    diffs_hori = _calculate_diffs(hori)
-    vert = _remove_misdirected(vert, diffs_vert)
-    hori = _remove_misdirected(hori, diffs_hori)
+    old_lv = old_lh = 0
+    while old_lv != len(vert) or old_lh != len(hori):
+        old_lv, old_lh = len(vert), len(hori)
+        diffs_vert = _calculate_diffs(vert)
+        diffs_hori = _calculate_diffs(hori)
+        vert = _remove_misdirected(vert, diffs_vert)
+        hori = _remove_misdirected(hori, diffs_hori)
 
     if algo.debug:
         canvas = draw.lines(gcanny, vert, hori)
@@ -426,6 +429,9 @@ def remove_wrong(lines, ll):
         log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
             if dists[i, 1] < (med/tol) and (med*tol) < dists[i, 0]:
+                lines = np.delete(lines, i, axis=0)
+                return lines
+            if dists[i, 0] < (med/tol) and (med*tol) < dists[i, 1]:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines

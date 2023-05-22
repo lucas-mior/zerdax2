@@ -126,10 +126,11 @@ def create_canny(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     hsvalue = hsv[:, :, 2]
+    del hsv
 
     log.info("applying distributed histogram equalization to image...")
-    grid = (constants.tile_grid_size, constants.tile_grid_size)
     clip_limit = constants.clip_limit
+    grid = (constants.tile_grid_size, constants.tile_grid_size)
     clahe = cv2.createCLAHE(clip_limit, grid)
     gray = clahe.apply(gray)
     hsvalue = clahe.apply(hsvalue)

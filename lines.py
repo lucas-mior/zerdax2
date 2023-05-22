@@ -166,9 +166,9 @@ def fix_warped_lines(vert, hori):
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert))
         lines, ll = add_middle(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = add_outer(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = add_outer(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
@@ -263,14 +263,14 @@ def fix_length_byinter(vert, hori=None):
     return vert, hori
 
 
-def add_outer(lines, ll, kind):
+def add_outer(lines, ll, kind, warped=False):
     log.info("adding missing outer lines...")
     outer_tolerance = 2
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
 
-    def _add_outer(lines, where):
+    def _add_outer(lines, where, med):
         limit = gcanny.shape[kind-1]
         if where == 0:
             ref = 0
@@ -286,9 +286,15 @@ def add_outer(lines, ll, kind):
         if space_old < outer_tolerance:
             return lines
 
-        x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
-        y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
-        new = np.array([x0, y0, x1, y1], dtype='int32')
+        if warped:
+            new = np.copy(line0[:4])
+            dx = med + (med - segments_distance(line0, line1))
+            new[kind] += dx
+            new[kind+2] += dx
+        else:
+            x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
+            y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
+            new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
         if len(inters) < 2:
             log.error("add_outer: less than 2 intersections")
@@ -318,8 +324,10 @@ def add_outer(lines, ll, kind):
                 lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
-    lines = _add_outer(lines, 0)
-    lines = _add_outer(lines, -1)
+    dists = calculate_distances(lines)
+    med = np.median(dists)
+    lines = _add_outer(lines, 0, med)
+    lines = _add_outer(lines, -1, med)
 
     if algo.debug:
         canvas = draw.lines(gcanny, lines)

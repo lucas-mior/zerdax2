@@ -361,48 +361,6 @@ def extend_outer(lines, ll, kind, force=False):
     return lines, len(lines)
 
 
-def remove_middle(lines, ll):
-    log.info("removing wrong middle lines...")
-    tol = consts.middle_tolerance
-    if ll < 7:
-        log.warning("Less than 7 lines passed to remove_middle, returning...")
-        return lines, ll
-
-    def _remove_middle(lines):
-        i = 1
-        dprev1 = segments_distance(lines[i+0], lines[i-1])
-        dprev0 = segments_distance(lines[i+0], lines[i+1])
-        dnext0 = segments_distance(lines[i+1], lines[i+2])
-        dnext1 = segments_distance(lines[i+2], lines[i+3])
-        dnext2 = segments_distance(lines[i+3], lines[i+4])
-        if dprev1 < (dnext0/tol) > dprev0 and dprev1 < (dnext1/tol) > dprev0:
-            if dprev1 < (dnext2/tol) > dprev0:
-                lines = np.delete(lines, i, axis=0)
-                return lines
-        for i in range(3, len(lines) - 3):
-            dprev2 = segments_distance(lines[i-2], lines[i-3])
-            dprev1 = segments_distance(lines[i-1], lines[i-2])
-            dprev0 = segments_distance(lines[i+0], lines[i-1])
-            dnext0 = segments_distance(lines[i+0], lines[i+1])
-            dnext1 = segments_distance(lines[i+1], lines[i+2])
-            dnext2 = segments_distance(lines[i+2], lines[i+3])
-            if dprev0 < (dprev1/tol) and dnext0 < (dnext1/tol):
-                if dprev0 < (dprev2/tol) and dnext0 < (dnext2/tol):
-                    lines = np.delete(lines, i, axis=0)
-                    return lines
-        return lines
-
-    lines = _remove_middle(lines)
-    lines = np.flip(lines, axis=0)
-    lines = _remove_middle(lines)
-    lines = np.flip(lines, axis=0)
-
-    if algo.debug and ll != len(lines):
-        canvas = draw.lines(gcanny, lines)
-        draw.save("remove_middle", canvas)
-    return lines, len(lines)
-
-
 def filter_misdirected2(vert, hori):
     log.info("filtering lines by angle with next line")
 

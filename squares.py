@@ -81,35 +81,40 @@ def check_colors(image, squares):
         return squares
 
     def _calculate_means(col, row):
+        log.debug(f"calculate_means({col=}, {row=})")
         square = np.copy(squares[col, row])
+        if square[4, 1] >= 0:
+            log.debug("square is ocupied, skipping for calc_means")
+            if col < 6:
+                col += 2
+            else:
+                return 0, 0
+            return _calculate_means(col, row)
         contour = square[:4]
         frame = cv2.boundingRect(contour)
         x0, y0, dx, dy = frame
         contour[:, 0] -= x0
         contour[:, 1] -= y0
         b = image[y0:y0+dy, x0:x0+dx]
-        mask1 = np.zeros(b.shape, dtype='uint8')
-        cv2.drawContours(mask1, [contour], -1, 255, -1)
-        mask0 = cv2.bitwise_not(mask1)
-        mean0 = round(cv2.mean(b, mask=mask0)[0])
-        mean1 = round(cv2.mean(b, mask=mask1)[0])
-        if square[4, 1] < 0:  # no piece
-            pass
-        elif square[4, 1] <= 6:  # white piece
-            mean1 -= 30
-        else:  # black piece
-            mean1 += 30
-        return mean1, mean0
+        mask_in = np.zeros(b.shape, dtype='uint8')
+        cv2.drawContours(mask_in, [contour], -1, 255, -1)
+        mask_out = cv2.bitwise_not(mask_in)
+        mean_out = round(cv2.mean(b, mask=mask_out)[0])
+        mean_in = round(cv2.mean(b, mask=mask_in)[0])
+        return mean_in, mean_out
 
     change_votes = 0
+    checked = 0
     for col in range(7):
-        row = 7 - col
-        mean1, mean0 = _calculate_means(col, row)
-        if mean1 < mean0:
-            change_votes += 1
-            if mean0 - mean1 > 40:
-                change_votes += 4
+        for row in range(7):
+            mean_in, mean_out = _calculate_means(col, row)
+            checked += 1
+            if mean_in < mean_out:
+                change_votes += 1
+            if change_votes > 4 or checked >= 8:
                 break
+        if change_votes > 4 or checked >= 8:
+            break
     if change_votes > 4:
         squares = _rotate(squares)
 

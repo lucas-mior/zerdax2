@@ -44,6 +44,22 @@ def addweighted(image, canvas, w1=0.4, w2=0.6):
 
 def corners(image, corners):
     image = adapt(image)
+    min_x = np.min(corners[:, 0])
+    min_y = np.min(corners[:, 1])
+    max_x = np.max(corners[:, 0])
+    max_y = np.max(corners[:, 1])
+
+    pad_left = max(0, -min_x) + 4
+    pad_right = max(0, -(image.shape[1] - max_x)) + 4
+    pad_up = max(0, -min_y) + 4
+    pad_down = max(0, -(image.shape[0] - max_y)) + 4
+
+    image = cv2.copyMakeBorder(image, pad_up, pad_down, pad_left, pad_right,
+                               cv2.BORDER_CONSTANT)
+    corners = np.copy(corners)
+    corners[:, 0] += pad_left
+    corners[:, 1] += pad_up
+
     canvas = np.zeros(image.shape, dtype='uint8')
     radius = round(5 * (image.shape[1] / 512))
 

@@ -10,7 +10,7 @@ import lines as lines
 import intersect as intersect
 import yolo_wrap as yolo
 import fen as fen
-import constants as consts
+import constants as constants
 import drawings as draw
 from c_load import lfilter
 
@@ -42,7 +42,7 @@ def algorithm(filename):
 
     log.info(f"board detected: {board.box}")
     board.image, translate_params = crop_image(BGR, board.box)
-    if board.image.shape[0] < consts.min_boardbox_height:
+    if board.image.shape[0] < constants.min_boardbox_height:
         log.error(bad_picture_msg)
         return bad_picture_msg
 
@@ -97,13 +97,13 @@ def crop_image(image, boardbox):
     log.info("cropping image to board box...")
     translate_params = SimpleNamespace()
     x0, y0, x1, y1 = boardbox
-    margin = consts.margin
+    margin = constants.margin
     x0, y0 = x0 - margin, y0 - margin
     x1, y1 = x1 + margin, y1 + margin
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")
-    width_board = consts.width_board
+    width_board = constants.width_board
     resize_factor = width_board / cropped.shape[1]
     height_board = round(resize_factor * cropped.shape[0])
     cropped = cv2.resize(cropped, (width_board, height_board))
@@ -124,8 +124,8 @@ def create_canny(image):
     hsvalue = hsv[:, :, 2]
 
     log.info("applying distributed histogram equalization to image...")
-    grid = (consts.tile_grid_size, consts.tile_grid_size)
-    clip_limit = consts.clip_limit
+    grid = (constants.tile_grid_size, constants.tile_grid_size)
+    clip_limit = constants.clip_limit
     clahe = cv2.createCLAHE(clip_limit, grid)
     gray = clahe.apply(gray)
     hsvalue = clahe.apply(hsvalue)
@@ -167,8 +167,8 @@ def find_edges(image):
     if debug:
         draw.save("lowpass", g)
 
-    canny_mean_threshold = consts.canny_mean_threshold
-    threshold_high0 = consts.canny_threshold_high
+    canny_mean_threshold = constants.canny_mean_threshold
+    threshold_high0 = constants.canny_threshold_high
     canny = find_canny(g, canny_mean_threshold, threshold_high0)
     return canny
 
@@ -179,8 +179,8 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
 
     got_canny = False
 
-    canny_threshold_high_min = consts.canny_threshold_high_min
-    canny_threshold_low_min = consts.canny_threshold_low_min
+    canny_threshold_high_min = constants.canny_threshold_high_min
+    canny_threshold_low_min = constants.canny_threshold_low_min
 
     threshold_high = threshold_high0
     while threshold_high >= canny_threshold_high_min:
@@ -223,8 +223,8 @@ def warp(canny, corners):
     BL = corners[3]
     orig_points = np.array((TL, TR, BR, BL), dtype="float32")
 
-    width = consts.warped_dimension - 1
-    height = consts.warped_dimension - 1
+    width = constants.warped_dimension - 1
+    height = constants.warped_dimension - 1
 
     newshape = [[0, 0], [width, 0], [width, height], [0, height]]
     newshape = np.array(newshape, dtype='float32')
@@ -280,7 +280,7 @@ def find_corners(canny):
     BL = psub[np.argmin(psub[:, 2])][0:2]
 
     log.debug("broading 4 corners of board...")
-    margin = consts.corners_margin
+    margin = constants.corners_margin
 
     TL[0] = TL[0] - margin
     TL[1] = TL[1] - margin

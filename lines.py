@@ -5,7 +5,7 @@ from jenkspy import jenks_breaks
 
 import algorithm as algorithm
 import intersect as intersect
-import constants as consts
+import constants as constants
 import drawings as draw
 from c_load import segments_distance
 from c_load import lines_bundle
@@ -18,11 +18,11 @@ def find_warped_lines(canny):
     gcanny = canny
     log.debug("finding right angled lines of warped board...")
 
-    min_lines_before_split = consts.min_lines_before_split
-    hough_min_length0 = consts.hough_min_length_warped
-    hough_max_gap = consts.hough_max_gap
+    min_lines_before_split = constants.min_lines_before_split
+    hough_min_length0 = constants.hough_min_length_warped
+    hough_max_gap = constants.hough_max_gap
 
-    angle = consts.hough_angle_resolution
+    angle = constants.hough_angle_resolution
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0*1.1
 
@@ -69,11 +69,11 @@ def find_diagonal_lines(canny):
     global gcanny
     gcanny = canny
     log.debug("finding diagonal lines of original board...")
-    min_lines_before_split = consts.min_lines_before_split
-    hough_min_length0 = consts.hough_min_length
-    hough_max_gap = consts.hough_max_gap
+    min_lines_before_split = constants.min_lines_before_split
+    hough_min_length0 = constants.hough_min_length
+    hough_max_gap = constants.hough_max_gap
 
-    angle = consts.hough_angle_resolution
+    angle = constants.hough_angle_resolution
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0*1.1
 
@@ -119,7 +119,7 @@ def find_diagonal_lines(canny):
 
 
 def hough(hough_threshold, hough_min_length, hough_max_gap):
-    angle = consts.hough_angle_resolution
+    angle = constants.hough_angle_resolution
     hough_angle = np.deg2rad(angle)
     hough_min_length = round(hough_min_length)
     hough_max_gap = round(hough_max_gap)
@@ -460,7 +460,7 @@ def remove_wrong(lines, ll):
 
 def add_middle(lines, ll, kind):
     log.info("adding missing middle lines...")
-    tol = consts.middle_tolerance
+    tol = constants.middle_tolerance
     if ll < 5 or ll > 10:
         log.warning(f"{ll} lines passed to add_middle, returning...")
         return lines, ll
@@ -531,7 +531,7 @@ def add_middle(lines, ll, kind):
 
 def remove_outer(lines, ll, kind):
     log.debug("removing extra outer lines...")
-    tolerance = consts.outer_tolerance
+    tolerance = constants.outer_tolerance
     limit = gcanny.shape[kind-1]
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_outer, returning...")
@@ -631,7 +631,7 @@ def split(lines):
     d1 = abs(centers[0] - centers[2])
     d2 = abs(centers[1] - centers[2])
 
-    maxdiff = consts.angles_max_diff
+    maxdiff = constants.angles_max_diff
     dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
     dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
@@ -668,7 +668,7 @@ def split(lines):
 
 def filter_misdirected(vert, hori):
     log.info("filtering lines by angle accoring to direction...")
-    tolerance = consts.angle_tolerance
+    tolerance = constants.angle_tolerance
     changed = False
 
     def _filter(lines):

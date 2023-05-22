@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import squares
 import lines
 import intersect
-import yolo_wrap as yolo
+import objects
 import fen
 import constants
 import draw
@@ -27,9 +27,9 @@ def algorithm(filename):
     BGR = cv2.imread(filename)
 
     board = SimpleNamespace()
-    board.box, board.pieces = yolo.detect_objects(filename)
-    board.pieces = yolo.determine_colors(board.pieces, BGR)
-    board.pieces = yolo.process_pieces(board.pieces)
+    board.box, board.pieces = objects.detect(filename)
+    board.pieces = objects.determine_colors(board.pieces, BGR)
+    board.pieces = objects.process_pieces(board.pieces)
 
     if (failed := board.box is None) or debug:
         canvas = draw.boxes(BGR, board.pieces)

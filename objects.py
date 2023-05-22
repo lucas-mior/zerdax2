@@ -9,7 +9,7 @@ import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
 
 
-def detect_objects(filename):
+def detect(filename):
     model = YOLO("zerdax2.pt")
     objects = model.predict(source=filename,
                             conf=0.5,
@@ -84,6 +84,6 @@ def process_pieces(pieces):
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
         BGR = cv2.imread(filename)
-        boardbox, pieces = detect_objects(filename)
+        boardbox, pieces = detect(filename)
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("yolo", canvas, title="demo.png")

@@ -25,6 +25,7 @@ def main(filename):
     bad_picture_msg = f"{filename}: bad picture, change the camera angle"
 
     BGR = cv2.imread(filename)
+
     width_input = constants.width_input
     aspect_ratio = width_input / BGR.shape[1]
     height_input = round(BGR.shape[0] * aspect_ratio)

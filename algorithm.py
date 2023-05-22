@@ -4,7 +4,7 @@ import numpy as np
 import logging as log
 from types import SimpleNamespace
 
-import algorithm as algo
+import algorithm as algorithm
 import squares as squares
 import lines as lines
 import intersect as intersect
@@ -32,7 +32,7 @@ def algorithm(filename):
     board.pieces = yolo.determine_colors(board.pieces, BGR)
     board.pieces = yolo.process_pieces(board.pieces)
 
-    if (failed := board.box is None) or algo.debug:
+    if (failed := board.box is None) or debug:
         canvas = draw.boxes(BGR, board.pieces)
         draw.save("yolo", canvas)
         if failed:
@@ -62,7 +62,7 @@ def algorithm(filename):
         return bad_picture_msg
 
     inters = intersect.calculate_all(vert, hori)
-    if (failed := inters.shape != (9, 9, 2)) or algo.debug:
+    if (failed := inters.shape != (9, 9, 2)) or debug:
         canvas = draw.points(canny_warped, inters)
         draw.save("intersections", canvas)
         if failed:
@@ -73,18 +73,18 @@ def algorithm(filename):
             return bad_picture_msg
 
     inters = translate_inters(inters, warp_inverse_matrix, translate_params)
-    if algo.debug:
+    if debug:
         canvas = draw.points(BGR, inters)
         draw.save("translated_intersections", canvas)
 
     board.squares = squares.calculate(inters)
-    if algo.debug:
+    if debug:
         canvas = draw.squares(BGR, board.squares)
         draw.save("A1E4C5H8", canvas)
 
     board.squares, pieces = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(BGR, board.squares)
-    # if algo.debug and changed:
+    # if debug and changed:
     canvas = draw.squares(BGR, board.squares)
     draw.save("A1E4C5H8", canvas)
 
@@ -112,7 +112,7 @@ def crop_image(image, boardbox):
     translate_params.y0 = y0
     translate_params.resize_factor = resize_factor
 
-    if algo.debug:
+    if debug:
         draw.save("cropped", cropped)
     return cropped, translate_params
 
@@ -130,7 +130,7 @@ def create_canny(image):
     gray = clahe.apply(gray)
     hsvalue = clahe.apply(hsvalue)
 
-    if algo.debug:
+    if debug:
         draw.save("clahe_gray", gray)
         draw.save("clahe_hsvalue", hsvalue)
 
@@ -143,7 +143,7 @@ def create_canny(image):
     canny = cv2.morphologyEx(canny, cv2.MORPH_DILATE, kernel)
     canny = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
 
-    if algo.debug:
+    if debug:
         draw.save("canny_gray", canny_gray)
         draw.save("canny_hsvalue", canny_hsvalue)
         draw.save("canny", canny)
@@ -164,7 +164,7 @@ def find_edges(image):
     g = np.round(g)
     g = np.clip(g, 0, 255)
     g = np.array(g, dtype='uint8')
-    if algo.debug:
+    if debug:
         draw.save("lowpass", g)
 
     canny_mean_threshold = consts.canny_mean_threshold
@@ -232,7 +232,7 @@ def warp(canny, corners):
     _, warp_inverse_matrix = cv2.invert(warp_matrix)
     canny_warped = cv2.warpPerspective(canny, warp_matrix, (width, height))
 
-    if algo.debug:
+    if debug:
         draw.save("canny_warped", canny_warped)
     return canny_warped, warp_inverse_matrix
 
@@ -258,7 +258,7 @@ def find_corners(canny):
         return None
 
     inters = intersect.calculate_all(vert, hori)
-    if algo.debug:
+    if debug:
         canvas = draw.points(canny, inters)
         draw.save("warped_inters", canvas)
 
@@ -292,7 +292,7 @@ def find_corners(canny):
     BL[1] = BL[1] + margin
 
     corners = np.array([TL, TR, BR, BL], dtype='int32')
-    if algo.debug:
+    if debug:
         canvas = draw.corners(canny, corners)
         draw.save("corners", canvas)
     return corners

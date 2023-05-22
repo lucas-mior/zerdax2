@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-import algorithm as algo
+import algorithm as algorithm
 import cv2
 import logging as log
 
@@ -22,7 +22,7 @@ def save(name, image, title=None):
         save.i = 0
     save.i += 1
     if title is None:
-        title = f"{algo.basename}_{save.i:04d}_{name}.png"
+        title = f"{algorithm.basename}_{save.i:04d}_{name}.png"
     log.debug(f"saving {title}...")
     cv2.imwrite(title, image)
     return

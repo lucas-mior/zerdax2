@@ -3,7 +3,7 @@ import cv2
 import logging as log
 from jenkspy import jenks_breaks
 
-import algorithm as algo
+import algorithm as algorithm
 import intersect as intersect
 import constants as consts
 import drawings as draw
@@ -53,7 +53,7 @@ def find_warped_lines(canny):
         log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
-    if (failed := lv < 6 or lh < 6) or algo.debug:
+    if (failed := lv < 6 or lh < 6) or algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"warped_lines_{lv=}_{lh=}", canvas)
         if failed:
@@ -106,7 +106,7 @@ def find_diagonal_lines(canny):
         log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                  f"{hough_min_length=},{hough_max_gap=}")
 
-    if (failed := lv < 6 or lh < 6) or algo.debug:
+    if (failed := lv < 6 or lh < 6) or algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"diagonal_lines_{lv=}_{lh=}", canvas)
         if failed:
@@ -134,7 +134,7 @@ def hough(hough_threshold, hough_min_length, hough_max_gap):
 
     log.debug(f"{ll} @ {angle}, {hough_threshold=}, "
               f"{hough_min_length=}, {hough_max_gap=}")
-    if algo.debug:
+    if algorithm.debug:
         canvas = draw.lines(gcanny, lines)
         draw.save("hough_lines", canvas)
     return lines, ll
@@ -155,7 +155,7 @@ def bundle_lines(vert, hori):
     vert, lv = _bundle_lines(vert, dist_vert)
     hori, lh = _bundle_lines(hori, dist_hori)
 
-    if algo.debug and (old_lv != lv or old_lh != lh):
+    if algorithm.debug and (old_lv != lv or old_lh != lh):
         canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("bundle_lines", canvas)
     return vert, hori
@@ -224,7 +224,7 @@ def sort(vert, hori):
     positions = _criteria(vert, 0)
     vert = vert[np.argsort(positions)]
 
-    if algo.debug:
+    if algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("sort_lines", canvas)
     return vert, hori
@@ -257,7 +257,7 @@ def fix_length_byinter(vert, hori=None):
         inters = np.transpose(inters, axes=(1, 0, 2))
         hori = _shorten(hori)
 
-    if algo.debug:
+    if algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
         draw.save("fix_length_byinter", canvas)
     return vert, hori
@@ -329,7 +329,7 @@ def add_outer(lines, ll, kind, warped=False):
     lines = _add_outer(lines, 0, med)
     lines = _add_outer(lines, -1, med)
 
-    if algo.debug and ll != len(lines):
+    if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("add_outer", canvas)
     return lines, len(lines)
@@ -369,7 +369,7 @@ def extend_outer(lines, ll, kind, force=False):
     lines = _extend_outer(lines, 0)
     lines = _extend_outer(lines, -1)
 
-    if algo.debug:
+    if algorithm.debug:
         canvas = draw.lines(gcanny, lines)
         draw.save("extend_outer", canvas)
     return lines, len(lines)
@@ -410,7 +410,7 @@ def filter_misdirected2(vert, hori):
         vert = _remove_misdirected(vert, diffs_vert)
         hori = _remove_misdirected(hori, diffs_hori)
 
-    if algo.debug:
+    if algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save("filter_misdirected2", canvas)
     return vert, hori
@@ -452,7 +452,7 @@ def remove_wrong(lines, ll):
     dists = calculate_distances(lines)
     lines = _remove_wrong(lines, dists)
 
-    if algo.debug and ll != len(lines):
+    if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_wrong", canvas)
     return lines, len(lines)
@@ -523,7 +523,7 @@ def add_middle(lines, ll, kind):
     lines = _add_middle(lines, med)
     lines = np.flip(lines, axis=0)
 
-    if algo.debug and ll != len(lines):
+    if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("add_middle", canvas)
     return lines, len(lines)
@@ -554,7 +554,7 @@ def remove_outer(lines, ll, kind):
         else:
             lines = lines[:-1]
 
-    if algo.debug and ll != len(lines):
+    if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("remove_outer", canvas)
     return lines, len(lines)
@@ -681,7 +681,7 @@ def filter_misdirected(vert, hori):
     vert = _filter(vert)
     hori = _filter(hori)
 
-    if algo.debug and changed:
+    if algorithm.debug and changed:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save("filter_misdirected", canvas)
     return vert, hori
@@ -708,7 +708,7 @@ def filter_intersecting(vert, hori):
         vert = _filter(vert)
         hori = _filter(hori)
 
-    if algo.debug and changed:
+    if algorithm.debug and changed:
         canvas = draw.lines(gcanny, vert, hori)
         draw.save("filter_intersecting", canvas)
     return vert, hori
@@ -726,7 +726,7 @@ def filter_not_right(lines):
                 changed = True
     lines = lines[remove == 0]
 
-    if algo.debug and changed:
+    if algorithm.debug and changed:
         canvas = draw.lines(gcanny, lines)
         draw.save("filter_not_right", canvas)
     return lines

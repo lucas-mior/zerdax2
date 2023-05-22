@@ -64,6 +64,30 @@ def fill(squares, pieces, force=False):
     return squares, pieces
 
 
+def calculate_means(image, squares, col, row):
+    log.debug(f"calculate_means({col=}, {row=})")
+    square = np.copy(squares[col, row])
+    if square[4, 1] >= 0:
+        log.debug("square is ocupied, skipping for calc_means")
+        if col < 6:
+            col += 2
+        else:
+            return 0, 0
+        return calculate_means(image, squares, col, row)
+    contour = square[:4]
+    frame = cv2.boundingRect(contour)
+    x0, y0, dx, dy = frame
+    contour[:, 0] -= x0
+    contour[:, 1] -= y0
+    b = image[y0:y0+dy, x0:x0+dx]
+    mask_in = np.zeros(b.shape, dtype='uint8')
+    cv2.drawContours(mask_in, [contour], -1, 255, -1)
+    mask_out = cv2.bitwise_not(mask_in)
+    mean_out = round(cv2.mean(b, mask=mask_out)[0])
+    mean_in = round(cv2.mean(b, mask=mask_in)[0])
+    return mean_in, mean_out
+
+
 def check_colors(image, squares):
     changed = False
     player_position = "down"
@@ -80,34 +104,11 @@ def check_colors(image, squares):
             squares = np.rot90(squares, k=-1)
         return squares
 
-    def _calculate_means(col, row):
-        log.debug(f"calculate_means({col=}, {row=})")
-        square = np.copy(squares[col, row])
-        if square[4, 1] >= 0:
-            log.debug("square is ocupied, skipping for calc_means")
-            if col < 6:
-                col += 2
-            else:
-                return 0, 0
-            return _calculate_means(col, row)
-        contour = square[:4]
-        frame = cv2.boundingRect(contour)
-        x0, y0, dx, dy = frame
-        contour[:, 0] -= x0
-        contour[:, 1] -= y0
-        b = image[y0:y0+dy, x0:x0+dx]
-        mask_in = np.zeros(b.shape, dtype='uint8')
-        cv2.drawContours(mask_in, [contour], -1, 255, -1)
-        mask_out = cv2.bitwise_not(mask_in)
-        mean_out = round(cv2.mean(b, mask=mask_out)[0])
-        mean_in = round(cv2.mean(b, mask=mask_in)[0])
-        return mean_in, mean_out
-
     change_votes = 0
     checked = 0
     for col in range(7):
         for row in range(7):
-            mean_in, mean_out = _calculate_means(col, row)
+            mean_in, mean_out = calculate_means(image, squares, col, row)
             checked += 1
             if mean_in < mean_out:
                 change_votes += 1

@@ -161,7 +161,7 @@ def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert))
-        lines, ll = add_middle(lines, ll)
+        lines, ll = add_middle(lines, ll, kind)
         lines, ll = add_outer(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
@@ -402,25 +402,26 @@ def filter_misdirected2(vert, hori):
     return vert, hori
 
 
+def calculate_distances(lines):
+    dists = np.zeros((lines.shape[0], 2), dtype='int32')
+    i = 0
+    dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
+    dists[i, 1] = dists[i, 0]
+    for i in range(1, len(lines) - 1):
+        dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
+        dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
+    i += 1
+    dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
+    dists[i, 1] = dists[i, 0]
+    return dists
+
+
 def remove_wrong(lines, ll):
     log.info("removing wrong middle lines...")
     tol = consts.middle_tolerance
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_wrong, returning...")
         return lines, ll
-
-    def _calculate_distances(lines):
-        dists = np.zeros((lines.shape[0], 2), dtype='int32')
-        i = 0
-        dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
-        dists[i, 1] = dists[i, 0]
-        for i in range(1, len(lines) - 1):
-            dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
-            dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
-        i += 1
-        dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
-        dists[i, 1] = dists[i, 0]
-        return dists
 
     def _remove_wrong(lines, dists):
         d0 = np.median(dists[:, 0])
@@ -436,7 +437,7 @@ def remove_wrong(lines, ll):
                 return lines
         return lines
 
-    dists = _calculate_distances(lines)
+    dists = calculate_distances(lines)
     lines = _remove_wrong(lines, dists)
     lines = _remove_wrong(lines, dists)
 
@@ -446,7 +447,7 @@ def remove_wrong(lines, ll):
     return lines, len(lines)
 
 
-def add_middle(lines, ll):
+def add_middle(lines, ll, kind):
     log.info("adding missing middle lines...")
     tol = consts.middle_tolerance
     if ll < 5 or ll > 10:
@@ -461,18 +462,17 @@ def add_middle(lines, ll):
         lines = np.insert(lines, i+1, new, axis=0)
         return lines
 
-    def _add_middle(lines):
+    def _add_middle(lines, med):
         dnext0 = segments_distance(lines[0], lines[1])
         dnext1 = segments_distance(lines[1], lines[2])
         dnext2 = segments_distance(lines[2], lines[3])
         dnext3 = segments_distance(lines[3], lines[4])
         if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
             if dnext0 > (dnext3*tol):
-                x = (2*lines[1, 0] - lines[2, 0],
-                     2*lines[1, 2] - lines[2, 2])
-                y = (2*lines[1, 1] - lines[2, 1],
-                     2*lines[1, 3] - lines[2, 3])
-                lines = _insert(lines, 0, x, y)
+                new = np.copy(lines[0])
+                new[kind] += med
+                new[kind+2] += med
+                lines = np.insert(lines, 0, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 3):
             dprev2 = segments_distance(lines[i-1], lines[i-2])
@@ -482,11 +482,10 @@ def add_middle(lines, ll):
             dnext2 = segments_distance(lines[i+2], lines[i+3])
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
-                    x = (2*lines[i, 0] - lines[i-1, 0],
-                         2*lines[i, 2] - lines[i-1, 2])
-                    y = (2*lines[i, 1] - lines[i-1, 1],
-                         2*lines[i, 3] - lines[i-1, 3])
-                    lines = _insert(lines, i, x, y)
+                    new = np.copy(lines[i])
+                    new[kind] += med
+                    new[kind+2] += med
+                    lines = np.insert(lines, 0, [new], axis=0)
                     return lines
         for i in range(1, len(lines) - 4):
             dprev0 = segments_distance(lines[i+0], lines[i-1])
@@ -504,13 +503,12 @@ def add_middle(lines, ll):
                     return lines
         return lines
 
-    old_ll = 0
-    while old_ll != len(lines):
-        old_ll = len(lines)
-        lines = _add_middle(lines)
-        lines = np.flip(lines, axis=0)
-        lines = _add_middle(lines)
-        lines = np.flip(lines, axis=0)
+    dists = calculate_distances(lines)
+    med = np.median(dists)
+    lines = _add_middle(lines, med)
+    lines = np.flip(lines, axis=0)
+    lines = _add_middle(lines, med)
+    lines = np.flip(lines, axis=0)
 
     if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)

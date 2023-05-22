@@ -225,7 +225,7 @@ def warp(canny, corners):
     TR = corners[1]
     BR = corners[2]
     BL = corners[3]
-    orig_points = np.array((TL, TR, BR, BL), dtype="float32")
+    orig_points = np.array([TL, TR, BR, BL], dtype="float32")
 
     width = constants.warped_dimension - 1
     height = constants.warped_dimension - 1

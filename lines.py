@@ -41,8 +41,8 @@ def find_warped_lines(canny):
             continue
 
         lines = filter_not_right(lines)
-        vert, hori = split(lines)
-        if vert is None or hori is None:
+        vert, hori, lv, lh = split(lines)
+        if lv < 3 or lh < 3:
             continue
 
         vert, hori = sort(vert, hori)
@@ -88,8 +88,8 @@ def find_diagonal_lines(canny):
             hough_max_gap += 2
             continue
 
-        vert, hori = split(lines)
-        if vert is None or hori is None:
+        vert, hori, lv, lh = split(lines)
+        if lv < 3 or lh < 3:
             continue
 
         vert, hori = filter_misdirected(vert, hori)
@@ -663,7 +663,7 @@ def split(lines):
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
         if not _check_split(vert, hori):
-            return None, None
+            return None, None, 0, 0
     else:
         for line in lines:
             if line[5] < (-45 * 100):
@@ -673,7 +673,7 @@ def split(lines):
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
         if not _check_split(vert, hori):
-            return None, None
+            return None, None, 0, 0
 
     if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):
         aux = vert
@@ -685,7 +685,7 @@ def split(lines):
             a1, b1 = line[0], line[1]
             line[0], line[1] = line[2], line[3]
             line[2], line[3] = a1, b1
-    return vert, hori
+    return vert, hori, len(vert), len(hori)
 
 
 def filter_misdirected(vert, hori):

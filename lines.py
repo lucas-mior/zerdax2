@@ -3,10 +3,10 @@ import cv2
 import logging as log
 from jenkspy import jenks_breaks
 
-import algorithm as algorithm
-import intersect as intersect
-import constants as constants
-import draw as draw
+import algorithm
+import intersect
+import constants
+import draw
 from c_load import segments_distance
 from c_load import lines_bundle
 

@@ -1,7 +1,8 @@
 import numpy as np
 from numpy import linalg
 import logging as log
-import constants as constants
+
+import constants
 
 
 def calculate_extern(lines0, lines1=None):

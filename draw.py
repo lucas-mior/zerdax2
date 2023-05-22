@@ -1,8 +1,9 @@
 import sys
 import numpy as np
-import algorithm as algorithm
 import cv2
 import logging as log
+
+import algorithm
 
 from misc import COLORS, SYMBOLS
 import lines as li

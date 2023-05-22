@@ -5,7 +5,7 @@ import numpy as np
 from jenkspy import jenks_breaks
 from ultralytics import YOLO
 
-import draw as draw
+import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
 
 

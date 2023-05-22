@@ -4,14 +4,13 @@ import numpy as np
 import logging as log
 from types import SimpleNamespace
 
-import algorithm as algorithm
-import squares as squares
-import lines as lines
-import intersect as intersect
+import squares
+import lines
+import intersect
 import yolo_wrap as yolo
-import fen as fen
-import constants as constants
-import draw as draw
+import fen
+import constants
+import draw
 from c_load import lfilter
 
 basename = ""

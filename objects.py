@@ -53,11 +53,10 @@ def determine_colors(pieces, image):
     for i, p in enumerate(pieces):
         x0, y0 = p[0] + 4, p[1] + 4
         x1, y1 = p[2] - 4, p[3] - 7
-        a = image[y0:y1, x0:x1]
-        avg_colors[i] = np.median(a, overwrite_input=True)
+        box = image[y0:y1, x0:x1]
+        avg_colors[i] = np.median(box, overwrite_input=True)
 
     limits = jenks_breaks(avg_colors, n_classes=2)
-
     black = pieces[avg_colors <= limits[1]]
     white = pieces[avg_colors > limits[1]]
 

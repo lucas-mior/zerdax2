@@ -21,6 +21,6 @@ canny_threshold_high_min = 30
 canny_threshold_low_min = 10
 
 outer_tolerance = 3
-middle_tolerance = 1.1
+middle_tolerance = 1.4
 angles_max_diff = 22.5 * 100
 angle_tolerance = 15 * 100

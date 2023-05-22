@@ -9,9 +9,9 @@ import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
 
 
-def detect(filename):
+def detect(BGR):
     model = YOLO("zerdax2.pt")
-    objects = model.predict(source=filename,
+    objects = model.predict(source=BGR,
                             conf=0.5,
                             device="cpu",
                             imgsz=640,
@@ -51,8 +51,11 @@ def determine_colors(pieces, image):
 
     avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
-        x0, y0 = p[0] + 4, p[1] + 4
-        x1, y1 = p[2] - 4, p[3] - 7
+        x0, y0, x1, y1 = p[:4]
+        x0 += 4
+        y0 += 4
+        x1 -= 4
+        y1 -= 7
         box = image[y0:y1, x0:x1]
         avg_colors[i] = np.median(box, overwrite_input=True)
 
@@ -83,6 +86,6 @@ def process_pieces(pieces):
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
         BGR = cv2.imread(filename)
-        boardbox, pieces = detect(filename)
+        boardbox, pieces = detect(BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("detection", canvas, title="detection.png")

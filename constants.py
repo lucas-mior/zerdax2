@@ -1,3 +1,4 @@
+width_input = 960
 width_board = 512
 min_boardbox_height = 300
 warped_dimension = 512

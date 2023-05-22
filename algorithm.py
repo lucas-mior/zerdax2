@@ -25,9 +25,13 @@ def main(filename):
     bad_picture_msg = f"{filename}: bad picture, change the camera angle"
 
     BGR = cv2.imread(filename)
+    width_input = constants.width_input
+    aspect_ratio = width_input / BGR.shape[1]
+    height_input = round(BGR.shape[0] * aspect_ratio)
+    BGR = cv2.resize(BGR, (width_input, height_input))
 
     board = SimpleNamespace()
-    board.box, board.pieces = objects.detect(filename)
+    board.box, board.pieces = objects.detect(BGR)
     board.pieces = objects.determine_colors(board.pieces, BGR)
     board.pieces = objects.process_pieces(board.pieces)
 

@@ -329,7 +329,7 @@ def add_outer(lines, ll, kind, warped=False):
     lines = _add_outer(lines, 0, med)
     lines = _add_outer(lines, -1, med)
 
-    if algo.debug:
+    if algo.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("add_outer", canvas)
     return lines, len(lines)

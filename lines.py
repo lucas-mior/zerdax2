@@ -259,7 +259,7 @@ def fix_length_byinter(vert, hori=None):
 
 def add_outer(lines, ll, kind, force=False):
     log.info("adding missing outer lines...")
-    tol = 2
+    outer_tolerance = 2
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
@@ -276,10 +276,8 @@ def add_outer(lines, ll, kind, force=False):
         line0 = lines[where]
         line1 = lines[other]
 
-        space1 = abs(line0[kind] - ref)
-        space2 = abs(line0[kind+2] - ref)
-        space_old = min(space1, space2)
-        if space_old < tol:
+        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
+        if space_old < outer_tolerance:
             return lines
 
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
@@ -297,6 +295,7 @@ def add_outer(lines, ll, kind, force=False):
             inters = segments[np.argmax(lengths)]
         if inters[0, kind] <= limit and inters[1, kind] <= limit:
             x0, y0, x1, y1 = np.ravel(inters)
+
             if length((x0, y0, x1, y1)) < (length(line0)*0.7):
                 log.warning("add_outer: line is shorter than next")
                 return lines
@@ -304,6 +303,7 @@ def add_outer(lines, ll, kind, force=False):
             if spacenew >= space_old:
                 log.warning("add_outer: wrong change")
                 return lines
+
             new = np.array([[x0, y0, x1, y1,
                              line1[4], line1[5]]], dtype='int32')
             if where == -1:

@@ -383,7 +383,7 @@ def filter_misdirected2(vert, hori):
         med = round((d0 + d1)/2)
         log.debug(f"median diff between lines: {med}")
         for i in range(0, len(lines)):
-            if diffs[i, 1] > (med*2) or (med/2) > diffs[i, 0]:
+            if diffs[i, 0] > (med*2) < diffs[i, 1]:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines

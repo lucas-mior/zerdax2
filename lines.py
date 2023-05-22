@@ -404,7 +404,7 @@ def remove_middle(lines, ll):
 
 
 def filter_misdirected2(vert, hori):
-    log.info("removing wrong middle lines...")
+    log.info("filtering lines by angle with next line")
 
     def _calculate_diffs(lines):
         dists = np.zeros((lines.shape[0], 2), dtype='int32')

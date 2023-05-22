@@ -164,6 +164,8 @@ def fix_warped_lines(vert, hori):
         lines, ll = add_middle(lines, ll, kind)
         lines, ll = add_outer(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
+        lines, ll = add_outer(lines, ll, kind)
+        lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
     def _fix_outer(lines, ll, kind):
@@ -315,7 +317,7 @@ def add_outer(lines, ll, kind, force=False):
     lines = _add_outer(lines, 0)
     lines = _add_outer(lines, -1)
 
-    if algo.debug and ll != len(lines):
+    if algo.debug:
         canvas = draw.lines(gcanny, lines)
         draw.save("add_outer", canvas)
     return lines, len(lines)
@@ -418,7 +420,6 @@ def calculate_distances(lines):
 
 def remove_wrong(lines, ll):
     log.info("removing wrong middle lines...")
-    tol = consts.middle_tolerance
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_wrong, returning...")
         return lines, ll
@@ -429,16 +430,14 @@ def remove_wrong(lines, ll):
         med = round((d0 + d1)/2)
         log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
-            if dists[i, 1] < (med/tol) and (med*tol) < dists[i, 0]:
-                lines = np.delete(lines, i, axis=0)
-                return lines
-            if dists[i, 0] < (med/tol) and (med*tol) < dists[i, 1]:
+            if abs(dists[i, 0] - med) > 5 and abs(dists[i, 1] - med) > 5:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines
 
     dists = calculate_distances(lines)
     lines = _remove_wrong(lines, dists)
+    dists = calculate_distances(lines)
     lines = _remove_wrong(lines, dists)
 
     if algo.debug and ll != len(lines):

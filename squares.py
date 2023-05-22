@@ -126,16 +126,16 @@ def check_colors(image, squares):
     white = squares[(squares[..., 4, 1] <= 6) & (squares[..., 4, 1] >= 0)]
     black = squares[squares[..., 4, 1] > 6]
     if player_position == "down":
-        meanwhite = np.median(white[:, 0, 1])
-        meanblack = np.median(black[:, 0, 1])
+        mean_white = np.median(white[:, 0, 1])
+        mean_black = np.median(black[:, 0, 1])
     else:
         if player_position == "left":
-            meanwhite = np.median(white[:, 0, 0])
-            meanblack = np.median(black[:, 0, 0])
+            mean_white = np.median(white[:, 0, 0])
+            mean_black = np.median(black[:, 0, 0])
         else:
-            meanwhite = np.median(black[:, 0, 0])
-            meanblack = np.median(white[:, 0, 0])
-    if meanwhite < meanblack:
+            mean_white = np.median(black[:, 0, 0])
+            mean_black = np.median(white[:, 0, 0])
+    if mean_white < mean_black:
         squares = np.rot90(squares, k=2)
         changed = True
     return squares, changed

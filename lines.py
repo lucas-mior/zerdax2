@@ -209,7 +209,7 @@ def sort(vert, hori):
     def _criteria(lines, kind):
         positions = np.empty(lines.shape[0], dtype='int32')
         for i, line in enumerate(lines):
-            inter = intersect.calculate_single(line, gcanny, kind=kind)
+            inter = intersect.calculate_single(line, gcanny, kind)
             positions[i] = inter[kind]
         return positions
 

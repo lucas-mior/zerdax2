@@ -295,9 +295,10 @@ def add_outer(lines, ll, kind, force=False):
             inters = segments[np.argmax(lengths)]
         if inters[0, kind] <= limit and inters[1, kind] <= limit:
             x0, y0, x1, y1 = np.ravel(inters)
-            new = np.array([x0, y0, x1, y1, line1[4], line1[5]], dtype='int32')
+            lnew = length((x0, y0, x1, y1))
+            new = np.array([x0, y0, x1, y1, lnew, line1[5]], dtype='int32')
 
-            if length(new) < (length(line0)*0.7):
+            if lnew < (length(line0)*0.8):
                 log.warning("add_outer: line is shorter than next")
                 return lines
             space_new = min(abs(new[kind] - ref), abs(new[kind+2] - ref))

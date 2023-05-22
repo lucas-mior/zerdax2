@@ -58,7 +58,7 @@ def main(filename):
         return bad_picture_msg
 
     log.info(f"corners found: {board.corners}")
-    canny_warped, warp_inverse_matrix = warp(canny, board.corners)
+    canny_warped, warp_matrix_inverse = warp(canny, board.corners)
 
     vert, hori = lines.find_warped_lines(canny_warped)
     if vert is None or hori is None:
@@ -76,7 +76,7 @@ def main(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    inters = translate_inters(inters, warp_inverse_matrix, translate_params)
+    inters = translate_inters(inters, warp_matrix_inverse, translate_params)
     if debug:
         canvas = draw.points(BGR, inters)
         draw.save("translated_intersections", canvas)
@@ -233,18 +233,18 @@ def warp(canny, corners):
     newshape = [[0, 0], [width, 0], [width, height], [0, height]]
     newshape = np.array(newshape, dtype='float32')
     warp_matrix = cv2.getPerspectiveTransform(orig_points, newshape)
-    _, warp_inverse_matrix = cv2.invert(warp_matrix)
+    _, warp_matrix_inverse = cv2.invert(warp_matrix)
     canny_warped = cv2.warpPerspective(canny, warp_matrix, (width, height))
 
     if debug:
         draw.save("canny_warped", canny_warped)
-    return canny_warped, warp_inverse_matrix
+    return canny_warped, warp_matrix_inverse
 
 
-def translate_inters(inters, warp_inverse_matrix, translate_params):
+def translate_inters(inters, warp_matrix_inverse, translate_params):
     # go back to original perspective
     inters = np.array(inters, dtype='float64')
-    inters = cv2.perspectiveTransform(inters, warp_inverse_matrix)
+    inters = cv2.perspectiveTransform(inters, warp_matrix_inverse)
     # scale to input size
     inters[:, :, 0] /= translate_params.resize_factor
     inters[:, :, 1] /= translate_params.resize_factor

@@ -8,13 +8,20 @@ import algorithm
 from misc import COLORS, SYMBOLS
 import lines as li
 
+DRAW_WIDTH = 960
 
-def make_3channel(image):
+
+def adapt(image):
     if len(image.shape) == 2:
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     elif len(image.shape) != 3:
         log.error(f"image.shape: {image.shape}")
         exit(1)
+
+    if image.shape[1] > 1280:
+        aspect_ratio = DRAW_WIDTH / image.shape[1]
+        height = round(image.shape[0] * aspect_ratio)
+        image = cv2.resize(image, (DRAW_WIDTH, height))
     return image
 
 
@@ -30,17 +37,18 @@ def save(name, image, title=None):
 
 
 def addweighted(image, canvas, w1=0.4, w2=0.6):
-    image = make_3channel(image)
+    image = adapt(image)
     cv2.addWeighted(image, w1, canvas, w2, 0, canvas)
     return canvas
 
 
 def corners(image, corners):
-    image = make_3channel(image)
+    image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
+    radius = round(5 * (image.shape[1] / 512))
 
     for i, c in enumerate(corners):
-        cv2.circle(canvas, c, radius=5,
+        cv2.circle(canvas, c, radius,
                    color=(10+i*50, 0, 100+i*40), thickness=-1)
 
     canvas = addweighted(image, canvas)
@@ -48,9 +56,9 @@ def corners(image, corners):
 
 
 def points(image, inters):
-    image = make_3channel(image)
+    image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    radius = round(5+(image.shape[1]/512))
+    radius = round(5 * (image.shape[1] / 512))
 
     for i, row in enumerate(inters):
         for j, p in enumerate(row):
@@ -62,8 +70,9 @@ def points(image, inters):
 
 
 def lines(image, vert, hori=None, annotate_number=False):
-    image = make_3channel(image)
+    image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
+    thick = round(2 * (image.shape[1] / 512))
 
     def _draw(canvas, lines, color, kind=-1):
         if kind != -1:
@@ -71,18 +80,18 @@ def lines(image, vert, hori=None, annotate_number=False):
             legend = f"{ll} vertical" if kind == 0 else f"{ll} horizontal"
             cv2.putText(canvas, legend, (20, 20+30*kind),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
-                        color=color, thickness=2)
+                        color=color, thickness=thick)
         else:
             ll = len(lines)
             legend = f"{ll} lines"
             cv2.putText(canvas, legend, (20, 20),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
-                        color=color, thickness=2)
+                        color=color, thickness=thick)
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
             angle = round(li.theta(line))
             cv2.line(canvas, (x0, y0), (x1, y1),
-                     color=color, thickness=2)
+                     color=color, thickness=thick)
             if annotate_number:
                 x, y = x0 + 10, y0 + 10
                 if kind == 0:
@@ -99,7 +108,7 @@ def lines(image, vert, hori=None, annotate_number=False):
 
                 cv2.putText(canvas, f"{i}.{angle}", (x, y),
                             cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
-                            color=color, thickness=2)
+                            color=color, thickness=thick)
         return canvas
 
     if hori is not None:
@@ -118,9 +127,9 @@ def lines(image, vert, hori=None, annotate_number=False):
 
 
 def squares(image, squares):
-    image = make_3channel(image)
+    image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    scale = 2.5 * (image.shape[1]/1920)
+    scale = round(1 + round(image.shape[1] / 1024))
 
     def _draw_square(canvas, coord, color, name):
         cv2.drawContours(canvas, [coord], -1, color=color, thickness=3)
@@ -139,9 +148,9 @@ def squares(image, squares):
 
 
 def boxes(image, pieces, boardbox=None):
-    image = make_3channel(image)
+    image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    thick = round(2.4 * (image.shape[0] / 1280))
+    thick = round(2 * (image.shape[1] / 512))
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num = piece[:6]

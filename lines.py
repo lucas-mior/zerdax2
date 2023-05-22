@@ -473,8 +473,9 @@ def add_middle(lines, ll, kind):
         if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
             if dnext0 > (dnext3*tol):
                 new = np.copy(lines[0])
-                new[kind] += med
-                new[kind+2] += med
+                dx = med + (med - dnext1)
+                new[kind] += dx
+                new[kind+2] += dx
                 lines = np.insert(lines, 0, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 3):
@@ -486,8 +487,9 @@ def add_middle(lines, ll, kind):
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
                     new = np.copy(lines[i])
-                    new[kind] += med
-                    new[kind+2] += med
+                    dx = med + (med - dnext1)
+                    new[kind] += dx
+                    new[kind+2] += dx
                     lines = np.insert(lines, 0, [new], axis=0)
                     return lines
         for i in range(1, len(lines) - 4):

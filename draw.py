@@ -5,7 +5,7 @@ import cv2
 import logging as log
 
 from misc import COLORS, SYMBOLS
-from lines import theta
+import lines as li
 
 
 def make_3channel(image):
@@ -79,7 +79,7 @@ def lines(image, vert, hori=None, annotate_number=False):
                         color=color, thickness=2)
         for i, line in enumerate(lines[:, :4]):
             x0, y0, x1, y1 = line
-            angle = round(theta(line))
+            angle = round(li.theta(line))
             cv2.line(canvas, (x0, y0), (x1, y1),
                      color=color, thickness=2)
             if annotate_number:

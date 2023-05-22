@@ -86,4 +86,4 @@ if __name__ == "__main__":
         BGR = cv2.imread(filename)
         boardbox, pieces = detect(filename)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("yolo", canvas, title="demo.png")
+        draw.save("detection", canvas, title="detection.png")

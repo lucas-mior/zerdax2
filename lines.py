@@ -642,7 +642,10 @@ def split(lines):
 
     lines, _ = length_theta(lines)
     angles = lines[:, 5]
-    limits = jenks_breaks(angles, n_classes=3)
+    try:
+        limits = jenks_breaks(angles, n_classes=3)
+    except Exception:
+        return None, None, 0, 0
 
     a0 = angles[angles <= limits[1]]
     a1 = angles[(limits[1] < angles) & (angles <= limits[2])]

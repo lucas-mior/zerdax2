@@ -19,7 +19,7 @@ def find_warped_lines(canny):
     log.debug("finding right angled lines of warped board...")
 
     min_lines_before_split = consts.min_lines_before_split
-    hough_min_length0 = consts.hough_min_length
+    hough_min_length0 = consts.hough_min_length_warped
     hough_max_gap = consts.hough_max_gap
 
     angle = consts.hough_angle_resolution
@@ -434,7 +434,7 @@ def remove_wrong(lines, ll):
         med = round((d0 + d1)/2)
         log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
-            if abs(dists[i, 0] - med) > 5 and abs(dists[i, 1] - med) > 5:
+            if abs(dists[i, 0] - med) > 7 and abs(dists[i, 1] - med) > 7:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines

@@ -4,6 +4,7 @@ warped_dimension = 512
 
 min_lines_before_split = 16
 hough_min_length = 280
+hough_min_length_warped = 400
 hough_angle_resolution = 0.5
 hough_max_gap = 4
 

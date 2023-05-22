@@ -17,7 +17,7 @@ basename = ""
 debug = False
 
 
-def algorithm(filename):
+def main(filename):
     global basename, debug
     debug = log.root.level < 20
     basename = filename.rsplit(".", 1)[0]
@@ -299,4 +299,4 @@ def find_corners(canny):
 
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
-        print(algorithm(filename))
+        print(main(filename))

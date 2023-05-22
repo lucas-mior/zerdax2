@@ -66,6 +66,7 @@ def fill(squares, pieces, force=False):
 
 def calculate_means(image, squares, col, row):
     log.debug(f"calculate_means({col=}, {row=})")
+
     square = np.copy(squares[col, row])
     if square[4, 1] >= 0:
         log.debug("square is ocupied, skipping for calc_means")
@@ -74,17 +75,20 @@ def calculate_means(image, squares, col, row):
         else:
             return 0, 0
         return calculate_means(image, squares, col, row)
+
     contour = square[:4]
     frame = cv2.boundingRect(contour)
     x0, y0, dx, dy = frame
     contour[:, 0] -= x0
     contour[:, 1] -= y0
-    b = image[y0:y0+dy, x0:x0+dx]
-    mask_in = np.zeros(b.shape, dtype='uint8')
+
+    box = image[y0:y0+dy, x0:x0+dx]
+    mask_in = np.zeros(box.shape, dtype='uint8')
     cv2.drawContours(mask_in, [contour], -1, 255, -1)
     mask_out = cv2.bitwise_not(mask_in)
-    mean_out = round(cv2.mean(b, mask=mask_out)[0])
-    mean_in = round(cv2.mean(b, mask=mask_in)[0])
+
+    mean_out = round(cv2.mean(box, mask=mask_out)[0])
+    mean_in = round(cv2.mean(box, mask=mask_in)[0])
     return mean_in, mean_out
 
 

@@ -11,7 +11,7 @@ import intersect as intersect
 import yolo_wrap as yolo
 import fen as fen
 import constants as constants
-import drawings as draw
+import draw as draw
 from c_load import lfilter
 
 basename = ""

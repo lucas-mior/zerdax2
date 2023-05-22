@@ -6,7 +6,7 @@ from jenkspy import jenks_breaks
 import algorithm as algorithm
 import intersect as intersect
 import constants as constants
-import drawings as draw
+import draw as draw
 from c_load import segments_distance
 from c_load import lines_bundle
 

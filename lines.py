@@ -476,7 +476,7 @@ def add_middle(lines, ll, kind):
                 dx = med + (med - dnext1)
                 new[kind] += dx
                 new[kind+2] += dx
-                lines = np.insert(lines, 0, [new], axis=0)
+                lines = np.insert(lines, 1, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 3):
             dprev2 = segments_distance(lines[i-1], lines[i-2])
@@ -490,7 +490,7 @@ def add_middle(lines, ll, kind):
                     dx = med + (med - dnext1)
                     new[kind] += dx
                     new[kind+2] += dx
-                    lines = np.insert(lines, 0, [new], axis=0)
+                    lines = np.insert(lines, i+1, [new], axis=0)
                     return lines
         for i in range(1, len(lines) - 4):
             dprev0 = segments_distance(lines[i+0], lines[i-1])

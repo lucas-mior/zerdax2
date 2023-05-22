@@ -32,7 +32,7 @@ def main(filename):
     board.pieces = objects.process_pieces(board.pieces)
 
     if (failed := board.box is None) or debug:
-        canvas = draw.boxes(BGR, board.pieces)
+        canvas = draw.boxes(BGR, board.pieces, board.box)
         draw.save("yolo", canvas)
         if failed:
             log.error("Could not find board on picture")

@@ -152,6 +152,12 @@ def boxes(image, pieces, boardbox=None):
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
+    if boardbox is not None:
+        x0, y0, x1, y1 = boardbox[:4]
+        color = COLORS[0]
+        cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
+        cv2.putText(canvas, "Board", (x0-5, y0-7),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
     canvas = addweighted(image, canvas)
     return canvas

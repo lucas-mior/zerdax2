@@ -16,7 +16,7 @@ def detect(BGR):
                             device="cpu",
                             imgsz=640,
                             iou=0.7,
-                            max_det=32)
+                            max_det=33)
 
     objects = objects[0].boxes
     confidences = np.array(objects.conf.cpu())

@@ -20,8 +20,8 @@ debug = False
 def main(filename):
     global basename, debug
     debug = log.root.level < 20
-    basename = filename.rsplit(".", 1)[0]
-    basename = basename.rsplit("/", 1)[-1]
+    basename = str.rsplit(filename, ".", 1)[0]
+    basename = str.rsplit(basename, "/", 1)[-1]
     bad_picture_msg = f"{filename}: bad picture, change the camera angle"
 
     BGR = cv2.imread(filename)

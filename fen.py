@@ -20,14 +20,14 @@ def generate(squares):
 def compress(fen):
     log.info("compressing FEN...")
     for length in range(8, 1, -1):
-        fen = fen.replace("1"*length, str(length))
+        fen = str.replace(fen, "1"*length, str(length))
     return fen
 
 
 def decode(fen):
     log.info("decoding FEN...")
     for length in range(8, 1, -1):
-        fen = fen.replace(str(length), "1"*length)
+        fen = str.replace(fen, str(length), "1"*length)
     return fen
 
 

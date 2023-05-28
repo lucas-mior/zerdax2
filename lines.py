@@ -303,7 +303,7 @@ def add_outer(lines, ll, kind, warped=False):
             segments = np.array([[inters[0], inters[1]],
                                  [inters[0], inters[2]],
                                  [inters[1], inters[2]]])
-            lengths = [length(segment.flatten()) for segment in segments]
+            lengths = [length(np.ravel(segment)) for segment in segments]
             inters = segments[np.argmax(lengths)]
         if inters[0, kind] <= limit and inters[1, kind] <= limit:
             x0, y0, x1, y1 = np.ravel(inters)

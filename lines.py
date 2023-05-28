@@ -297,7 +297,7 @@ def add_outer(lines, ll, kind, warped=False):
             new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
         if len(inters) < 2:
-            log.error("add_outer: less than 2 intersections")
+            log.warning("add_outer: less than 2 intersections")
             return lines
         elif len(inters) > 2:
             segments = np.array([[inters[0], inters[1]],

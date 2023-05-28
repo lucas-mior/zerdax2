@@ -92,8 +92,9 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
                  linalg.det([(xx0, yy0), (xx1, yy1)]))
             x = linalg.det([d, xdiff]) / div
             y = linalg.det([d, ydiff]) / div
-            if limit and (x < 0 or x > max_x or y < 0 or y > max_y):
-                continue
+            if limit:
+                if x < 0 or x > max_x or y < 0 or y > max_y:
+                    continue
             col.append((x, y))
         rows.append(col)
 

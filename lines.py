@@ -377,7 +377,6 @@ def add_outer_warped(lines, ll, kind, warped=False):
 
 def extend_outer(lines, ll, kind, force=False):
     log.info("extending outer lines...")
-    tol = 0
     if ll < 5:
         log.warning("Less than 5 lines passed to extend_outers, returning...")
         return lines
@@ -392,7 +391,7 @@ def extend_outer(lines, ll, kind, force=False):
         line0 = lines[where]
         new = np.copy(line0)
 
-        if abs(line0[kind] - ref) <= tol or abs(line0[kind+2] - ref) <= tol:
+        if abs(line0[kind] - ref) <= 0 or abs(line0[kind+2] - ref) <= 0:
             return lines
 
         dmin = min(abs(new[kind]-ref), abs(new[kind+2]-ref))
@@ -462,10 +461,10 @@ def calculate_distances(lines, kind):
                    + lines[1, kind+2] - lines[0, kind+2])/2
     dists[0, 1] = dists[0, 0]
     for i in range(1, len(lines) - 1):
-        dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
-                       + lines[i+0, kind+2] - lines[i-1, kind+2])/2
-        dists[i, 1] = (lines[i+1, kind] - lines[i+0, kind]
-                       + lines[i+1, kind+2] - lines[i+0, kind+2])/2
+        dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind] +
+                       lines[i+0, kind+2] - lines[i-1, kind+2])/2
+        dists[i, 1] = (lines[i+1, kind] - lines[i+0, kind] +
+                       lines[i+1, kind+2] - lines[i+0, kind+2])/2
     i += 1
     dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
                    + lines[i+0, kind+2] - lines[i-1, kind+2])/2

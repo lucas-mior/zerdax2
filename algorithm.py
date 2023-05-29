@@ -162,9 +162,9 @@ def find_edges(image):
     N = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')
 
-    lfilter(f, f.shape[0], f.shape[1], W, N, g, 1)
-    lfilter(g, f.shape[0], f.shape[1], W, N, f, 1)
-    lfilter(f, f.shape[0], f.shape[1], W, N, g, 1)
+    lfilter(f, f.shape[0], f.shape[1], W, N, g)
+    lfilter(g, f.shape[0], f.shape[1], W, N, f)
+    lfilter(f, f.shape[0], f.shape[1], W, N, g)
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

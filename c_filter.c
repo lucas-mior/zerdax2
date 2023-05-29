@@ -8,7 +8,6 @@ typedef int32_t int32;
 
 static int32 xx;
 static int32 yy;
-static double h;
 
 static inline double weight(double * restrict input, int32 x, int32 y) {
     double Gx, Gy;
@@ -18,7 +17,7 @@ static inline double weight(double * restrict input, int32 x, int32 y) {
     Gy = (input[yy*x + y+1] - input[yy*x + y-1]) / 2;
 
     d = sqrt(Gx*Gx + Gy*Gy);
-    w = exp(-sqrt(d)/h);
+    w = exp(-sqrt(d));
     return w;
 }
 
@@ -68,10 +67,9 @@ static void convolute(double * restrict input, double * restrict W,
 
 void filter(double * restrict input, int32 const ww, int32 const hh, 
             double * restrict W, double * restrict N, 
-            double * restrict output, double const h0) {
+            double * restrict output) {
     xx = ww;
     yy = hh;
-    h = h0;
     weight_array(input, W);
     norm_array(W, N);
     convolute(input, W, N, output);

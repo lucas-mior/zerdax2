@@ -6,15 +6,15 @@ from misc import SYMBOLS
 
 
 def generate(squares):
-    longfen = ""
+    long_fen = ""
     for i in range(7, -1, -1):
         for j in range(0, 8):
             sq = squares[j, i]
-            longfen += SYMBOLS[sq[4, 1]]
-        longfen += '/'
-    longfen = longfen[:-1]
-    log.info(f"{longfen=}")
-    return compress(longfen)
+            long_fen += SYMBOLS[sq[4, 1]]
+        long_fen += '/'
+    long_fen = long_fen[:-1]
+    log.info(f"{long_fen=}")
+    return compress(long_fen)
 
 
 def compress(fen):

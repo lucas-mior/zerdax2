@@ -45,7 +45,7 @@ def fill(squares, pieces, force=False):
                 if dist1 >= 0:
                     if dist1 > dmax:
                         npiece = piece
-                        dmax = dist
+                        dmax = dist1
                 elif dist2 >= 0:
                     if dist2 > dmax:
                         npiece = piece

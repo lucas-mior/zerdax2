@@ -58,8 +58,15 @@ def dump(fen):
     return
 
 
+def validate(fen):
+    return False
+
+
 if __name__ == "__main__":
     for fen in sys.argv[1:]:
+        if not validate(fen):
+            print(f"Invalid fen: {fen}")
+            continue
         print(decompress(fen))
         print(compress(fen))
         dump(fen)

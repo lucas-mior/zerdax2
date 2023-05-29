@@ -166,9 +166,9 @@ def fix_warped_lines(vert, hori):
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert))
         lines, ll = add_middle(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind, warped=True)
+        lines, ll = add_outer_warped(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer(lines, ll, kind, warped=True)
+        lines, ll = add_outer_warped(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
@@ -176,7 +176,7 @@ def fix_warped_lines(vert, hori):
         old_ll = 0
         while ll < 9 and old_ll != len(lines):
             old_ll = len(lines)
-            lines, ll = add_outer(lines, ll, kind)
+            lines, ll = add_outer_warped(lines, ll, kind)
         old_ll = 0
         while ll > 9 and old_ll != len(lines):
             old_ll = len(lines)
@@ -200,9 +200,9 @@ def fix_diagonal_lines(vert, hori):
     while old_lv != len(vert) or old_lh != len(hori):
         old_lv, old_lh = len(vert), len(hori)
         vert, hori = fix_length_byinter(vert, hori)
-        vert, _ = add_outer(vert, len(vert), 0)
+        vert, _ = add_outer_diagonal(vert, len(vert), 0)
         vert, hori = fix_length_byinter(vert, hori)
-        hori, _ = add_outer(hori, len(hori), 1)
+        hori, _ = add_outer_diagonal(hori, len(hori), 1)
 
     vert, lv = extend_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
@@ -263,14 +263,14 @@ def fix_length_byinter(vert, hori=None):
     return vert, hori
 
 
-def add_outer(lines, ll, kind, warped=False):
-    log.info("adding missing outer lines...")
+def add_outer_diagonal(lines, ll, kind, warped=False):
+    log.info("adding missing outer diagonal lines...")
     outer_tolerance = 2
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
         return lines
 
-    def _add_outer(lines, where, med):
+    def _add_outer(lines, where):
         limit = gcanny.shape[kind-1]
         if where == 0:
             ref = 0
@@ -286,15 +286,9 @@ def add_outer(lines, ll, kind, warped=False):
         if space_old < outer_tolerance:
             return lines
 
-        if warped:
-            new = np.copy(line0[:4])
-            dx = med + (med - segments_distance(line0, line1))
-            new[kind] += dx
-            new[kind+2] += dx
-        else:
-            x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
-            y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
-            new = np.array([x0, y0, x1, y1], dtype='int32')
+        x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
+        y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
+        new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
         if len(inters) < 2:
             log.warning("add_outer: less than 2 intersections")
@@ -321,6 +315,52 @@ def add_outer(lines, ll, kind, warped=False):
             if where == -1:
                 lines = np.append(lines, [new], axis=0)
             else:
+                lines = np.insert(lines, 0, [new], axis=0)
+        return lines
+
+    lines = _add_outer(lines, 0)
+    lines = _add_outer(lines, -1)
+
+    if algorithm.debug and ll != len(lines):
+        canvas = draw.lines(gcanny, lines)
+        draw.save("add_outer", canvas)
+    return lines, len(lines)
+
+
+def add_outer_warped(lines, ll, kind, warped=False):
+    log.info("adding missing outer lines...")
+    outer_tolerance = 2
+    if ll < 5:
+        log.warning("Less than 5 lines passed to add_outer, returning...")
+        return lines
+
+    def _add_outer(lines, where, med):
+        limit = gcanny.shape[kind-1]
+        if where == 0:
+            ref = 0
+            other = 1
+        elif where == -1:
+            ref = limit
+            other = -2
+
+        line0 = lines[where]
+        line1 = lines[other]
+
+        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
+        if space_old < outer_tolerance:
+            return lines
+
+        new = np.copy(line0)
+        dx = med + (med - segments_distance(line0, line1))
+        if where == -1:
+            if (ref - new[kind]) >= med/2:
+                new[kind] += dx
+                new[kind+2] += dx
+                lines = np.append(lines, [new], axis=0)
+        else:
+            if (new[kind] - ref) >= med/2:
+                new[kind] -= dx
+                new[kind+2] -= dx
                 lines = np.insert(lines, 0, [new], axis=0)
         return lines
 

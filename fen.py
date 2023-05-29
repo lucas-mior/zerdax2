@@ -19,16 +19,20 @@ def generate(squares):
 
 def compress(fen):
     log.info("compressing FEN...")
+    fen_squares = str.split(fen, " ", -1)[0]
+    fen_meta = str.split(fen, " ", -1)[1:]
     for length in range(8, 1, -1):
-        fen = str.replace(fen, "1"*length, str(length))
-    return fen
+        fen_squares = str.replace(fen_squares, "1"*length, str(length))
+    return fen_squares + " " + str.join(" ", fen_meta)
 
 
 def decompress(fen):
     log.info("decompressing FEN...")
+    fen_squares = str.split(fen, " ", -1)[0]
+    fen_meta = str.split(fen, " ", -1)[1:]
     for length in range(8, 1, -1):
-        fen = str.replace(fen, str(length), "1"*length)
-    return fen
+        fen_squares = str.replace(fen_squares, str(length), "1"*length)
+    return fen_squares + " " + str.join(" ", fen_meta)
 
 
 def dump(fen):
@@ -39,7 +43,7 @@ def dump(fen):
     fen = re.sub(r'^', " ", fen)
     fen = re.sub(r'/', "\n ", fen)
     fen = re.sub(r'$', "", fen)
-    fen = re.sub(r'([KQRBRP])', r'\1 ', fen, re.IGNORECASE)
+    fen = re.sub(r'([KQRBNP])', r'\1 ', fen, flags=re.IGNORECASE)
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
     for i, line in enumerate(fen.splitlines()):
         row = 8-i

@@ -364,7 +364,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
                 lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
-    dists = calculate_distances(lines)
+    dists = calculate_distances(lines, kind)
     med = np.median(dists)
     lines = _add_outer(lines, 0, med)
     lines = _add_outer(lines, -1, med)
@@ -456,16 +456,16 @@ def filter_misdirected2(vert, hori):
     return vert, hori
 
 
-def calculate_distances(lines):
+def calculate_distances(lines, kind):
     dists = np.zeros((lines.shape[0], 2), dtype='int32')
     i = 0
-    dists[i, 0] = segments_distance(lines[i+0], lines[i+1])
+    dists[i, 0] = abs(lines[i+0, kind] - lines[i+1, kind])
     dists[i, 1] = dists[i, 0]
     for i in range(1, len(lines) - 1):
-        dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
-        dists[i, 1] = segments_distance(lines[i+0], lines[i+1])
+        dists[i, 0] = abs(lines[i+0, kind] - lines[i-1, kind])
+        dists[i, 1] = abs(lines[i+0, kind] - lines[i+1, kind])
     i += 1
-    dists[i, 0] = segments_distance(lines[i+0], lines[i-1])
+    dists[i, 0] = abs(lines[i+0, kind] - lines[i-1, kind])
     dists[i, 1] = dists[i, 0]
     return dists
 

@@ -49,6 +49,7 @@ def dump(fen):
     fen = re.sub(r'$', "", fen)
     fen = re.sub(r'([KQRBNP])', r'\1 ', fen, flags=re.IGNORECASE)
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
+
     for i, line in enumerate(str.splitlines(fen)):
         row = 8-i
         print(f"{invert} {row}{reset}{line}{invert}{row} {reset}", sep='')

@@ -164,7 +164,7 @@ def bundle_lines(vert, hori):
 def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
-        lines, ll = remove_wrong(lines, len(vert))
+        lines, ll = remove_wrong(lines, len(vert), kind)
         lines, ll = add_middle(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
@@ -458,19 +458,22 @@ def filter_misdirected2(vert, hori):
 
 def calculate_distances(lines, kind):
     dists = np.zeros((lines.shape[0], 2), dtype='int32')
-    i = 0
-    dists[i, 0] = abs(lines[i+0, kind] - lines[i+1, kind])
-    dists[i, 1] = dists[i, 0]
+    dists[0, 0] = (lines[1, kind] - lines[0, kind]
+                   + lines[1, kind+2] - lines[0, kind+2])/2
+    dists[0, 1] = dists[0, 0]
     for i in range(1, len(lines) - 1):
-        dists[i, 0] = abs(lines[i+0, kind] - lines[i-1, kind])
-        dists[i, 1] = abs(lines[i+0, kind] - lines[i+1, kind])
+        dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
+                       + lines[i+0, kind+2] - lines[i-1, kind+2])/2
+        dists[i, 1] = (lines[i+1, kind] - lines[i+0, kind]
+                       + lines[i+1, kind+2] - lines[i+0, kind+2])/2
     i += 1
-    dists[i, 0] = abs(lines[i+0, kind] - lines[i-1, kind])
+    dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
+                   + lines[i+0, kind+2] - lines[i-1, kind+2])/2
     dists[i, 1] = dists[i, 0]
     return dists
 
 
-def remove_wrong(lines, ll):
+def remove_wrong(lines, ll, kind):
     log.info("removing wrong middle lines...")
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_wrong, returning...")
@@ -487,9 +490,9 @@ def remove_wrong(lines, ll):
                 return lines
         return lines
 
-    dists = calculate_distances(lines)
+    dists = calculate_distances(lines, kind)
     lines = _remove_wrong(lines, dists)
-    dists = calculate_distances(lines)
+    dists = calculate_distances(lines, kind)
     lines = _remove_wrong(lines, dists)
 
     if algorithm.debug and ll != len(lines):
@@ -556,7 +559,7 @@ def add_middle(lines, ll, kind):
                     return lines
         return lines
 
-    dists = calculate_distances(lines)
+    dists = calculate_distances(lines, kind)
     med = np.median(dists)
     lines = _add_middle(lines, med)
     lines = np.flip(lines, axis=0)

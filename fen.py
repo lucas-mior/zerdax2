@@ -39,7 +39,7 @@ def dump(fen):
     fen = re.sub(r'^', " ", fen)
     fen = re.sub(r'/', "\n ", fen)
     fen = re.sub(r'$', "", fen)
-    fen = re.sub(r'([a-zA-Z])', r'\1 ', fen)
+    fen = re.sub(r'([KQRBRP])', r'\1 ', fen, re.IGNORECASE)
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
     for i, line in enumerate(fen.splitlines()):
         row = 8-i

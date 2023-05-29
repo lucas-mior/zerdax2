@@ -21,8 +21,10 @@ def compress(fen):
     log.info("compressing FEN...")
     fen_squares = str.split(fen, " ", -1)[0]
     fen_meta = str.split(fen, " ", -1)[1:]
+
     for length in range(8, 1, -1):
         fen_squares = str.replace(fen_squares, "1"*length, str(length))
+
     return fen_squares + " " + str.join(" ", fen_meta)
 
 
@@ -30,8 +32,10 @@ def decompress(fen):
     log.info("decompressing FEN...")
     fen_squares = str.split(fen, " ", -1)[0]
     fen_meta = str.split(fen, " ", -1)[1:]
+
     for length in range(8, 1, -1):
         fen_squares = str.replace(fen_squares, str(length), "1"*length)
+
     return fen_squares + " " + str.join(" ", fen_meta)
 
 

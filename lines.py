@@ -291,7 +291,7 @@ def add_outer_diagonal(lines, ll, kind, warped=False):
         new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
         if len(inters) < 2:
-            log.warning("add_outer: less than 2 intersections")
+            log.warning("add_outer_diagonal: less than 2 intersections")
             return lines
         elif len(inters) > 2:
             segments = np.array([[inters[0], inters[1]],
@@ -305,11 +305,11 @@ def add_outer_diagonal(lines, ll, kind, warped=False):
             new = np.array([x0, y0, x1, y1, lnew, line1[5]], dtype='int32')
 
             if lnew < (length(line0)*0.8):
-                log.warning("add_outer: line is shorter than next")
+                log.warning("add_outer_diagonal: line is shorter than next")
                 return lines
             space_new = min(abs(new[kind] - ref), abs(new[kind+2] - ref))
             if space_new >= space_old:
-                log.warning("add_outer: wrong change")
+                log.warning("add_outer_diagonal: wrong change")
                 return lines
 
             if where == -1:
@@ -323,12 +323,12 @@ def add_outer_diagonal(lines, ll, kind, warped=False):
 
     if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
-        draw.save("add_outer", canvas)
+        draw.save("add_outer_diagonal", canvas)
     return lines, len(lines)
 
 
 def add_outer_warped(lines, ll, kind, warped=False):
-    log.info("adding missing outer lines...")
+    log.info("adding missing outer warped lines...")
     outer_tolerance = 2
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")
@@ -371,7 +371,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
 
     if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
-        draw.save("add_outer", canvas)
+        draw.save("add_outer_warped", canvas)
     return lines, len(lines)
 
 

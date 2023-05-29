@@ -24,8 +24,8 @@ def compress(fen):
     return fen
 
 
-def decode(fen):
-    log.info("decoding FEN...")
+def decompress(fen):
+    log.info("decompressing FEN...")
     for length in range(8, 1, -1):
         fen = str.replace(fen, str(length), "1"*length)
     return fen
@@ -51,6 +51,6 @@ def dump(fen):
 
 if __name__ == "__main__":
     for fen in sys.argv[1:]:
-        print(decode(fen))
+        print(decompress(fen))
         print(compress(fen))
         dump(fen)

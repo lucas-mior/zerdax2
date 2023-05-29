@@ -458,18 +458,18 @@ def filter_misdirected2(vert, hori):
 def calculate_distances(lines, kind):
     dists = np.zeros((lines.shape[0], 2), dtype='int32')
     dists[0, 0] = (lines[1, kind] - lines[0, kind]
-                   + lines[1, kind+2] - lines[0, kind+2])/2
+                   + lines[1, kind+2] - lines[0, kind+2])
     dists[0, 1] = dists[0, 0]
     for i in range(1, len(lines) - 1):
         dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind] +
-                       lines[i+0, kind+2] - lines[i-1, kind+2])/2
+                       lines[i+0, kind+2] - lines[i-1, kind+2])
         dists[i, 1] = (lines[i+1, kind] - lines[i+0, kind] +
-                       lines[i+1, kind+2] - lines[i+0, kind+2])/2
+                       lines[i+1, kind+2] - lines[i+0, kind+2])
     i += 1
     dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
-                   + lines[i+0, kind+2] - lines[i-1, kind+2])/2
+                   + lines[i+0, kind+2] - lines[i-1, kind+2])
     dists[i, 1] = dists[i, 0]
-    return dists
+    return dists / 2
 
 
 def remove_wrong(lines, ll, kind):

@@ -19,24 +19,32 @@ def generate(squares):
 
 def compress(fen):
     log.info("compressing FEN...")
-    fen_squares = str.split(fen, " ", -1)[0]
-    fen_meta = str.split(fen, " ", -1)[1:]
+    fen_split = str.split(fen, " ", -1)
+    if len(fen_split) > 1:
+        fen_meta = " " + str.join(" ", str.split(fen, " ", -1)[1:])
+    else:
+        fen_meta = ""
+    fen_squares = fen_split[0]
 
     for length in range(8, 1, -1):
         fen_squares = str.replace(fen_squares, "1"*length, str(length))
 
-    return fen_squares + " " + str.join(" ", fen_meta)
+    return fen_squares + fen_meta
 
 
 def decompress(fen):
     log.info("decompressing FEN...")
-    fen_squares = str.split(fen, " ", -1)[0]
-    fen_meta = str.split(fen, " ", -1)[1:]
+    fen_split = str.split(fen, " ", -1)
+    if len(fen_split) > 1:
+        fen_meta = " " + str.join(" ", str.split(fen, " ", -1)[1:])
+    else:
+        fen_meta = ""
+    fen_squares = fen_split[0]
 
     for length in range(8, 1, -1):
         fen_squares = str.replace(fen_squares, str(length), "1"*length)
 
-    return fen_squares + " " + str.join(" ", fen_meta)
+    return fen_squares + fen_meta
 
 
 def dump(fen):

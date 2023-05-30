@@ -14,7 +14,7 @@
 
 static const int32 min_angle = 15 * 100;
 static const size_t line_size = LINE_FIELDS*sizeof(int32);
-static int32 min_dist;
+static int32 min_distance;
 
 typedef struct Group {
     int32 lines[MAX_LINES_IN_GROUP][LINE_FIELDS];
@@ -70,7 +70,7 @@ static bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
             int32 *line0 = group->lines[i];
             int32 dtheta = abs(line1[I_ANGLE] - line0[I_ANGLE]);
             if (dtheta < min_angle) {
-                if (segments_distance(line0, line1) < min_dist) {
+                if (segments_distance(line0, line1) < min_distance) {
                     append(group, line1);
                     return false;
                 }
@@ -86,8 +86,8 @@ static bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
     return true;
 }
 
-int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 mdist) {
-    min_dist = mdist;
+int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 min_distance0) {
+    min_distance = min_distance0;
     Group *group = util_alloc(NULL, sizeof(Group));
     first = last = group;
     first->next = NULL;

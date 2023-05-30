@@ -36,7 +36,6 @@ Type `<C-c>` to quit.
 ## Utilities
 - `algorithm.py`: Run algorithm on images passed as arguments without reading
                 standard input for filenames and with default logging level.
-- `drawings.py`: Superimpose 2 images
+- `draw.py`: Superimpose 2 images
 - `fen.py`: Compress FEN given as argument and draw position using characters
-- `lffilter.py`: Run a low pass filter on images.
-- `yolo_wrap.py`: Run piece detection and save results on image.
+- `objects.py`: Run piece detection and save results on image.

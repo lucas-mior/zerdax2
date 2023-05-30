@@ -502,7 +502,7 @@ def remove_wrong(lines, ll, kind):
 
 def add_middle(lines, ll, kind):
     log.info("adding missing middle lines...")
-    tol = constants.middle_tolerance
+    tol = 1.4
     if ll < 5 or ll > 10:
         log.warning(f"{ll} lines passed to add_middle, returning...")
         return lines, ll
@@ -573,7 +573,7 @@ def add_middle(lines, ll, kind):
 
 def remove_outer(lines, ll, kind):
     log.debug("removing extra outer lines...")
-    tolerance = constants.outer_tolerance
+    tolerance = 3
     limit = gcanny.shape[kind-1]
     if ll < 7:
         log.warning("Less than 7 lines passed to remove_outer, returning...")
@@ -673,7 +673,7 @@ def split(lines):
     d1 = abs(centers[0] - centers[2])
     d2 = abs(centers[1] - centers[2])
 
-    maxdiff = constants.angles_max_diff
+    maxdiff = 22.5 * 100
     dd0 = d0 < maxdiff and d1 > maxdiff and d2 > maxdiff
     dd1 = d1 < maxdiff and d0 > maxdiff and d2 > maxdiff
     dd2 = d2 < maxdiff and d0 > maxdiff and d1 > maxdiff
@@ -710,7 +710,7 @@ def split(lines):
 
 def filter_misdirected(vert, hori):
     log.info("filtering lines by angle accoring to direction...")
-    tolerance = constants.angle_tolerance
+    tolerance = 15 * 100
     changed = False
 
     def _filter(lines):

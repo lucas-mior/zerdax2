@@ -22,22 +22,6 @@ NAMES = {
     10: "BlackBishop", 11: "BlackKnight", 12: "BlackPawn"
 }
 
-PIECES = {
-    "Board": "Board",
-    "K": "WhiteKing", "Q": "WhiteQueen", "R": "WhiteRook",
-    "B": "WhiteBishop", "N": "WhiteKnight", "P": "WhitePawn",
-    "k": "BlackKing", "q": "BlackQueen", "r": "BlackRook",
-    "b": "BlackBishop", "n": "BlackKnight", "p": "BlackPawn",
-}
-
-CLASSES = {
-    "Board": 0,
-    "K": 1, "Q": 2, "R": 3,
-    "B": 4, "N": 5, "P": 6,
-    "k": 1, "q": 2, "r": 3,
-    "b": 4, "n": 5, "p": 6
-}
-
 NUMBERS = {
     "Board": 0,
     "K": 1, "Q": 2, "R": 3,

@@ -9,12 +9,13 @@ import lines
 import intersect
 import objects
 import fen
-import constants
 import draw
 from c_load import lfilter
 
 basename = ""
 debug = False
+WIDTH_INPUT = 960
+WIDTH_BOARD = 512
 
 
 def main(filename):
@@ -26,10 +27,9 @@ def main(filename):
 
     BGR = cv2.imread(filename)
 
-    width_input = constants.width_input
-    aspect_ratio = width_input / BGR.shape[1]
+    aspect_ratio = WIDTH_INPUT / BGR.shape[1]
     height_input = round(BGR.shape[0] * aspect_ratio)
-    BGR = cv2.resize(BGR, (width_input, height_input))
+    BGR = cv2.resize(BGR, (WIDTH_INPUT, height_input))
 
     board = SimpleNamespace()
     board.box, board.pieces = objects.detect(BGR)
@@ -107,10 +107,9 @@ def crop_image(image, boardbox):
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")
-    width_board = constants.width_board
-    resize_factor = width_board / cropped.shape[1]
+    resize_factor = WIDTH_BOARD / cropped.shape[1]
     height_board = round(resize_factor * cropped.shape[0])
-    cropped = cv2.resize(cropped, (width_board, height_board))
+    cropped = cv2.resize(cropped, (WIDTH_BOARD, height_board))
 
     translate_params.x0 = x0
     translate_params.y0 = y0

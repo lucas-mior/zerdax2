@@ -5,7 +5,6 @@ from jenkspy import jenks_breaks
 
 import algorithm
 import intersect
-import constants
 import draw
 from c_load import segments_distance
 from c_load import lines_bundle
@@ -18,11 +17,11 @@ def find_warped_lines(canny):
     gcanny = canny
     log.debug("finding right angled lines of warped board...")
 
-    min_lines_before_split = constants.min_lines_before_split
-    hough_min_length0 = constants.hough_min_length_warped
-    hough_max_gap = constants.hough_max_gap
+    min_lines_before_split = 16
+    hough_min_length0 = 450
+    hough_max_gap = 4
 
-    angle = constants.hough_angle_resolution
+    angle = 0.5
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0*1.1
 
@@ -69,11 +68,11 @@ def find_diagonal_lines(canny):
     global gcanny
     gcanny = canny
     log.debug("finding diagonal lines of original board...")
-    min_lines_before_split = constants.min_lines_before_split
-    hough_min_length0 = constants.hough_min_length
-    hough_max_gap = constants.hough_max_gap
+    min_lines_before_split = 16
+    hough_min_length0 = 280
+    hough_max_gap = 4
 
-    angle = constants.hough_angle_resolution
+    angle = 0.5
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0*1.1
 
@@ -119,7 +118,7 @@ def find_diagonal_lines(canny):
 
 
 def hough(hough_threshold, hough_min_length, hough_max_gap):
-    angle = constants.hough_angle_resolution
+    angle = 0.5
     hough_angle = np.deg2rad(angle)
     hough_min_length = round(hough_min_length)
     hough_max_gap = round(hough_max_gap)

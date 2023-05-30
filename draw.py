@@ -4,10 +4,11 @@ import cv2
 import logging as log
 
 import algorithm
-import constants
 
 from misc import COLORS, SYMBOLS
 import lines as li
+
+WIDTH_INPUT = 960
 
 
 def adapt(image):
@@ -18,10 +19,9 @@ def adapt(image):
         exit(1)
 
     if image.shape[1] > 1280:
-        width = constants.width_input
-        aspect_ratio = width / image.shape[1]
+        aspect_ratio = WIDTH_INPUT / image.shape[1]
         height = round(image.shape[0] * aspect_ratio)
-        image = cv2.resize(image, (width, height))
+        image = cv2.resize(image, (WIDTH_INPUT, height))
     return image
 
 

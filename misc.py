@@ -14,14 +14,6 @@ SYMBOLS = {
     10: "b", 11: "n", 12: "p"
 }
 
-NAMES = {
-    0: "Board",
-    1: "WhiteKing", 2: "WhiteQueen", 3: "WhiteRook",
-    4: "WhiteBishop", 5: "WhiteKnight", 6: "WhitePawn",
-    7: "BlackKing", 8: "BlackQueen", 9: "BlackRook",
-    10: "BlackBishop", 11: "BlackKnight", 12: "BlackPawn"
-}
-
 NUMBERS = {
     "Board": 0,
     "K": 1, "Q": 2, "R": 3,

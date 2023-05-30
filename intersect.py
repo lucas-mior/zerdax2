@@ -2,7 +2,7 @@ import numpy as np
 from numpy import linalg
 import logging as log
 
-import constants
+MIN_ANGLE_TO_INTERSECT = 20 * 100
 
 
 def calculate_extern(lines0, lines1=None):
@@ -28,7 +28,7 @@ def calculate_extern(lines0, lines1=None):
                 continue
 
             dtheta = abs(t - tt)
-            tol0 = constants.min_angle_to_intersect
+            tol0 = MIN_ANGLE_TO_INTERSECT
             tol1 = 180*100 - tol0
             if (dtheta < tol0 or dtheta > tol1):
                 continue
@@ -76,7 +76,7 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
 
             if not limit:
                 dtheta = abs(t - tt)
-                tol0 = constants.min_angle_to_intersect
+                tol0 = MIN_ANGLE_TO_INTERSECT
                 tol1 = 180*100 - tol0
                 if (dtheta < tol0 or dtheta > tol1):
                     continue

@@ -116,11 +116,11 @@ def check_colors(image, squares):
             checked += 1
             if mean_in < mean_out:
                 change_votes += 1
-            if change_votes > 4 or checked >= 8:
+            if change_votes > 6 or checked >= 12:
                 break
-        if change_votes > 4 or checked >= 8:
+        if change_votes > 6 or checked >= 12:
             break
-    if change_votes > 4:
+    if change_votes > 6:
         squares = _rotate(squares)
 
     white = squares[(squares[..., 4, 1] <= 6) & (squares[..., 4, 1] >= 0)]

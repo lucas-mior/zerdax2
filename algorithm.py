@@ -168,8 +168,9 @@ def find_edges(image):
     g = np.round(g)
     g = np.clip(g, 0, 255)
     g = np.array(g, dtype='uint8')
-    if debug:
-        draw.save("lowpass", g)
+    # if debug:
+    draw.save("lowpass", g)
+    exit(0)
 
     canny_mean_threshold = 9
     threshold_high0 = 250

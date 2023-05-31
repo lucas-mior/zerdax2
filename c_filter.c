@@ -3,6 +3,9 @@
  * 2009 Second International Workshop on Computer Science and Engineering */
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
 #include <math.h>
 typedef int32_t int32;
 
@@ -37,11 +40,55 @@ double weight(double * restrict input, int32 x, int32 y) {
     return w;
 }
 
-void matrix_weight(double * restrict input, double * restrict W) {
-    for (int32 x = 1; x < xx-1; x++) {
-        for (int32 y = 1; y < yy-1; y++) {
-            W[yy*x + y] = weight(input, x, y);
+#define NUM_THREADS 4
+
+typedef struct {
+    double *input;
+    double *W;
+    int32_t xx;
+    int32_t yy;
+    int32_t start_x;
+    int32_t end_x;
+} ThreadArgs;
+
+void *computeWeights(void *arg) {
+    ThreadArgs *args = (ThreadArgs *)arg;
+
+    double *input = args->input;
+    double *W = args->W;
+    /* int32_t xx = args->xx; */
+    int32_t yy = args->yy;
+    int32_t start_x = args->start_x;
+    int32_t end_x = args->end_x;
+
+    for (int32_t x = start_x; x < end_x; x++) {
+        for (int32_t y = 1; y < yy - 1; y++) {
+            W[yy * x + y] = weight(input, x, y);
         }
+    }
+
+    pthread_exit(NULL);
+}
+
+void matrix_weight(double *restrict input, double *restrict W) {
+    int32_t range = (xx - 2) / NUM_THREADS;
+    
+    pthread_t threads[NUM_THREADS];
+    ThreadArgs threadArgs[NUM_THREADS];
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        threadArgs[i].input = input;
+        threadArgs[i].W = W;
+        threadArgs[i].xx = xx;
+        threadArgs[i].yy = yy;
+        threadArgs[i].start_x = i * range + 1;
+        threadArgs[i].end_x = (i == NUM_THREADS - 1) ? xx - 1 : (i + 1) * range + 1;
+
+        pthread_create(&threads[i], NULL, computeWeights, (void *)&threadArgs[i]);
+    }
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
     }
 }
 

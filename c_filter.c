@@ -14,8 +14,6 @@ static void matrix_weight(double * restrict, double * restrict);
 static void matrix_normalize(double * restrict, double * restrict);
 static void matrix_convolute(double * restrict, double * restrict,
                              double * restrict, double * restrict);
-void filter(double * restrict, int32 const, int32 const,
-            double * restrict, double * restrict, double * restrict);
 
 void filter(double * restrict input, int32 const ww, int32 const hh, 
             double * restrict W, double * restrict N, 

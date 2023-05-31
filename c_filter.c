@@ -46,8 +46,8 @@ typedef struct ThreadArguments {
     double *W;
     int32_t xx;
     int32_t yy;
-    int32_t start_x;
-    int32_t end_x;
+    int32_t start_y;
+    int32_t end_y;
 } ThreadArguments;
 
 void *weights_row(void *arg) {
@@ -55,13 +55,13 @@ void *weights_row(void *arg) {
 
     double *input = args->input;
     double *W = args->W;
-    /* int32_t xx = args->xx; */
+    int32_t xx = args->xx;
     int32_t yy = args->yy;
-    int32_t start_x = args->start_x;
-    int32_t end_x = args->end_x;
+    int32_t start_y = args->start_y;
+    int32_t end_y = args->end_y;
 
-    for (int32_t x = start_x; x < end_x; x++) {
-        for (int32_t y = 1; y < yy - 1; y++) {
+    for (int32_t y = start_y; y < end_y; y++) {
+        for (int32_t x = 1; x < xx - 1; x++) {
             W[yy*x + y] = weight(input, x, y);
         }
     }
@@ -71,7 +71,7 @@ void *weights_row(void *arg) {
 
 void matrix_weight(double *restrict input, double *restrict W) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
-    int32_t range = (xx - 2) / number_threads;
+    int32_t range = (yy - 2) / number_threads;
     
     pthread_t threads[number_threads];
     ThreadArguments thread_arguments[number_threads];
@@ -81,11 +81,11 @@ void matrix_weight(double *restrict input, double *restrict W) {
         thread_arguments[i].W = W;
         thread_arguments[i].xx = xx;
         thread_arguments[i].yy = yy;
-        thread_arguments[i].start_x = i*range + 1;
+        thread_arguments[i].start_y = i*range + 1;
         if (i == number_threads - 1) {
-            thread_arguments[i].end_x = xx - 1;
+            thread_arguments[i].end_y = yy - 1;
         } else {
-            thread_arguments[i].end_x = (i + 1)*range + 1;
+            thread_arguments[i].end_y = (i + 1)*range + 1;
         }
 
         pthread_create(&threads[i], NULL, weights_row, (void *) &thread_arguments[i]);

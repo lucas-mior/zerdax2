@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
+#include <threads.h>
 #include <unistd.h>
 #include <math.h>
 typedef int32_t int32;
@@ -48,7 +48,7 @@ typedef struct ThreadArguments {
     int32 end_x;
 } ThreadArguments;
 
-void *weights_slice(void *arg) {
+int weights_slice(void *arg) {
     ThreadArguments *args = (ThreadArguments *) arg;
 
     double *input = args->input;
@@ -62,14 +62,14 @@ void *weights_slice(void *arg) {
         }
     }
 
-    pthread_exit(NULL);
+    thrd_exit(0);
 }
 
 void matrix_weight(double *restrict input, double *restrict W) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     int32 range = (xx - 2) / number_threads;
     
-    pthread_t threads[number_threads];
+    thrd_t threads[number_threads];
     ThreadArguments thread_arguments[number_threads];
 
     for (int i = 0; i < number_threads; i++) {
@@ -82,11 +82,11 @@ void matrix_weight(double *restrict input, double *restrict W) {
             thread_arguments[i].end_x = (i + 1)*range + 1;
         }
 
-        pthread_create(&threads[i], NULL, weights_slice, (void *) &thread_arguments[i]);
+        thrd_create(&threads[i], weights_slice, (void *) &thread_arguments[i]);
     }
 
     for (int i = 0; i < number_threads; i++) {
-        pthread_join(threads[i], NULL);
+        thrd_join(threads[i], NULL);
     }
 }
 

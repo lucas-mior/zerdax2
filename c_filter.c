@@ -9,7 +9,23 @@ typedef int32_t int32;
 static int32 xx;
 static int32 yy;
 
-static inline double weight(double * restrict input, int32 x, int32 y) {
+static inline double weight(double * restrict, int32, int32);
+static void weight_array(double * restrict, double * restrict);
+static void norm_array(double * restrict, double * restrict);
+static void convolute(double * restrict, double * restrict, double * restrict, double * restrict);
+void filter(double * restrict, int32 const, int32 const, double * restrict, double * restrict, double * restrict);
+
+void filter(double * restrict input, int32 const ww, int32 const hh, 
+            double * restrict W, double * restrict N, 
+            double * restrict output) {
+    xx = ww;
+    yy = hh;
+    weight_array(input, W);
+    norm_array(W, N);
+    convolute(input, W, N, output);
+}
+
+double weight(double * restrict input, int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 
@@ -21,7 +37,7 @@ static inline double weight(double * restrict input, int32 x, int32 y) {
     return w;
 }
 
-static void weight_array(double * restrict input, double * restrict W) {
+void weight_array(double * restrict input, double * restrict W) {
     for (int32 x = 1; x < xx-1; x++) {
         for (int32 y = 1; y < yy-1; y++) {
             W[yy*x + y] = weight(input, x, y);
@@ -29,7 +45,7 @@ static void weight_array(double * restrict input, double * restrict W) {
     }
 }
 
-static void norm_array(double * restrict W, double * restrict N) {
+void norm_array(double * restrict W, double * restrict N) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             N[yy*x + y] = 0;
@@ -42,8 +58,8 @@ static void norm_array(double * restrict W, double * restrict N) {
     }
 }
 
-static void convolute(double * restrict input, double * restrict W, 
-                      double * restrict N, double * restrict output) {
+void convolute(double * restrict input, double * restrict W, 
+               double * restrict N, double * restrict output) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             output[yy*x + y] = 0;
@@ -63,14 +79,4 @@ static void convolute(double * restrict input, double * restrict W,
         output[y] = output[y-1];
     for (int32 x = (xx-1)*yy; x < (yy*xx - 1); x++)
         output[x] = output[x-yy];
-}
-
-void filter(double * restrict input, int32 const ww, int32 const hh, 
-            double * restrict W, double * restrict N, 
-            double * restrict output) {
-    xx = ww;
-    yy = hh;
-    weight_array(input, W);
-    norm_array(W, N);
-    convolute(input, W, N, output);
 }

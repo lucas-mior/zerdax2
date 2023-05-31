@@ -44,8 +44,8 @@ double weight(double * restrict input, int32 x, int32 y) {
 typedef struct ThreadArguments {
     double *input;
     double *W;
-    int32_t start_x;
-    int32_t end_x;
+    int32 start_x;
+    int32 end_x;
 } ThreadArguments;
 
 void *weights_slice(void *arg) {
@@ -53,11 +53,11 @@ void *weights_slice(void *arg) {
 
     double *input = args->input;
     double *W = args->W;
-    int32_t start_x = args->start_x;
-    int32_t end_x = args->end_x;
+    int32 start_x = args->start_x;
+    int32 end_x = args->end_x;
 
-    for (int32_t x = start_x; x < end_x; x++) {
-        for (int32_t y = 1; y < yy - 1; y++) {
+    for (int32 x = start_x; x < end_x; x++) {
+        for (int32 y = 1; y < yy - 1; y++) {
             W[yy*x + y] = weight(input, x, y);
         }
     }
@@ -67,7 +67,7 @@ void *weights_slice(void *arg) {
 
 void matrix_weight(double *restrict input, double *restrict W) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
-    int32_t range = (xx - 2) / number_threads;
+    int32 range = (xx - 2) / number_threads;
     
     pthread_t threads[number_threads];
     ThreadArguments thread_arguments[number_threads];

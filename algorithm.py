@@ -46,7 +46,7 @@ def main(filename):
 
     log.info(f"board detected: {board.box}")
     board.image, translate_params = crop_image(BGR, board.box)
-    if board.image.shape[0] < 300:
+    if board.image.shape[0] < 280:
         log.error(bad_picture_msg)
         return bad_picture_msg
 

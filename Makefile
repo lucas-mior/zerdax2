@@ -7,7 +7,7 @@ all: libzerdax.so
 libzerdax.so: $(SRC) Makefile
 	ctags --kinds-C=+l *.h *.c
 	vtags.sed tags > .tags.vim
-	$(CC) $(CFLAGS) -shared -o $(OBJ) -fPIC -lm $(SRC) -std=c11 -march=native
+	$(CC) $(CFLAGS) -shared -o $(OBJ) -fPIC -lm $(SRC)
 
 clean:
 	rm $(OBJ)

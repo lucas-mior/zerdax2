@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include <math.h>
-#include <immintrin.h> // Include the header for SIMD intrinsics
 typedef int32_t int32;
 
 static int32 xx;
@@ -26,7 +25,6 @@ void filter(double * restrict input, int32 const ww, int32 const hh,
     matrix_convolute(input, W, N, output);
 }
 
-
 double weight(double * restrict input, int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
@@ -39,47 +37,10 @@ double weight(double * restrict input, int32 x, int32 y) {
     return w;
 }
 
-// Define constants for the polynomial approximation
-const double EXP_POLY_C1 = 1.0;
-const double EXP_POLY_C2 = 0.041666666666666664;
-const double EXP_POLY_C3 = 0.0013888888888888888;
-const double EXP_POLY_C4 = 2.48015873015873e-05;
-const double EXP_POLY_C5 = 2.7557319223985893e-07;
-const double EXP_POLY_C6 = 2.5052108385441714e-09;
-
 void matrix_weight(double * restrict input, double * restrict W) {
-    const int32 simdWidth = 4;
-    const int32 unrollSize = (yy - 1) / simdWidth * simdWidth;
-
-    // Load the polynomial coefficients into SIMD registers
-    __m256d c1Vec = _mm256_set1_pd(EXP_POLY_C1);
-    __m256d c2Vec = _mm256_set1_pd(EXP_POLY_C2);
-    __m256d c3Vec = _mm256_set1_pd(EXP_POLY_C3);
-    __m256d c4Vec = _mm256_set1_pd(EXP_POLY_C4);
-    __m256d c5Vec = _mm256_set1_pd(EXP_POLY_C5);
-    __m256d c6Vec = _mm256_set1_pd(EXP_POLY_C6);
-
-    for (int32 x = 1; x < xx - 1; x++) {
-        for (int32 y = 1; y < unrollSize; y += simdWidth) {
-            __m256d GxVec = _mm256_sub_pd(_mm256_loadu_pd(&input[yy * (x + 1) + y]), _mm256_loadu_pd(&input[yy * (x - 1) + y]));
-            __m256d GyVec = _mm256_sub_pd(_mm256_loadu_pd(&input[yy * x + y + 1]), _mm256_loadu_pd(&input[yy * x + y - 1]));
-
-            __m256d dVec = _mm256_sqrt_pd(_mm256_add_pd(_mm256_mul_pd(GxVec, GxVec), _mm256_mul_pd(GyVec, GyVec)));
-
-            // Approximate the exponential function using a polynomial approximation
-            __m256d term1 = _mm256_mul_pd(dVec, c6Vec);
-            __m256d term2 = _mm256_add_pd(_mm256_mul_pd(term1, dVec), c5Vec);
-            __m256d term3 = _mm256_add_pd(_mm256_mul_pd(term2, dVec), c4Vec);
-            __m256d term4 = _mm256_add_pd(_mm256_mul_pd(term3, dVec), c3Vec);
-            __m256d term5 = _mm256_add_pd(_mm256_mul_pd(term4, dVec), c2Vec);
-            __m256d term6 = _mm256_add_pd(_mm256_mul_pd(term5, dVec), c1Vec);
-            __m256d expVec = _mm256_add_pd(term6, dVec);
-
-            _mm256_storeu_pd(&W[yy * x + y], expVec);
-        }
-
-        for (int32 y = unrollSize; y < yy - 1; y++) {
-            W[yy * x + y] = weight(input, x, y);
+    for (int32 x = 1; x < xx-1; x++) {
+        for (int32 y = 1; y < yy-1; y++) {
+            W[yy*x + y] = weight(input, x, y);
         }
     }
 }

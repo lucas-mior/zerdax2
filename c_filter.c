@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <math.h>
 typedef int32_t int32;
 
@@ -40,8 +41,6 @@ double weight(double * restrict input, int32 x, int32 y) {
     return w;
 }
 
-#define NUM_THREADS 4
-
 typedef struct {
     double *input;
     double *W;
@@ -71,23 +70,24 @@ void *computeWeights(void *arg) {
 }
 
 void matrix_weight(double *restrict input, double *restrict W) {
-    int32_t range = (xx - 2) / NUM_THREADS;
+    long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
+    int32_t range = (xx - 2) / number_threads;
     
-    pthread_t threads[NUM_THREADS];
-    ThreadArgs threadArgs[NUM_THREADS];
+    pthread_t threads[number_threads];
+    ThreadArgs threadArgs[number_threads];
 
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (int i = 0; i < number_threads; i++) {
         threadArgs[i].input = input;
         threadArgs[i].W = W;
         threadArgs[i].xx = xx;
         threadArgs[i].yy = yy;
         threadArgs[i].start_x = i * range + 1;
-        threadArgs[i].end_x = (i == NUM_THREADS - 1) ? xx - 1 : (i + 1) * range + 1;
+        threadArgs[i].end_x = (i == number_threads - 1) ? xx - 1 : (i + 1) * range + 1;
 
         pthread_create(&threads[i], NULL, computeWeights, (void *)&threadArgs[i]);
     }
 
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (int i = 0; i < number_threads; i++) {
         pthread_join(threads[i], NULL);
     }
 }

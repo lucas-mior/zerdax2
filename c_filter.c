@@ -48,7 +48,7 @@ typedef struct ThreadArguments {
     int32_t end_x;
 } ThreadArguments;
 
-void *weights_row(void *arg) {
+void *weights_slice(void *arg) {
     ThreadArguments *args = (ThreadArguments *) arg;
 
     double *input = args->input;
@@ -82,7 +82,7 @@ void matrix_weight(double *restrict input, double *restrict W) {
             thread_arguments[i].end_x = (i + 1)*range + 1;
         }
 
-        pthread_create(&threads[i], NULL, weights_row, (void *) &thread_arguments[i]);
+        pthread_create(&threads[i], NULL, weights_slice, (void *) &thread_arguments[i]);
     }
 
     for (int i = 0; i < number_threads; i++) {

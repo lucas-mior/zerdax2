@@ -29,8 +29,8 @@ double weight(double * restrict input, int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 
-    Gx = (input[yy*(x+1) + y] - input[yy*(x-1) + y]) / 2;
-    Gy = (input[yy*x + y+1] - input[yy*x + y-1]) / 2;
+    Gx = input[yy*(x+1) + y] - input[yy*(x-1) + y];
+    Gy = input[yy*x + y+1] - input[yy*x + y-1];
 
     d = sqrt(Gx*Gx + Gy*Gy);
     w = exp(-sqrt(d));

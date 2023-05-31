@@ -10,10 +10,10 @@ static int32 xx;
 static int32 yy;
 
 static inline double weight(double * restrict, int32, int32);
-static void weight_array(double * restrict, double * restrict);
-static void norm_array(double * restrict, double * restrict);
-static void convolute(double * restrict, double * restrict,
-                      double * restrict, double * restrict);
+static void matrix_weight(double * restrict, double * restrict);
+static void matrix_normalize(double * restrict, double * restrict);
+static void matrix_convolute(double * restrict, double * restrict,
+                             double * restrict, double * restrict);
 void filter(double * restrict, int32 const, int32 const,
             double * restrict, double * restrict, double * restrict);
 
@@ -22,9 +22,9 @@ void filter(double * restrict input, int32 const ww, int32 const hh,
             double * restrict output) {
     xx = ww;
     yy = hh;
-    weight_array(input, W);
-    norm_array(W, N);
-    convolute(input, W, N, output);
+    matrix_weight(input, W);
+    matrix_normalize(W, N);
+    matrix_convolute(input, W, N, output);
 }
 
 double weight(double * restrict input, int32 x, int32 y) {
@@ -39,7 +39,7 @@ double weight(double * restrict input, int32 x, int32 y) {
     return w;
 }
 
-void weight_array(double * restrict input, double * restrict W) {
+void matrix_weight(double * restrict input, double * restrict W) {
     for (int32 x = 1; x < xx-1; x++) {
         for (int32 y = 1; y < yy-1; y++) {
             W[yy*x + y] = weight(input, x, y);
@@ -47,7 +47,7 @@ void weight_array(double * restrict input, double * restrict W) {
     }
 }
 
-void norm_array(double * restrict W, double * restrict N) {
+void matrix_normalize(double * restrict W, double * restrict N) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             N[yy*x + y] = 0;
@@ -60,8 +60,8 @@ void norm_array(double * restrict W, double * restrict N) {
     }
 }
 
-void convolute(double * restrict input, double * restrict W, 
-               double * restrict N, double * restrict output) {
+void matrix_convolute(double * restrict input, double * restrict W, 
+                      double * restrict N, double * restrict output) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             output[yy*x + y] = 0;

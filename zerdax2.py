@@ -7,7 +7,7 @@ import argparse
 import algorithm
 
 
-def parse_args(args):
+if __name__ == '__main__':
     loglevels = {
         'critical': log.CRITICAL,
         'error': log.ERROR,
@@ -20,17 +20,12 @@ def parse_args(args):
     parser.add_argument('-v', dest='verbose',
                         default='error', choices=loglevels.keys(),
                         help='verbosity level')
-    args = parser.parse_args(args)
+    args = parser.parse_args(sys.argv[1:])
 
     level = loglevels[args.verbose]
-    return args.filenames, level
+    log.basicConfig(level=level, format='[%(levelname)s] %(message)s')
 
-
-if __name__ == '__main__':
-    filenames, loglevel = parse_args(sys.argv[1:])
-    log.basicConfig(level=loglevel, format='[%(levelname)s] %(message)s')
-
-    for filename in filenames:
+    for filename in args.filenames:
         print(f"============ zerdax2.py {filename} ============")
         fen = algorithm.main(filename)
         print(f"FEN({filename}): {fen}")

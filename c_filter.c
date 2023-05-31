@@ -12,8 +12,10 @@ static int32 yy;
 static inline double weight(double * restrict, int32, int32);
 static void weight_array(double * restrict, double * restrict);
 static void norm_array(double * restrict, double * restrict);
-static void convolute(double * restrict, double * restrict, double * restrict, double * restrict);
-void filter(double * restrict, int32 const, int32 const, double * restrict, double * restrict, double * restrict);
+static void convolute(double * restrict, double * restrict,
+                      double * restrict, double * restrict);
+void filter(double * restrict, int32 const, int32 const,
+            double * restrict, double * restrict, double * restrict);
 
 void filter(double * restrict input, int32 const ww, int32 const hh, 
             double * restrict W, double * restrict N, 

@@ -44,8 +44,6 @@ double weight(double * restrict input, int32 x, int32 y) {
 typedef struct ThreadArguments {
     double *input;
     double *W;
-    int32_t xx;
-    int32_t yy;
     int32_t start_y;
     int32_t end_y;
 } ThreadArguments;
@@ -55,8 +53,6 @@ void *weights_row(void *arg) {
 
     double *input = args->input;
     double *W = args->W;
-    int32_t xx = args->xx;
-    int32_t yy = args->yy;
     int32_t start_y = args->start_y;
     int32_t end_y = args->end_y;
 
@@ -79,8 +75,6 @@ void matrix_weight(double *restrict input, double *restrict W) {
     for (int i = 0; i < number_threads; i++) {
         thread_arguments[i].input = input;
         thread_arguments[i].W = W;
-        thread_arguments[i].xx = xx;
-        thread_arguments[i].yy = yy;
         thread_arguments[i].start_y = i*range + 1;
         if (i == number_threads - 1) {
             thread_arguments[i].end_y = yy - 1;

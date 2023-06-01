@@ -7,7 +7,22 @@
 
 #include "c_declarations.h"
 
-static int32 min(int32 const distances[4]) {
+static int32 min(int32 const [4]);
+static bool segments_intersect(int32 * restrict, int32 * restrict);
+static int32 distance_point_segment(int32 const, int32 const, int32 * restrict);
+
+int32 segments_distance(int32 * restrict line0, int32 * restrict line1){
+    if (segments_intersect(line0, line1))
+        return 0;
+    int32 distances[4];
+    distances[0] = distance_point_segment(line0[0], line0[1], line1);
+    distances[1] = distance_point_segment(line0[2], line0[3], line1);
+    distances[2] = distance_point_segment(line1[0], line1[1], line0);
+    distances[3] = distance_point_segment(line1[2], line1[3], line0);
+    return min(distances);
+}
+
+int32 min(int32 const distances[4]) {
     int32 i = 0;
     int32 m = distances[i];
     while (++i < 4) {
@@ -17,7 +32,7 @@ static int32 min(int32 const distances[4]) {
     return m;
 }
 
-static bool segments_intersect(int32 * restrict line0, int32 * restrict line1) {
+bool segments_intersect(int32 * restrict line0, int32 * restrict line1) {
     int32 x0, y0, x1, y1;
     int32 xx0, yy0, xx1, yy1;
     x0 = line0[0]; y0 = line0[1];
@@ -42,7 +57,7 @@ static bool segments_intersect(int32 * restrict line0, int32 * restrict line1) {
     return ss && tt;
 }
 
-static int32 distance_point_segment(int32 const px, int32 const py, int32 * restrict line) {
+int32 distance_point_segment(int32 const px, int32 const py, int32 * restrict line) {
     int32 x0, y0, x1, y1;
     x0 = line[0]; y0 = line[1];
     x1 = line[2]; y1 = line[3];
@@ -70,15 +85,4 @@ static int32 distance_point_segment(int32 const px, int32 const py, int32 * rest
         }
     }
     return sqrt(dx*dx + dy*dy);
-}
-
-int32 segments_distance(int32 * restrict line0, int32 * restrict line1){
-    if (segments_intersect(line0, line1))
-        return 0;
-    int32 distances[4];
-    distances[0] = distance_point_segment(line0[0], line0[1], line1);
-    distances[1] = distance_point_segment(line0[2], line0[3], line1);
-    distances[2] = distance_point_segment(line1[0], line1[1], line0);
-    distances[3] = distance_point_segment(line1[2], line1[3], line0);
-    return min(distances);
 }

@@ -56,8 +56,8 @@ int weights_slice(void *arg) {
     int32 start_x = args->start_x;
     int32 end_x = args->end_x;
 
-    for (int32 x = start_x; x < end_x; x++) {
-        for (int32 y = 1; y < yy - 1; y++) {
+    for (int32 x = start_x; x < end_x; x += 1) {
+        for (int32 y = 1; y < yy - 1; y += 1) {
             weights[yy*x + y] = weight(input, x, y);
         }
     }
@@ -74,7 +74,7 @@ void matrix_weights(double *restrict input, double *restrict weights) {
     thrd_t threads[number_threads];
     ThreadArguments thread_arguments[number_threads];
 
-    for (int i = 0; i < number_threads; i++) {
+    for (int i = 0; i < number_threads; i += 1) {
         thread_arguments[i].input = input;
         thread_arguments[i].weights = weights;
         thread_arguments[i].start_x = i*range + 1;
@@ -87,17 +87,17 @@ void matrix_weights(double *restrict input, double *restrict weights) {
         thrd_create(&threads[i], weights_slice, (void *) &thread_arguments[i]);
     }
 
-    for (int i = 0; i < number_threads; i++) {
+    for (int i = 0; i < number_threads; i += 1) {
         thrd_join(threads[i], NULL);
     }
 }
 
 void matrix_normalization(double * restrict weights, double * restrict normalization) {
-    for (int32 x = 1; x < xx - 1; x++) {
-        for (int32 y = 1; y < yy - 1; y++) {
+    for (int32 x = 1; x < xx - 1; x += 1) {
+        for (int32 y = 1; y < yy - 1; y += 1) {
             normalization[yy*x + y] = 0;
-            for (int32 i = -1; i <= +1; i++) {
-                for (int32 j = -1; j <= +1; j++) {
+            for (int32 i = -1; i <= +1; i += 1) {
+                for (int32 j = -1; j <= +1; j += 1) {
                     normalization[yy*x + y] += weights[yy*(x+i) + y+j];
                 }
             }
@@ -107,23 +107,23 @@ void matrix_normalization(double * restrict weights, double * restrict normaliza
 
 void matrix_convolute(double * restrict input, double * restrict weights, 
                       double * restrict normalization, double * restrict output) {
-    for (int32 x = 1; x < xx - 1; x++) {
-        for (int32 y = 1; y < yy - 1; y++) {
+    for (int32 x = 1; x < xx - 1; x += 1) {
+        for (int32 y = 1; y < yy - 1; y += 1) {
             output[yy*x + y] = 0;
-            for (int32 i = -1; i <= +1; i++) {
-                for (int32 j = -1; j <= +1; j++) {
+            for (int32 i = -1; i <= +1; i += 1) {
+                for (int32 j = -1; j <= +1; j += 1) {
                     output[yy*x + y] += (weights[yy*(x+i) + y+j]*input[yy*(x+i) + y+j]);
                 }
             }
             output[yy*x + y] /= normalization[yy*x + y];
         }
     }
-    for (int32 y = 0; y < (yy*xx - 1); y+=yy)
+    for (int32 y = 0; y < (yy*xx - 1); y += yy)
         output[y] = output[y+1];
-    for (int32 x = 0; x < yy-1; x++)
+    for (int32 x = 0; x < yy-1; x += 1)
         output[x] = output[x+yy];
-    for (int32 y = yy-1; y < (yy*xx - 1); y+=yy)
+    for (int32 y = yy-1; y < (yy*xx - 1); y += yy)
         output[y] = output[y-1];
-    for (int32 x = (xx-1)*yy; x < (yy*xx - 1); x++)
+    for (int32 x = (xx-1)*yy; x < (yy*xx - 1); x += 1)
         output[x] = output[x-yy];
 }

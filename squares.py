@@ -125,20 +125,21 @@ def check_colors(image, squares):
     if change_votes > 6:
         squares = _rotate(squares)
 
-    squares_white = squares[(squares[..., 4, 1] <= 6)
-                            & (squares[..., 4, 1] >= 0)]
-    squares_black = squares[squares[..., 4, 1] > 6]
+    squares_pieces_white = squares[(squares[..., 4, 1] <= 6)
+                                   & (squares[..., 4, 1] >= 0)]
+    squares_pieces_black = squares[squares[..., 4, 1] > 6]
+
     if player_position == "down":
-        mean_squares_white = np.median(squares_white[:, 0, 1])
-        mean_squares_black = np.median(squares_black[:, 0, 1])
-    else:
-        if player_position == "right":
-            mean_squares_white = np.median(squares_white[:, 0, 0])
-            mean_squares_black = np.median(squares_black[:, 0, 0])
-        else:
-            mean_squares_white = np.median(squares_black[:, 0, 0])
-            mean_squares_black = np.median(squares_white[:, 0, 0])
-    if mean_squares_white < mean_squares_black:
+        mean_squares_pieces_white = np.median(squares_pieces_white[:, 0, 1])
+        mean_squares_pieces_black = np.median(squares_pieces_black[:, 0, 1])
+    elif player_position == "right":
+        mean_squares_pieces_white = np.median(squares_pieces_white[:, 0, 0])
+        mean_squares_pieces_black = np.median(squares_pieces_black[:, 0, 0])
+    elif player_position == "left":
+        mean_squares_pieces_white = np.median(squares_pieces_black[:, 0, 0])
+        mean_squares_pieces_black = np.median(squares_pieces_white[:, 0, 0])
+
+    if mean_squares_pieces_white < mean_squares_pieces_black:
         squares = np.rot90(squares, k=2)
         changed = True
     return squares, changed

@@ -55,10 +55,10 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int
     while (group) {
         int32 best_line[LINE_FIELDS] = {0};
         int32 number_bests = 0;
-        int32 med = median(group->angles, group->length);
+        int32 angle_median = median(group->angles, group->length);
         for (int i = 0; i < group->length; i += 1) {
             int32 *line = group->lines[i];
-            group->diff[i] = abs(med - line[I_ANGLE]);
+            group->diff[i] = abs(angle_median - line[I_ANGLE]);
         }
         int32 median_diff = median(group->diff, group->length);
         for (int i = 0; i < group->length; i += 1) {

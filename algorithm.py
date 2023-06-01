@@ -51,6 +51,7 @@ def main(filename):
         return bad_picture_msg
 
     canny = create_canny(board.image)
+    return "aaaaaaaaaaaaaa"
 
     board.corners = find_corners(canny)
     if board.corners is None:

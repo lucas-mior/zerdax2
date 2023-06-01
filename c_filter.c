@@ -10,26 +10,35 @@
 #include <math.h>
 typedef int32_t int32;
 
+static double * restrict input;
 static int32 xx;
 static int32 yy;
+static double * restrict weights;
+static double * restrict normalization;
+static double * restrict output;
 
-static inline double weight(double * restrict, int32, int32);
-static void matrix_weights(double * restrict, double * restrict);
-static void matrix_normalization(double * restrict, double * restrict);
-static void matrix_convolute(double * restrict, double * restrict,
-                             double * restrict, double * restrict);
+static inline double weight(int32, int32);
+static void matrix_weights(void);
+static void matrix_normalization(void);
+static void matrix_convolute(void);
 
-void filter(double * restrict input, int32 const ww, int32 const hh, 
-            double * restrict weights, double * restrict normalization, 
-            double * restrict output) {
-    xx = ww;
-    yy = hh;
-    matrix_weights(input, weights);
-    matrix_normalization(weights, normalization);
-    matrix_convolute(input, weights, normalization, output);
+void filter(double * restrict input0, int32 const xx0, int32 const yy0, 
+            double * restrict weights0, double * restrict normalization0, 
+            double * restrict output0) {
+
+    input = input0;
+    xx = xx0;
+    yy = yy0;
+    weights = weights0;
+    normalization = normalization0;
+    output = output0;
+
+    matrix_weights();
+    matrix_normalization();
+    matrix_convolute();
 }
 
-double weight(double * restrict input, int32 x, int32 y) {
+double weight(int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 
@@ -42,8 +51,6 @@ double weight(double * restrict input, int32 x, int32 y) {
 }
 
 typedef struct ThreadArguments {
-    double *input;
-    double *weights;
     int32 start_x;
     int32 end_x;
 } ThreadArguments;
@@ -51,21 +58,19 @@ typedef struct ThreadArguments {
 int weights_slice(void *arg) {
     ThreadArguments *args = (ThreadArguments *) arg;
 
-    double *input = args->input;
-    double *weights = args->weights;
     int32 start_x = args->start_x;
     int32 end_x = args->end_x;
 
     for (int32 x = start_x; x < end_x; x += 1) {
         for (int32 y = 1; y < yy - 1; y += 1) {
-            weights[yy*x + y] = weight(input, x, y);
+            weights[yy*x + y] = weight(x, y);
         }
     }
 
     thrd_exit(0);
 }
 
-void matrix_weights(double *restrict input, double *restrict weights) {
+void matrix_weights(void) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     if (number_threads > 4)
         number_threads = 4;
@@ -75,8 +80,6 @@ void matrix_weights(double *restrict input, double *restrict weights) {
     ThreadArguments thread_arguments[number_threads];
 
     for (int i = 0; i < number_threads; i += 1) {
-        thread_arguments[i].input = input;
-        thread_arguments[i].weights = weights;
         thread_arguments[i].start_x = i*range + 1;
         if (i == number_threads - 1) {
             thread_arguments[i].end_x = xx - 1;
@@ -92,7 +95,7 @@ void matrix_weights(double *restrict input, double *restrict weights) {
     }
 }
 
-void matrix_normalization(double * restrict weights, double * restrict normalization) {
+void matrix_normalization(void) {
     for (int32 x = 1; x < xx - 1; x += 1) {
         for (int32 y = 1; y < yy - 1; y += 1) {
             normalization[yy*x + y] = 0;
@@ -105,8 +108,7 @@ void matrix_normalization(double * restrict weights, double * restrict normaliza
     }
 }
 
-void matrix_convolute(double * restrict input, double * restrict weights, 
-                      double * restrict normalization, double * restrict output) {
+void matrix_convolute(void) {
     for (int32 x = 1; x < xx - 1; x += 1) {
         for (int32 y = 1; y < yy - 1; y += 1) {
             output[yy*x + y] = 0;

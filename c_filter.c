@@ -67,6 +67,8 @@ int weights_slice(void *arg) {
 
 void matrix_weights(double *restrict input, double *restrict weights) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
+    if (number_threads > 4)
+        number_threads = 4;
     int32 range = (xx - 2) / number_threads;
     
     thrd_t threads[number_threads];

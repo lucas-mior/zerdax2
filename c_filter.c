@@ -9,20 +9,21 @@
 #include <threads.h>
 #include <unistd.h>
 #include <math.h>
+
 typedef int32_t int32;
+static const int32 ww = 512;
 
 static double *restrict input;
 static double *restrict weights;
 static double *restrict normalization;
 static double *restrict output;
 static int32 hh;
-static const int32 ww = 512;
 
-static inline double weight(int32, int32);
 static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
+static inline double weight(int32, int32);
 
 void filter(double *restrict input0, double *restrict output0, 
             double *restrict normalization0, double *restrict weights0,

@@ -21,6 +21,7 @@ static inline double weight(int32, int32);
 static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
+static int weights_slice(void *);
 
 void filter(double * restrict input0, double * restrict output0, 
             double * restrict normalization0, double * restrict weights0,
@@ -38,37 +39,10 @@ void filter(double * restrict input0, double * restrict output0,
     matrix_convolute();
 }
 
-double weight(int32 x, int32 y) {
-    double Gx, Gy;
-    double d, w;
-
-    Gx = input[yy*(x+1) + y] - input[yy*(x-1) + y];
-    Gy = input[yy*x + y+1] - input[yy*x + y-1];
-
-    d = sqrt(Gx*Gx + Gy*Gy);
-    w = exp(-sqrt(d));
-    return w;
-}
-
 typedef struct ThreadArguments {
     int32 start_x;
     int32 end_x;
 } ThreadArguments;
-
-int weights_slice(void *arg) {
-    ThreadArguments *args = (ThreadArguments *) arg;
-
-    int32 start_x = args->start_x;
-    int32 end_x = args->end_x;
-
-    for (int32 x = start_x; x < end_x; x += 1) {
-        for (int32 y = 1; y < yy - 1; y += 1) {
-            weights[yy*x + y] = weight(x, y);
-        }
-    }
-
-    thrd_exit(0);
-}
 
 void matrix_weights(void) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
@@ -93,6 +67,33 @@ void matrix_weights(void) {
     for (int i = 0; i < number_threads; i += 1) {
         thrd_join(threads[i], NULL);
     }
+}
+
+int weights_slice(void *arg) {
+    ThreadArguments *args = (ThreadArguments *) arg;
+
+    int32 start_x = args->start_x;
+    int32 end_x = args->end_x;
+
+    for (int32 x = start_x; x < end_x; x += 1) {
+        for (int32 y = 1; y < yy - 1; y += 1) {
+            weights[yy*x + y] = weight(x, y);
+        }
+    }
+
+    thrd_exit(0);
+}
+
+double weight(int32 x, int32 y) {
+    double Gx, Gy;
+    double d, w;
+
+    Gx = input[yy*(x+1) + y] - input[yy*(x-1) + y];
+    Gy = input[yy*x + y+1] - input[yy*x + y-1];
+
+    d = sqrt(Gx*Gx + Gy*Gy);
+    w = exp(-sqrt(d));
+    return w;
 }
 
 void matrix_normalization(void) {

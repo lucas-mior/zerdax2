@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <threads.h>
-#include <string.h>
 #include <unistd.h>
 #include <math.h>
 typedef int32_t int32;
@@ -97,9 +96,9 @@ double weight(int32 x, int32 y) {
 }
 
 void matrix_normalization(void) {
-    memset(normalization, 0, ww*hh*sizeof(double));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
+            normalization[ww*y + x] = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
                     normalization[ww*y + x] += weights[ww*(y+i) + x+j];
@@ -110,9 +109,9 @@ void matrix_normalization(void) {
 }
 
 void matrix_convolute(void) {
-    memset(output, 0, ww*hh*sizeof(double));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
+            output[ww*y + x] = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
                     output[ww*y + x] += (weights[ww*(y+i) + x+j]*input[ww*(y+i) + x+j]);

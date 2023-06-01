@@ -278,18 +278,6 @@ def find_corners(canny):
     BR = inters[np.argmax(points_sum)]
     BL = inters[np.argmin(points_sub)]
 
-    log.debug("broading 4 corners of board...")
-    margin = 2
-
-    TL[0] = TL[0] - margin
-    TL[1] = TL[1] - margin
-    TR[0] = TR[0] + margin
-    TR[1] = TR[1] - margin
-    BR[0] = BR[0] + margin
-    BR[1] = BR[1] + margin
-    BL[0] = BL[0] - margin
-    BL[1] = BL[1] + margin
-
     corners = np.array([TL, TR, BR, BL], dtype='int32')
     if debug:
         canvas = draw.corners(canny, corners)

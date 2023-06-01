@@ -10,10 +10,10 @@
 #include <math.h>
 typedef int32_t int32;
 
-static double * restrict input;
-static double * restrict weights;
-static double * restrict normalization;
-static double * restrict output;
+static double *restrict input;
+static double *restrict weights;
+static double *restrict normalization;
+static double *restrict output;
 static int32 xx;
 static int32 yy;
 
@@ -23,8 +23,8 @@ static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
 
-void filter(double * restrict input0, double * restrict output0, 
-            double * restrict normalization0, double * restrict weights0,
+void filter(double *restrict input0, double *restrict output0, 
+            double *restrict normalization0, double *restrict weights0,
             int32 const xx0, int32 const yy0) {
 
     input = input0;

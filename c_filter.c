@@ -46,6 +46,8 @@ typedef struct ThreadArguments {
 } ThreadArguments;
 
 void matrix_weights(void) {
+    memset(weights, 0, ww*hh*sizeof (double));
+
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     if (number_threads > 8)
         number_threads = 8;

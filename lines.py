@@ -311,11 +311,6 @@ def add_outer_diagonal(lines, ll, kind, warped=False):
             if abs(line0[kind+2] - new[kind+2]) <= 5:
                 return lines
 
-            space_new = min(abs(new[kind] - ref), abs(new[kind+2] - ref))
-            if space_new >= space_old:
-                log.warning("add_outer_diagonal: wrong change")
-                return lines
-
             if where == -1:
                 lines = np.append(lines, [new], axis=0)
             else:

@@ -76,14 +76,14 @@ int weights_slice(void *arg) {
 
     for (int32 y = start_x; y < end_x; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
-            weights[ww*y + x] = weight(y, x);
+            weights[ww*y + x] = weight(x, y);
         }
     }
 
     thrd_exit(0);
 }
 
-double weight(int32 y, int32 x) {
+double weight(int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 

@@ -120,7 +120,7 @@ void groups_append(int32 line[LINE_FIELDS]) {
 }
 
 bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
-    int32 min_angle2 = min_angle + 2;
+    int32 min_angle2 = min_angle + 2*100;
     while (group) {
         for (int i = 0; i < group->length; i += 1) {
             int32 *line0 = group->lines[i];

@@ -45,8 +45,8 @@ typedef struct ThreadArguments {
 
 void matrix_weights(void) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
-    if (number_threads > 4)
-        number_threads = 4;
+    if (number_threads > 8)
+        number_threads = 8;
     int32 range = (hh - 2) / number_threads;
     
     thrd_t threads[number_threads];

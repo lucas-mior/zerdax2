@@ -20,10 +20,10 @@ def lfilter():
 
     func.restype = None
     func.argtypes = [ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
-                     ct.c_size_t, ct.c_size_t,
                      ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_double, flags="C_CONTIGUOUS")]
+                     ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
+                     ct.c_size_t, ct.c_size_t]
     return func
 
 

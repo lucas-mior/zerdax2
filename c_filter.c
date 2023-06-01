@@ -11,27 +11,27 @@
 typedef int32_t int32;
 
 static double * restrict input;
-static int32 xx;
-static int32 yy;
 static double * restrict weights;
 static double * restrict normalization;
 static double * restrict output;
+static int32 xx;
+static int32 yy;
 
 static inline double weight(int32, int32);
 static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 
-void filter(double * restrict input0, int32 const xx0, int32 const yy0, 
-            double * restrict weights0, double * restrict normalization0, 
-            double * restrict output0) {
+void filter(double * restrict input0, double * restrict output0, 
+            double * restrict normalization0, double * restrict weights0,
+            int32 const xx0, int32 const yy0) {
 
     input = input0;
-    xx = xx0;
-    yy = yy0;
     weights = weights0;
     normalization = normalization0;
     output = output0;
+    xx = xx0;
+    yy = yy0;
 
     matrix_weights();
     matrix_normalization();

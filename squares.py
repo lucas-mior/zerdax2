@@ -89,6 +89,8 @@ def calculate_means(image, squares, col, row):
 
     mean_out = round(cv2.mean(box, mask=mask_out)[0])
     mean_in = round(cv2.mean(box, mask=mask_in)[0])
+    if (col + row) % 2 == 0:
+        mean_in, mean_out = mean_out, mean_in
     return mean_in, mean_out
 
 
@@ -129,7 +131,7 @@ def check_colors(image, squares):
         mean_white = np.median(white[:, 0, 1])
         mean_black = np.median(black[:, 0, 1])
     else:
-        if player_position == "left":
+        if player_position == "right":
             mean_white = np.median(white[:, 0, 0])
             mean_black = np.median(black[:, 0, 0])
         else:

@@ -8,7 +8,7 @@ import draw
 WIDTH_INPUT = 512
 
 
-def filter_test(filename):
+def filter_test(filename, i):
     BGR = cv2.imread(filename)
     image = cv2.cvtColor(BGR, cv2.COLOR_BGR2GRAY)
 
@@ -28,10 +28,11 @@ def filter_test(filename):
     g = np.round(g)
     g = np.clip(g, 0, 255)
     g = np.array(g, dtype='uint8')
-    draw.save("lfilter", g, title="lfilter.png")
+    title = f"lfilter_{i}.png"
+    draw.save(f"lfilter_{i}", g, title=title)
 
 
 if __name__ == "__main__":
     for i in range(5):
-        for filename in sys.argv[1:]:
-            filter_test(filename)
+        for j, filename in enumerate(sys.argv[1:]):
+            filter_test(filename, j)

@@ -23,7 +23,7 @@ def lfilter():
                      ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
-                     ct.c_size_t, ct.c_size_t]
+                     ct.c_size_t]
     return func
 
 

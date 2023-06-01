@@ -51,7 +51,6 @@ def main(filename):
         return bad_picture_msg
 
     canny = create_canny(board.image)
-    return "aaaaaaaaaaaaaa"
 
     board.corners = find_corners(canny)
     if board.corners is None:
@@ -162,9 +161,9 @@ def find_edges(image):
     normalization = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')
 
-    lfilter(f, g, weights, normalization, f.shape[0], f.shape[1])
-    lfilter(g, f, weights, normalization, f.shape[0], f.shape[1])
-    lfilter(f, g, weights, normalization, f.shape[0], f.shape[1])
+    lfilter(f, g, weights, normalization, f.shape[0])
+    lfilter(g, f, weights, normalization, f.shape[0])
+    lfilter(f, g, weights, normalization, f.shape[0])
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

@@ -63,9 +63,15 @@ def corners(image, corners):
     canvas = np.zeros(image.shape, dtype='uint8')
     radius = round(5 * (image.shape[1] / 512))
 
+    name = ["TL", "TR", "BR", "BL"]
+    thick = round(2 * (image.shape[1] / 512))
     for i, c in enumerate(corners):
+        color = (i*50, 30*i, 255-i*40)
         cv2.circle(canvas, c, radius,
-                   color=(10+i*50, 0, 100+i*40), thickness=-1)
+                   color=color, thickness=-1)
+        cv2.putText(canvas, name[i], c,
+                    cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
+                    color=color, thickness=thick)
 
     canvas = add_weighted(image, canvas)
     return canvas

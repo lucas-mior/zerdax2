@@ -88,8 +88,8 @@ double weight(int32 x, int32 y) {
     double Gx, Gy;
     double d, w;
 
-    Gx = input[ww*(y+1) + x] - input[ww*(y-1) + x];
-    Gy = input[ww*y + x+1] - input[ww*y + x-1];
+    Gx = input[ww*y + x+1] - input[ww*y + x-1];
+    Gy = input[ww*(y+1) + x] - input[ww*(y-1) + x];
 
     d = sqrt(Gx*Gx + Gy*Gy);
     w = exp(-sqrt(d));

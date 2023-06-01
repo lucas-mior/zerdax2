@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void *util_alloc(void *old, size_t size) {
+void *util_realloc(void *old, size_t size) {
     void *p;
     if ((p = realloc(old, size)) == NULL) {
         fprintf(stderr, "Failed to allocate %zu bytes.\n", size);

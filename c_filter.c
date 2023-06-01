@@ -39,8 +39,8 @@ void filter(double *restrict input0, double *restrict output0,
 }
 
 typedef struct ThreadArguments {
-    int32 start_x;
-    int32 end_x;
+    int32 start_y;
+    int32 end_y;
 } ThreadArguments;
 
 void matrix_weights(void) {
@@ -53,11 +53,11 @@ void matrix_weights(void) {
     ThreadArguments thread_arguments[number_threads];
 
     for (int i = 0; i < number_threads; i += 1) {
-        thread_arguments[i].start_x = i*range + 1;
+        thread_arguments[i].start_y = i*range + 1;
         if (i == number_threads - 1) {
-            thread_arguments[i].end_x = hh - 1;
+            thread_arguments[i].end_y = hh - 1;
         } else {
-            thread_arguments[i].end_x = (i + 1)*range + 1;
+            thread_arguments[i].end_y = (i + 1)*range + 1;
         }
 
         thrd_create(&threads[i], weights_slice, (void *) &thread_arguments[i]);
@@ -71,10 +71,10 @@ void matrix_weights(void) {
 int weights_slice(void *arg) {
     ThreadArguments *args = (ThreadArguments *) arg;
 
-    int32 start_x = args->start_x;
-    int32 end_x = args->end_x;
+    int32 start_y = args->start_y;
+    int32 end_y = args->end_y;
 
-    for (int32 y = start_x; y < end_x; y += 1) {
+    for (int32 y = start_y; y < end_y; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
             weights[ww*y + x] = weight(x, y);
         }

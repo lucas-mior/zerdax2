@@ -157,13 +157,13 @@ def create_canny(image):
 def find_edges(image):
     log.info("filtering image...")
     f = np.array(image, dtype='float64')
-    W = np.zeros(image.shape, dtype='float64')
-    N = np.zeros(image.shape, dtype='float64')
+    weights = np.zeros(image.shape, dtype='float64')
+    normalization = np.zeros(image.shape, dtype='float64')
     g = np.zeros(image.shape, dtype='float64')
 
-    lfilter(f, f.shape[0], f.shape[1], W, N, g)
-    lfilter(g, f.shape[0], f.shape[1], W, N, f)
-    lfilter(f, f.shape[0], f.shape[1], W, N, g)
+    lfilter(f, f.shape[0], f.shape[1], weights, normalization, g)
+    lfilter(g, f.shape[0], f.shape[1], weights, normalization, f)
+    lfilter(f, f.shape[0], f.shape[1], weights, normalization, g)
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

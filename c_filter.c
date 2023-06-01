@@ -14,19 +14,19 @@ static int32 xx;
 static int32 yy;
 
 static inline double weight(double * restrict, int32, int32);
-static void matrix_weight(double * restrict, double * restrict);
-static void matrix_normalize(double * restrict, double * restrict);
+static void matrix_weights(double * restrict, double * restrict);
+static void matrix_normalization(double * restrict, double * restrict);
 static void matrix_convolute(double * restrict, double * restrict,
                              double * restrict, double * restrict);
 
 void filter(double * restrict input, int32 const ww, int32 const hh, 
-            double * restrict W, double * restrict N, 
+            double * restrict weights, double * restrict normalization, 
             double * restrict output) {
     xx = ww;
     yy = hh;
-    matrix_weight(input, W);
-    matrix_normalize(W, N);
-    matrix_convolute(input, W, N, output);
+    matrix_weights(input, weights);
+    matrix_normalization(weights, normalization);
+    matrix_convolute(input, weights, normalization, output);
 }
 
 double weight(double * restrict input, int32 x, int32 y) {
@@ -43,7 +43,7 @@ double weight(double * restrict input, int32 x, int32 y) {
 
 typedef struct ThreadArguments {
     double *input;
-    double *W;
+    double *weights;
     int32 start_x;
     int32 end_x;
 } ThreadArguments;
@@ -52,20 +52,20 @@ int weights_slice(void *arg) {
     ThreadArguments *args = (ThreadArguments *) arg;
 
     double *input = args->input;
-    double *W = args->W;
+    double *weights = args->weights;
     int32 start_x = args->start_x;
     int32 end_x = args->end_x;
 
     for (int32 x = start_x; x < end_x; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
-            W[yy*x + y] = weight(input, x, y);
+            weights[yy*x + y] = weight(input, x, y);
         }
     }
 
     thrd_exit(0);
 }
 
-void matrix_weight(double *restrict input, double *restrict W) {
+void matrix_weights(double *restrict input, double *restrict weights) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     int32 range = (xx - 2) / number_threads;
     
@@ -74,7 +74,7 @@ void matrix_weight(double *restrict input, double *restrict W) {
 
     for (int i = 0; i < number_threads; i++) {
         thread_arguments[i].input = input;
-        thread_arguments[i].W = W;
+        thread_arguments[i].weights = weights;
         thread_arguments[i].start_x = i*range + 1;
         if (i == number_threads - 1) {
             thread_arguments[i].end_x = xx - 1;
@@ -90,30 +90,30 @@ void matrix_weight(double *restrict input, double *restrict W) {
     }
 }
 
-void matrix_normalize(double * restrict W, double * restrict N) {
+void matrix_normalization(double * restrict weights, double * restrict normalization) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
-            N[yy*x + y] = 0;
+            normalization[yy*x + y] = 0;
             for (int32 i = -1; i <= +1; i++) {
                 for (int32 j = -1; j <= +1; j++) {
-                    N[yy*x + y] += W[yy*(x+i) + y+j];
+                    normalization[yy*x + y] += weights[yy*(x+i) + y+j];
                 }
             }
         }
     }
 }
 
-void matrix_convolute(double * restrict input, double * restrict W, 
-                      double * restrict N, double * restrict output) {
+void matrix_convolute(double * restrict input, double * restrict weights, 
+                      double * restrict normalization, double * restrict output) {
     for (int32 x = 1; x < xx - 1; x++) {
         for (int32 y = 1; y < yy - 1; y++) {
             output[yy*x + y] = 0;
             for (int32 i = -1; i <= +1; i++) {
                 for (int32 j = -1; j <= +1; j++) {
-                    output[yy*x + y] += (W[yy*(x+i) + y+j]*input[yy*(x+i) + y+j]);
+                    output[yy*x + y] += (weights[yy*(x+i) + y+j]*input[yy*(x+i) + y+j]);
                 }
             }
-            output[yy*x + y] /= N[yy*x + y];
+            output[yy*x + y] /= normalization[yy*x + y];
         }
     }
     for (int32 y = 0; y < (yy*xx - 1); y+=yy)

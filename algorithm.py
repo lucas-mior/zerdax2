@@ -101,9 +101,6 @@ def crop_image(image, boardbox):
     log.info("cropping image to board box...")
     translate_params = SimpleNamespace()
     x0, y0, x1, y1 = boardbox
-    margin = 4
-    x0, y0 = x0 - margin, y0 - margin
-    x1, y1 = x1 + margin, y1 + margin
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")

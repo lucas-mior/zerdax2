@@ -47,6 +47,7 @@ def main(filename):
     log.info(f"board detected: {board.box}")
     board.image, translate_params = crop_image(BGR, board.box)
     if board.image.shape[0] < 280:
+        log.error("too low perspective")
         log.error(bad_picture_msg)
         return bad_picture_msg
 
@@ -54,6 +55,7 @@ def main(filename):
 
     board.corners = find_corners(canny)
     if board.corners is None:
+        log.error("error finding corners of board")
         log.error(bad_picture_msg)
         return bad_picture_msg
 
@@ -62,6 +64,7 @@ def main(filename):
 
     vert, hori = lines.find_warped_lines(canny_warped)
     if vert is None or hori is None:
+        log.error("error finding lines of warped board")
         log.error(bad_picture_msg)
         return bad_picture_msg
 
@@ -70,8 +73,7 @@ def main(filename):
         canvas = draw.points(canny_warped, inters)
         draw.save("intersections", canvas)
         if failed:
-            log.error("there should be 81 intersections",
-                      "in 9 rows and 9 columns")
+            log.error("must have 81 intersections in 9 rows and 9 columns")
             log.error(f"{inters.shape=}")
             log.error(bad_picture_msg)
             return bad_picture_msg
@@ -82,15 +84,15 @@ def main(filename):
         draw.save("translated_intersections", canvas)
 
     board.squares = squares.calculate(inters)
-    # if debug:
-    # canvas = draw.squares(BGR, board.squares)
-    # draw.save("A1E4C5H8", canvas)
+    if debug:
+        canvas = draw.squares(BGR, board.squares)
+        draw.save("squares", canvas)
 
     board.squares, pieces = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(BGR, board.squares)
     # if debug and changed:
     canvas = draw.squares(BGR, board.squares)
-    draw.save("A1E4C5H8", canvas)
+    draw.save("squares_check_colors", canvas)
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
@@ -255,6 +257,7 @@ def translate_inters(inters, warp_matrix_inverse, translate_params):
 def find_corners(canny):
     vert, hori = lines.find_diagonal_lines(canny)
     if vert is None or hori is None:
+        log.error("error finding diagonal lines")
         return None
 
     inters = intersect.calculate_all(vert, hori)

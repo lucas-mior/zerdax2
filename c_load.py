@@ -7,10 +7,10 @@ if uname == "Linux":
     library = "./libzerdax.so"
 elif uname == "Windows":
     # library = r".\libzerdax.dll"
-    print("This ṕrogram doesn't work on windows yet")
+    print("this ṕrogram doesn't work on windows yet")
     exit(1)
 else:
-    print(f"Unsuported operating system: {uname}")
+    print(f"unsuported operating system: {uname}")
     exit(1)
 lib = ct.CDLL(library)
 

@@ -40,7 +40,7 @@ def main(filename):
         canvas = draw.boxes(BGR, board.pieces, board.box)
         draw.save("detection", canvas)
         if failed:
-            log.error("Could not find board on picture")
+            log.error("could not find board on picture")
             log.error(bad_picture_msg)
             return bad_picture_msg
 
@@ -210,9 +210,9 @@ def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
         threshold_high = max(canny_threshold_high_min, threshold_high - diff)
 
     if not got_canny:
-        log.info(f"Failed to find edges with"
+        log.info(f"failed to find edges with"
                  f"mean >= {canny_mean_threshold:0=.1f}")
-        log.info(f"Last canny thresholds: {threshold_low, threshold_high}")
+        log.info(f"last canny thresholds: {threshold_low, threshold_high}")
     return canny
 
 

@@ -56,7 +56,7 @@ def find_warped_lines(canny):
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"warped_lines_{lv=}_{lh=}", canvas)
         if failed:
-            log.error("Less than 6 lines found in at least one direction")
+            log.error("less than 6 lines found in at least one direction")
             return None, None
 
     vert, hori = sort(vert, hori)
@@ -110,7 +110,7 @@ def find_diagonal_lines(canny):
         canvas = draw.lines(gcanny, vert, hori)
         draw.save(f"diagonal_lines_{lv=}_{lh=}", canvas)
         if failed:
-            log.error("Less than 6 lines found in at least one direction")
+            log.error("less than 6 lines found in at least one direction")
             return None, None
 
     vert, hori = sort(vert, hori)
@@ -268,7 +268,7 @@ def fix_length_byinter(vert, hori=None):
 def add_outer_diagonal(lines, ll, kind):
     log.info("adding missing outer diagonal lines...")
     if ll < 5:
-        log.warning("Less than 5 lines passed to add_outer, returning...")
+        log.warning("less than 5 lines passed to add_outer, returning...")
         return lines
 
     def _add_outer(lines, where):
@@ -327,7 +327,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
     log.info("adding missing outer warped lines...")
     outer_tolerance = 2
     if ll < 5:
-        log.warning("Less than 5 lines passed to add_outer, returning...")
+        log.warning("less than 5 lines passed to add_outer, returning...")
         return lines
 
     def _add_outer(lines, where, med):
@@ -374,7 +374,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
 def extend_outer(lines, ll, kind, force=False):
     log.info("extending outer lines...")
     if ll < 5:
-        log.warning("Less than 5 lines passed to extend_outers, returning...")
+        log.warning("less than 5 lines passed to extend_outers, returning...")
         return lines
 
     def _extend_outer(lines, where):
@@ -484,7 +484,7 @@ def calculate_distances_diagonal(lines, kind):
 def remove_wrong(lines, ll, kind):
     log.info("removing wrong middle lines...")
     if ll < 7:
-        log.warning("Less than 7 lines passed to remove_wrong, returning...")
+        log.warning("less than 7 lines passed to remove_wrong, returning...")
         return lines, ll
 
     def _remove_wrong(lines, dists):
@@ -585,7 +585,7 @@ def remove_outer(lines, ll, kind):
     tolerance = 3
     limit = gcanny.shape[kind-1]
     if ll < 7:
-        log.warning("Less than 7 lines passed to remove_outer, returning...")
+        log.warning("less than 7 lines passed to remove_outer, returning...")
         return lines, ll
 
     d00 = abs(lines[1, kind] - 0)

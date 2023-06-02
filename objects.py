@@ -15,7 +15,7 @@ def detect(BGR):
     objects = model.predict(source=BGR,
                             conf=0.5,
                             device="cpu",
-                            imgsz=640,
+                            imgsz=960,
                             iou=0.7,
                             max_det=33)
 

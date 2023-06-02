@@ -34,14 +34,11 @@ def detect(BGR):
     npieces = []
     for piece in pieces:
         x0, y0, x1, y1 = piece.xyxy[0].cpu()
-        confidence = piece.conf[0].cpu()
+        confidence = np.round(piece.conf[0].cpu() * 1000)
         klass = piece.cls[0].cpu()
         npieces.append([x0, y0, x1, y1, confidence, klass])
 
-    pieces = np.array(npieces, dtype='O')
-    pieces[:, :4] = np.int32(pieces[:, :4])
-    pieces[:, 4] = np.float64(pieces[:, 4])
-    pieces[:, 5] = np.int32(pieces[:, 5])
+    pieces = np.array(npieces, dtype='int32')
 
     return boardbox, pieces
 

@@ -47,7 +47,9 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hsvalue = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)[:, :, 2]
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.bitwise_and(hsvalue, gray)
 
     avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
@@ -57,6 +59,7 @@ def determine_colors(pieces, image):
         x1 -= 8
         y1 -= 10
         box = image[y0:y1, x0:x1]
+        draw.save("box", box, title=f"box{i}.png")
         avg_colors[i] = np.median(box, overwrite_input=True)
 
     try:

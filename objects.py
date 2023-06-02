@@ -59,7 +59,6 @@ def determine_colors(pieces, image):
         x1 -= 8
         y1 -= 10
         box = image[y0:y1, x0:x1]
-        draw.save("box", box, title=f"box{i}.png")
         avg_colors[i] = np.median(box, overwrite_input=True)
 
     try:

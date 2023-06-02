@@ -20,7 +20,7 @@ def detect(BGR):
                             max_det=33)
 
     objects = objects[0].boxes
-    confidences = np.array(objects.conf.cpu())
+    confidences = np.array(objects.conf.cpu())[::-1]
     objects = objects[np.argsort(confidences)]
 
     boardbox = None
@@ -52,10 +52,10 @@ def determine_colors(pieces, image):
     avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
-        x0 += 4
-        y0 += 4
-        x1 -= 4
-        y1 -= 7
+        x0 += 8
+        y0 += 8
+        x1 -= 8
+        y1 -= 10
         box = image[y0:y1, x0:x1]
         avg_colors[i] = np.median(box, overwrite_input=True)
 
@@ -97,7 +97,19 @@ def process_pieces_amount(pieces):
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
         BGR = cv2.imread(filename)
+
         boardbox, pieces = detect(BGR)
-        pieces = determine_colors(pieces, BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("detection", canvas, title="detection.png")
+
+        pieces = determine_colors(pieces, BGR)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("d_colors", canvas, title="d_colors.png")
+
+        pieces = remove_captured_pieces(pieces, boardbox)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("d_remove_captured", canvas, title="d_remove_captured.png")
+
+        pieces = process_pieces_amount(pieces)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("d_amount_fix", canvas, title="d_amount_fix.png")

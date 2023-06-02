@@ -180,7 +180,7 @@ def squares(image, squares):
 def boxes(image, pieces, boardbox=None):
     image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    thick = round(2 * (image.shape[1] / 512))
+    thick = round(2 * (max(image.shape[1], image.shape[0]) / 1280))
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num = piece[:6]

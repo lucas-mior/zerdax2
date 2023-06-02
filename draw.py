@@ -163,11 +163,11 @@ def squares(image, squares):
         col, row = _get_coord(name)
         coord = squares[col, row, :4]
         color = COLORS[col]
+        colortext = [max(0, c - 50) for c in color]
 
         cv2.drawContours(canvas, [coord], -1, color=color, thickness=3)
-        color = [max(0, c - 50) for c in color]
         cv2.putText(canvas, name, (coord[0, 0]+5, coord[0, 1]-5),
-                    cv2.FONT_HERSHEY_SIMPLEX, scale, color=color, thickness=2)
+                    cv2.FONT_HERSHEY_SIMPLEX, scale, colortext, thickness=2)
         return canvas
 
     canvas = _draw_square(canvas, "A1")

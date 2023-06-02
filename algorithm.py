@@ -89,8 +89,8 @@ def main(filename):
     board.squares, pieces = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(BGR, board.squares)
     # if debug and changed:
-    # canvas = draw.squares(BGR, board.squares)
-    # draw.save("A1E4C5H8", canvas)
+    canvas = draw.squares(BGR, board.squares)
+    draw.save("A1E4C5H8", canvas)
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)

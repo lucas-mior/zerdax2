@@ -265,7 +265,7 @@ def fix_length_byinter(vert, hori=None):
     return vert, hori
 
 
-def add_outer_diagonal(lines, ll, kind, warped=False):
+def add_outer_diagonal(lines, ll, kind):
     log.info("adding missing outer diagonal lines...")
     if ll < 5:
         log.warning("Less than 5 lines passed to add_outer, returning...")

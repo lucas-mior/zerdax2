@@ -243,8 +243,9 @@ def fix_length_byinter(vert, hori=None):
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
             limit = intersect.shorten(new, gcanny)
             if limit is None:
-                if (length(new)/2) < length(limit) < length(new):
-                    x0, y0, x1, y1 = limit
+                x0, y0, x1, y1 = new
+            elif (length(new)/2) < length(limit) < length(new):
+                x0, y0, x1, y1 = limit
             else:
                 x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, line[4], line[5]

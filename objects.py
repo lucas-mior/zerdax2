@@ -67,7 +67,16 @@ def determine_colors(pieces, image):
     return pieces
 
 
-def process_pieces(pieces):
+def remove_captured_pieces(pieces, boardbox):
+    inside = np.logical_and.reduce((pieces[:, 0] >= boardbox[0],
+                                    pieces[:, 1] >= boardbox[1],
+                                    pieces[:, 2] <= boardbox[2],
+                                    pieces[:, 3] <= boardbox[3]))
+    pieces = pieces[inside]
+    return pieces
+
+
+def process_pieces_amount(pieces):
     new_pieces = []
     rules = copy.deepcopy(AMOUNT)
 

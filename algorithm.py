@@ -34,7 +34,8 @@ def main(filename):
     board = SimpleNamespace()
     board.box, board.pieces = objects.detect(BGR)
     board.pieces = objects.determine_colors(board.pieces, BGR)
-    board.pieces = objects.process_pieces(board.pieces)
+    board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
+    board.pieces = objects.process_pieces_amount(board.pieces)
 
     if (failed := board.box is None) or debug:
         canvas = draw.boxes(BGR, board.pieces, board.box)

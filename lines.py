@@ -23,7 +23,7 @@ def find_warped_lines(canny):
 
     angle = 0.5
     hough_min_length = hough_min_length0
-    hough_threshold = hough_min_length0*1.1
+    hough_threshold = hough_min_length0
 
     ll = lv = lh = 0
     hori = vert = None
@@ -31,9 +31,9 @@ def find_warped_lines(canny):
         if hough_threshold <= (hough_min_length0/1.5):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
-        hough_min_length = max(hough_min_length - 5, hough_min_length0 / 1.1)
+        hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.1)
         hough_max_gap = min(hough_max_gap + 3, hough_min_length0 / 4)
-        hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.5)
+        hough_threshold = max(hough_threshold - 8, hough_min_length0 / 1.5)
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:

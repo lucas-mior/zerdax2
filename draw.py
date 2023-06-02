@@ -170,14 +170,8 @@ def squares(image, squares):
                     cv2.FONT_HERSHEY_SIMPLEX, scale, colortext, thickness=2)
         return canvas
 
-    canvas = _draw_square(canvas, "A1")
-    canvas = _draw_square(canvas, "B2")
-    canvas = _draw_square(canvas, "C3")
-    canvas = _draw_square(canvas, "D4")
-    canvas = _draw_square(canvas, "E5")
-    canvas = _draw_square(canvas, "F6")
-    canvas = _draw_square(canvas, "G7")
-    canvas = _draw_square(canvas, "H8")
+    for name in ["A1", "B2", "C3", "D4", "E5", "F6", "G7", "H8"]:
+        canvas = _draw_square(canvas, name)
 
     canvas = add_weighted(image, canvas)
     return canvas

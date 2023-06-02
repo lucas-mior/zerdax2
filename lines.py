@@ -242,8 +242,7 @@ def fix_length_byinter(vert, hori=None):
             a, b = inter[0], inter[-1]
             new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
             limit = intersect.shorten(new, gcanny)
-            limit = np.ravel(limit[:2])
-            if (length(new)/2) < length(limit) < length(new):
+            if length(limit) < length(new):
                 x0, y0, x1, y1 = limit
             else:
                 x0, y0, x1, y1 = new
@@ -289,17 +288,11 @@ def add_outer_diagonal(lines, ll, kind, warped=False):
         y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
         new = np.array([x0, y0, x1, y1], dtype='int32')
         inters = intersect.shorten(new, gcanny)
-        if len(inters) < 2:
-            log.warning("add_outer_diagonal: less than 2 intersections")
+        if inters is None:
             return lines
-        elif len(inters) > 2:
-            segments = np.array([[inters[0], inters[1]],
-                                 [inters[0], inters[2]],
-                                 [inters[1], inters[2]]])
-            lengths = [length(np.ravel(segment)) for segment in segments]
-            inters = segments[np.argmax(lengths)]
-        if inters[0, kind] <= limit and inters[1, kind] <= limit:
-            x0, y0, x1, y1 = np.ravel(inters)
+
+        if inters[kind] <= limit and inters[kind+2] <= limit:
+            x0, y0, x1, y1 = inters[:4]
             lnew = length((x0, y0, x1, y1))
             new = np.array([x0, y0, x1, y1, lnew, line1[5]], dtype='int32')
 

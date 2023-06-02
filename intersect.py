@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import linalg
 import logging as log
+import lines
 
 MIN_ANGLE_TO_INTERSECT = 20 * 100
 
@@ -146,4 +147,14 @@ def shorten(inters, canny):
     inters = inters[(inters[:, 0] >= 0) & (inters[:, 1] >= 0) &
                     (inters[:, 0] <= image_width) &
                     (inters[:, 1] <= image_height)]
-    return inters
+
+    if len(inters) < 2:
+        log.warning("shorten: less than 2 intersections")
+        return None
+    elif len(inters) > 2:
+        segments = np.array([[inters[0], inters[1]],
+                             [inters[0], inters[2]],
+                             [inters[1], inters[2]]])
+        lengths = [lines.length(np.ravel(segment)) for segment in segments]
+        inters = segments[np.argmax(lengths)]
+    return np.ravel(inters)

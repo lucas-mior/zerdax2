@@ -515,7 +515,7 @@ def add_middle(lines, ll, kind):
         lines = np.insert(lines, i+1, new, axis=0)
         return lines
 
-    def _add_middle(lines, med):
+    def _add_middle(lines, med, sign):
         dnext0 = segments_distance(lines[0], lines[1])
         dnext1 = segments_distance(lines[1], lines[2])
         dnext2 = segments_distance(lines[2], lines[3])
@@ -524,8 +524,8 @@ def add_middle(lines, ll, kind):
             if dnext0 > (dnext3*tol):
                 new = np.copy(lines[0])
                 dx = med + (med - dnext1)
-                new[kind] += dx
-                new[kind+2] += dx
+                new[kind] += (dx*sign)
+                new[kind+2] += (dx*sign)
                 lines = np.insert(lines, 1, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 3):
@@ -538,8 +538,8 @@ def add_middle(lines, ll, kind):
                 if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
                     new = np.copy(lines[i])
                     dx = med + (med - dnext1)
-                    new[kind] += dx
-                    new[kind+2] += dx
+                    new[kind] += (dx*sign)
+                    new[kind+2] += (dx*sign)
                     lines = np.insert(lines, i+1, [new], axis=0)
                     return lines
         for i in range(1, len(lines) - 4):
@@ -560,9 +560,9 @@ def add_middle(lines, ll, kind):
 
     dists = calculate_distances(lines, kind)
     med = np.median(dists)
-    lines = _add_middle(lines, med)
+    lines = _add_middle(lines, med, +1)
     lines = np.flip(lines, axis=0)
-    lines = _add_middle(lines, med)
+    lines = _add_middle(lines, med, -1)
     lines = np.flip(lines, axis=0)
 
     if algorithm.debug and ll != len(lines):

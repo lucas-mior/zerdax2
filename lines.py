@@ -165,7 +165,7 @@ def fix_warped_lines(vert, hori):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert), kind)
-        lines, ll = add_middle(lines, ll, kind)
+        lines, ll = add_middle_warped(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind, warped=True)
         lines, ll = remove_outer(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind, warped=True)
@@ -509,11 +509,11 @@ def remove_wrong(lines, ll, kind):
     return lines, len(lines)
 
 
-def add_middle(lines, ll, kind):
+def add_middle_warped(lines, ll, kind):
     log.info("adding missing middle lines...")
     tol = 1.4
     if ll < 5 or ll > 10:
-        log.warning(f"{ll} lines passed to add_middle, returning...")
+        log.warning(f"{ll} lines passed to add_middle_warped, returning...")
         return lines, ll
 
     def _insert(lines, i, x, y):
@@ -524,11 +524,11 @@ def add_middle(lines, ll, kind):
         lines = np.insert(lines, i+1, new, axis=0)
         return lines
 
-    def _add_middle(lines, med, sign):
-        dnext0 = segments_distance(lines[0], lines[1])
-        dnext1 = segments_distance(lines[1], lines[2])
-        dnext2 = segments_distance(lines[2], lines[3])
-        dnext3 = segments_distance(lines[3], lines[4])
+    def _add_middle_warped(lines, med, sign):
+        dnext0 = abs(lines[0, kind] - lines[1, kind])
+        dnext1 = abs(lines[1, kind] - lines[2, kind])
+        dnext2 = abs(lines[2, kind] - lines[3, kind])
+        dnext3 = abs(lines[3, kind] - lines[4, kind])
         if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
             if dnext0 > (dnext3*tol):
                 new = np.copy(lines[0])
@@ -538,11 +538,11 @@ def add_middle(lines, ll, kind):
                 lines = np.insert(lines, 1, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 3):
-            dprev2 = segments_distance(lines[i-1], lines[i-2])
-            dprev1 = segments_distance(lines[i+0], lines[i-1])
-            dthis0 = segments_distance(lines[i+0], lines[i+1])
-            dnext1 = segments_distance(lines[i+1], lines[i+2])
-            dnext2 = segments_distance(lines[i+2], lines[i+3])
+            dprev2 = abs(lines[i-1, kind] - lines[i-2, kind])
+            dprev1 = abs(lines[i+0, kind] - lines[i-1, kind])
+            dthis0 = abs(lines[i+0, kind] - lines[i+1, kind])
+            dnext1 = abs(lines[i+1, kind] - lines[i+2, kind])
+            dnext2 = abs(lines[i+2, kind] - lines[i+3, kind])
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
                     new = np.copy(lines[i])
@@ -552,11 +552,11 @@ def add_middle(lines, ll, kind):
                     lines = np.insert(lines, i+1, [new], axis=0)
                     return lines
         for i in range(1, len(lines) - 4):
-            dprev0 = segments_distance(lines[i+0], lines[i-1])
-            dnext0 = segments_distance(lines[i+0], lines[i+1])
-            dnext1 = segments_distance(lines[i+1], lines[i+2])
-            dnext2 = segments_distance(lines[i+2], lines[i+3])
-            dnext3 = segments_distance(lines[i+3], lines[i+4])
+            dprev0 = abs(lines[i+0, kind] - lines[i-1, kind])
+            dnext0 = abs(lines[i+0, kind] - lines[i+1, kind])
+            dnext1 = abs(lines[i+1, kind] - lines[i+2, kind])
+            dnext2 = abs(lines[i+2, kind] - lines[i+3, kind])
+            dnext3 = abs(lines[i+3, kind] - lines[i+4, kind])
             if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
                 if dnext0 > (dprev0*tol) or dnext0 > (dnext3*tol):
                     x = (round((lines[i, 0] + lines[i+1, 0])/2),
@@ -569,14 +569,14 @@ def add_middle(lines, ll, kind):
 
     dists = calculate_distances_warped(lines, kind)
     med = np.median(dists)
-    lines = _add_middle(lines, med, +1)
+    lines = _add_middle_warped(lines, med, +1)
     lines = np.flip(lines, axis=0)
-    lines = _add_middle(lines, med, -1)
+    lines = _add_middle_warped(lines, med, -1)
     lines = np.flip(lines, axis=0)
 
     if algorithm.debug and ll != len(lines):
         canvas = draw.lines(gcanny, lines)
-        draw.save("add_middle", canvas)
+        draw.save("add_middle_warped", canvas)
     return lines, len(lines)
 
 

@@ -42,7 +42,7 @@ def find_warped_lines(canny):
 
         lines = filter_not_right(lines)
         vert, hori, lv, lh = split(lines)
-        if lv < 3 or lh < 3:
+        if lv < 4 or lh < 4:
             continue
 
         vert, hori = sort(vert, hori)
@@ -68,6 +68,7 @@ def find_diagonal_lines(canny):
     global gcanny
     gcanny = canny
     log.debug("finding diagonal lines of original board...")
+
     min_lines_before_split = 16
     hough_min_length0 = 300
     hough_max_gap = 8
@@ -83,16 +84,16 @@ def find_diagonal_lines(canny):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
         hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.1)
-        hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
+        hough_max_gap = min(hough_max_gap + 3, hough_min_length0 / 4)
         hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.5)
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
-            hough_max_gap += 2
+            hough_max_gap += 3
             continue
 
         vert, hori, lv, lh = split(lines)
-        if lv < 3 or lh < 3:
+        if lv < 4 or lh < 4:
             continue
 
         vert, hori = filter_misdirected(vert, hori)

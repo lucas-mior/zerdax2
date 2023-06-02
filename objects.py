@@ -13,10 +13,10 @@ import algorithm
 def detect(BGR):
     model = YOLO("zerdax2.pt")
     objects = model.predict(source=BGR,
-                            conf=0.5,
+                            conf=0.1,
                             device="cpu",
                             imgsz=960,
-                            iou=0.7,
+                            iou=0.1,
                             max_det=33)
 
     objects = objects[0].boxes
@@ -47,16 +47,14 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    hsvalue = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)[:, :, 2]
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.bitwise_and(hsvalue, gray)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     avg_colors = np.empty(len(pieces), dtype='int32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
-        x0 += 8
-        y0 += 8
-        x1 -= 2
+        x0 += 10
+        y0 += 10
+        x1 -= 10
         y1 -= 10
         box = image[y0:y1, x0:x1]
         avg_colors[i] = np.median(box, overwrite_input=True)

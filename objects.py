@@ -73,14 +73,20 @@ def determine_colors(pieces, image):
 
 
 def remove_captured_pieces(pieces, boardbox):
-    inter_x = np.maximum(0, np.minimum(pieces[:, 2], boardbox[2]) - np.maximum(pieces[:, 0], boardbox[0]))
-    inter_y = np.maximum(0, np.minimum(pieces[:, 3], boardbox[3]) - np.maximum(pieces[:, 1], boardbox[1]))
+    xmin = np.minimum(pieces[:, 2], boardbox[2])
+    xmax = np.maximum(pieces[:, 0], boardbox[0])
+    inter_x = np.maximum(0, xmin - xmax)
+
+    ymin = np.minimum(pieces[:, 3], boardbox[3])
+    ymax = np.maximum(pieces[:, 1], boardbox[1])
+    inter_y = np.maximum(0, ymin - ymax)
+
     inter_area = inter_x * inter_y
 
     dx = pieces[:, 2] - pieces[:, 0]
     dy = pieces[:, 3] - pieces[:, 1]
-
     boardbox_area = dx * dy
+
     area_ratio = inter_area / boardbox_area
 
     return pieces[area_ratio >= 0.25]

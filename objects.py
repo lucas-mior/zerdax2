@@ -103,16 +103,16 @@ if __name__ == "__main__":
 
         boardbox, pieces = detect(BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("detection", canvas, title="detection.png")
+        draw.save("", canvas, title="0detection.png")
 
         pieces = determine_colors(pieces, BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("d_colors", canvas, title="d_colors.png")
+        draw.save("", canvas, title="1colors.png")
 
         pieces = remove_captured_pieces(pieces, boardbox)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("d_remove_captured", canvas, title="d_remove_captured.png")
+        draw.save("", canvas, title="2remove_captured.png")
 
         pieces = process_pieces_amount(pieces)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("d_amount_fix", canvas, title="d_amount_fix.png")
+        draw.save("", canvas, title="3amount_fix.png")

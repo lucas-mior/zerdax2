@@ -69,12 +69,12 @@ def find_diagonal_lines(canny):
     gcanny = canny
     log.debug("finding diagonal lines of original board...")
     min_lines_before_split = 16
-    hough_min_length0 = 280
-    hough_max_gap = 4
+    hough_min_length0 = 300
+    hough_max_gap = 8
 
     angle = 0.5
     hough_min_length = hough_min_length0
-    hough_threshold = hough_min_length0*1.1
+    hough_threshold = hough_min_length0
 
     ll = lv = lh = 0
     hori = vert = None
@@ -82,7 +82,7 @@ def find_diagonal_lines(canny):
         if hough_threshold <= (hough_min_length0/1.5):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
-        hough_min_length = max(hough_min_length - 5, hough_min_length0 / 1.1)
+        hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.1)
         hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
         hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.5)
 

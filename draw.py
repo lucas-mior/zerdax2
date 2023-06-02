@@ -153,17 +153,31 @@ def squares(image, squares):
     canvas = np.zeros(image.shape, dtype='uint8')
     scale = round(1 + round(image.shape[1] / 1024))
 
-    def _draw_square(canvas, coord, color, name):
+    def _get_coord(name):
+        letter = name[0].upper()
+        row = int(name[1]) - 1
+        col = ord(letter) - ord('A')
+        return col, row
+
+    def _draw_square(canvas, name):
+        col, row = _get_coord(name)
+        coord = squares[col, row, :4]
+        color = COLORS[col]
+
         cv2.drawContours(canvas, [coord], -1, color=color, thickness=3)
-        color = [max(0, c - 80) for c in color]
+        color = [max(0, c - 50) for c in color]
         cv2.putText(canvas, name, (coord[0, 0]+5, coord[0, 1]-5),
                     cv2.FONT_HERSHEY_SIMPLEX, scale, color=color, thickness=2)
         return canvas
 
-    canvas = _draw_square(canvas, squares[0, 0, :4], [255, 0, 0], "A1")
-    canvas = _draw_square(canvas, squares[4, 3, :4], [0, 255, 0], "E4")
-    canvas = _draw_square(canvas, squares[2, 4, :4], [0, 0, 255], "C5")
-    canvas = _draw_square(canvas, squares[7, 7, :4], [0, 255, 255], "H8")
+    canvas = _draw_square(canvas, "A1")
+    canvas = _draw_square(canvas, "B2")
+    canvas = _draw_square(canvas, "C3")
+    canvas = _draw_square(canvas, "D4")
+    canvas = _draw_square(canvas, "E5")
+    canvas = _draw_square(canvas, "F6")
+    canvas = _draw_square(canvas, "G7")
+    canvas = _draw_square(canvas, "H8")
 
     canvas = add_weighted(image, canvas)
     return canvas

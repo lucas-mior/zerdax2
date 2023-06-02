@@ -124,7 +124,7 @@ def calculate_single(line0, canny, kind=0):
 
     div = linalg.det([xdiff, ydiff])
     if div == 0:
-        log.warning("div == 0 (parallel lines)")
+        log.debug("div == 0 (parallel lines)")
         return (30000, 30000)
 
     d = (linalg.det([(x0, y0), (x1, y1)]),
@@ -149,7 +149,7 @@ def shorten(inters, canny):
                     (inters[:, 1] <= image_height)]
 
     if len(inters) < 2:
-        log.warning("shorten: less than 2 intersections")
+        log.debug("shorten: less than 2 intersections")
         return None
     elif len(inters) > 2:
         segments = np.array([[inters[0], inters[1]],

@@ -300,7 +300,7 @@ def add_outer_diagonal(lines, ll, kind):
             new = np.array([x0, y0, x1, y1, lnew, line1[5]], dtype='int32')
 
             if lnew < (line0[4]*0.9):
-                log.warning("add_outer_diagonal: line is shorter than next")
+                log.debug("add_outer_diagonal: line is shorter than next")
                 return lines
 
             if abs(line0[kind] - new[kind]) <= 5:

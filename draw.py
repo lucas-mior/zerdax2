@@ -185,7 +185,7 @@ def boxes(image, pieces, boardbox=None):
     for piece in pieces:
         x0, y0, x1, y1, conf, num = piece[:6]
         x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-        conf, num = round(float(conf), 2), int(num)
+        conf, num = round(conf/1000, 2), int(num)
         color = COLORS[num]
         symbol = SYMBOLS[num]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)

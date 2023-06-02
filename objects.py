@@ -7,6 +7,7 @@ from ultralytics import YOLO
 
 import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
+import algorithm
 
 
 def detect(BGR):
@@ -39,7 +40,9 @@ def detect(BGR):
         npieces.append([x0, y0, x1, y1, confidence, klass])
 
     pieces = np.array(npieces, dtype='int32')
-
+    if algorithm.debug:
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("detection", canvas)
     return boardbox, pieces
 
 
@@ -68,10 +71,10 @@ def determine_colors(pieces, image):
 
 
 def remove_captured_pieces(pieces, boardbox):
-    inside = np.logical_and.reduce((pieces[:, 0] >= boardbox[0],
-                                    pieces[:, 1] >= boardbox[1],
-                                    pieces[:, 2] <= boardbox[2],
-                                    pieces[:, 3] <= boardbox[3]))
+    inside = np.logical_or.reduce((pieces[:, 0] >= boardbox[0],
+                                   pieces[:, 1] >= boardbox[1],
+                                   pieces[:, 2] <= boardbox[2],
+                                   pieces[:, 3] <= boardbox[3]))
     pieces = pieces[inside]
     return pieces
 

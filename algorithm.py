@@ -39,7 +39,7 @@ def main(filename):
 
     if (failed := board.box is None) or debug:
         canvas = draw.boxes(BGR, board.pieces, board.box)
-        draw.save("detection", canvas)
+        draw.save("detection_processed", canvas)
         if failed:
             log.error("could not find board on picture")
             log.error(bad_picture_msg)

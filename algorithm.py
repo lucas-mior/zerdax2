@@ -177,8 +177,7 @@ def find_edges(image):
 
 
 def find_canny(image, canny_mean_threshold=8, threshold_high0=250):
-    log.info(f"finding edges with Canny until "
-             f"mean >= {canny_mean_threshold:0=.1f}...")
+    log.info("finding edges with Canny...")
 
     got_canny = False
 

@@ -49,8 +49,8 @@ def find_warped_lines(canny):
         vert, hori = bundle_lines(vert, hori)
 
         lv, lh = len(vert), len(hori)
-        log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
-                 f"{hough_min_length=},{hough_max_gap=}")
+        log.debug(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori)
@@ -103,8 +103,8 @@ def find_diagonal_lines(canny):
         vert, hori = filter_intersecting(vert, hori)
 
         lv, lh = len(vert), len(hori)
-        log.info(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
-                 f"{hough_min_length=},{hough_max_gap=}")
+        log.debug(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+                  f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algorithm.debug:
         canvas = draw.lines(gcanny, vert, hori)
@@ -266,7 +266,7 @@ def fix_length_byinter(vert, hori=None):
 
 
 def add_outer_diagonal(lines, ll, kind):
-    log.info("adding missing outer diagonal lines...")
+    log.debug("adding missing outer diagonal lines...")
     if ll < 5:
         log.warning("less than 5 lines passed to add_outer, returning...")
         return lines
@@ -324,7 +324,7 @@ def add_outer_diagonal(lines, ll, kind):
 
 
 def add_outer_warped(lines, ll, kind, warped=False):
-    log.info("adding missing outer warped lines...")
+    log.debug("adding missing outer warped lines...")
     outer_tolerance = 2
     if ll < 5:
         log.warning("less than 5 lines passed to add_outer, returning...")
@@ -372,7 +372,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
 
 
 def extend_outer(lines, ll, kind, force=False):
-    log.info("extending outer lines...")
+    log.debug("extending outer lines...")
     if ll < 5:
         log.warning("less than 5 lines passed to extend_outers, returning...")
         return lines
@@ -411,7 +411,7 @@ def extend_outer(lines, ll, kind, force=False):
 
 
 def filter_misdirected2(vert, hori):
-    log.info("filtering lines by angle with next line")
+    log.debug("filtering lines by angle with next line")
 
     def _calculate_diffs(lines):
         diffs = np.zeros((lines.shape[0], 2), dtype='int32')
@@ -482,7 +482,7 @@ def calculate_distances_diagonal(lines, kind):
 
 
 def remove_wrong(lines, ll, kind):
-    log.info("removing wrong middle lines...")
+    log.debug("removing wrong middle lines...")
     if ll < 7:
         log.warning("less than 7 lines passed to remove_wrong, returning...")
         return lines, ll
@@ -510,7 +510,7 @@ def remove_wrong(lines, ll, kind):
 
 
 def add_middle_warped(lines, ll, kind):
-    log.info("adding missing middle lines...")
+    log.debug("adding missing middle lines...")
     tol = 1.4
     if ll < 5 or ll > 10:
         log.warning(f"{ll} lines passed to add_middle_warped, returning...")
@@ -658,7 +658,7 @@ def theta_abs(line):
 
 
 def split(lines):
-    log.info("spliting lines into vertical and horizontal...")
+    log.debug("spliting lines into vertical and horizontal...")
 
     def _check_split(vert, hori):
         if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
@@ -718,7 +718,7 @@ def split(lines):
 
 
 def filter_misdirected(vert, hori):
-    log.info("filtering lines by angle accoring to direction...")
+    log.debug("filtering lines by angle accoring to direction...")
     tolerance = 15 * 100
     changed = False
 
@@ -739,7 +739,7 @@ def filter_misdirected(vert, hori):
 
 
 def filter_intersecting(vert, hori):
-    log.info("filtering lines by number of intersections ...")
+    log.debug("filtering lines by number of intersections ...")
     limit = True
     changed = False
 

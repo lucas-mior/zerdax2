@@ -360,7 +360,7 @@ def add_outer_warped(lines, ll, kind, warped=False):
                 lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
-    dists = calculate_distances(lines, kind)
+    dists = calculate_distances_warped(lines, kind)
     med = np.median(dists)
     lines = _add_outer(lines, 0, med)
     lines = _add_outer(lines, -1, med)
@@ -451,7 +451,7 @@ def filter_misdirected2(vert, hori):
     return vert, hori
 
 
-def calculate_distances(lines, kind):
+def calculate_distances_warped(lines, kind):
     dists = np.zeros((lines.shape[0], 2), dtype='int32')
     dists[0, 0] = (lines[1, kind] - lines[0, kind]
                    + lines[1, kind+2] - lines[0, kind+2])
@@ -466,6 +466,19 @@ def calculate_distances(lines, kind):
                    + lines[i+0, kind+2] - lines[i-1, kind+2])
     dists[i, 1] = dists[i, 0]
     return dists / 2
+
+
+def calculate_distances_diagonal(lines, kind):
+    dists = np.zeros((lines.shape[0], 2), dtype='int32')
+    dists[0, 0] = segments_distance(lines[0], lines[1])
+    dists[0, 1] = dists[0, 0]
+    for i in range(1, len(lines) - 1):
+        dists[i, 0] = segments_distance(lines[i], lines[i-1])
+        dists[i, 1] = segments_distance(lines[i], lines[i+1])
+    i += 1
+    dists[i, 0] = segments_distance(lines[i], lines[i-1])
+    dists[i, 1] = dists[i, 0]
+    return dists
 
 
 def remove_wrong(lines, ll, kind):
@@ -485,9 +498,9 @@ def remove_wrong(lines, ll, kind):
                 return lines
         return lines
 
-    dists = calculate_distances(lines, kind)
+    dists = calculate_distances_warped(lines, kind)
     lines = _remove_wrong(lines, dists)
-    dists = calculate_distances(lines, kind)
+    dists = calculate_distances_warped(lines, kind)
     lines = _remove_wrong(lines, dists)
 
     if algorithm.debug and ll != len(lines):
@@ -554,7 +567,7 @@ def add_middle(lines, ll, kind):
                     return lines
         return lines
 
-    dists = calculate_distances(lines, kind)
+    dists = calculate_distances_warped(lines, kind)
     med = np.median(dists)
     lines = _add_middle(lines, med, +1)
     lines = np.flip(lines, axis=0)

@@ -17,11 +17,6 @@ def adapt(image):
     elif len(image.shape) != 3:
         log.error(f"image.shape: {image.shape}")
         exit(1)
-
-    if image.shape[1] > 1280:
-        aspect_ratio = WIDTH_INPUT / image.shape[1]
-        height = round(image.shape[0] * aspect_ratio)
-        image = cv2.resize(image, (WIDTH_INPUT, height))
     return image
 
 

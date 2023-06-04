@@ -9,14 +9,16 @@ import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
 import algorithm
 
+WIDTH_INPUT = 960
+
 
 def detect(BGR):
     model = YOLO("zerdax2.pt")
     objects = model.predict(source=BGR,
-                            conf=0.1,
+                            conf=0.5,
                             device="cpu",
                             imgsz=960,
-                            iou=0.1,
+                            iou=0.5,
                             max_det=33)
 
     objects = objects[0].boxes
@@ -107,20 +109,23 @@ def process_pieces_amount(pieces):
 
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
+        basename = str.rsplit(filename, ".", 1)[0]
+        basename = str.rsplit(basename, "/", 1)[-1]
+
         BGR = cv2.imread(filename)
 
         boardbox, pieces = detect(BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title="0detection.png")
+        draw.save("", canvas, title=f"{basename}_0detection.png")
 
         pieces = determine_colors(pieces, BGR)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title="1colors.png")
+        draw.save("", canvas, title=f"{basename}_1colors.png")
 
         pieces = remove_captured_pieces(pieces, boardbox)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title="2remove_captured.png")
+        draw.save("", canvas, title=f"{basename}_2remove_captured.png")
 
         pieces = process_pieces_amount(pieces)
         canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title="3amount_fix.png")
+        draw.save("", canvas, title=f"{basename}_3amount_fix.png")

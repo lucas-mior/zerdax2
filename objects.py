@@ -3,6 +3,7 @@ import cv2
 import copy
 import numpy as np
 from ultralytics import YOLO
+from sklearn.cluster import SpectralClustering
 
 import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
@@ -49,9 +50,8 @@ def detect(BGR):
 
 def determine_colors(pieces, image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    avg_colors = np.empty((len(pieces), 4), dtype='float32')
+    avg_colors = np.empty((len(pieces), 3), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
         x0 += 5
@@ -61,11 +61,9 @@ def determine_colors(pieces, image):
         box_h = hsv[y0:y1, x0:x1, 0]
         box_s = hsv[y0:y1, x0:x1, 1]
         box_v = hsv[y0:y1, x0:x1, 2]
-        box_g = gray[y0:y1, x0:x1]
         avg_colors[i, 0] = np.mean(box_h)
         avg_colors[i, 1] = np.mean(box_s)
         avg_colors[i, 2] = np.mean(box_v)
-        avg_colors[i, 3] = np.mean(box_g)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

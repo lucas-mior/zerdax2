@@ -50,9 +50,6 @@ def detect(BGR):
 
 def determine_colors(pieces, image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    h = cv2.equalizeHist(hsv[:, :, 0])
-    s = cv2.equalizeHist(hsv[:, :, 1])
-    v = cv2.equalizeHist(hsv[:, :, 2])
 
     avg_colors = np.empty((len(pieces), 3), dtype='float32')
     for i, p in enumerate(pieces):
@@ -61,12 +58,12 @@ def determine_colors(pieces, image):
         y0 += 5
         x1 -= 5
         y1 -= 5
-        box_h = h[y0:y1, x0:x1]
-        box_s = s[y0:y1, x0:x1]
-        box_v = v[y0:y1, x0:x1]
-        avg_colors[i, 0] = np.mean(box_h)
-        avg_colors[i, 1] = np.mean(box_s)
-        avg_colors[i, 2] = np.mean(box_v)
+        box_h = hsv[y0:y1, x0:x1, 0]
+        box_s = hsv[y0:y1, x0:x1, 1]
+        box_v = hsv[y0:y1, x0:x1, 2]
+        avg_colors[i, 0] = np.median(box_h)
+        avg_colors[i, 1] = np.median(box_s)
+        avg_colors[i, 2] = np.median(box_v)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

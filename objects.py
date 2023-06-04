@@ -15,10 +15,10 @@ WIDTH_INPUT = 960
 def detect(BGR):
     model = YOLO("zerdax2.pt")
     objects = model.predict(source=BGR,
-                            conf=0.5,
+                            conf=0.7,
                             device="cpu",
                             imgsz=960,
-                            iou=0.5,
+                            iou=0.7,
                             max_det=33)
 
     objects = objects[0].boxes
@@ -118,14 +118,14 @@ if __name__ == "__main__":
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("", canvas, title=f"{basename}_0detection.png")
 
-        pieces = determine_colors(pieces, BGR)
-        canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title=f"{basename}_1colors.png")
+        # pieces = determine_colors(pieces, BGR)
+        # canvas = draw.boxes(BGR, pieces, boardbox)
+        # draw.save("", canvas, title=f"{basename}_1colors.png")
 
-        pieces = remove_captured_pieces(pieces, boardbox)
-        canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title=f"{basename}_2remove_captured.png")
+        # pieces = remove_captured_pieces(pieces, boardbox)
+        # canvas = draw.boxes(BGR, pieces, boardbox)
+        # draw.save("", canvas, title=f"{basename}_2remove_captured.png")
 
-        pieces = process_pieces_amount(pieces)
-        canvas = draw.boxes(BGR, pieces, boardbox)
-        draw.save("", canvas, title=f"{basename}_3amount_fix.png")
+        # pieces = process_pieces_amount(pieces)
+        # canvas = draw.boxes(BGR, pieces, boardbox)
+        # draw.save("", canvas, title=f"{basename}_3amount_fix.png")

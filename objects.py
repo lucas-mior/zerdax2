@@ -49,26 +49,31 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hue = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)[:, :, 0]
 
-    avg_colors = np.empty(len(pieces), dtype='int32')
+    avg_colors = np.empty((len(pieces), 2), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
         x0 += 10
         y0 += 10
         x1 -= 10
         y1 -= 10
-        box = image[y0:y1, x0:x1]
-        avg_colors[i] = np.median(box, overwrite_input=True)
+        gray_box = gray[y0:y1, x0:x1]
+        hue_box = hue[y0:y1, x0:x1]
+        avg_colors[i, 0] = np.median(gray_box, overwrite_input=True)
+        avg_colors[i, 1] = np.median(hue_box, overwrite_input=True)
 
-    try:
-        limits = jenks_breaks(avg_colors, n_classes=2)
-        black = pieces[avg_colors <= limits[1]]
-        white = pieces[avg_colors > limits[1]]
-        black[:, 5] += 6
-        pieces = np.vstack((black, white))
-    except Exception:
-        pass
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
+    ret, labels, centers = cv2.kmeans(avg_colors, 2, None,
+                                      criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    labels = np.ravel(labels)
+    print(labels)
+    black = pieces[labels == 0]
+    white = pieces[labels == 1]
+    black[:, 5] += 6
+    pieces = np.vstack((black, white))
     return pieces
 
 
@@ -118,14 +123,14 @@ if __name__ == "__main__":
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("", canvas, title=f"{basename}_0detection.png")
 
-        # pieces = determine_colors(pieces, BGR)
-        # canvas = draw.boxes(BGR, pieces, boardbox)
-        # draw.save("", canvas, title=f"{basename}_1colors.png")
+        pieces = determine_colors(pieces, BGR)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("", canvas, title=f"{basename}_1colors.png")
 
-        # pieces = remove_captured_pieces(pieces, boardbox)
-        # canvas = draw.boxes(BGR, pieces, boardbox)
-        # draw.save("", canvas, title=f"{basename}_2remove_captured.png")
+        pieces = remove_captured_pieces(pieces, boardbox)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("", canvas, title=f"{basename}_2remove_captured.png")
 
-        # pieces = process_pieces_amount(pieces)
-        # canvas = draw.boxes(BGR, pieces, boardbox)
-        # draw.save("", canvas, title=f"{basename}_3amount_fix.png")
+        pieces = process_pieces_amount(pieces)
+        canvas = draw.boxes(BGR, pieces, boardbox)
+        draw.save("", canvas, title=f"{basename}_3amount_fix.png")

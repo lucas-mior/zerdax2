@@ -11,14 +11,6 @@ $ git clone https://github.com/lucas-mior/zerdax2
 $ cd zerdax2
 $ pip install -r requirements.txt
 ```
-- Download yolov5 from ultralytics, apply patch and install dependencies
-```
-$ git clone https://github.com/ultralytics/yolov5
-$ cd yolov5
-$ patch < ../yolov5_zerdax2.diff
-$ pip install -r requirements.txt
-$ cd ..
-```
 - Compile filter library
 ```
 $ make
@@ -26,12 +18,13 @@ $ make
 
 ## Usage
 ```
-$ python ./zerdax2.py <image> [<image2> ...] [--loglevel=LEVEL]
+$ python ./zerdax2.py <image> [<image2> ...] [-v=LEVEL]
 ```
-Image filenames are also read from standard input.
 Resulting FEN is written to standard output aswell
 as position diagram using characters.
-Type `<C-c>` to quit.
+
+## Input image example
+![Input image example](https://github.com/lucas-mior/zerdax2/blob/master/test.jpg?raw=true)
 
 ## Utilities
 - `algorithm.py`: Run algorithm on images passed as arguments without reading

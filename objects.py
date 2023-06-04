@@ -101,16 +101,6 @@ def process_pieces_amount(pieces):
         if rule[0] < rule[1]:
             rule[0] += 1
             new_pieces.append(piece)
-        else:
-            if num > 6:
-                num -= 6
-            else:
-                num += 6
-            rule = rules[SYMBOLS[num]]
-            if rule[0] < rule[1]:
-                piece[5] = num
-                rule[0] += 1
-                new_pieces.append(piece)
 
     return new_pieces
 

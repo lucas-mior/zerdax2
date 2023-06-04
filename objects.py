@@ -3,7 +3,6 @@ import cv2
 import copy
 import numpy as np
 from ultralytics import YOLO
-from sklearn.cluster import SpectralClustering
 
 import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS

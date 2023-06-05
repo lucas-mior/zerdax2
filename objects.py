@@ -16,7 +16,7 @@ def detect(BGR):
     objects = model.predict(source=BGR,
                             conf=0.7,
                             device="cpu",
-                            imgsz=960,
+                            imgsz=640,
                             iou=0.7,
                             max_det=33)
 
@@ -69,7 +69,6 @@ def determine_colors(pieces, image):
     ret, labels, centers = cv2.kmeans(avg_colors, 2, None,
                                       criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
     labels = np.ravel(labels)
-    print(centers)
     black = pieces[labels == 0]
     white = pieces[labels == 1]
     if centers[1, 2] < centers[0, 2]:

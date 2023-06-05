@@ -11,6 +11,7 @@ import objects
 import fen
 import draw
 from c_load import lfilter
+import shutil
 
 basename = ""
 debug = False
@@ -47,8 +48,8 @@ def main(filename):
 
     log.info(f"board detected: {board.box}")
     board.image, translate_params = crop_image(BGR, board.box)
-    if board.image.shape[0] < 280:
-        log.error("too low perspective")
+    if (h := board.image.shape[0]) < 280:
+        log.error(f"too low perspective: {h}")
         log.error(bad_picture_msg)
         return bad_picture_msg
 
@@ -97,6 +98,7 @@ def main(filename):
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
+    shutil.move(filename, "good/")
     return board.fen
 
 

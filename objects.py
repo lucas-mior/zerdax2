@@ -48,10 +48,15 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # gray = cv2.medianBlur(gray, 5)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    draw.save("", gray, "gray.png")
+    clip_limit = 3.0
+    grid = (30, 30)
+    clahe = cv2.createCLAHE(clip_limit, grid)
+    gray = clahe.apply(gray)
+    draw.save("", gray, f"clahe{grid}.png")
 
-    avg_colors = np.empty((len(pieces), 3), dtype='float32')
+    avg_colors = np.empty((len(pieces), 1), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
         x0 += 5
@@ -59,12 +64,12 @@ def determine_colors(pieces, image):
         y0 += 5
         y1 -= 5
 
-        box_r = image[y0:y1, x0:x1, 0]
-        box_g = image[y0:y1, x0:x1, 1]
-        box_b = image[y0:y1, x0:x1, 2]
-        avg_colors[i, 0] = np.median(box_r)
-        avg_colors[i, 1] = np.median(box_g)
-        avg_colors[i, 2] = np.median(box_b)
+        # box_r = image[y0:y1, x0:x1, 0]
+        box_g = image[y0:y1, x0:x1]
+        # box_b = image[y0:y1, x0:x1, 2]
+        # avg_colors[i, 0] = np.median(box_r)
+        avg_colors[i, 0] = np.median(box_g)
+        # avg_colors[i, 2] = np.median(box_b)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

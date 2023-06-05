@@ -48,13 +48,10 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    # hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.medianBlur(gray, 3)
-    _, threshold = cv2.threshold(gray, 0, 255,
-                                 cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    gray = cv2.medianBlur(gray, 5)
 
-    avg_colors = np.empty((len(pieces), 4), dtype='float32')
+    avg_colors = np.empty((len(pieces), 1), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
         x0 += 5
@@ -62,19 +59,9 @@ def determine_colors(pieces, image):
         y0 += 5
         y1 -= 5
 
-        box_t = threshold[y0:y1, x0:x1]
         box_g = gray[y0:y1, x0:x1]
-        draw.save("", box_g, f"{i}_box_{p[5]}.png")
-        draw.save("", box_t, f"{i}_otsu_{p[5]}.png")
-        # # box_h = 10*hsv[y0:y1, x0:x1, 0]
-        # # box_s = hsv[y0:y1, x0:x1, 1]
-        # # box_v = hsv[y0:y1, x0:x1, 2]
-        # avg_colors[i, 0] = np.median(box_h)
-        # avg_colors[i, 1] = np.median(box_s)
-        # avg_colors[i, 2] = np.median(box_v)
-        # avg_colors[i, 3] = np.median(box_g)
+        avg_colors[i, 0] = np.median(box_g)
 
-    exit(0)
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
     ret, labels, centers = cv2.kmeans(avg_colors, 2, None,

@@ -3,6 +3,7 @@ import cv2
 import copy
 import numpy as np
 from ultralytics import YOLO
+from jenkspy import jenks_breaks
 
 import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
@@ -49,28 +50,34 @@ def detect(BGR):
 
 def determine_colors(pieces, image):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h = cv2.equalizeHist(hsv[:, :, 0])
 
     avg_colors = np.empty((len(pieces), 3), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
-        x0 += 5
-        y0 += 5
-        x1 -= 5
-        y1 -= 5
-        box_h = hsv[y0:y1, x0:x1, 0]
+        x0 += 7
+        y0 += 7
+        x1 -= 7
+        y1 -= 7
+        box_h = h[y0:y1, x0:x1]
         box_s = hsv[y0:y1, x0:x1, 1]
         box_v = hsv[y0:y1, x0:x1, 2]
-        avg_colors[i, 0] = np.median(box_h)
+        avg_colors[i, 0] = np.mean(box_h)
         avg_colors[i, 1] = np.median(box_s)
         avg_colors[i, 2] = np.median(box_v)
 
+    try:
+        limits = jenks_breaks(avg_colors[:, 0], n_classes=2)
+    except Exception:
+        return None, None, 0, 0
+
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-    ret, labels, centers = cv2.kmeans(avg_colors, 2, None,
-                                      criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
-    labels = np.ravel(labels)
-    black = pieces[labels == 0]
-    white = pieces[labels == 1]
+    _, labels, centers = cv2.kmeans(avg_colors, 2, None,
+                                    criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
+    labels_kmeans = np.ravel(labels)
+    black = pieces[(labels_kmeans == 0) & (avg_colors[:, 0] < limits[1])]
+    white = pieces[(labels_kmeans == 1) | (avg_colors[:, 0] >= limits[1])]
     if centers[1, 2] < centers[0, 2]:
         aux = black
         black = white

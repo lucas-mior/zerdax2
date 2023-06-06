@@ -8,8 +8,7 @@ import algorithm
 from misc import COLORS, SYMBOLS
 import lines as li
 
-WIDTH_INPUT = 960
-WIDTH_BOARD = 512
+WIDTH_BOARD = 512  # used for board crop and perspective transform
 
 
 def adapt(image):

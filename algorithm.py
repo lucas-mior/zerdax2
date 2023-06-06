@@ -16,7 +16,7 @@ import shutil
 basename = ""
 debug = False
 WIDTH_INPUT = 1920
-WIDTH_BOARD = 512
+WIDTH_BOARD = 512  # used for board crop and perspective transform
 
 
 def main(filename):

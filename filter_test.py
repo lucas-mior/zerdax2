@@ -5,16 +5,16 @@ import sys
 from c_load import lfilter
 import draw
 
-WIDTH_INPUT = 512
+WIDTH_BOARD = 512  # used for board crop and perspective transform
 
 
 def filter_test(filename, i):
     BGR = cv2.imread(filename)
     image = cv2.cvtColor(BGR, cv2.COLOR_BGR2GRAY)
 
-    aspect_ratio = WIDTH_INPUT / image.shape[1]
+    aspect_ratio = WIDTH_BOARD / image.shape[1]
     height_input = round(image.shape[0] * aspect_ratio)
-    image = cv2.resize(image, (WIDTH_INPUT, height_input))
+    image = cv2.resize(image, (WIDTH_BOARD, height_input))
 
     f = np.array(image, dtype='float64')
     weights = np.empty(image.shape, dtype='float64')

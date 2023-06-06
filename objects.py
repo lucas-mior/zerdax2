@@ -8,8 +8,6 @@ import draw
 from misc import SYMBOLS, AMOUNT, NUMBERS
 import algorithm
 
-WIDTH_INPUT = 960
-
 
 def detect(BGR):
     model = YOLO("best.pt")

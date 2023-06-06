@@ -48,11 +48,8 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    h = cv2.equalizeHist(hsv[:, :, 2])
-    v = cv2.equalizeHist(hsv[:, :, 2])
-
-    avg_colors = np.empty((len(pieces), 2), dtype='float32')
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    avg_colors = np.empty((len(pieces), 1), dtype='float32')
 
     def value_map(value, in_min, in_max, out_min, out_max):
         proportion = (value - in_min) / (in_max - in_min)
@@ -65,35 +62,32 @@ def determine_colors(pieces, image):
         dy = y1 - y0
 
         if dx/dy > 0.6 and dx > 35:
-            box0 = h[y0:y1, x0:x1]
-            box2 = v[y0:y1, x0:x1]
-            mask = 255*np.ones(box0.shape, dtype='uint8')
+            box = gray[y0:y1, x0:x1]
+            mask = 255*np.ones(box.shape, dtype='uint8')
             a = dy/(dx/2)
-            if x0 < box0.shape[1]/2:
+            if x0 < gray.shape[1]/2:
                 for (y, x), pixel in np.ndenumerate(mask):
-                    if x > dx/2 and (dy-y) > (dx-x)*a:
-                        mask[y, x] = 0
                     if x < dx/2 and y > x*a:
+                        mask[y, x] = 0
+                    if x > dx/2 and (dy-y) > (dx-x)*a:
                         mask[y, x] = 0
             else:
                 for (y, x), pixel in np.ndenumerate(mask):
                     if x < dx/2 and (dy-y) > x*a:
                         mask[y, x] = 0
-                    if x > dx/(1-2) and y > (dx-x)*a:
+                    if x > dx/2 and y > (dx-x)*a:
                         mask[y, x] = 0
         else:
             x0 += 5
             x1 -= 5
             y0 += 8
             y1 -= 3
-            box0 = h[y0:y1, x0:x1]
-            box2 = v[y0:y1, x0:x1]
-            mask = 255*np.ones(box0.shape, dtype='uint8')
+            box = gray[y0:y1, x0:x1]
+            mask = 255*np.ones(box.shape, dtype='uint8')
 
-        avg_colors[i, 0] = np.median(box0[mask != 0])
-        avg_colors[i, 1] = np.median(box2[mask != 0])
-        # draw.save("", boxmask1,
-        #           f"{i:02d}_1{round(a1):03d}_{p[5]}.png")
+        a0 = avg_colors[i, 0] = np.median(box[mask != 0])
+        canvas = cv2.bitwise_and(box, mask)
+        draw.save(f"{round(a0):03d}_{i:02d}", canvas)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

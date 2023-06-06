@@ -73,7 +73,7 @@ def main(filename):
     canvas = draw.boxes(pieces_image, board.pieces)
     draw.save("pieces_amount", canvas)
 
-    exit(0)
+    return "aaaaaaaaa"
 
     canny = create_canny(board.image)
     board.corners = find_corners(canny)

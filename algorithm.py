@@ -112,7 +112,7 @@ def main(filename):
     inters[:, :, 1] += translate_params.y0
 
     inters = np.array(np.round(inters), dtype='int32')
-    if True or debug:
+    if debug:
         canvas = draw.points(BGR, inters)
         draw.save("translated_intersections", canvas)
 
@@ -123,7 +123,7 @@ def main(filename):
     inters[:, :, 1] *= pieces_params.resize_factor
 
     inters = np.array(np.round(inters), dtype='int32')
-    if True or debug:
+    if debug:
         canvas = draw.points(pieces_image, inters)
         draw.save("translated_intersections", canvas)
 

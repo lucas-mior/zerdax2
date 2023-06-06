@@ -50,21 +50,22 @@ def main(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    board.pieces[:, 0] -= translate_params.x0
-    board.pieces[:, 2] -= translate_params.x0
-    board.pieces[:, 1] -= translate_params.y0
-    board.pieces[:, 3] -= translate_params.y0
+    pieces_image, pieces_params = crop_pieces(BGR, board.box, board.pieces)
+    board.pieces[:, 0] -= pieces_params.x0
+    board.pieces[:, 2] -= pieces_params.x0
+    board.pieces[:, 1] -= pieces_params.y0
+    board.pieces[:, 3] -= pieces_params.y0
     for piece in board.pieces:
-        piece[0] *= translate_params.resize_factor
-        piece[1] *= translate_params.resize_factor
-        piece[2] *= translate_params.resize_factor
-        piece[3] *= translate_params.resize_factor
+        piece[0] *= pieces_params.resize_factor
+        piece[1] *= pieces_params.resize_factor
+        piece[2] *= pieces_params.resize_factor
+        piece[3] *= pieces_params.resize_factor
 
-    canvas = draw.boxes(board.image, board.pieces)
+    canvas = draw.boxes(pieces_image, board.pieces)
     draw.save("trans_pieces", canvas)
     exit(0)
 
-    board.pieces = objects.determine_colors(board.pieces, BGR)
+    board.pieces = objects.determine_colors(board.pieces, pieces_image)
     board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
     board.pieces = objects.process_pieces_amount(board.pieces)
 
@@ -133,6 +134,28 @@ def crop_image(image, boardbox):
 
     if debug:
         draw.save("cropped", cropped)
+    return cropped, translate_params
+
+
+def crop_pieces(image, boardbox, pieces):
+    log.info("cropping image to board box...")
+    translate_params = SimpleNamespace()
+    x0, y0_board, x1, y1 = boardbox
+    y0_pieces = np.min(pieces[:, 1])
+    y0 = min(y0_pieces, y0_board)
+    cropped = image[y0:y1, x0:x1]
+
+    log.info("reducing cropped image to default size...")
+    resize_factor = WIDTH_BOARD / cropped.shape[1]
+    height_board = round(resize_factor * cropped.shape[0])
+    cropped = cv2.resize(cropped, (WIDTH_BOARD, height_board))
+
+    translate_params.x0 = x0
+    translate_params.y0 = y0
+    translate_params.resize_factor = resize_factor
+
+    if debug:
+        draw.save("pieces_image", cropped)
     return cropped, translate_params
 
 

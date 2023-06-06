@@ -49,6 +49,11 @@ def main(filename):
         log.error(f"too low perspective: {h}")
         log.error(bad_picture_msg)
         return bad_picture_msg
+    elif h > (w := board.image.shape[1]):
+        log.error(f"height ({h}) is bigger than width ({w}).")
+        log.error("wrong board detected.")
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
     pieces_image, pieces_params = crop_pieces(BGR, board.box, board.pieces)

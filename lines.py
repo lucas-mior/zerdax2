@@ -551,20 +551,6 @@ def add_middle_warped(lines, ll, kind):
                     new[kind+2] += (dx*sign)
                     lines = np.insert(lines, i+1, [new], axis=0)
                     return lines
-        for i in range(1, len(lines) - 4):
-            dprev0 = abs(lines[i+0, kind] - lines[i-1, kind])
-            dnext0 = abs(lines[i+0, kind] - lines[i+1, kind])
-            dnext1 = abs(lines[i+1, kind] - lines[i+2, kind])
-            dnext2 = abs(lines[i+2, kind] - lines[i+3, kind])
-            dnext3 = abs(lines[i+3, kind] - lines[i+4, kind])
-            if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
-                if dnext0 > (dprev0*tol) or dnext0 > (dnext3*tol):
-                    x = (round((lines[i, 0] + lines[i+1, 0])/2),
-                         round((lines[i, 2] + lines[i+1, 2])/2))
-                    y = (round((lines[i, 1] + lines[i+1, 1])/2),
-                         round((lines[i, 3] + lines[i+1, 3])/2))
-                    lines = _insert(lines, i, x, y)
-                    return lines
         return lines
 
     dists = calculate_distances_warped(lines, kind)

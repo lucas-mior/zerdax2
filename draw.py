@@ -184,11 +184,6 @@ def boxes(image, pieces, boardbox=None):
         color = COLORS[num]
         symbol = SYMBOLS[num]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
-        if len(piece) == 7:
-            g = piece[6]
-            cv2.putText(canvas, f"{g=}", (x0, y0+7),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
-            y0 += 7
         cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
     if boardbox is not None:

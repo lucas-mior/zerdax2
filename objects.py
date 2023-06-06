@@ -144,11 +144,35 @@ def process_pieces_amount(pieces):
 
     for piece in pieces:
         x0, y0, x1, y1, conf, num = piece[:6]
-        num = int(num)
-        rule = rules[SYMBOLS[num]]
+        symbol = SYMBOLS[int(num)]
+        rule = rules[symbol]
         if rule[0] < rule[1]:
             rule[0] += 1
             new_pieces.append(piece)
+        elif symbol == 'K':
+            rule = rules['Q']
+            if rule[0] < rule[1]:
+                rule[0] += 1
+                piece[5] = NUMBERS['Q']
+                new_pieces.append(piece)
+        elif symbol == 'Q':
+            rule = rules['K']
+            if rule[0] < rule[1]:
+                rule[0] += 1
+                piece[5] = NUMBERS['K']
+                new_pieces.append(piece)
+        elif symbol == 'k':
+            rule = rules['q']
+            if rule[0] < rule[1]:
+                rule[0] += 1
+                piece[5] = NUMBERS['q']
+                new_pieces.append(piece)
+        elif symbol == 'q':
+            rule = rules['k']
+            if rule[0] < rule[1]:
+                rule[0] += 1
+                piece[5] = NUMBERS['k']
+                new_pieces.append(piece)
 
     return new_pieces
 

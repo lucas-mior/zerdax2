@@ -97,23 +97,14 @@ def determine_colors(pieces, image):
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-    ret, labels0, centers = cv2.kmeans(avg_colors[:, 0], 2, None,
+    ret, labels0, centers = cv2.kmeans(avg_colors, 2, None,
                                        criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
     labels0 = np.ravel(labels0)
-    print("labels0:", labels0)
-    if centers[1, 0] > centers[0, 0]:
-        labels0 = np.array([0 if l1 == 1 else 1 for l1 in labels0])
-        print("bitwise not\n", labels0)
-    ret, labels1, centers = cv2.kmeans(avg_colors[:, 1], 2, None,
-                                       criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
-    labels1 = np.ravel(labels1)
-    print("labels1:", labels1)
     if centers[1, 0] < centers[0, 0]:
-        labels1 = np.array([0 if l1 == 1 else 1 for l1 in labels1])
-        print("bitwise not\n", labels1)
+        labels0 = np.array([0 if l1 == 1 else 1 for l1 in labels0])
 
-    black = pieces[(labels1 == 0)]
-    white = pieces[(labels1 == 1)]
+    black = pieces[(labels0 == 0)]
+    white = pieces[(labels0 == 1)]
     if centers[1, 0] < centers[0, 0]:
         aux = black
         black = white

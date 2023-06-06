@@ -104,19 +104,33 @@ def main(filename):
             log.error(bad_picture_msg)
             return bad_picture_msg
 
-    inters = translate_inters(inters, warp_matrix_inverse, translate_params)
-    # if debug:
-    canvas = draw.points(BGR, inters)
-    draw.save("translated_intersections", canvas)
-    inters = translate_pieces(inters, pieces_params)
-    # if debug:
-    canvas = draw.points(pieces_image, inters)
-    draw.save("translated_intersections", canvas)
+    inters = np.array(inters, dtype='float64')
+    inters = cv2.perspectiveTransform(inters, warp_matrix_inverse)
+    inters[:, :, 0] /= translate_params.resize_factor
+    inters[:, :, 1] /= translate_params.resize_factor
+    inters[:, :, 0] += translate_params.x0
+    inters[:, :, 1] += translate_params.y0
+
+    inters = np.array(np.round(inters), dtype='int32')
+    if True or debug:
+        canvas = draw.points(BGR, inters)
+        draw.save("translated_intersections", canvas)
+
+    inters = np.array(inters, dtype='float64')
+    inters[:, :, 0] -= pieces_params.x0
+    inters[:, :, 1] -= pieces_params.y0
+    inters[:, :, 0] *= pieces_params.resize_factor
+    inters[:, :, 1] *= pieces_params.resize_factor
+
+    inters = np.array(np.round(inters), dtype='int32')
+    if True or debug:
+        canvas = draw.points(pieces_image, inters)
+        draw.save("translated_intersections", canvas)
 
     board.squares = squares.calculate(inters)
-    # if debug:
-    canvas = draw.squares(pieces_image, board.squares)
-    draw.save("squares", canvas)
+    if debug:
+        canvas = draw.squares(pieces_image, board.squares)
+        draw.save("squares", canvas)
 
     board.squares, pieces = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(pieces_image, board.squares)
@@ -291,29 +305,6 @@ def warp(canny, corners):
     return canny_warped, warp_matrix_inverse
 
 
-def translate_inters(inters, warp_matrix_inverse, translate_params):
-    inters = np.array(inters, dtype='float64')
-
-    inters = cv2.perspectiveTransform(inters, warp_matrix_inverse)
-    inters[:, :, 0] /= translate_params.resize_factor
-    inters[:, :, 1] /= translate_params.resize_factor
-
-    inters[:, :, 0] += translate_params.x0
-    inters[:, :, 1] += translate_params.y0
-
-    return np.array(np.round(inters), dtype='int32')
-
-
-def translate_pieces(inters, translate_params):
-    inters = np.array(inters, dtype='float64')
-
-    inters[:, :, 0] -= translate_params.x0
-    inters[:, :, 1] -= translate_params.y0
-
-    inters[:, :, 0] *= translate_params.resize_factor
-    inters[:, :, 1] *= translate_params.resize_factor
-
-    return np.array(np.round(inters), dtype='int32')
 
 
 def find_corners(canny):

@@ -46,14 +46,20 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     hue = hsv[:, :, 0]
     hue = cv2.medianBlur(hue, 3)
     hue = cv2.equalizeHist(hue)
+    sat = hsv[:, :, 1]
+    sat = cv2.medianBlur(sat, 3)
+    sat = cv2.equalizeHist(sat)
+    val = hsv[:, :, 2]
+    val = cv2.medianBlur(val, 3)
+    val = cv2.equalizeHist(val)
 
-    avg_colors = np.empty((len(pieces), 2), dtype='float32')
+    avg_colors = np.empty((len(pieces), 3), dtype='float32')
 
     def value_map(value, in_min, in_max, out_min, out_max):
         proportion = (value - in_min) / (in_max - in_min)
@@ -66,11 +72,12 @@ def determine_colors(pieces, image):
         dy = y1 - y0
 
         if dx/dy > 0.6 and dx > 35:
-            box = gray[y0:y1, x0:x1]
             boxh = hue[y0:y1, x0:x1]
+            boxs = sat[y0:y1, x0:x1]
+            boxv = val[y0:y1, x0:x1]
             mask = 255*np.ones(boxh.shape, dtype='uint8')
             a = dy/(dx/2)
-            if x0 < gray.shape[1]/2:
+            if x0 < boxh.shape[1]/2:
                 for (y, x), pixel in np.ndenumerate(mask):
                     if x < dx/2 and y > x*a:
                         mask[y, x] = 0
@@ -87,17 +94,23 @@ def determine_colors(pieces, image):
             x1 -= 5
             y0 += 5
             y1 -= 3
-            box = gray[y0:y1, x0:x1]
             boxh = hue[y0:y1, x0:x1]
+            boxs = sat[y0:y1, x0:x1]
+            boxv = val[y0:y1, x0:x1]
             mask = 255*np.ones(boxh.shape, dtype='uint8')
 
-        avg_colors[i, 0] = np.median(box[mask != 0])
-        avg_colors[i, 1] = np.median(boxh[mask != 0])
+        avg_colors[i, 0] = np.median(boxh[mask != 0])
+        avg_colors[i, 1] = np.median(boxs[mask != 0])
+        avg_colors[i, 2] = np.median(boxv[mask != 0])
 
     a0 = np.std(avg_colors[:, 0])
     a1 = np.std(avg_colors[:, 1])
-    x = a0/a1
-    avg_colors[:, 1] *= x
+    a2 = np.std(avg_colors[:, 2])
+
+    x0 = a2/a0
+    x1 = a2/a1
+    avg_colors[:, 0] *= x0
+    avg_colors[:, 1] *= x1
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

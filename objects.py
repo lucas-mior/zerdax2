@@ -48,8 +48,9 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    hsvalue = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)[:, :, 2]
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h = cv2.equalizeHist(hsv[:, :, 2])
+    v = cv2.equalizeHist(hsv[:, :, 2])
 
     avg_colors = np.empty((len(pieces), 2), dtype='float32')
 
@@ -63,41 +64,36 @@ def determine_colors(pieces, image):
         dx = x1 - x0
         dy = y1 - y0
 
-        cut_factor = value_map((dx/dy), 0.1, 0.6, 8, 2)
-        cut_factor = max(cut_factor, 2)
-        cut_factor = min(cut_factor, 10)
-        print(f"{cut_factor=}")
-        if dx/dy > 0.6:
-            box0 = gray[y0:y1, x0:x1]
-            box1 = hsvalue[y0:y1, x0:x1]
+        if dx/dy > 0.6 and dx > 35:
+            box0 = h[y0:y1, x0:x1]
+            box2 = v[y0:y1, x0:x1]
             mask = 255*np.ones(box0.shape, dtype='uint8')
-            a = dy/(dx/cut_factor)
-            if x0 < gray.shape[1]/2:
+            a = dy/(dx/2)
+            if x0 < box0.shape[1]/2:
                 for (y, x), pixel in np.ndenumerate(mask):
-                    if x > dx/(1-cut_factor) and (dy-y) > (dx-x)*a:
+                    if x > dx/2 and (dy-y) > (dx-x)*a:
                         mask[y, x] = 0
-                    if x < dx/cut_factor and y > x*a:
+                    if x < dx/2 and y > x*a:
                         mask[y, x] = 0
             else:
                 for (y, x), pixel in np.ndenumerate(mask):
-                    if x < dx/cut_factor and (dy-y) > x*a:
+                    if x < dx/2 and (dy-y) > x*a:
                         mask[y, x] = 0
-                    if x > dx/(1-cut_factor) and y > (dx-x)*a:
+                    if x > dx/(1-2) and y > (dx-x)*a:
                         mask[y, x] = 0
         else:
             x0 += 5
             x1 -= 5
-            y0 += 3
+            y0 += 8
             y1 -= 3
-            box0 = gray[y0:y1, x0:x1]
-            box1 = hsvalue[y0:y1, x0:x1]
+            box0 = h[y0:y1, x0:x1]
+            box2 = v[y0:y1, x0:x1]
             mask = 255*np.ones(box0.shape, dtype='uint8')
 
         avg_colors[i, 0] = np.median(box0[mask != 0])
-        avg_colors[i, 1] = np.median(box1[mask != 0])
-        boxmask = cv2.bitwise_and(box0, mask)
-        draw.save("", boxmask,
-                  f"{i:02d}_mask_{p[5]}_{round(avg_colors[i, 0]):03d}.png")
+        avg_colors[i, 1] = np.median(box2[mask != 0])
+        # draw.save("", boxmask1,
+        #           f"{i:02d}_1{round(a1):03d}_{p[5]}.png")
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

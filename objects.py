@@ -78,7 +78,7 @@ def determine_colors(pieces, image):
         else:
             x0 += 5
             x1 -= 5
-            y0 += 8
+            y0 += 5
             y1 -= 3
             box = gray[y0:y1, x0:x1]
             mask = 255*np.ones(box.shape, dtype='uint8')

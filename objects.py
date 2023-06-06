@@ -49,17 +49,40 @@ def detect(BGR):
 
 def determine_colors(pieces, image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    hsvalue = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)[:, :, 2]
 
-    avg_colors = np.empty(len(pieces), dtype='float32')
+    avg_colors = np.empty((len(pieces), 2), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
-        x0 += 5
-        x1 -= 5
-        y0 += 5
-        y1 -= 5
+        x0 += 3
+        x1 -= 3
+        y0 += 3
+        dx = x1 - x0
+        dy = y1 - y0
 
-        box = gray[y0:y1, x0:x1]
-        avg_colors[i] = np.median(box)
+        box0 = gray[y0:y1, x0:x1]
+        box1 = hsvalue[y0:y1, x0:x1]
+        mask = 255*np.ones(box0.shape, dtype='uint8')
+        if dx/dy > 0.6 and dx > 40:
+            a = dy/(dx/2)
+            if x0 < 600:
+                for (y, x), pixel in np.ndenumerate(mask):
+                    if x > dx/2 and (dy-y) > (dx-x)*a:
+                        mask[y, x] = 0
+                    if x < dx/2 and y > x*a:
+                        mask[y, x] = 0
+            else:
+                for (y, x), pixel in np.ndenumerate(mask):
+                    if x < dx/2 and (dy-y) > x*a:
+                        mask[y, x] = 0
+                    if x > dx/2 and y > (dx-x)*a:
+                        mask[y, x] = 0
+
+        boxmask = cv2.bitwise_and(box0, mask)
+        draw.save("", boxmask, f"{i:02d}_aftermask_{p[5]}.png")
+
+        avg_colors[i, 0] = cv2.mean(box0, mask=mask)[0]
+        avg_colors[i, 1] = cv2.mean(box1, mask=mask)[0]
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

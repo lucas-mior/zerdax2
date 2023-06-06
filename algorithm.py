@@ -73,7 +73,7 @@ def main(filename):
     canvas = draw.boxes(pieces_image, board.pieces)
     draw.save("pieces_amount", canvas)
 
-    return "aaaaaaaaa"
+    # return "aaaaaaaaa"
 
     canny = create_canny(board.image)
     board.corners = find_corners(canny)
@@ -119,7 +119,7 @@ def main(filename):
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
-    shutil.move(filename, "good/")
+    # shutil.move(filename, "good/")
     return board.fen
 
 

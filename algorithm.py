@@ -50,6 +50,7 @@ def main(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
+    board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
     pieces_image, pieces_params = crop_pieces(BGR, board.box, board.pieces)
     board.pieces[:, 0] -= pieces_params.x0
     board.pieces[:, 2] -= pieces_params.x0
@@ -62,12 +63,17 @@ def main(filename):
         piece[3] *= pieces_params.resize_factor
 
     canvas = draw.boxes(pieces_image, board.pieces)
-    draw.save("trans_pieces", canvas)
-    exit(0)
+    draw.save("pieces_image", canvas)
 
     board.pieces = objects.determine_colors(board.pieces, pieces_image)
-    board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
+    canvas = draw.boxes(pieces_image, board.pieces)
+    draw.save("pieces_colors", canvas)
+
     board.pieces = objects.process_pieces_amount(board.pieces)
+    canvas = draw.boxes(pieces_image, board.pieces)
+    draw.save("pieces_amount", canvas)
+
+    exit(0)
 
     canny = create_canny(board.image)
     board.corners = find_corners(canny)

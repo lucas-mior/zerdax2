@@ -12,11 +12,11 @@ WIDTH_INPUT = 960
 
 
 def detect(BGR):
-    model = YOLO("zerdax2.pt")
+    model = YOLO("best.pt")
     objects = model.predict(source=BGR,
                             conf=0.7,
                             device="cpu",
-                            imgsz=640,
+                            imgsz=960,
                             iou=0.7,
                             max_det=33)
 
@@ -62,7 +62,7 @@ def determine_colors(pieces, image):
             box1 = hsvalue[y0:y1, x0:x1]
             mask = 255*np.ones(box0.shape, dtype='uint8')
             a = dy/(dx/2)
-            if x0 < 600:
+            if x0 < gray.shape[1]/2:
                 for (y, x), pixel in np.ndenumerate(mask):
                     if x > dx/2 and (dy-y) > (dx-x)*a:
                         mask[y, x] = 0
@@ -77,17 +77,16 @@ def determine_colors(pieces, image):
         else:
             x0 += 5
             x1 -= 5
-            y0 += 5
-            y1 -= 5
+            y0 += 3
+            y1 -= 3
             box0 = gray[y0:y1, x0:x1]
             box1 = hsvalue[y0:y1, x0:x1]
             mask = 255*np.ones(box0.shape, dtype='uint8')
 
+        avg_colors[i, 0] = np.median(box0[mask != 0])
+        avg_colors[i, 1] = np.median(box1[mask != 0])
         boxmask = cv2.bitwise_and(box0, mask)
-        draw.save("", boxmask, f"{i:02d}_aftermask_{p[5]}.png")
-
-        avg_colors[i, 0] = cv2.mean(box0, mask=mask)[0]
-        avg_colors[i, 1] = cv2.mean(box1, mask=mask)[0]
+        draw.save("", boxmask, f"{i:02d}_aftermask_{p[5]}_{avg_colors[i]}.png")
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

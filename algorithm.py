@@ -78,8 +78,6 @@ def main(filename):
     canvas = draw.boxes(pieces_image, board.pieces)
     draw.save("pieces_amount", canvas)
 
-    # return "aaaaaaaaa"
-
     canny = create_canny(board.image)
     board.corners = find_corners(canny)
     if board.corners is None:
@@ -107,19 +105,23 @@ def main(filename):
             return bad_picture_msg
 
     inters = translate_inters(inters, warp_matrix_inverse, translate_params)
-    if debug:
-        canvas = draw.points(BGR, inters)
-        draw.save("translated_intersections", canvas)
+    # if debug:
+    canvas = draw.points(BGR, inters)
+    draw.save("translated_intersections", canvas)
+    inters = translate_pieces(inters, pieces_params)
+    # if debug:
+    canvas = draw.points(pieces_image, inters)
+    draw.save("translated_intersections", canvas)
 
     board.squares = squares.calculate(inters)
-    if debug:
-        canvas = draw.squares(BGR, board.squares)
-        draw.save("squares", canvas)
+    # if debug:
+    canvas = draw.squares(pieces_image, board.squares)
+    draw.save("squares", canvas)
 
     board.squares, pieces = squares.fill(board.squares, board.pieces)
-    board.squares, changed = squares.check_colors(BGR, board.squares)
+    board.squares, changed = squares.check_colors(pieces_image, board.squares)
     # if debug and changed:
-    canvas = draw.squares(BGR, board.squares)
+    canvas = draw.squares(pieces_image, board.squares)
     draw.save("squares_check_colors", canvas)
 
     board.fen = fen.generate(board.squares)
@@ -290,18 +292,28 @@ def warp(canny, corners):
 
 
 def translate_inters(inters, warp_matrix_inverse, translate_params):
-    # go back to original perspective
     inters = np.array(inters, dtype='float64')
+
     inters = cv2.perspectiveTransform(inters, warp_matrix_inverse)
-    # scale to input size
     inters[:, :, 0] /= translate_params.resize_factor
     inters[:, :, 1] /= translate_params.resize_factor
-    # position board bounding box
+
     inters[:, :, 0] += translate_params.x0
     inters[:, :, 1] += translate_params.y0
-    inters = np.array(np.round(inters), dtype='int32')
 
-    return inters
+    return np.array(np.round(inters), dtype='int32')
+
+
+def translate_pieces(inters, translate_params):
+    inters = np.array(inters, dtype='float64')
+
+    inters[:, :, 0] -= translate_params.x0
+    inters[:, :, 1] -= translate_params.y0
+
+    inters[:, :, 0] *= translate_params.resize_factor
+    inters[:, :, 1] *= translate_params.resize_factor
+
+    return np.array(np.round(inters), dtype='int32')
 
 
 def find_corners(canny):

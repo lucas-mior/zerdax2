@@ -10,7 +10,7 @@ import algorithm
 
 
 def detect(BGR):
-    model = YOLO("best.pt")
+    model = YOLO("zerdax2.pt")
     objects = model.predict(source=BGR,
                             conf=0.7,
                             device="cpu",

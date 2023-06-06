@@ -49,8 +49,9 @@ def determine_colors(pieces, image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    h = hsv[:, :, 0]
-    h = cv2.equalizeHist(h)
+    hue = hsv[:, :, 0]
+    hue = cv2.medianBlur(hue, 3)
+    hue = cv2.equalizeHist(hue)
 
     avg_colors = np.empty((len(pieces), 2), dtype='float32')
 
@@ -66,7 +67,7 @@ def determine_colors(pieces, image):
 
         if dx/dy > 0.6 and dx > 35:
             box = gray[y0:y1, x0:x1]
-            boxh = h[y0:y1, x0:x1]
+            boxh = hue[y0:y1, x0:x1]
             mask = 255*np.ones(boxh.shape, dtype='uint8')
             a = dy/(dx/2)
             if x0 < gray.shape[1]/2:
@@ -87,20 +88,23 @@ def determine_colors(pieces, image):
             y0 += 5
             y1 -= 3
             box = gray[y0:y1, x0:x1]
-            boxh = h[y0:y1, x0:x1]
+            boxh = hue[y0:y1, x0:x1]
             mask = 255*np.ones(boxh.shape, dtype='uint8')
 
         avg_colors[i, 0] = np.median(box[mask != 0])
         avg_colors[i, 1] = np.median(boxh[mask != 0])
-        # canvas = cv2.bitwise_and(boxh, mask)
-        # draw.save(f"{round(a0):03d}_{i:02d}", canvas)
+
+    a0 = np.std(avg_colors[:, 0])
+    a1 = np.std(avg_colors[:, 1])
+    x = a0/a1
+    avg_colors[:, 1] *= x
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
     ret, labels0, centers = cv2.kmeans(avg_colors, 2, None,
                                        criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
     labels0 = np.ravel(labels0)
-    if centers[1, 0] < centers[0, 0]:
+    if centers[1, 0] > centers[0, 0]:
         labels0 = np.array([0 if l1 == 1 else 1 for l1 in labels0])
 
     black = pieces[(labels0 == 0)]

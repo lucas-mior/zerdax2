@@ -34,13 +34,10 @@ def main(filename):
 
     board = SimpleNamespace()
     board.box, board.pieces = objects.detect(BGR)
-    board.pieces = objects.determine_colors(board.pieces, BGR)
-    board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
-    board.pieces = objects.process_pieces_amount(board.pieces)
 
     if (failed := board.box is None) or debug:
         canvas = draw.boxes(BGR, board.pieces, board.box)
-        draw.save("detection_processed", canvas)
+        draw.save("detection", canvas)
         if failed:
             log.error("could not find board on picture")
             log.error(bad_picture_msg)
@@ -53,8 +50,25 @@ def main(filename):
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    canny = create_canny(board.image)
+    board.pieces[:, 0] -= translate_params.x0
+    board.pieces[:, 2] -= translate_params.x0
+    board.pieces[:, 1] -= translate_params.y0
+    board.pieces[:, 3] -= translate_params.y0
+    for piece in board.pieces:
+        piece[0] *= translate_params.resize_factor
+        piece[1] *= translate_params.resize_factor
+        piece[2] *= translate_params.resize_factor
+        piece[3] *= translate_params.resize_factor
 
+    canvas = draw.boxes(board.image, board.pieces)
+    draw.save("trans_pieces", canvas)
+    exit(0)
+
+    board.pieces = objects.determine_colors(board.pieces, BGR)
+    board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
+    board.pieces = objects.process_pieces_amount(board.pieces)
+
+    canny = create_canny(board.image)
     board.corners = find_corners(canny)
     if board.corners is None:
         log.error("error finding corners of board")

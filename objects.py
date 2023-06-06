@@ -47,7 +47,12 @@ def detect(BGR):
 
 def determine_colors(pieces, image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    avg_colors = np.empty((len(pieces), 1), dtype='float32')
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    h = hsv[:, :, 0]
+    h = cv2.equalizeHist(h)
+
+    avg_colors = np.empty((len(pieces), 2), dtype='float32')
 
     def value_map(value, in_min, in_max, out_min, out_max):
         proportion = (value - in_min) / (in_max - in_min)
@@ -61,7 +66,8 @@ def determine_colors(pieces, image):
 
         if dx/dy > 0.6 and dx > 35:
             box = gray[y0:y1, x0:x1]
-            mask = 255*np.ones(box.shape, dtype='uint8')
+            boxh = h[y0:y1, x0:x1]
+            mask = 255*np.ones(boxh.shape, dtype='uint8')
             a = dy/(dx/2)
             if x0 < gray.shape[1]/2:
                 for (y, x), pixel in np.ndenumerate(mask):
@@ -81,19 +87,33 @@ def determine_colors(pieces, image):
             y0 += 5
             y1 -= 3
             box = gray[y0:y1, x0:x1]
-            mask = 255*np.ones(box.shape, dtype='uint8')
+            boxh = h[y0:y1, x0:x1]
+            mask = 255*np.ones(boxh.shape, dtype='uint8')
 
-        a0 = avg_colors[i, 0] = np.median(box[mask != 0])
-        canvas = cv2.bitwise_and(box, mask)
-        draw.save(f"{round(a0):03d}_{i:02d}", canvas)
+        avg_colors[i, 0] = np.median(box[mask != 0])
+        avg_colors[i, 1] = np.median(boxh[mask != 0])
+        # canvas = cv2.bitwise_and(boxh, mask)
+        # draw.save(f"{round(a0):03d}_{i:02d}", canvas)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
-    ret, labels, centers = cv2.kmeans(avg_colors, 2, None,
-                                      criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
-    labels = np.ravel(labels)
-    black = pieces[labels == 0]
-    white = pieces[labels == 1]
+    ret, labels0, centers = cv2.kmeans(avg_colors[:, 0], 2, None,
+                                       criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
+    labels0 = np.ravel(labels0)
+    print("labels0:", labels0)
+    if centers[1, 0] > centers[0, 0]:
+        labels0 = np.array([0 if l1 == 1 else 1 for l1 in labels0])
+        print("bitwise not\n", labels0)
+    ret, labels1, centers = cv2.kmeans(avg_colors[:, 1], 2, None,
+                                       criteria, 30, cv2.KMEANS_RANDOM_CENTERS)
+    labels1 = np.ravel(labels1)
+    print("labels1:", labels1)
+    if centers[1, 0] < centers[0, 0]:
+        labels1 = np.array([0 if l1 == 1 else 1 for l1 in labels1])
+        print("bitwise not\n", labels1)
+
+    black = pieces[(labels1 == 0)]
+    white = pieces[(labels1 == 1)]
     if centers[1, 0] < centers[0, 0]:
         aux = black
         black = white

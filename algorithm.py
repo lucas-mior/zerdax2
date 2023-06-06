@@ -139,7 +139,7 @@ def main(filename):
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
-    # shutil.move(filename, "good/")
+    shutil.move(filename, "good/")
     return board.fen
 
 
@@ -302,8 +302,6 @@ def warp(canny, corners):
     if debug:
         draw.save("canny_warped", canny_warped)
     return canny_warped, warp_matrix_inverse
-
-
 
 
 def find_corners(canny):

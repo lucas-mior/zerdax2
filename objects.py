@@ -96,8 +96,7 @@ def determine_colors(pieces, image):
 
     a0 = np.std(avg_colors[:, 0])
     a1 = np.std(avg_colors[:, 1])
-    x = a0/a1
-    avg_colors[:, 1] *= x
+    avg_colors[:, 1] *= (a0/a1)
 
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 

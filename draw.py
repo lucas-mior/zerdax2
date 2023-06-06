@@ -9,6 +9,7 @@ from misc import COLORS, SYMBOLS
 import lines as li
 
 WIDTH_INPUT = 960
+WIDTH_BOARD = 512
 
 
 def adapt(image):
@@ -56,10 +57,10 @@ def corners(image, corners):
     corners[:, 1] += pad_up
 
     canvas = np.zeros(image.shape, dtype='uint8')
-    radius = round(5 * (image.shape[1] / 512))
+    radius = round(5 * (image.shape[1] / WIDTH_BOARD))
 
     name = ["TL", "TR", "BR", "BL"]
-    thick = round(2 * (image.shape[1] / 512))
+    thick = round(2 * (image.shape[1] / WIDTH_BOARD))
     for i, c in enumerate(corners):
         color = (i*50, 30*i, 255-i*40)
         cv2.circle(canvas, c, radius,
@@ -75,7 +76,7 @@ def corners(image, corners):
 def points(image, inters):
     image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    radius = round(5 * (image.shape[1] / 512))
+    radius = round(5 * (image.shape[1] / WIDTH_BOARD))
 
     for i, row in enumerate(inters):
         for j, p in enumerate(row):
@@ -89,7 +90,7 @@ def points(image, inters):
 def lines(image, vert, hori=None, annotate_number=False):
     image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
-    thick = round(2 * (image.shape[1] / 512))
+    thick = round(2 * (image.shape[1] / WIDTH_BOARD))
 
     def _draw(canvas, lines, color, kind=-1):
         if kind != -1:

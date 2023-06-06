@@ -15,7 +15,7 @@ import shutil
 
 basename = ""
 debug = False
-WIDTH_INPUT = 960
+WIDTH_INPUT = 1920
 WIDTH_BOARD = 512
 
 
@@ -271,7 +271,7 @@ def warp(canny, corners):
     BL = corners[3]
     orig_points = np.array([TL, TR, BR, BL], dtype="float32")
 
-    width = height = 512
+    width = height = WIDTH_BOARD
 
     newshape = [[0, 0], [width, 0], [width, height], [0, height]]
     newshape = np.array(newshape, dtype='float32')

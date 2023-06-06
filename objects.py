@@ -54,16 +54,13 @@ def determine_colors(pieces, image):
     avg_colors = np.empty((len(pieces), 2), dtype='float32')
     for i, p in enumerate(pieces):
         x0, y0, x1, y1 = p[:4]
-        x0 += 3
-        x1 -= 3
-        y0 += 3
         dx = x1 - x0
         dy = y1 - y0
 
-        box0 = gray[y0:y1, x0:x1]
-        box1 = hsvalue[y0:y1, x0:x1]
-        mask = 255*np.ones(box0.shape, dtype='uint8')
         if dx/dy > 0.6 and dx > 40:
+            box0 = gray[y0:y1, x0:x1]
+            box1 = hsvalue[y0:y1, x0:x1]
+            mask = 255*np.ones(box0.shape, dtype='uint8')
             a = dy/(dx/2)
             if x0 < 600:
                 for (y, x), pixel in np.ndenumerate(mask):
@@ -77,6 +74,14 @@ def determine_colors(pieces, image):
                         mask[y, x] = 0
                     if x > dx/2 and y > (dx-x)*a:
                         mask[y, x] = 0
+        else:
+            x0 += 5
+            x1 -= 5
+            y0 += 5
+            y1 -= 5
+            box0 = gray[y0:y1, x0:x1]
+            box1 = hsvalue[y0:y1, x0:x1]
+            mask = 255*np.ones(box0.shape, dtype='uint8')
 
         boxmask = cv2.bitwise_and(box0, mask)
         draw.save("", boxmask, f"{i:02d}_aftermask_{p[5]}.png")

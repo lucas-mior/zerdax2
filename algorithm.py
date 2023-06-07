@@ -34,13 +34,10 @@ def main(filename):
     board = SimpleNamespace()
     board.box, board.pieces = objects.detect(BGR)
 
-    if (failed := board.box is None) or debug:
-        canvas = draw.boxes(BGR, board.pieces, board.box)
-        draw.save("detection", canvas)
-        if failed:
-            log.error("could not find board on picture")
-            log.error(bad_picture_msg)
-            return bad_picture_msg
+    if board.box is None:
+        log.error("could not find board on picture")
+        log.error(bad_picture_msg)
+        return bad_picture_msg
 
     log.info(f"board detected: {board.box}")
     board.image, translate_params = crop_image(BGR, board.box)

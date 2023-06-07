@@ -39,7 +39,7 @@ def detect(BGR):
         npieces.append([x0, y0, x1, y1, confidence, klass])
 
     pieces = np.array(npieces, dtype='int32')
-    if algorithm.debug:
+    if boardbox is None or algorithm.debug:
         canvas = draw.boxes(BGR, pieces, boardbox)
         draw.save("detection", canvas)
     return boardbox, pieces

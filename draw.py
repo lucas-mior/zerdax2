@@ -161,7 +161,7 @@ def squares(image, squares):
         colortext = [max(0, c - 50) for c in color]
 
         cv2.drawContours(canvas, [coord], -1, color=color, thickness=3)
-        cv2.putText(canvas, name, (coord[0, 0]+5, coord[0, 1]-5),
+        cv2.putText(canvas, name, (coord[2, 0], coord[1, 1]),
                     cv2.FONT_HERSHEY_SIMPLEX, scale, colortext, thickness=2)
         return canvas
 

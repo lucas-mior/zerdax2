@@ -190,10 +190,11 @@ def fix_warped_lines(hori, vert):
     hori, lh = _fix_outer(hori, lh, 1)
     vert, lv = _fix_outer(vert, lv, 0)
 
-    if lv != 9 or lh != 9:
-        canvas = draw.lines(gcanny, hori, vert)
+    if (failed := lv != 9 or lh != 9) or algorithm.debug:
+        canvas = draw.lines(gcanny, hori, vert, annotate_number=True)
         draw.save(f"fix_warped_{lh=}_{lv=}", canvas)
-        return None, None
+        if failed:
+            return None, None
     return hori, vert
 
 

@@ -96,17 +96,17 @@ def calculate_means(image, squares, col, row):
 
 def check_colors(image, squares):
     changed = False
-    player_position = "down"
+    shot_position = "down"
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     def _rotate(squares):
-        nonlocal player_position, changed
+        nonlocal shot_position, changed
         changed = True
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
-            player_position = "left"
+            shot_position = "left"
             squares = np.rot90(squares, k=-1)
         else:
-            player_position = "right"
+            shot_position = "right"
             squares = np.rot90(squares, k=+1)
         return squares
 
@@ -129,13 +129,13 @@ def check_colors(image, squares):
                                    & (squares[..., 4, 1] >= 0)]
     squares_pieces_black = squares[squares[..., 4, 1] > 6]
 
-    if player_position == "down":
+    if shot_position == "down":
         mean_squares_pieces_white = np.median(squares_pieces_white[:, 0, 1])
         mean_squares_pieces_black = np.median(squares_pieces_black[:, 0, 1])
-    elif player_position == "right":
+    elif shot_position == "right":
         mean_squares_pieces_white = np.median(squares_pieces_white[:, 0, 0])
         mean_squares_pieces_black = np.median(squares_pieces_black[:, 0, 0])
-    elif player_position == "left":
+    elif shot_position == "left":
         mean_squares_pieces_white = np.median(squares_pieces_black[:, 0, 0])
         mean_squares_pieces_black = np.median(squares_pieces_white[:, 0, 0])
 

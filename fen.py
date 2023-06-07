@@ -9,7 +9,7 @@ def generate(squares):
     long_fen = ""
     for i in range(7, -1, -1):
         for j in range(0, 8):
-            sq = squares[j, i]
+            sq = squares[i, j]
             long_fen += SYMBOLS[sq[4, 1]]
         long_fen += '/'
     long_fen = long_fen[:-1]

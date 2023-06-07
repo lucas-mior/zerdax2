@@ -94,7 +94,7 @@ def determine_colors(pieces, image):
         avg_colors[i, 0] = np.median(box[mask != 0])
         avg_colors[i, 1] = np.median(boxh[mask != 0])
 
-    a0 = np.std(avg_colors[:, 0])
+    a0 = max(1, np.std(avg_colors[:, 0]))
     a1 = max(1, np.std(avg_colors[:, 1]))
     avg_colors[:, 1] *= (a0/a1)
 

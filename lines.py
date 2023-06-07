@@ -165,7 +165,10 @@ def fix_warped_lines(hori, vert):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert), kind)
-        lines, ll = add_middle_warped(lines, ll, kind)
+        old_ll = 0
+        while old_ll != len(lines):
+            old_ll = len(lines)
+            lines, ll = add_middle_warped(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind)

@@ -167,6 +167,10 @@ def crop_pieces(image, boardbox, pieces):
     x1p, y1p = np.max(pieces[:, 2]), np.max(pieces[:, 3])
     x0, y0 = min(x0, x0p), min(y0, y0p)
     x1, y1 = max(x1, x1p), max(y1, y1p)
+    x0 -= 10
+    y0 -= 10
+    x1 += 10
+    y1 += 10
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")

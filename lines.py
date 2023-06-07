@@ -71,7 +71,7 @@ def find_diagonal_lines(canny):
 
     min_lines_before_split = 16
     hough_min_length0 = gcanny.shape[0] * 0.7
-    hough_max_gap = 8
+    hough_max_gap = 5
 
     angle = 0.5
     hough_min_length = hough_min_length0
@@ -80,12 +80,12 @@ def find_diagonal_lines(canny):
     ll = lv = lh = 0
     hori = vert = None
     while lv < 7 or lh < 7:
-        if hough_threshold <= (hough_min_length0/1.6):
-            if hough_min_length <= (hough_min_length0/1.2):
+        if hough_threshold <= (hough_min_length0/1.5):
+            if hough_min_length <= (hough_min_length0/1.5):
                 break
-        hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.2)
+        hough_min_length = max(hough_min_length - 5, hough_min_length0 / 1.5)
         hough_max_gap = min(hough_max_gap + 3, hough_min_length0 / 4)
-        hough_threshold = max(hough_threshold - 5, hough_min_length0 / 1.6)
+        hough_threshold = max(hough_threshold - 2, hough_min_length0 / 1.5)
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
@@ -98,7 +98,7 @@ def find_diagonal_lines(canny):
 
         vert, hori = filter_misdirected(vert, hori)
         vert, hori = sort(vert, hori)
-        vert, hori = filter_misdirected2(vert, hori)
+        # vert, hori = filter_misdirected2(vert, hori)
         vert, hori = bundle_lines(vert, hori)
         vert, hori = filter_intersecting(vert, hori)
 

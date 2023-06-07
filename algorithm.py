@@ -66,16 +66,15 @@ def main(filename):
         piece[2] *= pieces_params.resize_factor
         piece[3] *= pieces_params.resize_factor
 
-    canvas = draw.boxes(pieces_image, board.pieces)
-    draw.save("pieces_image", canvas)
-
     board.pieces = objects.determine_colors(board.pieces, pieces_image)
-    canvas = draw.boxes(pieces_image, board.pieces)
-    draw.save("pieces_colors", canvas)
+    if debug:
+        canvas = draw.boxes(pieces_image, board.pieces)
+        draw.save("pieces_colors", canvas)
 
     board.pieces = objects.process_pieces_amount(board.pieces)
-    canvas = draw.boxes(pieces_image, board.pieces)
-    draw.save("pieces_amount", canvas)
+    if debug:
+        canvas = draw.boxes(pieces_image, board.pieces)
+        draw.save("pieces_amount", canvas)
 
     canny = create_canny(board.image)
     board.corners = find_corners(canny)
@@ -110,12 +109,6 @@ def main(filename):
     inters[:, :, 0] += translate_params.x0
     inters[:, :, 1] += translate_params.y0
 
-    inters = np.array(np.round(inters), dtype='int32')
-    if debug:
-        canvas = draw.points(BGR, inters)
-        draw.save("translated_intersections", canvas)
-
-    inters = np.array(inters, dtype='float64')
     inters[:, :, 0] -= pieces_params.x0
     inters[:, :, 1] -= pieces_params.y0
     inters[:, :, 0] *= pieces_params.resize_factor

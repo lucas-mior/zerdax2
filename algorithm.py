@@ -326,27 +326,28 @@ def find_corners(canny):
     BR = inters[np.argmax(points_sum)]
     BL = inters[np.argmin(points_sub)]
 
-    if BR[0] == BL[0] and BR[1] == BL[1]:
-        log.warning("BR == BL")
-        aux = TL
-        TL = inters[np.argmin(inters[:, 1])]
-        BL = aux
-    elif TL[0] == TR[0] and TL[1] == TL[1]:
-        log.warning("TR == TL")
-        aux = TL
-        TL = inters[np.argmin(inters[:, 1])]
-        BL = aux
-    elif BL[0] == TL[0] and BL[1] == TL[1]:
-        log.warning("BL == TL")
-        aux = TL
-        TL = inters[np.argmin(inters[:, 1])]
-        BL = aux
-
     corners = np.array([TL, TR, BR, BL], dtype='int32')
+    if duplicated_points(corners):
+        TL = inters[np.argmin(inters[:, 1])]
+        TR = inters[np.argmax(inters[:, 0])]
+        BR = inters[np.argmax(inters[:, 1])]
+        BL = inters[np.argmin(inters[:, 0])]
+        corners = np.array([TL, TR, BR, BL], dtype='int32')
+
     if debug:
         canvas = draw.corners(canny, corners)
         draw.save("corners", canvas)
     return corners
+
+
+def duplicated_points(corners):
+    for corner in corners:
+        for other in corners:
+            if other is corner:
+                continue
+            if corner[0] == other[0] and corner[1] == other[1]:
+                return True
+    return False
 
 
 if __name__ == "__main__":

@@ -315,8 +315,8 @@ def find_corners(canny):
 
     log.debug("calculating 4 corners of board...")
     inters = inters.reshape((-1, 2))
-    points_sum = np.zeros((inters.shape[0]), dtype='int32')
-    points_sub = np.zeros((inters.shape[0]), dtype='int32')
+    points_sum = np.empty((inters.shape[0]), dtype='int32')
+    points_sub = np.empty((inters.shape[0]), dtype='int32')
 
     points_sum[:] = inters[:, 0] + inters[:, 1]
     points_sub[:] = inters[:, 0] - inters[:, 1]

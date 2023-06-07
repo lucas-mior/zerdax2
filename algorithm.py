@@ -62,6 +62,9 @@ def main(filename):
         piece[1] *= pieces_params.resize_factor
         piece[2] *= pieces_params.resize_factor
         piece[3] *= pieces_params.resize_factor
+    if debug:
+        canvas = draw.boxes(pieces_image, board.pieces)
+        draw.save("pieces_image", canvas)
 
     board.pieces = objects.determine_colors(board.pieces, pieces_image)
     if debug:
@@ -156,9 +159,15 @@ def crop_image(image, boardbox):
 def crop_pieces(image, boardbox, pieces):
     log.info("cropping image to board box...")
     translate_params = SimpleNamespace()
-    x0, y0_board, x1, y1 = boardbox
-    y0_pieces = np.min(pieces[:, 1])
-    y0 = min(y0_pieces, y0_board)
+    x0, y0, x1, y1 = boardbox
+    x0p = np.min(pieces[:, 0])
+    y0p = np.min(pieces[:, 1])
+    x1p = np.max(pieces[:, 2])
+    y1p = np.max(pieces[:, 3])
+    x0 = min(x0, x0p)
+    y0 = min(y0, y0p)
+    x1 = max(x1, x1p)
+    y1 = max(y1, y1p)
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")

@@ -537,14 +537,13 @@ def add_middle_warped(lines, ll, kind):
                 new[kind+2] += (dx*sign)
                 lines = np.insert(lines, 1, [new], axis=0)
                 return lines
-        for i in range(2, len(lines) - 3):
+        for i in range(2, len(lines) - 2):
             dprev2 = abs(lines[i-1, kind] - lines[i-2, kind])
             dprev1 = abs(lines[i+0, kind] - lines[i-1, kind])
             dthis0 = abs(lines[i+0, kind] - lines[i+1, kind])
             dnext1 = abs(lines[i+1, kind] - lines[i+2, kind])
-            dnext2 = abs(lines[i+2, kind] - lines[i+3, kind])
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
-                if dthis0 > (dprev2*tol) and dthis0 > (dnext2*tol):
+                if dthis0 > (dprev2*tol):
                     new = np.copy(lines[i])
                     dx = med + (med - dnext1)
                     new[kind] += (dx*sign)

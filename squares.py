@@ -139,7 +139,7 @@ def check_colors(image, squares):
         mean_squares_pieces_white = np.median(squares_pieces_black[:, 0, 0])
         mean_squares_pieces_black = np.median(squares_pieces_white[:, 0, 0])
 
-    if mean_squares_pieces_white < mean_squares_pieces_black:
+    if mean_squares_pieces_white > mean_squares_pieces_black:
         squares = np.rot90(squares, k=2)
         changed = True
     return squares, changed

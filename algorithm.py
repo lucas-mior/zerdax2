@@ -106,8 +106,8 @@ def main(filename):
 
     inters = np.array(inters, dtype='float64')
     inters = cv2.perspectiveTransform(inters, warp_matrix_inverse)
-    inters[:, :, 0] /= translate_params.resize_factor
-    inters[:, :, 1] /= translate_params.resize_factor
+    inters[:, :, 0] /= translate_params.resize_factor[0]
+    inters[:, :, 1] /= translate_params.resize_factor[1]
     inters[:, :, 0] += translate_params.x0
     inters[:, :, 1] += translate_params.y0
 
@@ -128,9 +128,9 @@ def main(filename):
 
     board.squares = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(pieces_image, board.squares)
-    if debug and changed:
-        canvas = draw.squares(pieces_image, board.squares)
-        draw.save("squares_check_colors", canvas)
+    # if debug and changed:
+    canvas = draw.squares(pieces_image, board.squares)
+    draw.save("squares_check_colors", canvas)
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
@@ -145,13 +145,13 @@ def crop_image(image, boardbox):
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")
-    resize_factor = WIDTH_BOARD / cropped.shape[1]
-    height_board = round(resize_factor * cropped.shape[0])
-    cropped = cv2.resize(cropped, (WIDTH_BOARD, height_board))
+    factor_width = WIDTH_BOARD / cropped.shape[1]
+    factor_heigth = WIDTH_BOARD / cropped.shape[0]
+    cropped = cv2.resize(cropped, (WIDTH_BOARD, WIDTH_BOARD))
 
     translate_params.x0 = x0
     translate_params.y0 = y0
-    translate_params.resize_factor = resize_factor
+    translate_params.resize_factor = (factor_width, factor_heigth)
 
     if debug:
         draw.save("cropped", cropped)

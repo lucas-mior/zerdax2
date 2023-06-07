@@ -70,7 +70,7 @@ def find_diagonal_lines(canny):
     log.debug("finding diagonal lines of original board...")
 
     min_lines_before_split = 16
-    hough_min_length0 = 300
+    hough_min_length0 = gcanny.shape[0] * 0.7
     hough_max_gap = 8
 
     angle = 0.5

@@ -314,10 +314,10 @@ def find_corners(canny):
         draw.save("warped_inters", canvas)
 
     log.debug("calculating 4 corners of board...")
-    TL = inters[-1, 0]
-    TR = inters[-1, -1]
-    BR = inters[0, -1]
-    BL = inters[0, 0]
+    TL = inters[0, 0]
+    TR = inters[0, -1]
+    BR = inters[-1, -1]
+    BL = inters[-1, 0]
     corners = np.array([TL, TR, BR, BL], dtype='int32')
 
     if debug:

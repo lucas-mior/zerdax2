@@ -124,11 +124,11 @@ def main(filename):
         canvas = draw.squares(pieces_image, board.squares)
         draw.save("squares", canvas)
 
-    board.squares, pieces = squares.fill(board.squares, board.pieces)
+    board.squares = squares.fill(board.squares, board.pieces)
     board.squares, changed = squares.check_colors(pieces_image, board.squares)
-    # if debug and changed:
-    canvas = draw.squares(pieces_image, board.squares)
-    draw.save("squares_check_colors", canvas)
+    if debug and changed:
+        canvas = draw.squares(pieces_image, board.squares)
+        draw.save("squares_check_colors", canvas)
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)

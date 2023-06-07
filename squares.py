@@ -58,10 +58,10 @@ def fill(squares, pieces, force=False):
             square[4] = [0, -1]
 
     if len(pieces) > 0 and not force:
-        squares, pieces = fill(squares, pieces, force=True)
-        return squares, pieces
+        squares = fill(squares, pieces, force=True)
+        return squares
 
-    return squares, pieces
+    return squares
 
 
 def calculate_means(image, squares, col, row):

@@ -13,7 +13,7 @@ def detect(BGR):
     model = YOLO("zerdax2.pt")
     objects = model.predict(source=BGR,
                             conf=0.7,
-                            device="cpu",
+                            # device="cpu",
                             imgsz=960,
                             iou=0.7,
                             max_det=33)

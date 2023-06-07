@@ -170,6 +170,8 @@ def fix_warped_lines(vert, hori):
         lines, ll = remove_outer(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
+        lines, ll = add_outer_warped(lines, ll, kind)
+        lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
     def _fix_outer(lines, ll, kind):

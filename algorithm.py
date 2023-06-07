@@ -159,15 +159,12 @@ def crop_image(image, boardbox):
 def crop_pieces(image, boardbox, pieces):
     log.info("cropping image to board box...")
     translate_params = SimpleNamespace()
+
     x0, y0, x1, y1 = boardbox
-    x0p = np.min(pieces[:, 0])
-    y0p = np.min(pieces[:, 1])
-    x1p = np.max(pieces[:, 2])
-    y1p = np.max(pieces[:, 3])
-    x0 = min(x0, x0p)
-    y0 = min(y0, y0p)
-    x1 = max(x1, x1p)
-    y1 = max(y1, y1p)
+    x0p, y0p = np.min(pieces[:, 0]), np.min(pieces[:, 1])
+    x1p, y1p = np.max(pieces[:, 2]), np.max(pieces[:, 3])
+    x0, y0 = min(x0, x0p), min(y0, y0p)
+    x1, y1 = max(x1, x1p), max(y1, y1p)
     cropped = image[y0:y1, x0:x1]
 
     log.info("reducing cropped image to default size...")

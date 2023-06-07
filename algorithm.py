@@ -327,14 +327,17 @@ def find_corners(canny):
     BL = inters[np.argmin(points_sub)]
 
     if BR[0] == BL[0] and BR[1] == BL[1]:
-        BL = inters[np.argmin(inters[:, 1])]
-        aux = BL
-        BL = TL
-        TL = aux
+        log.warning("BR == BL")
+        aux = TL
+        TL = inters[np.argmin(inters[:, 1])]
+        BL = aux
     elif TL[0] == TR[0] and TL[1] == TL[1]:
-        print("TL ==  TR")
-        exit(1)
+        log.warning("TR == TL")
+        aux = TL
+        TL = inters[np.argmin(inters[:, 1])]
+        BL = aux
     elif BL[0] == TL[0] and BL[1] == TL[1]:
+        log.warning("BL == TL")
         aux = TL
         TL = inters[np.argmin(inters[:, 1])]
         BL = aux

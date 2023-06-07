@@ -104,10 +104,10 @@ def check_colors(image, squares):
         changed = True
         if squares[0, 0, 0, 1] > squares[1, 0, 0, 1]:
             player_position = "left"
-            squares = np.rot90(squares, k=1)
+            squares = np.rot90(squares, k=-1)
         else:
             player_position = "right"
-            squares = np.rot90(squares, k=-1)
+            squares = np.rot90(squares, k=+1)
         return squares
 
     change_votes = 0

@@ -314,25 +314,11 @@ def find_corners(canny):
         draw.save("warped_inters", canvas)
 
     log.debug("calculating 4 corners of board...")
-    inters = inters.reshape((-1, 2))
-    points_sum = np.empty((inters.shape[0]), dtype='int32')
-    points_sub = np.empty((inters.shape[0]), dtype='int32')
-
-    points_sum[:] = inters[:, 0] + inters[:, 1]
-    points_sub[:] = inters[:, 0] - inters[:, 1]
-
-    TL = inters[np.argmin(points_sum)]
-    TR = inters[np.argmax(points_sub)]
-    BR = inters[np.argmax(points_sum)]
-    BL = inters[np.argmin(points_sub)]
-
+    TL = inters[0, 0]
+    TR = inters[0, -1]
+    BR = inters[-1, -1]
+    BL = inters[-1, 0]
     corners = np.array([TL, TR, BR, BL], dtype='int32')
-    if duplicated_points(corners):
-        TL = inters[np.argmin(inters[:, 1])]
-        TR = inters[np.argmax(inters[:, 0])]
-        BR = inters[np.argmax(inters[:, 1])]
-        BL = inters[np.argmin(inters[:, 0])]
-        corners = np.array([TL, TR, BR, BL], dtype='int32')
 
     if debug:
         canvas = draw.corners(canny, corners)

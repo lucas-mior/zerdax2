@@ -25,9 +25,9 @@ def find_warped_lines(canny):
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0
 
-    ll = lv = lh = 0
+    ll = lh = lv = 0
     hori = vert = None
-    while lv < 7 or lh < 7:
+    while lh < 7 or lv < 7:
         if hough_threshold <= (hough_min_length0/1.5):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
@@ -41,27 +41,27 @@ def find_warped_lines(canny):
             continue
 
         lines = filter_not_right(lines)
-        vert, hori, lv, lh = split(lines)
-        if lv < 4 or lh < 4:
+        hori, vert, lh, lv = split(lines)
+        if lh < 4 or lv < 4:
             continue
 
-        vert, hori = sort(vert, hori)
-        vert, hori = bundle_lines(vert, hori)
+        hori, vert = sort(hori, vert)
+        hori, vert = bundle_lines(hori, vert)
 
-        lv, lh = len(vert), len(hori)
+        lh, lv = len(hori), len(vert)
         log.debug(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                   f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algorithm.debug:
-        canvas = draw.lines(gcanny, vert, hori)
+        canvas = draw.lines(gcanny, hori, vert)
         draw.save(f"warped_lines_{lv=}_{lh=}", canvas)
         if failed:
             log.error("less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori)
-    vert, hori = fix_warped_lines(vert, hori)
-    return vert, hori
+    hori, vert = sort(hori, vert)
+    hori, vert = fix_warped_lines(hori, vert)
+    return hori, vert
 
 
 def find_diagonal_lines(canny):
@@ -77,7 +77,7 @@ def find_diagonal_lines(canny):
     hough_min_length = hough_min_length0
     hough_threshold = hough_min_length0
 
-    ll = lv = lh = 0
+    ll = lh = lv = 0
     hori = vert = None
     while lv < 7 or lh < 7:
         if hough_threshold <= (hough_min_length0/1.5):
@@ -92,30 +92,30 @@ def find_diagonal_lines(canny):
             hough_max_gap += 3
             continue
 
-        vert, hori, lv, lh = split(lines)
+        hori, vert, lh, lv = split(lines)
         if lv < 4 or lh < 4:
             continue
 
-        vert, hori = filter_misdirected(vert, hori)
-        vert, hori = sort(vert, hori)
-        # vert, hori = filter_misdirected2(vert, hori)
-        vert, hori = bundle_lines(vert, hori)
-        vert, hori = filter_intersecting(vert, hori)
+        hori, vert = filter_misdirected(hori, vert)
+        hori, vert = sort(hori, vert)
+        # hori, vert = filter_misdirected2(hori, vert)
+        hori, vert = bundle_lines(hori, vert)
+        hori, vert = filter_intersecting(hori, vert)
 
-        lv, lh = len(vert), len(hori)
-        log.debug(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+        lh, lv = len(hori), len(vert)
+        log.debug(f"{lv+lh} # {lh},{lv} @ {angle}º, {hough_threshold=}, "
                   f"{hough_min_length=},{hough_max_gap=}")
 
-    if (failed := lv < 6 or lh < 6) or algorithm.debug:
-        canvas = draw.lines(gcanny, vert, hori)
-        draw.save(f"diagonal_lines_{lv=}_{lh=}", canvas)
+    if (failed := lh < 6 or lv < 6) or algorithm.debug:
+        canvas = draw.lines(gcanny, hori, vert)
+        draw.save(f"diagonal_lines_{lh=}_{lv=}", canvas)
         if failed:
             log.error("less than 6 lines found in at least one direction")
             return None, None
 
-    vert, hori = sort(vert, hori)
-    vert, hori = fix_diagonal_lines(vert, hori)
-    return vert, hori
+    hori, vert = sort(hori, vert)
+    hori, vert = fix_diagonal_lines(hori, vert)
+    return hori, vert
 
 
 def hough(hough_threshold, hough_min_length, hough_max_gap):
@@ -140,11 +140,11 @@ def hough(hough_threshold, hough_min_length, hough_max_gap):
     return lines, ll
 
 
-def bundle_lines(vert, hori):
-    dist_vert = round(gcanny.shape[1]/23)
+def bundle_lines(hori, vert):
     dist_hori = round(gcanny.shape[0]/23)
-    old_lv = len(vert)
+    dist_vert = round(gcanny.shape[1]/23)
     old_lh = len(hori)
+    old_lv = len(vert)
 
     def _bundle_lines(lines, dist):
         bundled = np.zeros(lines.shape, dtype='int32')
@@ -152,16 +152,16 @@ def bundle_lines(vert, hori):
         lines = bundled[:nlines]
         return lines, nlines
 
-    vert, lv = _bundle_lines(vert, dist_vert)
     hori, lh = _bundle_lines(hori, dist_hori)
+    vert, lv = _bundle_lines(vert, dist_vert)
 
-    if algorithm.debug and (old_lv != lv or old_lh != lh):
-        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
+    if algorithm.debug and (old_lh != lh or old_lv != lv):
+        canvas = draw.lines(gcanny, hori, vert, annotate_number=True)
         draw.save("bundle_lines", canvas)
-    return vert, hori
+    return hori, vert
 
 
-def fix_warped_lines(vert, hori):
+def fix_warped_lines(hori, vert):
 
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert), kind)
@@ -185,33 +185,33 @@ def fix_warped_lines(vert, hori):
             lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
-    vert, lv = _fix_warped_lines(vert, 0)
     hori, lh = _fix_warped_lines(hori, 1)
-    vert, lv = _fix_outer(vert, lv, 0)
+    vert, lv = _fix_warped_lines(vert, 0)
     hori, lh = _fix_outer(hori, lh, 1)
+    vert, lv = _fix_outer(vert, lv, 0)
 
     if lv != 9 or lh != 9:
-        canvas = draw.lines(gcanny, vert, hori)
-        draw.save(f"fix_warped_{lv=}_{lh=}", canvas)
+        canvas = draw.lines(gcanny, hori, vert)
+        draw.save(f"fix_warped_{lh=}_{lv=}", canvas)
         return None, None
-    return vert, hori
+    return hori, vert
 
 
-def fix_diagonal_lines(vert, hori):
+def fix_diagonal_lines(hori, vert):
     old_lv = old_lh = 0
     while old_lv != len(vert) or old_lh != len(hori):
         old_lv, old_lh = len(vert), len(hori)
-        vert, hori = fix_length_byinter(vert, hori)
+        hori, vert = fix_length_byinter(hori, vert)
         vert, _ = add_outer_diagonal(vert, len(vert), 0)
-        vert, hori = fix_length_byinter(vert, hori)
+        hori, vert = fix_length_byinter(hori, vert)
         hori, _ = add_outer_diagonal(hori, len(hori), 1)
 
     vert, lv = extend_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
-    return vert, hori
+    return hori, vert
 
 
-def sort(vert, hori):
+def sort(hori, vert):
     log.debug("sorting lines by position and respective direction...")
 
     def _criteria(lines, kind):
@@ -227,16 +227,16 @@ def sort(vert, hori):
     vert = vert[np.argsort(positions)]
 
     if algorithm.debug:
-        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
+        canvas = draw.lines(gcanny, hori, vert, annotate_number=True)
         draw.save("sort_lines", canvas)
-    return vert, hori
+    return hori, vert
 
 
-def fix_length_byinter(vert, hori=None):
-    inters = intersect.calculate_extern(vert, hori)
+def fix_length_byinter(hori, vert=None):
+    inters = intersect.calculate_extern(hori, vert)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
-        return vert, hori
+        return hori, vert
 
     def _shorten(lines):
         for i, inter in enumerate(inters):
@@ -255,16 +255,16 @@ def fix_length_byinter(vert, hori=None):
             lines[i] = new
         return lines
 
-    if vert is not None:
-        vert = _shorten(vert)
     if hori is not None:
-        inters = np.transpose(inters, axes=(1, 0, 2))
         hori = _shorten(hori)
+    if vert is not None:
+        inters = np.transpose(inters, axes=(1, 0, 2))
+        vert = _shorten(vert)
 
     if algorithm.debug:
-        canvas = draw.lines(gcanny, vert, hori, annotate_number=True)
+        canvas = draw.lines(gcanny, hori, vert, annotate_number=True)
         draw.save("fix_length_byinter", canvas)
-    return vert, hori
+    return hori, vert
 
 
 def add_outer_diagonal(lines, ll, kind):
@@ -412,7 +412,7 @@ def extend_outer(lines, ll, kind, force=False):
     return lines, len(lines)
 
 
-def filter_misdirected2(vert, hori):
+def filter_misdirected2(hori, vert):
     log.debug("filtering lines by angle with next line")
 
     def _calculate_diffs(lines):
@@ -440,17 +440,17 @@ def filter_misdirected2(vert, hori):
         return lines
 
     old_lv = old_lh = 0
-    while old_lv != len(vert) or old_lh != len(hori):
-        old_lv, old_lh = len(vert), len(hori)
-        diffs_vert = _calculate_diffs(vert)
+    while old_lh != len(hori) or old_lv != len(vert):
+        old_lh, old_lv = len(hori), len(vert)
         diffs_hori = _calculate_diffs(hori)
-        vert = _remove_misdirected(vert, diffs_vert)
+        diffs_vert = _calculate_diffs(vert)
         hori = _remove_misdirected(hori, diffs_hori)
+        vert = _remove_misdirected(vert, diffs_vert)
 
     if algorithm.debug:
-        canvas = draw.lines(gcanny, vert, hori)
+        canvas = draw.lines(gcanny, hori, vert)
         draw.save("filter_misdirected2", canvas)
-    return vert, hori
+    return hori, vert
 
 
 def calculate_distances_warped(lines, kind):
@@ -598,7 +598,7 @@ def remove_outer(lines, ll, kind):
     return lines, len(lines)
 
 
-def length_theta(vert, hori=None, abs_angle=False):
+def length_theta(hori, vert=None, abs_angle=False):
     if abs_angle:
         angle = theta_abs
     else:
@@ -615,10 +615,10 @@ def length_theta(vert, hori=None, abs_angle=False):
             lines[i, 5] = angle((x0, y0, x1, y1))*100
         return lines
 
-    if hori is not None:
-        hori = _calculate(hori)
-    vert = _calculate(vert)
-    return vert, hori
+    if vert is not None:
+        vert = _calculate(vert)
+    hori = _calculate(hori)
+    return hori, vert
 
 
 def length(line):
@@ -647,7 +647,7 @@ def theta_abs(line):
 def split(lines):
     log.debug("spliting lines into vertical and horizontal...")
 
-    def _check_split(vert, hori):
+    def _check_split(hori, vert):
         if abs(np.median(hori[:, 5]) - np.median(vert[:, 5])) < 40*100:
             return False
         else:
@@ -678,7 +678,7 @@ def split(lines):
         limits = jenks_breaks(angles, n_classes=2)
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
-        if not _check_split(vert, hori):
+        if not _check_split(hori, vert):
             return None, None, 0, 0
     else:
         for line in lines:
@@ -688,7 +688,7 @@ def split(lines):
         limits = jenks_breaks(angles, n_classes=2)
         hori = lines[angles <= limits[1]]
         vert = lines[limits[1] < angles]
-        if not _check_split(vert, hori):
+        if not _check_split(hori, vert):
             return None, None, 0, 0
 
     if abs(np.median(vert[:, 5])) < abs(np.median(hori[:, 5])):
@@ -701,10 +701,10 @@ def split(lines):
             a1, b1 = line[0], line[1]
             line[0], line[1] = line[2], line[3]
             line[2], line[3] = a1, b1
-    return vert, hori, len(vert), len(hori)
+    return hori, vert, len(hori), len(vert)
 
 
-def filter_misdirected(vert, hori):
+def filter_misdirected(hori, vert):
     log.debug("filtering lines by angle accoring to direction...")
     tolerance = 15 * 100
     changed = False
@@ -716,16 +716,16 @@ def filter_misdirected(vert, hori):
         changed = np.any(~right)
         return lines[right]
 
-    vert = _filter(vert)
     hori = _filter(hori)
+    vert = _filter(vert)
 
     if algorithm.debug and changed:
-        canvas = draw.lines(gcanny, vert, hori)
+        canvas = draw.lines(gcanny, hori, vert)
         draw.save("filter_misdirected", canvas)
-    return vert, hori
+    return hori, vert
 
 
-def filter_intersecting(vert, hori):
+def filter_intersecting(hori, vert):
     log.debug("filtering lines by number of intersections ...")
     limit = True
     changed = False
@@ -743,13 +743,13 @@ def filter_intersecting(vert, hori):
         return lines
 
     for j in range(3):
-        vert = _filter(vert)
         hori = _filter(hori)
+        vert = _filter(vert)
 
     if algorithm.debug and changed:
-        canvas = draw.lines(gcanny, vert, hori)
+        canvas = draw.lines(gcanny, hori, vert)
         draw.save("filter_intersecting", canvas)
-    return vert, hori
+    return hori, vert
 
 
 def filter_not_right(lines):

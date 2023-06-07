@@ -86,7 +86,7 @@ def points(image, inters):
     return canvas
 
 
-def lines(image, vert, hori=None, annotate_number=False):
+def lines(image, hori, vert=None, annotate_number=False):
     image = adapt(image)
     canvas = np.zeros(image.shape, dtype='uint8')
     thick = round(2 * (image.shape[1] / WIDTH_BOARD))
@@ -128,16 +128,16 @@ def lines(image, vert, hori=None, annotate_number=False):
                             color=color, thickness=thick)
         return canvas
 
-    if hori is not None:
-        hori = np.array(hori)
-        canvas = _draw(canvas, hori, (0, 255, 0), 1)
-        if vert is not None:
-            vert = np.array(vert)
-            canvas = _draw(canvas, vert, (255, 0, 80), 0)
-        canvas = add_weighted(image, canvas)
-    elif vert is not None:
+    if vert is not None:
         vert = np.array(vert)
-        canvas = _draw(canvas, vert, (0, 0, 255))
+        canvas = _draw(canvas, vert, (0, 255, 0), 0)
+        if hori is not None:
+            hori = np.array(hori)
+            canvas = _draw(canvas, hori, (255, 0, 80), 1)
+        canvas = add_weighted(image, canvas)
+    elif hori is not None:
+        hori = np.array(hori)
+        canvas = _draw(canvas, hori, (0, 0, 255))
         canvas = add_weighted(image, canvas)
 
     return canvas

@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
     for filename in args.filenames:
         print(f"============ zerdax2.py {filename} ============")
-        try:
-            fen = algorithm.main(filename)
-        except Exception:
-            continue
+        # try:
+        fen = algorithm.main(filename)
+        # except Exception:
+        #     continue
         print(f"FEN({filename}): {fen}")

@@ -6,22 +6,22 @@ import lines
 MIN_ANGLE_TO_INTERSECT = 20 * 100
 
 
-def calculate_extern(lines0, lines1=None):
+def calculate_extern(hori, vert=None):
     log.debug("calculating external intersections between groups of lines...")
 
-    if lines1 is None:
+    if vert is None:
         log.debug("-> calculating all intersections in the same group")
-        lines1 = lines0
-    if lines0 is None:
+        vert = hori
+    if hori is None:
         log.debug("-> line group is empty, returning None.")
         return None
 
     rows = []
-    for i in range(l0 := lines0.shape[0]):
-        x0, y0, x1, y1, r, t = lines0[i]
+    for i in range(l0 := hori.shape[0]):
+        x0, y0, x1, y1, r, t = hori[i]
         col = []
-        for j in range(l1 := lines1.shape[0]):
-            xx0, yy0, xx1, yy1, rr, tt = lines1[j]
+        for j in range(l1 := vert.shape[0]):
+            xx0, yy0, xx1, yy1, rr, tt = vert[j]
             if 0 != i != (l0-1) and 0 != j != (l1-1):
                 col.append((30000, 30000))
                 continue

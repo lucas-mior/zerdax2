@@ -88,13 +88,13 @@ def main(filename):
     log.info(f"corners found: {board.corners}")
     canny_warped, warp_matrix_inverse = warp(canny, board.corners)
 
-    vert, hori = lines.find_warped_lines(canny_warped)
-    if vert is None or hori is None:
+    hori, vert = lines.find_warped_lines(canny_warped)
+    if hori is None or vert is None:
         log.error("error finding lines of warped board")
         log.error(bad_picture_msg)
         return bad_picture_msg
 
-    inters = intersect.calculate_all(vert, hori)
+    inters = intersect.calculate_all(hori, vert)
     if (failed := inters.shape != (9, 9, 2)) or debug:
         canvas = draw.points(canny_warped, inters)
         draw.save("intersections", canvas)
@@ -303,12 +303,12 @@ def warp(canny, corners):
 
 
 def find_corners(canny):
-    vert, hori = lines.find_diagonal_lines(canny)
-    if vert is None or hori is None:
+    hori, vert = lines.find_diagonal_lines(canny)
+    if hori is None or vert is None:
         log.error("error finding diagonal lines")
         return None
 
-    inters = intersect.calculate_all(vert, hori)
+    inters = intersect.calculate_all(hori, vert)
     if debug:
         canvas = draw.points(canny, inters)
         draw.save("warped_inters", canvas)

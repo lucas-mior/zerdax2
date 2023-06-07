@@ -166,9 +166,9 @@ def fix_warped_lines(vert, hori):
     def _fix_warped_lines(lines, kind):
         lines, ll = remove_wrong(lines, len(vert), kind)
         lines, ll = add_middle_warped(lines, ll, kind)
-        lines, ll = add_outer_warped(lines, ll, kind, warped=True)
+        lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer_warped(lines, ll, kind, warped=True)
+        lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
@@ -323,9 +323,8 @@ def add_outer_diagonal(lines, ll, kind):
     return lines, len(lines)
 
 
-def add_outer_warped(lines, ll, kind, warped=False):
+def add_outer_warped(lines, ll, kind):
     log.debug("adding missing outer warped lines...")
-    outer_tolerance = 2
     if ll < 5:
         log.warning("less than 5 lines passed to add_outer, returning...")
         return lines
@@ -341,23 +340,24 @@ def add_outer_warped(lines, ll, kind, warped=False):
 
         line0 = lines[where]
         line1 = lines[other]
+        if where == 0:
+            space = line0[kind] - ref
+        elif where == -1:
+            space = ref - line0[kind]
 
-        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
-        if space_old < outer_tolerance:
+        if space <= 0:
             return lines
 
         new = np.copy(line0)
         dx = med + (med - segments_distance(line0, line1))
         if where == -1:
-            if (ref - new[kind]) >= med/2:
-                new[kind] += dx
-                new[kind+2] += dx
-                lines = np.append(lines, [new], axis=0)
+            new[kind] += dx
+            new[kind+2] += dx
+            lines = np.append(lines, [new], axis=0)
         else:
-            if (new[kind] - ref) >= med/2:
-                new[kind] -= dx
-                new[kind+2] -= dx
-                lines = np.insert(lines, 0, [new], axis=0)
+            new[kind] -= dx
+            new[kind+2] -= dx
+            lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
     dists = calculate_distances_warped(lines, kind)

@@ -497,6 +497,8 @@ def remove_wrong(lines, ll, kind):
         med1 = abs(lines[0, kind] - lines[-1, kind])/8
         med2 = abs(lines[0, kind+2] - lines[-1, kind+2])/8
         med = (med1 + med2)/2
+        med3 = gcanny.shape[1] / 8
+        med = (med + med3)/2
         log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
             if abs(dists[i, 0] - med) > 20 and abs(dists[i, 1] - med) > 20:

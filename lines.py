@@ -499,7 +499,7 @@ def remove_wrong(lines, ll, kind):
         med = (med1 + med2)/2
         log.debug(f"median distance between lines: {med}")
         for i in range(0, len(lines)):
-            if abs(dists[i, 0] - med) > 10 and abs(dists[i, 1] - med) > 10:
+            if abs(dists[i, 0] - med) > 20 and abs(dists[i, 1] - med) > 20:
                 lines = np.delete(lines, i, axis=0)
                 return lines
         return lines

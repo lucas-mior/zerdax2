@@ -18,7 +18,7 @@ def find_warped_lines(canny):
     log.debug("finding right angled lines of warped board...")
 
     min_lines_before_split = 16
-    hough_min_length0 = 450
+    hough_min_length0 = 0.8*gcanny.shape[1]
     hough_max_gap = 8
 
     angle = 0.5

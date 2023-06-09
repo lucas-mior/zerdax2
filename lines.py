@@ -203,12 +203,10 @@ def fix_diagonal_lines(hori, vert):
         vert, _ = add_outer_diagonal(vert, len(vert), 0)
         hori, vert = fix_length_byinter(hori, vert)
         hori, _ = add_outer_diagonal(hori, len(hori), 1)
+    hori, vert = fix_length_byinter(hori, vert)
 
-    hori, vert = fix_length_byinter(hori, vert)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
-    hori, vert = fix_length_byinter(hori, vert)
     hori, lh = remove_fake_outer(hori, len(hori), 1)
-    hori, vert = fix_length_byinter(hori, vert)
     vert, lv = extend_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
     return hori, vert
@@ -378,7 +376,9 @@ def remove_fake_outer(lines, ll, kind):
         dother = max(abs(line1[kind-1] - line0[kind-1]),
                      abs(line1[kind+1] - line0[kind+1]))
 
-        if dkind < 15 and dother > 5:
+        if dkind < 10 and dother > 5:
+            lines = np.delete(lines, where, axis=0)
+        elif dkind < 15 and dother > 5 and length(line0) < length(line1)*0.8:
             lines = np.delete(lines, where, axis=0)
         return lines
 

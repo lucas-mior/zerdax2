@@ -250,7 +250,7 @@ def fix_length_byinter(hori, vert=None):
             line = lines[i]
             new = np.ravel([inter[0], inter[-1]])
             lnew = length(new)
-            limit = intersect.shorten2(new, gcanny)
+            limit = shorten(new, gcanny)
             if (lnew/2) < length(limit) <= lnew:
                 x0, y0, x1, y1 = limit
             else:
@@ -302,7 +302,7 @@ def add_outer_diagonal(lines, ll, kind):
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
         y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
-        new = intersect.shorten2(new, gcanny)
+        new = shorten(new, gcanny)
         new[4] = length(new)
 
         if new[4] < (line0[4]*0.7):
@@ -806,3 +806,47 @@ def filter_not_right(lines):
         canvas = draw.lines(gcanny, lines)
         draw.save("filter_not_right", canvas)
     return lines
+
+
+def shorten(inters, canny):
+    log.debug("shortening2...")
+    limit = canny.shape[0]-1
+
+    dx = inters[2] - inters[0]
+    dy = inters[3] - inters[1]
+    if dx != 0:
+        a = dy/dx
+    else:
+        a = 0
+    if dy != 0:
+        b = dx/dy
+    else:
+        b = 0
+
+    if inters[0] < 0:
+        inters[1] = inters[1] - a*inters[0]
+        inters[0] = 0
+    if inters[2] < 0:
+        inters[3] = inters[3] - a*inters[2]
+        inters[2] = 0
+    if inters[1] < 0:
+        inters[0] = inters[0] - b*inters[1]
+        inters[1] = 0
+    if inters[3] < 0:
+        inters[2] = inters[2] - b*inters[3]
+        inters[3] = 0
+
+    if inters[0] > limit:
+        inters[1] = inters[1] - a*(inters[0] - limit)
+        inters[0] = limit
+    if inters[2] > limit:
+        inters[3] = inters[3] - a*(inters[2] - limit)
+        inters[2] = limit
+    if inters[1] > limit:
+        inters[0] = inters[0] - b*(inters[1] - limit)
+        inters[1] = limit
+    if inters[3] > limit:
+        inters[2] = inters[2] - b*(inters[3] - limit)
+        inters[3] = limit
+
+    return inters

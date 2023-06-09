@@ -212,6 +212,8 @@ def fix_diagonal_lines(hori, vert):
 
     vert, lv = extend_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
+    vert, lv = remove_fake_outer(vert, len(vert), 0)
+    hori, lh = remove_fake_outer(hori, len(hori), 1)
     return hori, vert
 
 
@@ -249,18 +251,13 @@ def fix_length_byinter(hori, vert=None):
             new = np.ravel([inter[0], inter[-1]])
             lnew = length(new)
             limit = intersect.shorten2(new, gcanny)
-            if limit is None:
-                print("limit is None!")
-                x0, y0, x1, y1 = new
-            elif (lnew/2) < length(limit) <= lnew:
-                print("(lnew/2) < length(limit) < lnew")
+            if (lnew/2) < length(limit) <= lnew:
                 x0, y0, x1, y1 = limit
             else:
-                print(f"ERROR::: ({lnew/2}) < {length(limit)=} < {lnew=}")
-                if i == 0:
-                    print("limit: ", limit)
-                    print("new: ", new)
-                    print("line: ", line)
+                print(f"ERROR ({i=}) : {lnew/2} < {length(limit)=} < {lnew=}")
+                print("limit: ", limit)
+                print("new: ", new)
+                print("line: ", line)
                 x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, lnew, line[5]
             lines[i] = new
@@ -311,17 +308,13 @@ def add_outer_diagonal(lines, ll, kind):
         if new[4] < (line0[4]*0.7):
             log.debug(f"add_outer_diagonal({kind=}):")
             log.debug(f"line is shorter than next ({where=})")
-            print("line0:", line0)
-            print("linenew:", new)
             return lines
 
         if abs(line0[kind] - new[kind]) <= 5:
             log.debug(f"add_outer_diagonal: <= 5 {kind=}")
-            print(line0)
             return lines
         if abs(line0[kind+2] - new[kind+2]) <= 5:
             log.debug(f"add_outer_diagonal: <= 5 {kind=}")
-            print(line0)
             return lines
 
         if where == -1:
@@ -387,7 +380,21 @@ def add_outer_warped(lines, ll, kind):
     return lines, len(lines)
 
 
-def extend_outer(lines, ll, kind, force=False):
+def remove_fake_outer(lines, ll, kind):
+
+    def _remove_fake_outer(lines, where):
+        return lines
+
+    lines = _remove_fake_outer(lines, 0)
+    lines = _remove_fake_outer(lines, -1)
+
+    if algorithm.debug:
+        canvas = draw.lines(gcanny, lines)
+        draw.save("remove_fake_outer", canvas)
+    return lines, len(lines)
+
+
+def extend_outer(lines, ll, kind):
     log.debug("extending outer lines...")
     if ll < 5:
         log.warning("less than 5 lines passed to extend_outers, returning...")

@@ -32,7 +32,7 @@ def find_warped_lines(canny):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
         hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.1)
-        hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
+        hough_max_gap = min(hough_max_gap + 3, hough_min_length0 / 4)
         hough_threshold = max(hough_threshold - 8, hough_min_length0 / 1.7)
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
@@ -572,7 +572,7 @@ def add_middle_warped(lines, ll, kind):
         if dnext0 > (dnext1*tol) and dnext0 > (dnext2*tol):
             if dnext0 > (dnext3*tol):
                 new = np.copy(lines[0])
-                dx = med + (med - dnext1)
+                dx = med
                 new[kind] += (dx*sign)
                 new[kind+2] += (dx*sign)
                 lines = np.insert(lines, 1, [new], axis=0)
@@ -585,7 +585,7 @@ def add_middle_warped(lines, ll, kind):
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol):
                     new = np.copy(lines[i])
-                    dx = med + (med - dnext1)
+                    dx = med
                     new[kind] += (dx*sign)
                     new[kind+2] += (dx*sign)
                     lines = np.insert(lines, i+1, [new], axis=0)

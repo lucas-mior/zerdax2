@@ -398,11 +398,9 @@ def remove_fake_outer(lines, ll, kind):
 
         if dkind < 5:
             lines = np.delete(lines, where, axis=0)
-        elif dkind < 10 and dother > 5:
+        elif dkind < 15 and dother > 5 and length(line0) < med*0.8:
             lines = np.delete(lines, where, axis=0)
-        elif dkind < 15 and dother > 5 and length(line0) < length(line1)*0.8:
-            lines = np.delete(lines, where, axis=0)
-        elif dkind < 20 and dother > 5 and length(line0) < med*0.9:
+        elif dkind < 30 and dother > 5 and length(line0) < med*0.7:
             lines = np.delete(lines, where, axis=0)
         return lines
 

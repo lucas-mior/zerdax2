@@ -169,15 +169,11 @@ def fix_warped_lines(hori, vert):
             lines, ll = add_middle_warped(lines, ll, kind)
         lines, ll = add_outer_warped(lines, ll, kind)
         lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer_warped(lines, ll, kind)
-        lines, ll = remove_outer(lines, ll, kind)
-        lines, ll = add_outer_warped(lines, ll, kind)
-        lines, ll = remove_outer(lines, ll, kind)
         return lines, ll
 
     def _fix_outer(lines, ll, kind):
         old_ll = 0
-        while ll < 9 and old_ll != len(lines):
+        while ll < 10 and old_ll != len(lines):
             old_ll = len(lines)
             lines, ll = add_outer_warped(lines, ll, kind)
         old_ll = 0

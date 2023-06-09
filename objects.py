@@ -46,6 +46,8 @@ def detect(BGR):
 
 
 def determine_colors(pieces, image):
+    if len(pieces) == 0:
+        return pieces
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 

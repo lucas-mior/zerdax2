@@ -795,12 +795,12 @@ def filter_not_right(lines):
     return lines
 
 
-def shorten(inters, canny):
+def shorten(line, canny):
     log.debug("shortening2...")
     limit = canny.shape[0]-1
 
-    dx = inters[2] - inters[0]
-    dy = inters[3] - inters[1]
+    dx = line[2] - line[0]
+    dy = line[3] - line[1]
     if dx != 0:
         a = dy/dx
     else:
@@ -810,30 +810,30 @@ def shorten(inters, canny):
     else:
         b = 0
 
-    if inters[0] < 0:
-        inters[1] = inters[1] - a*(inters[0] - 0)
-        inters[0] = 0
-    if inters[2] < 0:
-        inters[3] = inters[3] - a*(inters[2] - 0)
-        inters[2] = 0
-    if inters[1] < 0:
-        inters[0] = inters[0] - b*(inters[1] - 0)
-        inters[1] = 0
-    if inters[3] < 0:
-        inters[2] = inters[2] - b*(inters[3] - 0)
-        inters[3] = 0
+    if line[0] < 0:
+        line[1] = line[1] - a*(line[0] - 0)
+        line[0] = 0
+    if line[2] < 0:
+        line[3] = line[3] - a*(line[2] - 0)
+        line[2] = 0
+    if line[1] < 0:
+        line[0] = line[0] - b*(line[1] - 0)
+        line[1] = 0
+    if line[3] < 0:
+        line[2] = line[2] - b*(line[3] - 0)
+        line[3] = 0
 
-    if inters[0] > limit:
-        inters[1] = inters[1] - a*(inters[0] - limit)
-        inters[0] = limit
-    if inters[2] > limit:
-        inters[3] = inters[3] - a*(inters[2] - limit)
-        inters[2] = limit
-    if inters[1] > limit:
-        inters[0] = inters[0] - b*(inters[1] - limit)
-        inters[1] = limit
-    if inters[3] > limit:
-        inters[2] = inters[2] - b*(inters[3] - limit)
-        inters[3] = limit
+    if line[0] > limit:
+        line[1] = line[1] - a*(line[0] - limit)
+        line[0] = limit
+    if line[2] > limit:
+        line[3] = line[3] - a*(line[2] - limit)
+        line[2] = limit
+    if line[1] > limit:
+        line[0] = line[0] - b*(line[1] - limit)
+        line[1] = limit
+    if line[3] > limit:
+        line[2] = line[2] - b*(line[3] - limit)
+        line[3] = limit
 
-    return inters
+    return line

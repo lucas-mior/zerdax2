@@ -235,9 +235,6 @@ def sort(hori, vert):
 def fix_length_byinter(hori, vert=None):
     log.debug("fixing lines lengths by intersections with other direction...")
     inters = intersect.calculate_extern(hori, vert)
-    if inters is None:
-        log.debug("fix_length by inter did not find any intersection")
-        return hori, vert
 
     def _shorten(lines):
         for i, inter in enumerate(inters):

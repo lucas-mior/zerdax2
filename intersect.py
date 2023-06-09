@@ -1,7 +1,6 @@
 import numpy as np
 from numpy import linalg
 import logging as log
-import lines
 
 MIN_ANGLE_TO_INTERSECT = 20 * 100
 
@@ -19,11 +18,11 @@ def calculate_extern(hori, vert=None):
     rows = []
     for i in range(l0 := hori.shape[0]):
         x0, y0, x1, y1, r, t = hori[i]
-        col = []
+        column = []
         for j in range(l1 := vert.shape[0]):
             xx0, yy0, xx1, yy1, rr, tt = vert[j]
             if 0 != i != (l0-1) and 0 != j != (l1-1):
-                col.append((30000, 30000))
+                column.append((30000, 30000))
                 continue
             if (x0, y0, x1, x1) == (xx0, yy0, xx1, yy1):
                 continue
@@ -45,8 +44,8 @@ def calculate_extern(hori, vert=None):
                  linalg.det([(xx0, yy0), (xx1, yy1)]))
             x = linalg.det([d, xdiff]) / div
             y = linalg.det([d, ydiff]) / div
-            col.append((x, y))
-        rows.append(col)
+            column.append((x, y))
+        rows.append(column)
 
     try:
         inter = np.round(rows)

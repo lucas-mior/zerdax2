@@ -208,7 +208,6 @@ def fix_diagonal_lines(hori, vert):
         hori, vert = fix_length_byinter(hori, vert)
         vert, _ = add_outer_diagonal(vert, len(vert), hori, 0)
     hori, vert = fix_length_byinter(hori, vert)
-    exit(0)
 
     hori, lh = remove_fake_outer(hori, len(hori), 1)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
@@ -299,13 +298,17 @@ def add_outer_diagonal(lines, ll, others, kind):
 
         x0, y0 = diagonal_cont(np.copy(others[0]), kind, where, dmin)
         x1, y1 = diagonal_cont(np.copy(others[-1]), kind, where, dmin)
-        if x0 > x1:
+        if kind == 0 and x0 > x1:
+            a, b = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = a, b
+        elif kind == 1 and y0 > y1:
             a, b = x0, y0
             x0, y0 = x1, y1
             x1, y1 = a, b
 
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
-        # new = bounds_clip(new, gcanny)
+        new = bounds_clip(new, gcanny)
         new[4] = length(new)
 
         if new[4] < (line0[4]*0.7):
@@ -871,8 +874,7 @@ def diagonal_cont(line, kind, where, dmin):
         y = round(line[kind+1] + a*dmin)
         x = line[kind] + dmin
     elif kind == 1 or kind == 3:
-        x = round(line[kind] + b*dmin)
+        x = round(line[kind-1] + b*dmin)
         y = line[kind] + dmin
 
-    print("x,y = ", x, y)
     return x, y

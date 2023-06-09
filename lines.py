@@ -173,7 +173,7 @@ def fix_warped_lines(hori, vert):
 
     def _fix_outer(lines, ll, kind):
         old_ll = 0
-        while ll < 10 and old_ll != len(lines):
+        while ll < 11 and old_ll != len(lines):
             old_ll = len(lines)
             lines, ll = add_outer_warped(lines, ll, kind)
         old_ll = 0

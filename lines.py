@@ -333,67 +333,6 @@ def add_outer_diagonal_root(lines, ll, kind):
     return lines, len(lines)
 
 
-def add_outer_diagonal(lines, ll, others, kind):
-    log.debug("adding missing outer diagonal lines...")
-    if ll < 5:
-        log.warning("less than 5 lines passed to add_outer, returning...")
-        return lines
-
-    def _add_outer(lines, where):
-        limit = gcanny.shape[kind-1]
-        if where == 0:
-            ref = 0
-        elif where == -1:
-            ref = limit
-
-        line0 = lines[where]
-
-        spaces = [ref - line0[kind], ref - line0[kind+2]]
-        if where == 0:
-            dmin = max(spaces)
-        else:
-            dmin = min(spaces)
-
-        if abs(dmin) <= 15:
-            log.debug(f"space_old <= 15, line0 (kind = {kind})")
-            log.debug(f"({where=})")
-            return lines
-
-        x0, y0 = diagonal_cont(np.copy(others[0]), kind, where, dmin)
-        x1, y1 = diagonal_cont(np.copy(others[-1]), kind, where, dmin)
-        if kind == 0 and x0 > x1:
-            a, b = x0, y0
-            x0, y0 = x1, y1
-            x1, y1 = a, b
-        elif kind == 1 and y0 > y1:
-            a, b = x0, y0
-            x0, y0 = x1, y1
-            x1, y1 = a, b
-
-        new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
-        new = bounds_clip(new, gcanny)
-        new[4] = length(new)
-
-        if new[4] < (line0[4]*0.7):
-            log.debug(f"add_outer_diagonal({kind=}):")
-            log.debug(f"line is shorter than next ({where=})")
-            return lines
-
-        if where == -1:
-            lines = np.append(lines, [new], axis=0)
-        else:
-            lines = np.insert(lines, 0, [new], axis=0)
-        return lines
-
-    lines = _add_outer(lines, 0)
-    lines = _add_outer(lines, -1)
-
-    if algorithm.debug and ll != len(lines):
-        canvas = draw.lines(gcanny, lines)
-        draw.save("add_outer_diagonal", canvas)
-    return lines, len(lines)
-
-
 def add_outer_warped(lines, ll, kind):
     log.debug("adding missing outer warped lines...")
     if ll < 5:

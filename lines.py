@@ -204,9 +204,9 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal(hori, len(hori), vert, 1)
+        hori, _ = add_outer_diagonal_root(hori, len(hori), 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal(vert, len(vert), hori, 0)
+        vert, _ = add_outer_diagonal_root(vert, len(vert), 0)
     hori, vert = fix_length_byinter(hori, vert)
 
     hori, lh = remove_fake_outer(hori, len(hori), 1)
@@ -216,9 +216,9 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal(hori, len(hori), vert, 1)
+        hori, _ = add_outer_diagonal_root(hori, len(hori), 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal(vert, len(vert), hori, 0)
+        vert, _ = add_outer_diagonal_root(vert, len(vert), 0)
     hori, vert = fix_length_byinter(hori, vert)
 
     hori, lh = extend_outer(hori, len(hori), 1)

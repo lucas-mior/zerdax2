@@ -54,7 +54,6 @@ def main(filename):
     board.image, translate_params = crop_image(BGR, board.box)
 
     board.pieces = objects.remove_captured_pieces(board.pieces, board.box)
-    print("board.pieces after captured: ", board.pieces)
     pieces_image, pieces_params = crop_pieces(BGR, board.box, board.pieces)
     board.pieces[:, 0] -= pieces_params.x0
     board.pieces[:, 2] -= pieces_params.x0

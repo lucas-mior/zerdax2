@@ -96,7 +96,6 @@ def find_diagonal_lines(canny):
 
         hori, vert = filter_misdirected(hori, vert)
         hori, vert = sort(hori, vert)
-        # hori, vert = filter_misdirected2(hori, vert)
         hori, vert = bundle_lines(hori, vert)
         hori, vert = filter_intersecting(hori, vert)
 
@@ -449,47 +448,6 @@ def extend_outer(lines, ll, kind):
         canvas = draw.lines(gcanny, lines)
         draw.save("extend_outer", canvas)
     return lines, len(lines)
-
-
-def filter_misdirected2(hori, vert):
-    log.debug("filtering lines by angle with next line")
-
-    def _calculate_diffs(lines):
-        diffs = np.zeros((lines.shape[0], 2), dtype='int32')
-        i = 0
-        diffs[i, 0] = abs(lines[i+0, 5] - lines[i+1, 5])
-        diffs[i, 1] = diffs[i, 0]
-        for i in range(1, len(lines) - 1):
-            diffs[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
-            diffs[i, 1] = abs(lines[i+0, 5] - lines[i+1, 5])
-        i += 1
-        diffs[i, 0] = abs(lines[i+0, 5] - lines[i-1, 5])
-        diffs[i, 1] = diffs[i, 0]
-        return diffs
-
-    def _remove_misdirected(lines, diffs):
-        d0 = np.median(diffs[:, 0])
-        d1 = np.median(diffs[:, 1])
-        med = round((d0 + d1)/2)
-        log.debug(f"median diff between lines: {med}")
-        for i in range(0, len(lines)):
-            if diffs[i, 0] > (med*3) < diffs[i, 1]:
-                lines = np.delete(lines, i, axis=0)
-                return lines
-        return lines
-
-    old_lv = old_lh = 0
-    while old_lh != len(hori) or old_lv != len(vert):
-        old_lh, old_lv = len(hori), len(vert)
-        diffs_hori = _calculate_diffs(hori)
-        diffs_vert = _calculate_diffs(vert)
-        hori = _remove_misdirected(hori, diffs_hori)
-        vert = _remove_misdirected(vert, diffs_vert)
-
-    if algorithm.debug:
-        canvas = draw.lines(gcanny, hori, vert)
-        draw.save("filter_misdirected2", canvas)
-    return hori, vert
 
 
 def calculate_distances_warped(lines, kind):

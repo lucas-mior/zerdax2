@@ -204,8 +204,11 @@ def fix_diagonal_lines(hori, vert):
         hori, vert = fix_length_byinter(hori, vert)
         hori, _ = add_outer_diagonal(hori, len(hori), 1)
 
+    hori, vert = fix_length_byinter(hori, vert)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
+    hori, vert = fix_length_byinter(hori, vert)
     hori, lh = remove_fake_outer(hori, len(hori), 1)
+    hori, vert = fix_length_byinter(hori, vert)
     vert, lv = extend_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
     return hori, vert

@@ -28,12 +28,12 @@ def find_warped_lines(canny):
     ll = lh = lv = 0
     hori = vert = None
     while lh < 7 or lv < 7:
-        if hough_threshold <= (hough_min_length0/1.5):
+        if hough_threshold <= (hough_min_length0/1.7):
             if hough_min_length <= (hough_min_length0/1.1):
                 break
         hough_min_length = max(hough_min_length - 3, hough_min_length0 / 1.1)
-        hough_max_gap = min(hough_max_gap + 3, hough_min_length0 / 4)
-        hough_threshold = max(hough_threshold - 8, hough_min_length0 / 1.5)
+        hough_max_gap = min(hough_max_gap + 2, hough_min_length0 / 4)
+        hough_threshold = max(hough_threshold - 8, hough_min_length0 / 1.7)
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
@@ -383,6 +383,21 @@ def add_outer_warped(lines, ll, kind):
 def remove_fake_outer(lines, ll, kind):
 
     def _remove_fake_outer(lines, where):
+        if where == 0:
+            other = 1
+        elif where == -1:
+            other = -2
+
+        line0 = lines[where, :4]
+        line1 = lines[other, :4]
+
+        dkind = min(abs(line1[kind] - line0[kind]),
+                    abs(line1[kind+2] - line0[kind+2]))
+        dother = max(abs(line1[kind-1] - line0[kind-1]),
+                     abs(line1[kind+1] - line0[kind+1]))
+
+        if dkind < 5 and dother > 5:
+            lines = np.delete(lines, where, axis=0)
         return lines
 
     lines = _remove_fake_outer(lines, 0)

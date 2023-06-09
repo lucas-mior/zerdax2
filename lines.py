@@ -244,14 +244,10 @@ def fix_length_byinter(hori, vert=None):
             line = lines[i]
             new = np.ravel([inter[0], inter[-1]])
             lnew = length(new)
-            limit = shorten(new, gcanny)
+            limit = bounds_clip(new, gcanny)
             if (lnew/2) < length(limit) <= lnew:
                 x0, y0, x1, y1 = limit
             else:
-                print(f"ERROR ({i=}) : {lnew/2} < {length(limit)=} < {lnew=}")
-                print("limit: ", limit)
-                print("new: ", new)
-                print("line: ", line)
                 x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, lnew, line[5]
             lines[i] = new
@@ -296,7 +292,7 @@ def add_outer_diagonal(lines, ll, kind):
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
         y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
-        new = shorten(new, gcanny)
+        new = bounds_clip(new, gcanny)
         new[4] = length(new)
 
         if new[4] < (line0[4]*0.7):
@@ -795,7 +791,7 @@ def filter_not_right(lines):
     return lines
 
 
-def shorten(line, canny):
+def bounds_clip(line, canny):
     log.debug("shortening2...")
     limit = canny.shape[0]-1
 

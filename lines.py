@@ -279,9 +279,11 @@ def add_outer_diagonal(lines, ll, kind):
     def _add_outer(lines, where):
         limit = gcanny.shape[kind-1]
         if where == 0:
+            sign = -1
             ref = 0
             other = 1
         elif where == -1:
+            sign = +1
             ref = limit
             other = -2
 
@@ -298,6 +300,13 @@ def add_outer_diagonal(lines, ll, kind):
         dx1 = line0[2] - line1[2]
         dy0 = line0[1] - line1[1]
         dy1 = line0[3] - line1[3]
+        if kind == 0:
+            dx0 = sign*min(abs(dx0), 50)
+            dx1 = sign*min(abs(dx1), 50)
+        else:
+            dy0 = sign*min(abs(dy0), 50)
+            dy1 = sign*min(abs(dy1), 50)
+
         x0, x1 = line0[0] + dx0, line0[2] + dx1
         y0, y1 = line0[1] + dy0, line0[3] + dy1
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')

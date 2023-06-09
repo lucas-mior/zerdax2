@@ -239,14 +239,10 @@ def fix_length_byinter(hori, vert=None):
 
     def _shorten(lines):
         for i, inter in enumerate(inters):
-            new = np.ravel([inter[0], inter[-1]])
-            lnew = length(new)
-            limit = bounds_clip(new, gcanny)
-            if (lnew/2) < length(limit) <= lnew:
-                x0, y0, x1, y1 = limit
-            else:
-                x0, y0, x1, y1 = new
-            new = x0, y0, x1, y1, lnew, lines[i, 5]
+            x0, y0, x1, y1 = np.ravel([inter[0], inter[-1]])
+            new = np.array([x0, y0, x1, y1, 0, lines[i, 5]], dtype='int32')
+            new = bounds_clip(new, gcanny)
+            new[4] = length(new)
             lines[i] = new
         return lines
 

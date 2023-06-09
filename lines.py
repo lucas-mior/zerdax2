@@ -203,9 +203,9 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal_root(hori, len(hori), 1)
+        hori, _ = add_outer_diagonal(hori, len(hori), 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal_root(vert, len(vert), 0)
+        vert, _ = add_outer_diagonal(vert, len(vert), 0)
     hori, vert = fix_length_byinter(hori, vert)
 
     hori, lh = remove_fake_outer(hori, len(hori), 1)
@@ -215,9 +215,9 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal_root(hori, len(hori), 1)
+        hori, _ = add_outer_diagonal(hori, len(hori), 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal_root(vert, len(vert), 0)
+        vert, _ = add_outer_diagonal(vert, len(vert), 0)
     hori, vert = fix_length_byinter(hori, vert)
 
     hori, lh = extend_outer(hori, len(hori), 1)
@@ -269,7 +269,7 @@ def fix_length_byinter(hori, vert):
     return hori, vert
 
 
-def add_outer_diagonal_root(lines, ll, kind):
+def add_outer_diagonal(lines, ll, kind):
     log.debug("adding missing outer diagonal lines...")
     if ll < 5:
         log.warning("less than 5 lines passed to add_outer, returning...")

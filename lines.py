@@ -395,27 +395,22 @@ def extend_outer(lines, ll, kind):
         return lines
 
     def _extend_outer(lines, where):
-        limit = gcanny.shape[kind-1]
+        limit = gcanny.shape[kind-1] - 1
         if where == 0:
             ref = 0
         elif where == -1:
             ref = limit
 
-        line0 = lines[where]
-        new = np.copy(line0)
+        line = lines[where]
 
-        if abs(line0[kind] - ref) <= 0 or abs(line0[kind+2] - ref) <= 0:
-            return lines
-
-        dmin = min(abs(new[kind]-ref), abs(new[kind+2]-ref))
-        if where == -1:
-            new[kind] += dmin
-            new[kind+2] += dmin
+        spaces = [ref - line[kind], ref - line[kind+2]]
+        if where == 0:
+            dmin = max(spaces)
         else:
-            new[kind] -= dmin
-            new[kind+2] -= dmin
-        new = np.array([new], dtype='int32')
-        lines[where] = new
+            dmin = min(spaces)
+        line[kind] += dmin
+        line[kind+2] += dmin
+        lines[where] = line
         return lines
 
     lines = _extend_outer(lines, 0)

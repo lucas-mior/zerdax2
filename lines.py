@@ -233,7 +233,7 @@ def sort(hori, vert):
     return hori, vert
 
 
-def fix_length_byinter(hori, vert=None):
+def fix_length_byinter(hori, vert):
     log.debug("fixing lines lengths by intersections with other direction...")
     inters = intersect.calculate_extern(hori, vert)
 
@@ -246,11 +246,9 @@ def fix_length_byinter(hori, vert=None):
             lines[i] = new
         return lines
 
-    if hori is not None:
-        hori = _shorten(hori)
-    if vert is not None:
-        inters = np.transpose(inters, axes=(1, 0, 2))
-        vert = _shorten(vert)
+    hori = _shorten(hori)
+    inters = np.transpose(inters, axes=(1, 0, 2))
+    vert = _shorten(vert)
 
     if algorithm.debug:
         canvas = draw.lines(gcanny, hori, vert, annotate_number=True)

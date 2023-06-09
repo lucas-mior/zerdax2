@@ -158,3 +158,47 @@ def shorten(inters, canny):
         lengths = [lines.length(np.ravel(segment)) for segment in segments]
         inters = segments[np.argmax(lengths)]
     return np.ravel(inters)
+
+
+def shorten2(inters, canny):
+    log.debug("shortening2...")
+    limit = canny.shape[0]-1
+
+    dx = inters[2] - inters[0]
+    dy = inters[3] - inters[1]
+    if dx != 0:
+        a = dy/dx
+    else:
+        a = 0
+    if dy != 0:
+        b = dx/dy
+    else:
+        b = 0
+
+    if inters[0] < 0:
+        inters[1] = inters[1] - a*inters[0]
+        inters[0] = 0
+    if inters[2] < 0:
+        inters[3] = inters[3] - a*inters[2]
+        inters[2] = 0
+    if inters[1] < 0:
+        inters[0] = inters[0] - b*inters[1]
+        inters[1] = 0
+    if inters[3] < 0:
+        inters[2] = inters[2] - b*inters[3]
+        inters[3] = 0
+
+    if inters[0] > limit:
+        inters[1] = inters[1] - a*(inters[0] - limit)
+        inters[0] = limit
+    if inters[2] > limit:
+        inters[3] = inters[3] - a*(inters[2] - limit)
+        inters[2] = limit
+    if inters[1] > limit:
+        inters[0] = inters[0] - b*(inters[1] - limit)
+        inters[1] = limit
+    if inters[3] > limit:
+        inters[2] = inters[2] - b*(inters[3] - limit)
+        inters[3] = limit
+
+    return inters

@@ -237,6 +237,7 @@ def sort(hori, vert):
 
 
 def fix_length_byinter(hori, vert=None):
+    log.debug("fixing lines lengths by intersections with other direction...")
     inters = intersect.calculate_extern(hori, vert)
     if inters is None:
         log.debug("fix_length by inter did not find any intersection")
@@ -245,15 +246,21 @@ def fix_length_byinter(hori, vert=None):
     def _shorten(lines):
         for i, inter in enumerate(inters):
             line = lines[i]
-            a, b = inter[0], inter[-1]
-            new = np.array([a[0], a[1], b[0], b[1]], dtype='int32')
+            new = np.ravel([inter[0], inter[-1]])
             lnew = length(new)
-            limit = intersect.shorten(new, gcanny)
+            limit = intersect.shorten2(new, gcanny)
             if limit is None:
+                print("limit is None!")
                 x0, y0, x1, y1 = new
-            elif (lnew/2) < length(limit) < lnew:
+            elif (lnew/2) < length(limit) <= lnew:
+                print("(lnew/2) < length(limit) < lnew")
                 x0, y0, x1, y1 = limit
             else:
+                print(f"ERROR::: ({lnew/2}) < {length(limit)=} < {lnew=}")
+                if i == 0:
+                    print("limit: ", limit)
+                    print("new: ", new)
+                    print("line: ", line)
                 x0, y0, x1, y1 = new
             new = x0, y0, x1, y1, lnew, line[5]
             lines[i] = new
@@ -291,33 +298,36 @@ def add_outer_diagonal(lines, ll, kind):
 
         space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
         if space_old <= 0:
+            log.debug(f"space_old == 0, line0 (kind = {kind})")
+            log.debug(f"({where=})")
             return lines
 
         x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
         y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
-        new = np.array([x0, y0, x1, y1], dtype='int32')
-        inters = intersect.shorten(new, gcanny)
-        if inters is None:
+        new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
+        new = intersect.shorten2(new, gcanny)
+        new[4] = length(new)
+
+        if new[4] < (line0[4]*0.7):
+            log.debug(f"add_outer_diagonal({kind=}):")
+            log.debug(f"line is shorter than next ({where=})")
+            print("line0:", line0)
+            print("linenew:", new)
             return lines
 
-        if inters[kind] <= limit and inters[kind+2] <= limit:
-            x0, y0, x1, y1 = inters[:4]
-            lnew = length((x0, y0, x1, y1))
-            new = np.array([x0, y0, x1, y1, lnew, line1[5]], dtype='int32')
+        if abs(line0[kind] - new[kind]) <= 5:
+            log.debug(f"add_outer_diagonal: <= 5 {kind=}")
+            print(line0)
+            return lines
+        if abs(line0[kind+2] - new[kind+2]) <= 5:
+            log.debug(f"add_outer_diagonal: <= 5 {kind=}")
+            print(line0)
+            return lines
 
-            if lnew < (line0[4]*0.9):
-                log.debug("add_outer_diagonal: line is shorter than next")
-                return lines
-
-            if abs(line0[kind] - new[kind]) <= 5:
-                return lines
-            if abs(line0[kind+2] - new[kind+2]) <= 5:
-                return lines
-
-            if where == -1:
-                lines = np.append(lines, [new], axis=0)
-            else:
-                lines = np.insert(lines, 0, [new], axis=0)
+        if where == -1:
+            lines = np.append(lines, [new], axis=0)
+        else:
+            lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
     lines = _add_outer(lines, 0)

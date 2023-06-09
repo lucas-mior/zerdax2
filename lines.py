@@ -196,19 +196,19 @@ def fix_warped_lines(hori, vert):
 
 
 def fix_diagonal_lines(hori, vert):
-    old_lv = old_lh = 0
-    while old_lv != len(vert) or old_lh != len(hori):
-        old_lv, old_lh = len(vert), len(hori)
-        hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal(vert, len(vert), 0)
+    old_lh = old_lv = 0
+    while old_lh != len(hori) or old_lv != len(vert):
+        old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
         hori, _ = add_outer_diagonal(hori, len(hori), 1)
+        hori, vert = fix_length_byinter(hori, vert)
+        vert, _ = add_outer_diagonal(vert, len(vert), 0)
     hori, vert = fix_length_byinter(hori, vert)
 
-    vert, lv = remove_fake_outer(vert, len(vert), 0)
     hori, lh = remove_fake_outer(hori, len(hori), 1)
-    vert, lv = extend_outer(vert, len(vert), 0)
+    vert, lv = remove_fake_outer(vert, len(vert), 0)
     hori, lh = extend_outer(hori, len(hori), 1)
+    vert, lv = extend_outer(vert, len(vert), 0)
     return hori, vert
 
 

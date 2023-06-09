@@ -204,10 +204,11 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal(hori, len(hori), 1)
+        hori, _ = add_outer_diagonal(hori, len(hori), vert, 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal(vert, len(vert), 0)
+        vert, _ = add_outer_diagonal(vert, len(vert), hori, 0)
     hori, vert = fix_length_byinter(hori, vert)
+    exit(0)
 
     hori, lh = remove_fake_outer(hori, len(hori), 1)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
@@ -216,9 +217,9 @@ def fix_diagonal_lines(hori, vert):
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
         hori, vert = fix_length_byinter(hori, vert)
-        hori, _ = add_outer_diagonal(hori, len(hori), 1)
+        hori, _ = add_outer_diagonal(hori, len(hori), vert, 1)
         hori, vert = fix_length_byinter(hori, vert)
-        vert, _ = add_outer_diagonal(vert, len(vert), 0)
+        vert, _ = add_outer_diagonal(vert, len(vert), hori, 0)
     hori, vert = fix_length_byinter(hori, vert)
 
     hori, lh = extend_outer(hori, len(hori), 1)
@@ -270,7 +271,7 @@ def fix_length_byinter(hori, vert):
     return hori, vert
 
 
-def add_outer_diagonal(lines, ll, kind):
+def add_outer_diagonal(lines, ll, others, kind):
     log.debug("adding missing outer diagonal lines...")
     if ll < 5:
         log.warning("less than 5 lines passed to add_outer, returning...")
@@ -279,38 +280,32 @@ def add_outer_diagonal(lines, ll, kind):
     def _add_outer(lines, where):
         limit = gcanny.shape[kind-1]
         if where == 0:
-            sign = -1
             ref = 0
-            other = 1
         elif where == -1:
-            sign = +1
             ref = limit
-            other = -2
 
         line0 = lines[where]
-        line1 = lines[other]
 
-        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
-        if space_old <= 15:
+        spaces = [ref - line0[kind], ref - line0[kind+2]]
+        if where == 0:
+            dmin = max(spaces)
+        else:
+            dmin = min(spaces)
+
+        if abs(dmin) <= 15:
             log.debug(f"space_old <= 15, line0 (kind = {kind})")
             log.debug(f"({where=})")
             return lines
 
-        dx0 = line0[0] - line1[0]
-        dx1 = line0[2] - line1[2]
-        dy0 = line0[1] - line1[1]
-        dy1 = line0[3] - line1[3]
-        if kind == 0:
-            dx0 = sign*min(abs(dx0), 50)
-            dx1 = sign*min(abs(dx1), 50)
-        else:
-            dy0 = sign*min(abs(dy0), 50)
-            dy1 = sign*min(abs(dy1), 50)
+        x0, y0 = diagonal_cont(np.copy(others[0]), kind, where, dmin)
+        x1, y1 = diagonal_cont(np.copy(others[-1]), kind, where, dmin)
+        if x0 > x1:
+            a, b = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = a, b
 
-        x0, x1 = line0[0] + dx0, line0[2] + dx1
-        y0, y1 = line0[1] + dy0, line0[3] + dy1
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
-        new = bounds_clip(new, gcanny)
+        # new = bounds_clip(new, gcanny)
         new[4] = length(new)
 
         if new[4] < (line0[4]*0.7):
@@ -739,9 +734,9 @@ def split(lines):
 
     for line in vert:
         if line[1] > line[3]:
-            a1, b1 = line[0], line[1]
+            a, b = line[0], line[1]
             line[0], line[1] = line[2], line[3]
-            line[2], line[3] = a1, b1
+            line[2], line[3] = a, b
     return hori, vert, len(hori), len(vert)
 
 
@@ -853,3 +848,31 @@ def bounds_clip(line, canny):
         line[3] = limit
 
     return line
+
+
+def diagonal_cont(line, kind, where, dmin):
+    log.debug("diagoning...")
+
+    dx = line[2] - line[0]
+    dy = line[3] - line[1]
+    if dx != 0:
+        a = dy/dx
+    else:
+        a = 0
+    if dy != 0:
+        b = dx/dy
+    else:
+        b = 0
+
+    if where == -1:
+        kind += 2
+
+    if kind == 0 or kind == 2:
+        y = round(line[kind+1] + a*dmin)
+        x = line[kind] + dmin
+    elif kind == 1 or kind == 3:
+        x = round(line[kind] + b*dmin)
+        y = line[kind] + dmin
+
+    print("x,y = ", x, y)
+    return x, y

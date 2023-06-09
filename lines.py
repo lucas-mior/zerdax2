@@ -270,6 +270,69 @@ def fix_length_byinter(hori, vert):
     return hori, vert
 
 
+def add_outer_diagonal_root(lines, ll, kind):
+    log.debug("adding missing outer diagonal lines...")
+    if ll < 5:
+        log.warning("less than 5 lines passed to add_outer, returning...")
+        return lines
+
+    def _add_outer(lines, where):
+        limit = gcanny.shape[kind-1]
+        if where == 0:
+            sign = -1
+            ref = 0
+            other = 1
+        elif where == -1:
+            sign = +1
+            ref = limit
+            other = -2
+
+        line0 = lines[where]
+        line1 = lines[other]
+
+        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
+        if space_old <= 15:
+            log.debug(f"space_old <= 15, line0 (kind = {kind})")
+            log.debug(f"({where=})")
+            return lines
+
+        dx0 = line0[0] - line1[0]
+        dx1 = line0[2] - line1[2]
+        dy0 = line0[1] - line1[1]
+        dy1 = line0[3] - line1[3]
+        if kind == 0:
+            dx0 = sign*min(abs(dx0), 50)
+            dx1 = sign*min(abs(dx1), 50)
+        else:
+            dy0 = sign*min(abs(dy0), 50)
+            dy1 = sign*min(abs(dy1), 50)
+
+        x0, x1 = line0[0] + dx0, line0[2] + dx1
+        y0, y1 = line0[1] + dy0, line0[3] + dy1
+        new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
+        new = bounds_clip(new, gcanny)
+        new[4] = length(new)
+
+        if new[4] < (line0[4]*0.7):
+            log.debug(f"add_outer_diagonal({kind=}):")
+            log.debug(f"line is shorter than next ({where=})")
+            return lines
+
+        if where == -1:
+            lines = np.append(lines, [new], axis=0)
+        else:
+            lines = np.insert(lines, 0, [new], axis=0)
+        return lines
+
+    lines = _add_outer(lines, 0)
+    lines = _add_outer(lines, -1)
+
+    if algorithm.debug and ll != len(lines):
+        canvas = draw.lines(gcanny, lines)
+        draw.save("add_outer_diagonal", canvas)
+    return lines, len(lines)
+
+
 def add_outer_diagonal(lines, ll, others, kind):
     log.debug("adding missing outer diagonal lines...")
     if ll < 5:

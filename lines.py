@@ -18,7 +18,7 @@ def find_warped_lines(canny):
     log.debug("finding right angled lines of warped board...")
 
     min_lines_before_split = 16
-    hough_min_length0 = 0.9*gcanny.shape[1]
+    hough_min_length0 = 0.8*gcanny.shape[1]
     hough_max_gap = 8
 
     angle = 0.5
@@ -294,8 +294,12 @@ def add_outer_diagonal(lines, ll, kind):
             log.debug(f"({where=})")
             return lines
 
-        x0, x1 = 2*line0[0] - line1[0], 2*line0[2] - line1[2]
-        y0, y1 = 2*line0[1] - line1[1], 2*line0[3] - line1[3]
+        dx0 = line0[0] - line1[0]
+        dx1 = line0[2] - line1[2]
+        dy0 = line0[1] - line1[1]
+        dy1 = line0[3] - line1[3]
+        x0, x1 = line0[0] + dx0, line0[2] + dx1
+        y0, y1 = line0[1] + dy0, line0[3] + dy1
         new = np.array([x0, y0, x1, y1, 0, line0[5]], dtype='int32')
         new = bounds_clip(new, gcanny)
         new[4] = length(new)

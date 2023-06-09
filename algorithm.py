@@ -134,7 +134,7 @@ def main(filename):
 
     board.fen = fen.generate(board.squares)
     fen.dump(board.fen)
-    shutil.move(filename, "good/")
+    # shutil.move(filename, "good/")
     return board.fen
 
 

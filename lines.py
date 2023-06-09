@@ -288,7 +288,7 @@ def add_outer_diagonal(lines, ll, kind):
         line1 = lines[other]
 
         space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
-        if space_old <= 0:
+        if space_old <= 5:
             log.debug(f"space_old == 0, line0 (kind = {kind})")
             log.debug(f"({where=})")
             return lines
@@ -299,7 +299,7 @@ def add_outer_diagonal(lines, ll, kind):
         new = shorten(new, gcanny)
         new[4] = length(new)
 
-        if new[4] < (line0[4]*0.8):
+        if new[4] < (line0[4]*0.7):
             log.debug(f"add_outer_diagonal({kind=}):")
             log.debug(f"line is shorter than next ({where=})")
             return lines
@@ -383,7 +383,7 @@ def remove_fake_outer(lines, ll, kind):
         dother = max(abs(line1[kind-1] - line0[kind-1]),
                      abs(line1[kind+1] - line0[kind+1]))
 
-        if dkind < 5 and dother > 5:
+        if dkind < 15 and dother > 5:
             lines = np.delete(lines, where, axis=0)
         return lines
 

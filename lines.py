@@ -37,7 +37,6 @@ def find_warped_lines(canny):
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
-            hough_max_gap += 3
             continue
 
         lines = filter_not_right(lines)
@@ -89,7 +88,6 @@ def find_diagonal_lines(canny):
 
         lines, ll = hough(hough_threshold, hough_min_length, hough_max_gap)
         if ll < min_lines_before_split:
-            hough_max_gap += 3
             continue
 
         hori, vert, lh, lv = split(lines)

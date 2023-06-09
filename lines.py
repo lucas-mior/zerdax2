@@ -196,6 +196,10 @@ def fix_warped_lines(hori, vert):
 
 
 def fix_diagonal_lines(hori, vert):
+    hori, vert = fix_length_byinter(hori, vert)
+    hori, lh = remove_fake_outer(hori, len(hori), 1)
+    vert, lv = remove_fake_outer(vert, len(vert), 0)
+
     old_lh = old_lv = 0
     while old_lh != len(hori) or old_lv != len(vert):
         old_lh, old_lv = len(hori), len(vert)
@@ -207,6 +211,16 @@ def fix_diagonal_lines(hori, vert):
 
     hori, lh = remove_fake_outer(hori, len(hori), 1)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
+
+    old_lh = old_lv = 0
+    while old_lh != len(hori) or old_lv != len(vert):
+        old_lh, old_lv = len(hori), len(vert)
+        hori, vert = fix_length_byinter(hori, vert)
+        hori, _ = add_outer_diagonal(hori, len(hori), 1)
+        hori, vert = fix_length_byinter(hori, vert)
+        vert, _ = add_outer_diagonal(vert, len(vert), 0)
+    hori, vert = fix_length_byinter(hori, vert)
+
     hori, lh = extend_outer(hori, len(hori), 1)
     vert, lv = extend_outer(vert, len(vert), 0)
     return hori, vert
@@ -275,8 +289,8 @@ def add_outer_diagonal(lines, ll, kind):
         line1 = lines[other]
 
         space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
-        if space_old <= 5:
-            log.debug(f"space_old == 0, line0 (kind = {kind})")
+        if space_old <= 15:
+            log.debug(f"space_old <= 15, line0 (kind = {kind})")
             log.debug(f"({where=})")
             return lines
 
@@ -356,7 +370,7 @@ def add_outer_warped(lines, ll, kind):
 
 def remove_fake_outer(lines, ll, kind):
 
-    def _remove_fake_outer(lines, where):
+    def _remove_fake_outer(lines, med, where):
         if where == 0:
             other = 1
         elif where == -1:
@@ -376,10 +390,13 @@ def remove_fake_outer(lines, ll, kind):
             lines = np.delete(lines, where, axis=0)
         elif dkind < 15 and dother > 5 and length(line0) < length(line1)*0.8:
             lines = np.delete(lines, where, axis=0)
+        elif dkind < 20 and dother > 5 and length(line0) < med*0.9:
+            lines = np.delete(lines, where, axis=0)
         return lines
 
-    lines = _remove_fake_outer(lines, 0)
-    lines = _remove_fake_outer(lines, -1)
+    med = np.median(lines[:, 4])
+    lines = _remove_fake_outer(lines, med, 0)
+    lines = _remove_fake_outer(lines, med, -1)
 
     if algorithm.debug:
         canvas = draw.lines(gcanny, lines)
@@ -797,29 +814,29 @@ def bounds_clip(line, canny):
         b = 0
 
     if line[0] < 0:
-        line[1] = line[1] - a*(line[0] - 0)
+        line[1] = round(line[1] - a*(line[0] - 0))
         line[0] = 0
     if line[2] < 0:
-        line[3] = line[3] - a*(line[2] - 0)
+        line[3] = round(line[3] - a*(line[2] - 0))
         line[2] = 0
     if line[1] < 0:
-        line[0] = line[0] - b*(line[1] - 0)
+        line[0] = round(line[0] - b*(line[1] - 0))
         line[1] = 0
     if line[3] < 0:
-        line[2] = line[2] - b*(line[3] - 0)
+        line[2] = round(line[2] - b*(line[3] - 0))
         line[3] = 0
 
     if line[0] > limit:
-        line[1] = line[1] - a*(line[0] - limit)
+        line[1] = round(line[1] - a*(line[0] - limit))
         line[0] = limit
     if line[2] > limit:
-        line[3] = line[3] - a*(line[2] - limit)
+        line[3] = round(line[3] - a*(line[2] - limit))
         line[2] = limit
     if line[1] > limit:
-        line[0] = line[0] - b*(line[1] - limit)
+        line[0] = round(line[0] - b*(line[1] - limit))
         line[1] = limit
     if line[3] > limit:
-        line[2] = line[2] - b*(line[3] - limit)
+        line[2] = round(line[2] - b*(line[3] - limit))
         line[3] = limit
 
     return line

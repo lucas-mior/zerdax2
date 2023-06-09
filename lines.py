@@ -811,16 +811,16 @@ def shorten(inters, canny):
         b = 0
 
     if inters[0] < 0:
-        inters[1] = inters[1] - a*inters[0]
+        inters[1] = inters[1] - a*(inters[0] - 0)
         inters[0] = 0
     if inters[2] < 0:
-        inters[3] = inters[3] - a*inters[2]
+        inters[3] = inters[3] - a*(inters[2] - 0)
         inters[2] = 0
     if inters[1] < 0:
-        inters[0] = inters[0] - b*inters[1]
+        inters[0] = inters[0] - b*(inters[1] - 0)
         inters[1] = 0
     if inters[3] < 0:
-        inters[2] = inters[2] - b*inters[3]
+        inters[2] = inters[2] - b*(inters[3] - 0)
         inters[3] = 0
 
     if inters[0] > limit:

@@ -204,10 +204,10 @@ def fix_diagonal_lines(hori, vert):
         hori, vert = fix_length_byinter(hori, vert)
         hori, _ = add_outer_diagonal(hori, len(hori), 1)
 
-    vert, lv = extend_outer(vert, len(vert), 0)
-    hori, lh = extend_outer(hori, len(hori), 1)
     vert, lv = remove_fake_outer(vert, len(vert), 0)
     hori, lh = remove_fake_outer(hori, len(hori), 1)
+    vert, lv = extend_outer(vert, len(vert), 0)
+    hori, lh = extend_outer(hori, len(hori), 1)
     return hori, vert
 
 
@@ -299,16 +299,9 @@ def add_outer_diagonal(lines, ll, kind):
         new = shorten(new, gcanny)
         new[4] = length(new)
 
-        if new[4] < (line0[4]*0.7):
+        if new[4] < (line0[4]*0.8):
             log.debug(f"add_outer_diagonal({kind=}):")
             log.debug(f"line is shorter than next ({where=})")
-            return lines
-
-        if abs(line0[kind] - new[kind]) <= 5:
-            log.debug(f"add_outer_diagonal: <= 5 {kind=}")
-            return lines
-        if abs(line0[kind+2] - new[kind+2]) <= 5:
-            log.debug(f"add_outer_diagonal: <= 5 {kind=}")
             return lines
 
         if where == -1:

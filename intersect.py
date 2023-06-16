@@ -103,14 +103,15 @@ def calculate_all(lines0, lines1=None, onlylast=False, limit=False):
 
 
 def calculate_single(line0, canny, kind=0):
-    if kind == 0:
-        line1 = (50, 0, 400, 0, 0, 0)
-    elif kind == 1:
-        line1 = (0, 50, 0, 400, 0, 0)
-    elif kind == 2:
-        line1 = (50, canny.shape[0], 400, canny.shape[0], 0, 0)
-    elif kind == 3:
-        line1 = (canny.shape[1], 50, canny.shape[1], 400, 0, 0)
+    match kind:
+        case 0:
+            line1 = (50, 0, 400, 0, 0, 0)
+        case 1:
+            line1 = (0, 50, 0, 400, 0, 0)
+        case 2:
+            line1 = (50, canny.shape[0], 400, canny.shape[0], 0, 0)
+        case 3:
+            line1 = (canny.shape[1], 50, canny.shape[1], 400, 0, 0)
 
     x0, y0, x1, y1 = line0[:4]
     xx0, yy0, xx1, yy1 = line1[:4]

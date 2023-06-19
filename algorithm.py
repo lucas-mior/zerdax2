@@ -11,7 +11,7 @@ import objects
 import fen
 import draw
 from c_load import lfilter
-import shutil
+# import shutil
 
 basename = ""
 debug = False

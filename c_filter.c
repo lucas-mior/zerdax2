@@ -73,7 +73,7 @@ void matrix_weights(void) {
 }
 
 int weights_slice(void *arg) {
-    ThreadArguments *args = (ThreadArguments *) arg;
+    ThreadArguments *args = arg;
 
     int32 start_y = args->start_y;
     int32 end_y = args->end_y;

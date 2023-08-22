@@ -45,7 +45,7 @@ void filter(double *restrict input0, double *restrict output0,
 }
 
 void matrix_weights(void) {
-    memset(weights, 0, ww*hh*sizeof (double));
+    memset(weights, 0, ww*hh*sizeof (*weights));
 
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     if (number_threads > 8)
@@ -99,7 +99,7 @@ double weight(int32 x, int32 y) {
 }
 
 void matrix_normalization(void) {
-    memset(normalization, 0, ww*hh*sizeof (double));
+    memset(normalization, 0, ww*hh*sizeof (*normalization));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
             for (int32 i = -1; i <= +1; i += 1) {
@@ -112,7 +112,7 @@ void matrix_normalization(void) {
 }
 
 void matrix_convolute(void) {
-    memset(output, 0, ww*hh*sizeof (double));
+    memset(output, 0, ww*hh*sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < ww - 1; x += 1) {
             for (int32 i = -1; i <= +1; i += 1) {

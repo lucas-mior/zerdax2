@@ -12,6 +12,10 @@
 
 typedef int32_t int32;
 static const int32 ww = 512;
+typedef struct ThreadArguments {
+    int32 start_y;
+    int32 end_y;
+} ThreadArguments;
 
 static double *restrict input;
 static double *restrict weights;
@@ -39,11 +43,6 @@ void filter(double *restrict input0, double *restrict output0,
     matrix_normalization();
     matrix_convolute();
 }
-
-typedef struct ThreadArguments {
-    int32 start_y;
-    int32 end_y;
-} ThreadArguments;
 
 void matrix_weights(void) {
     memset(weights, 0, ww*hh*sizeof (double));

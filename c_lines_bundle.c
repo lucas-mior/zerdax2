@@ -35,7 +35,7 @@ static bool check_line_diff(int32 [LINE_FIELDS], Group *);
 
 int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 min_distance0) {
     min_distance = min_distance0;
-    Group *group = util_realloc(NULL, sizeof(Group));
+    Group *group = util_realloc(NULL, sizeof(*group));
     first = last = group;
     first->next = NULL;
     first->length = 0;
@@ -110,7 +110,7 @@ void append(Group *group, int32 line[LINE_FIELDS]) {
 
 void groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
-    group->next = util_realloc(NULL, sizeof(Group));
+    group->next = util_realloc(NULL, sizeof(*group));
     group = group->next;
     group->next = NULL;
     group->length = 0;

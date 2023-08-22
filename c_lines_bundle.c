@@ -89,7 +89,7 @@ int32 compare(const void *a, const void *b) {
 }
 
 int32 median(int32 *array, int32 length) {
-    qsort(array, length, sizeof(int32), compare);
+    qsort(array, length, sizeof(*array), compare);
     if ((length % 2) == 0) {
         return (array[(int)((length/2) - 1)] + array[(int) (length/2)]) / 2.0;
     } else {

@@ -83,8 +83,8 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int
 }
 
 int32 compare(const void *a, const void *b) {
-    int32 *c = (int32 *) a;
-    int32 *d = (int32 *) b;
+    const int32 *c = a;
+    const int32 *d = b;
     return *c - *d;
 }
 

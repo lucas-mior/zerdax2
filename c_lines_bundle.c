@@ -10,7 +10,6 @@
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
 #define I_ANGLE 5
-#define I_LENGTH 4
 
 static const int32 min_angle = 15 * 100;
 static const size_t line_size = LINE_FIELDS*sizeof(int32);
@@ -21,46 +20,56 @@ typedef struct Group {
     int32 angles[MAX_LINES_IN_GROUP];
     int32 diff[MAX_LINES_IN_GROUP];
     int32 length;
+    int32 unused;
     struct Group *next;
 } Group;
 
 static Group *first = NULL;
 static Group *last = NULL;
 
+int32 lines_bundle(int32 [][LINE_FIELDS],
+                   int32 [][LINE_FIELDS],
+                   int32, int32 );
 static int32 compare(const void *, const void *);
 static int32 median(int32 *, int32);
 static void append(Group *, int32 [LINE_FIELDS]);
 static void groups_append(int32 [LINE_FIELDS]);
 static bool check_line_diff(int32 [LINE_FIELDS], Group *);
 
-int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int32 n, int32 min_distance0) {
-    min_distance = min_distance0;
+int32 lines_bundle(int32 lines[][LINE_FIELDS],
+                   int32 bundled[][LINE_FIELDS],
+                   int32 nlines, int32 min_distance0) {
+    int m;
     Group *group = util_realloc(NULL, sizeof(*group));
+    min_distance = min_distance0;
     first = last = group;
     first->next = NULL;
     first->length = 0;
     append(group, lines[0]);
 
-    for (int32 i = 1; i < n; i += 1) {
+    for (int32 i = 1; i < nlines; i += 1) {
         if (check_line_diff(lines[i], group))
             groups_append(lines[i]);
         group = first;
     }
 
-    int m = 0;
+    m = 0;
     memcpy(bundled[m], group->lines[0], line_size);
     group = group->next;
     m += 1;
 
     while (group) {
+        int32 median_diff;
         int32 best_line[LINE_FIELDS] = {0};
         int32 number_bests = 0;
         int32 angle_median = median(group->angles, group->length);
+
         for (int i = 0; i < group->length; i += 1) {
             int32 *line = group->lines[i];
             group->diff[i] = abs(angle_median - line[I_ANGLE]);
         }
-        int32 median_diff = median(group->diff, group->length);
+        median_diff = median(group->diff, group->length);
+
         for (int i = 0; i < group->length; i += 1) {
             int32 *line = group->lines[i];
             if (group->diff[i] <= median_diff) {
@@ -73,10 +82,13 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS], int32 bundled[][LINE_FIELDS], int
         for (int j = 0; j < LINE_FIELDS; j += 1) {
             best_line[j] /= number_bests;
         }
+
         memcpy(bundled[m], best_line, line_size);
-        void *aux = group;
-        group = group->next;
-        free(aux);
+        {
+            void *aux = group;
+            group = group->next;
+            free(aux);
+        }
         m += 1;
     }
     return m;
@@ -89,9 +101,10 @@ int32 compare(const void *a, const void *b) {
 }
 
 int32 median(int32 *array, int32 length) {
-    qsort(array, length, sizeof(*array), compare);
+    qsort(array, (size_t) length, sizeof(*array), compare);
     if ((length % 2) == 0) {
-        return (array[(length/2) - 1] + array[length/2]) / 2.0;
+        double result = round((array[(length/2) - 1] + array[length/2]) / 2.0);
+        return (int32) result;
     } else {
         return array[length/2];
     }

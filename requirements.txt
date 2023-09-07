@@ -1,4 +1,5 @@
 ultralytics
+dill
 opencv-python
 numpy
 jenkspy

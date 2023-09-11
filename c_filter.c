@@ -50,6 +50,7 @@ void filter(double *restrict input0, double *restrict output0,
     matrix_weights();
     matrix_normalization();
     matrix_convolute();
+    return;
 }
 
 void matrix_weights(void) {
@@ -88,6 +89,7 @@ void matrix_weights(void) {
     }
     free(threads);
     free(slices);
+    return;
 }
 
 int weights_slice(void *arg) {
@@ -125,6 +127,7 @@ void matrix_normalization(void) {
             }
         }
     }
+    return;
 }
 
 void matrix_convolute(void) {
@@ -147,4 +150,6 @@ void matrix_convolute(void) {
         output[x] = output[x-1];
     for (uint32 y = (uint32)(hh-1)*WW; y < (matrix_size - 1); y += 1)
         output[y] = output[y-WW];
+
+    return;
 }

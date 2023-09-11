@@ -57,8 +57,8 @@ bool segments_intersect(int32 *restrict line0, int32 *restrict line1) {
     if (delta == 0)
         return false;
 
-    s = (double) (dx*yy0 - y0 + dy*x0 - xx0) / (double)delta;
-    t = (double) (dxx*y0 - yy0 + dyy*xx0 - x0) / (double)(-delta);
+    s = (double) (dx*yy0 - y0 + dy*x0 - xx0) / (double) delta;
+    t = (double) (dxx*y0 - yy0 + dyy*xx0 - x0) / (double) (-delta);
 
     ss = (0 <= s) && (s <= 1);
     tt = (0 <= t) && (t <= 1);

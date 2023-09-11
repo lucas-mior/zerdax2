@@ -15,10 +15,6 @@ typedef int32_t int32;
 typedef uint32_t uint32;
 
 static const int32 WW = 512;
-typedef struct Slice {
-    uint32 start_y;
-    uint32 end_y;
-} Slice;
 
 static double *restrict input;
 static double *restrict weights;
@@ -52,6 +48,11 @@ void filter(double *restrict input0, double *restrict output0,
     matrix_convolute();
     return;
 }
+
+typedef struct Slice {
+    uint32 start_y;
+    uint32 end_y;
+} Slice;
 
 void matrix_weights(void) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);

@@ -7,7 +7,9 @@
 
 #include "c_declarations.h"
 
-static int32 min(int32 const [4]);
+typedef uint32_t uint32;
+
+static int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
 static int32 distance_point_segment(int32 const, int32 const, int32 *restrict);
 
@@ -21,17 +23,16 @@ int32 segments_distance(int32 *restrict line0, int32 *restrict line1){
     distances[1] = distance_point_segment(line0[2], line0[3], line1);
     distances[2] = distance_point_segment(line1[0], line1[1], line0);
     distances[3] = distance_point_segment(line1[2], line1[3], line0);
-    return min(distances);
+    return minimum(distances);
 }
 
-int32 min(int32 const distances[4]) {
-    int32 i = 0;
-    int32 m = distances[i];
-    while (++i < 4) {
-        if (distances[i] < m)
-            m = distances[i];
+int32 minimum(int32 const distances[4]) {
+    int32 min = distances[0];
+    for (uint32 i = 1; i < 4; i += 1) {
+        if (distances[i] < min)
+            min = distances[i];
     }
-    return m;
+    return min;
 }
 
 bool segments_intersect(int32 *restrict line0, int32 *restrict line1) {

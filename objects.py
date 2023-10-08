@@ -76,13 +76,13 @@ def determine_colors(pieces, image):
                 for (y, x), pixel in np.ndenumerate(mask):
                     if x < dx/2 and y > x*a:
                         mask[y, x] = 0
-                    if x > dx/2 and (dy-y) > (dx-x)*a:
+                    if x > dx/2 and (dy - y) > (dx - x)*a:
                         mask[y, x] = 0
             else:
                 for (y, x), pixel in np.ndenumerate(mask):
-                    if x < dx/2 and (dy-y) > x*a:
+                    if x < dx/2 and (dy - y) > x*a:
                         mask[y, x] = 0
-                    if x > dx/2 and y > (dx-x)*a:
+                    if x > dx/2 and y > (dx - x)*a:
                         mask[y, x] = 0
         else:
             x0 += 5

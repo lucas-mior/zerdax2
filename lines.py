@@ -48,7 +48,7 @@ def find_warped_lines(canny):
         hori, vert = bundle_lines(hori, vert)
 
         lh, lv = len(hori), len(vert)
-        log.debug(f"{lv+lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
+        log.debug(f"{lv + lh} # {lv},{lh} @ {angle}º, {hough_threshold=}, "
                   f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lv < 6 or lh < 6) or algorithm.debug:
@@ -100,7 +100,7 @@ def find_diagonal_lines(canny):
         hori, vert = filter_intersecting(hori, vert)
 
         lh, lv = len(hori), len(vert)
-        log.debug(f"{lv+lh} # {lh},{lv} @ {angle}º, {hough_threshold=}, "
+        log.debug(f"{lv + lh} # {lh},{lv} @ {angle}º, {hough_threshold=}, "
                   f"{hough_min_length=},{hough_max_gap=}")
 
     if (failed := lh < 6 or lv < 6) or algorithm.debug:
@@ -276,7 +276,7 @@ def add_outer_diagonal(lines, ll, kind):
         return lines
 
     def _add_outer(lines, where):
-        limit = gcanny.shape[kind-1]
+        limit = gcanny.shape[kind - 1]
         if where == 0:
             sign = -1
             ref = 0
@@ -289,7 +289,7 @@ def add_outer_diagonal(lines, ll, kind):
         line0 = lines[where]
         line1 = lines[other]
 
-        space_old = min(abs(line0[kind] - ref), abs(line0[kind+2] - ref))
+        space_old = min(abs(line0[kind] - ref), abs(line0[kind + 2] - ref))
         if space_old <= 15:
             log.debug(f"space_old <= 15, line0 (kind = {kind})")
             log.debug(f"({where=})")
@@ -339,7 +339,7 @@ def add_outer_warped(lines, ll, kind):
         return lines
 
     def _add_outer(lines, where, med):
-        limit = gcanny.shape[kind-1]
+        limit = gcanny.shape[kind - 1]
         if where == 0:
             ref = 0
             other = 1
@@ -361,11 +361,11 @@ def add_outer_warped(lines, ll, kind):
         dx = med + (med - segments_distance(line0, line1))
         if where == -1:
             new[kind] += dx
-            new[kind+2] += dx
+            new[kind + 2] += dx
             lines = np.append(lines, [new], axis=0)
         else:
             new[kind] -= dx
-            new[kind+2] -= dx
+            new[kind + 2] -= dx
             lines = np.insert(lines, 0, [new], axis=0)
         return lines
 
@@ -392,7 +392,7 @@ def remove_fake_outer(lines, ll, kind):
         line1 = lines[other, :4]
 
         dkind = min(abs(line1[kind] - line0[kind]),
-                    abs(line1[kind+2] - line0[kind+2]))
+                    abs(line1[kind + 2] - line0[kind + 2]))
 
         if dkind < 35 and length(line0) < med*0.9:
             lines = np.delete(lines, where, axis=0)
@@ -415,7 +415,7 @@ def extend_outer(lines, ll, kind):
         return lines
 
     def _extend_outer(lines, where):
-        limit = gcanny.shape[kind-1] - 1
+        limit = gcanny.shape[kind - 1] - 1
         if where == 0:
             ref = 0
         elif where == -1:
@@ -423,13 +423,13 @@ def extend_outer(lines, ll, kind):
 
         line = lines[where]
 
-        spaces = [ref - line[kind], ref - line[kind+2]]
+        spaces = [ref - line[kind], ref - line[kind + 2]]
         if where == 0:
             dmin = max(spaces)
         else:
             dmin = min(spaces)
         line[kind] += dmin
-        line[kind+2] += dmin
+        line[kind + 2] += dmin
         lines[where] = line
         return lines
 
@@ -445,16 +445,16 @@ def extend_outer(lines, ll, kind):
 def calculate_distances_warped(lines, kind):
     dists = np.zeros((lines.shape[0], 2), dtype='int32')
     dists[0, 0] = (lines[1, kind] - lines[0, kind]
-                   + lines[1, kind+2] - lines[0, kind+2])
+                   + lines[1, kind + 2] - lines[0, kind + 2])
     dists[0, 1] = dists[0, 0]
     for i in range(1, len(lines) - 1):
-        dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind] +
-                       lines[i+0, kind+2] - lines[i-1, kind+2])
-        dists[i, 1] = (lines[i+1, kind] - lines[i+0, kind] +
-                       lines[i+1, kind+2] - lines[i+0, kind+2])
+        dists[i, 0] = (lines[i + 0, kind] - lines[i - 1, kind] +
+                       lines[i + 0, kind + 2] - lines[i - 1, kind + 2])
+        dists[i, 1] = (lines[i + 1, kind] - lines[i + 0, kind] +
+                       lines[i + 1, kind + 2] - lines[i + 0, kind + 2])
     i += 1
-    dists[i, 0] = (lines[i+0, kind] - lines[i-1, kind]
-                   + lines[i+0, kind+2] - lines[i-1, kind+2])
+    dists[i, 0] = (lines[i + 0, kind] - lines[i - 1, kind]
+                   + lines[i + 0, kind + 2] - lines[i - 1, kind + 2])
     dists[i, 1] = dists[i, 0]
     return dists / 2
 
@@ -464,10 +464,10 @@ def calculate_distances_diagonal(lines, kind):
     dists[0, 0] = segments_distance(lines[0], lines[1])
     dists[0, 1] = dists[0, 0]
     for i in range(1, len(lines) - 1):
-        dists[i, 0] = segments_distance(lines[i], lines[i-1])
-        dists[i, 1] = segments_distance(lines[i], lines[i+1])
+        dists[i, 0] = segments_distance(lines[i], lines[i - 1])
+        dists[i, 1] = segments_distance(lines[i], lines[i + 1])
     i += 1
-    dists[i, 0] = segments_distance(lines[i], lines[i-1])
+    dists[i, 0] = segments_distance(lines[i], lines[i - 1])
     dists[i, 1] = dists[i, 0]
     return dists
 
@@ -480,7 +480,7 @@ def remove_wrong(lines, ll, kind):
 
     def _remove_wrong(lines, dists):
         med1 = abs(lines[0, kind] - lines[-1, kind])/8
-        med2 = abs(lines[0, kind+2] - lines[-1, kind+2])/8
+        med2 = abs(lines[0, kind + 2] - lines[-1, kind + 2])/8
         med = (med1 + med2)/2
         med3 = gcanny.shape[1] / 8
         med = (med + med3)/2
@@ -513,8 +513,8 @@ def add_middle_warped(lines, ll, kind):
         x0, x1 = x
         y0, y1 = y
         new = np.array([[x0, y0, x1, y1,
-                         lines[i-1, 4], lines[i-1, 5]]], dtype='int32')
-        lines = np.insert(lines, i+1, new, axis=0)
+                         lines[i - 1, 4], lines[i - 1, 5]]], dtype='int32')
+        lines = np.insert(lines, i + 1, new, axis=0)
         return lines
 
     def _add_middle_warped(lines, med, sign):
@@ -527,21 +527,21 @@ def add_middle_warped(lines, ll, kind):
                 new = np.copy(lines[0])
                 dx = med
                 new[kind] += (dx*sign)
-                new[kind+2] += (dx*sign)
+                new[kind + 2] += (dx*sign)
                 lines = np.insert(lines, 1, [new], axis=0)
                 return lines
         for i in range(2, len(lines) - 2):
-            dprev2 = abs(lines[i-1, kind] - lines[i-2, kind])
-            dprev1 = abs(lines[i+0, kind] - lines[i-1, kind])
-            dthis0 = abs(lines[i+0, kind] - lines[i+1, kind])
-            dnext1 = abs(lines[i+1, kind] - lines[i+2, kind])
+            dprev2 = abs(lines[i - 1, kind] - lines[i - 2, kind])
+            dprev1 = abs(lines[i + 0, kind] - lines[i - 1, kind])
+            dthis0 = abs(lines[i + 0, kind] - lines[i + 1, kind])
+            dnext1 = abs(lines[i + 1, kind] - lines[i + 2, kind])
             if dthis0 > (dprev1*tol) and dthis0 > (dnext1*tol):
                 if dthis0 > (dprev2*tol):
                     new = np.copy(lines[i])
                     dx = med
                     new[kind] += (dx*sign)
-                    new[kind+2] += (dx*sign)
-                    lines = np.insert(lines, i+1, [new], axis=0)
+                    new[kind + 2] += (dx*sign)
+                    lines = np.insert(lines, i + 1, [new], axis=0)
                     return lines
         return lines
 
@@ -561,16 +561,16 @@ def add_middle_warped(lines, ll, kind):
 def remove_outer(lines, ll, kind):
     log.debug("removing extra outer lines...")
     tolerance = 3
-    limit = gcanny.shape[kind-1]
+    limit = gcanny.shape[kind - 1]
     if ll < 7:
         log.warning("less than 7 lines passed to remove_outer, returning...")
         return lines, ll
 
     d00 = abs(lines[1, kind] - 0)
-    d01 = abs(lines[1, kind+2] - 0)
+    d01 = abs(lines[1, kind + 2] - 0)
     space0 = min(d00, d01)
     d10 = abs(lines[-2, kind] - limit)
-    d11 = abs(lines[-2, kind+2] - limit)
+    d11 = abs(lines[-2, kind + 2] - limit)
     space1 = min(d10, d11)
     if ll <= 9:
         if space0 < tolerance:
@@ -625,13 +625,13 @@ def theta(line):
         a1, b1 = x0, y0
         x0, y0 = x1, y1
         x1, y1 = a1, b1
-    angle = np.arctan2(y0-y1, x1-x0)
+    angle = np.arctan2(y0 - y1, x1 - x0)
     return np.rad2deg(angle)
 
 
 def theta_abs(line):
     x0, y0, x1, y1 = line[:4]
-    angle = np.arctan2(abs(y0-y1), abs(x1-x0))
+    angle = np.arctan2(abs(y0 - y1), abs(x1 - x0))
     return np.rad2deg(angle)
 
 
@@ -763,7 +763,7 @@ def filter_not_right(lines):
 
 def bounds_clip(line, canny):
     log.debug("shortening2...")
-    limit = canny.shape[0]-1
+    limit = canny.shape[0] - 1
 
     dx = line[2] - line[0]
     dy = line[3] - line[1]
@@ -823,10 +823,10 @@ def diagonal_cont(line, kind, where, dmin):
         kind += 2
 
     if kind == 0 or kind == 2:
-        y = round(line[kind+1] + a*dmin)
+        y = round(line[kind + 1] + a*dmin)
         x = line[kind] + dmin
     elif kind == 1 or kind == 3:
-        x = round(line[kind-1] + b*dmin)
+        x = round(line[kind - 1] + b*dmin)
         y = line[kind] + dmin
 
     return x, y

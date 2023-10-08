@@ -61,7 +61,7 @@ def corners(image, corners):
     name = ["TL", "TR", "BR", "BL"]
     thick = round(2 * (image.shape[1] / WIDTH_BOARD))
     for i, c in enumerate(corners):
-        color = (i*50, 30*i, 255-i*40)
+        color = (i*50, 30*i, 255 - i*40)
         cv2.circle(canvas, c, radius,
                    color=color, thickness=-1)
         cv2.putText(canvas, name[i], c,
@@ -80,7 +80,7 @@ def points(image, inters):
     for i, row in enumerate(inters):
         for j, p in enumerate(row):
             cv2.circle(canvas, p, radius,
-                       color=(20+i*20, 0, 100+j*15), thickness=-1)
+                       color=(20 + i*20, 0, 100 + j*15), thickness=-1)
 
     canvas = add_weighted(image, canvas)
     return canvas
@@ -95,7 +95,7 @@ def lines(image, hori, vert=None, annotate_number=False):
         if kind != -1:
             ll = len(lines)
             legend = f"{ll} vertical" if kind == 0 else f"{ll} horizontal"
-            cv2.putText(canvas, legend, (20, 20+30*kind),
+            cv2.putText(canvas, legend, (20, 20 + 30*kind),
                         cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75,
                         color=color, thickness=thick)
         else:
@@ -114,12 +114,12 @@ def lines(image, hori, vert=None, annotate_number=False):
                 if kind == 0:
                     x += 15*i
                     y += 30*i
-                    if i == (len(lines)-1):
+                    if i == (len(lines) - 1):
                         y -= 100
                         x -= 30
                 else:
                     x += 5*i
-                    if i == (len(lines)-1):
+                    if i == (len(lines) - 1):
                         y -= 20
                         x -= 80
 
@@ -184,13 +184,13 @@ def boxes(image, pieces, boardbox=None):
         color = COLORS[num]
         symbol = SYMBOLS[num]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
-        cv2.putText(canvas, f"{symbol} {conf}", (x0-5, y0-7),
+        cv2.putText(canvas, f"{symbol} {conf}", (x0 - 5, y0 - 7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
     if boardbox is not None:
         x0, y0, x1, y1 = boardbox[:4]
         color = COLORS[0]
         cv2.rectangle(canvas, (x0, y0), (x1, y1), color=color, thickness=thick)
-        cv2.putText(canvas, "Board", (x0-5, y0-7),
+        cv2.putText(canvas, "Board", (x0 - 5, y0 - 7),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, color, thick)
 
     canvas = add_weighted(image, canvas)

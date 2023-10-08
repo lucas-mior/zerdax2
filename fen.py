@@ -59,7 +59,7 @@ def dump(fen):
     fen = re.sub(r'([0-9])', lambda x: '· ' * int(x[0]), fen)
 
     for i, line in enumerate(str.splitlines(fen)):
-        row = 8-i
+        row = 8 - i
         print(f"{invert} {row}{reset}{line}{invert}{row} {reset}", sep='')
 
     print(f"  {invert} A B C D E F G H {reset}")

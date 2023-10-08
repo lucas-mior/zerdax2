@@ -10,9 +10,9 @@ def calculate(inters):
     for i in range(0, 8):
         for j in range(0, 8):
             squares[i, j, 0] = intersq[i, j]
-            squares[i, j, 1] = intersq[i+1, j]
-            squares[i, j, 2] = intersq[i+1, j+1]
-            squares[i, j, 3] = intersq[i, j+1]
+            squares[i, j, 1] = intersq[i + 1, j]
+            squares[i, j, 2] = intersq[i + 1, j + 1]
+            squares[i, j, 3] = intersq[i, j + 1]
 
     return squares
 
@@ -40,8 +40,8 @@ def fill(squares, pieces, force=False):
                         npiece = piece
                         dmax = dist
             else:
-                dist1 = cv2.pointPolygonTest(square[:4], (xm, y-5), True)
-                dist2 = cv2.pointPolygonTest(square[:4], (xm, y+2), True)
+                dist1 = cv2.pointPolygonTest(square[:4], (xm, y - 5), True)
+                dist2 = cv2.pointPolygonTest(square[:4], (xm, y + 2), True)
                 if dist1 >= 0:
                     if dist1 > dmax:
                         npiece = piece
@@ -82,7 +82,7 @@ def calculate_means(image, squares, col, row):
     contour[:, 0] -= x0
     contour[:, 1] -= y0
 
-    box = image[y0:y0+dy, x0:x0+dx]
+    box = image[y0:y0 + dy, x0:x0 + dx]
     mask_in = np.zeros(box.shape, dtype='uint8')
     cv2.drawContours(mask_in, [contour], -1, 255, -1)
     mask_out = cv2.bitwise_not(mask_in)

@@ -32,9 +32,10 @@ static void matrix_convolute(void);
 static int weights_slice(void *);
 static inline double weight(uint32, uint32);
 
-void filter(double *restrict input0, double *restrict output0, 
-            double *restrict normalization0, double *restrict weights0,
-            int32 const hh0) {
+void
+filter(double *restrict input0, double *restrict output0, 
+       double *restrict normalization0, double *restrict weights0,
+       int32 const hh0) {
 
     input = input0;
     weights = weights0;
@@ -54,7 +55,8 @@ typedef struct Slice {
     uint32 end_y;
 } Slice;
 
-void matrix_weights(void) {
+void
+matrix_weights(void) {
     long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
     uint32 nthreads;
     uint32 range;
@@ -93,7 +95,8 @@ void matrix_weights(void) {
     return;
 }
 
-int weights_slice(void *arg) {
+int
+weights_slice(void *arg) {
     Slice *slice = arg;
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
@@ -105,7 +108,8 @@ int weights_slice(void *arg) {
     thrd_exit(0);
 }
 
-double weight(uint32 x, uint32 y) {
+double
+weight(uint32 x, uint32 y) {
     double Gx, Gy;
     double d, w;
 
@@ -117,7 +121,8 @@ double weight(uint32 x, uint32 y) {
     return w;
 }
 
-void matrix_normalization(void) {
+void
+matrix_normalization(void) {
     memset(normalization, 0, matrix_size * sizeof (*normalization));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
@@ -131,7 +136,8 @@ void matrix_normalization(void) {
     return;
 }
 
-void matrix_convolute(void) {
+void
+matrix_convolute(void) {
     memset(output, 0, matrix_size * sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {

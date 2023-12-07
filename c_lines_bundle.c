@@ -36,9 +36,10 @@ static void append(Group *, int32 [LINE_FIELDS]);
 static void groups_append(int32 [LINE_FIELDS]);
 static bool check_line_diff(int32 [LINE_FIELDS], Group *);
 
-int32 lines_bundle(int32 lines[][LINE_FIELDS],
-                   int32 bundled[][LINE_FIELDS],
-                   int32 nlines, int32 min_distance0) {
+int32
+lines_bundle(int32 lines[][LINE_FIELDS],
+             int32 bundled[][LINE_FIELDS],
+             int32 nlines, int32 min_distance0) {
     int m;
     Group *group = util_realloc(NULL, sizeof(*group));
     min_distance = min_distance0;
@@ -94,13 +95,15 @@ int32 lines_bundle(int32 lines[][LINE_FIELDS],
     return m;
 }
 
-int32 compare(const void *a, const void *b) {
+int32
+compare(const void *a, const void *b) {
     const int32 *c = a;
     const int32 *d = b;
     return *c - *d;
 }
 
-int32 median(int32 *array, int32 length) {
+int32
+median(int32 *array, int32 length) {
     qsort(array, (size_t) length, sizeof(*array), compare);
     if ((length % 2) == 0) {
         double result = round((array[(length/2) - 1] + array[length/2]) / 2.0);
@@ -110,7 +113,8 @@ int32 median(int32 *array, int32 length) {
     }
 }
 
-void append(Group *group, int32 line[LINE_FIELDS]) {
+void
+append(Group *group, int32 line[LINE_FIELDS]) {
     int32 j = group->length;
     if (j >= MAX_LINES_IN_GROUP)
         return;
@@ -121,7 +125,8 @@ void append(Group *group, int32 line[LINE_FIELDS]) {
     return;
 }
 
-void groups_append(int32 line[LINE_FIELDS]) {
+void
+groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
     group->next = util_realloc(NULL, sizeof(*group));
     group = group->next;
@@ -132,7 +137,8 @@ void groups_append(int32 line[LINE_FIELDS]) {
     return;
 }
 
-bool check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
+bool
+check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
     int32 min_angle2 = min_angle + 2*100;
     while (group) {
         for (int i = 0; i < group->length; i += 1) {

@@ -23,8 +23,8 @@ $ python ./zerdax2.py <image> [<image2> ...] [-v=LEVEL]
 Resulting FEN is written to standard output aswell
 as position diagram using characters.
 
-## Input image example
-![Input image example](https://github.com/lucas-mior/zerdax2/blob/master/test.jpg?raw=true)
+## Input image example with detection of pieces and colors
+![Input image example](https://github.com/lucas-mior/zerdax2/blob/master/example.png?raw=true)
 
 ## Utilities
 - `algorithm.py`: Run algorithm on images passed as arguments without reading

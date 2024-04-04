@@ -13,3 +13,7 @@ yolov5
 tags
 results
 extras
+cfilter
+callgrind*
+tests
+vgcore*

@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include <immintrin.h>
 
 #include "c_declarations.h"
 
@@ -83,17 +82,7 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
         dy = py - y0;
     } else {
         double t;
-        double dxxyy;
-        int32 dxy[4] = {dx, dy};
-
-        __m128i dxy2;
-        dxy2 = _mm_load_epi32(dxy);
-        dxy2 = _mm_mul_epi32(dxy2, dxy2);
-        _mm_store_epi32(dxy, dxy2);
-
-        dxxyy = (double) (dxy[0] + dxy[1]);
-
-        t = (double) ((px - x0)*dx + (py - y0)*dy) / dxxyy;
+        t = (double) ((px - x0)*dx + (py - y0)*dy) / (double) (dx*dx + dy*dy);
 
         if (t < 0) {
             dx = px - x0;

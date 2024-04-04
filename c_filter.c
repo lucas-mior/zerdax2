@@ -283,8 +283,11 @@ int main(int argc, char **argv) {
         FILE *image1 = fopen("input.data", "w");
         FILE *image2 = fopen("output.data", "w");
 
-        for (int i = 0; i < IMAGE_SIZE; i += 1) {
-            gray[i] = (uint8) output0[i]*255;
+        for (int i = 0; i < IMAGE_SIZE; i += 4) {
+            gray[i+0] = (uint8) output0[i+0]*255;
+            gray[i+1] = (uint8) output0[i+1]*255;
+            gray[i+2] = (uint8) output0[i+2]*255;
+            gray[i+3] = (uint8) output0[i+3]*255;
         }
 
         fwrite(input0, sizeof (*input0), IMAGE_SIZE, image1);

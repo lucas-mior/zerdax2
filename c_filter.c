@@ -114,7 +114,6 @@ weight(uint32 x, uint32 y) {
     double d, w;
 
     double G[2];
-    double Gx, Gy;
 
     double i0[] = {input[WW*y + x+1], input[WW*(y+1) + x]};
     double i1[] = {input[WW*y + x-1], input[WW*(y-1) + x]};
@@ -124,12 +123,11 @@ weight(uint32 x, uint32 y) {
     vec0 = _mm_load_pd(i0);
     vec1 = _mm_load_pd(i1);
     vec2 = _mm_sub_pd(vec0, vec1);
+    vec2 = _mm_mul_pd(vec2, vec2);
+
     _mm_store_pd(G, vec2); 
 
-    Gx = G[0];
-    Gy = G[1];
-
-    d = sqrt(Gx*Gx + Gy*Gy);
+    d = sqrt(G[0] + G[1]);
     w = exp(-sqrt(d));
     return w;
 }

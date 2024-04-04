@@ -260,5 +260,10 @@ int main(int argc, char **argv) {
     filter(input0, output0, normalization0, weights0, hh0);
     printf("output0: %ld\n", hash(output0));
 
+    free(input0);
+    free(output0);
+    free(normalization0);
+    free(weights0);
+
     return 0;
 }

@@ -48,9 +48,16 @@ def decompress(fen):
 
 
 def dump(fen):
-    invert = "\033[1;7m"
+    fblack="\033[01;38;2;000;000;000m"
+    fgray="\033[01;38;2;200;200;200m"
+    fwhite="\033[01;38;2;255;255;255m"
+
+    bblack="\033[01;48;2;000;000;000m"
+    bgray="\033[01;48;2;200;200;200m"
+    bwhite="\033[01;48;2;255;255;255m"
     reset = '\033[0;m'
-    print(f"  {invert} A B C D E F G H {reset}")
+
+    print(f"  {bwhite}{fblack} A B C D E F G H {reset} ", sep="")
 
     fen = re.sub(r'^', " ", fen)
     fen = re.sub(r'/', "\n ", fen)
@@ -60,9 +67,13 @@ def dump(fen):
 
     for i, line in enumerate(str.splitlines(fen)):
         row = 8 - i
-        print(f"{invert} {row}{reset}{line}{invert}{row} {reset}", sep='')
+        print(bblack, fwhite, sep="", end="")
+        row1 = f"{bwhite}{fblack} {row}"
+        row2 = f"{bwhite}{fblack}{row}"
+        line = f"{bblack}{fwhite}{line}"
+        print(f"{row1}{line}{row2} {reset}", sep='')
 
-    print(f"  {invert} A B C D E F G H {reset}")
+    print(f"  {bwhite}{fblack} A B C D E F G H {reset}")
     return
 
 

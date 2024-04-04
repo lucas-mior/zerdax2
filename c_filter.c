@@ -32,7 +32,7 @@ static double *restrict output;
 static int32 hh;
 static uint32 matrix_size;
 
-void filter(double *restrict, double *restrict , 
+void filter(double *restrict, double *restrict,
             double *restrict, double *restrict,
             int32 const);
 static void matrix_weights(void);
@@ -43,7 +43,7 @@ static inline void weight(double *, double *);
 static inline double gradient_sum(uint32 x, uint32 y);
 
 void
-filter(double *restrict input0, double *restrict output0, 
+filter(double *restrict input0, double *restrict output0,
        double *restrict normalization0, double *restrict weights0,
        int32 const hh0) {
 
@@ -138,7 +138,7 @@ gradient_sum(uint32 x, uint32 y) {
     vecdiff = _mm_sub_pd(vec0, vec1);
     vecgrad = _mm_mul_pd(vecdiff, vecdiff);
 
-    _mm_store_pd(G, vecgrad); 
+    _mm_store_pd(G, vecgrad);
 
     return G[0] + G[1];
 }
@@ -261,12 +261,10 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
-
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         input0[i] = randd();
     }
 
-    
     printf("input0: %ld\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
     filter(input0, output0, normalization0, weights0, hh0);

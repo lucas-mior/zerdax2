@@ -158,11 +158,19 @@ matrix_normalization(void) {
     memset(normalization, 0, matrix_size * sizeof (*normalization));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
+            __m256d vecn, vec1;
+            double n[VSIZE] = {0};
+            vecn = _mm256_load_pd(n);
+
             for (int32 i = -1; i <= +1; i += 1) {
-                for (int32 j = -1; j <= +1; j += 1) {
-                    normalization[WW*y + x] += weights[WW*(y+i) + x+j];
-                }
+                double w[4];
+                memcpy(w, &weights[WW*(y+i) + x-1], sizeof (w));
+                w[3] = 0;
+                vec1 = _mm256_load_pd(w);
+                vecn = _mm256_add_pd(vecn, vec1);
             }
+            _mm256_store_pd(n, vecn);
+            normalization[WW*y + x] = n[0] + n[1] + n[2];
         }
     }
     return;
@@ -209,6 +217,9 @@ int main(int argc, char **argv) {
     double *output0 = malloc(SIZE*sizeof(double));
     double *normalization0 = malloc(SIZE*sizeof(double));
     double *weights0 = malloc(SIZE*sizeof(double));
+
+    (void) argc;
+    (void) argv;
 
     for (int i = 0; i < SIZE; i += 1) {
         input0[i] = (double)rand() / (double)RAND_MAX;

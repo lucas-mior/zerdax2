@@ -2,6 +2,7 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
+#include <time.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -254,17 +255,41 @@ int main(int argc, char **argv) {
     double *normalization0 = malloc(SIZE*sizeof(double));
     double *weights0 = malloc(SIZE*sizeof(double));
 
+    struct timespec t0, t1;
+    long diffsec;
+    long diffnsec;
+    double time_elapsed;
     (void) argc;
     (void) argv;
+
 
     for (int i = 0; i < SIZE; i += 1) {
         input0[i] = randd();
     }
+
     
     printf("input0: %ld\n", hash(input0));
+    clock_gettime(CLOCK_REALTIME, &t0);
     filter(input0, output0, normalization0, weights0, hh0);
+    clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %ld\n", hash(output0));
 
+    diffsec = t1.tv_sec - t0.tv_sec;
+    diffnsec = t1.tv_nsec - t0.tv_nsec;
+    time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
+    printf("time elapsed for %d: %f\n", SIZE, time_elapsed);
+
+    uint8_t *gray = malloc(SIZE*sizeof(*gray));
+    for (int i = 0; i < SIZE; i += 1) {
+        gray[i] = output0[i]*255;
+    }
+
+    FILE *image1 = fopen("input.data", "w");
+    FILE *image2 = fopen("output.data", "w");
+    fwrite(input0, sizeof (*input0), SIZE, image1);
+    fwrite(gray, sizeof (*gray), SIZE, image2);
+
+    free(gray);
     free(input0);
     free(output0);
     free(normalization0);

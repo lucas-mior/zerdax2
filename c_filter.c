@@ -9,6 +9,7 @@
 #include <threads.h>
 #include <unistd.h>
 #include <math.h>
+#include <immintrin.h>
 #include "c_declarations.h"
 
 typedef int32_t int32;
@@ -30,6 +31,7 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
+static inline double diff(uint32, uint32);
 static inline double weight(uint32, uint32);
 
 void
@@ -108,15 +110,22 @@ weights_slice(void *arg) {
     thrd_exit(0);
 }
 
-double
-weight(uint32 x, uint32 y) {
+double diff(uint32 x, uint32 y) {
     double Gx, Gy;
-    double d, w;
+    double d;
 
     Gx = input[WW*y + x+1] - input[WW*y + x-1];
     Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
     d = sqrt(Gx*Gx + Gy*Gy);
+    return d;
+}
+
+double
+weight(uint32 x, uint32 y) {
+    double d = diff(x, y);
+    double w;
+
     w = exp(-sqrt(d));
     return w;
 }

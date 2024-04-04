@@ -81,11 +81,27 @@ def validate(fen):
     return True
 
 
+def compressed_align(fen):
+    rows = str.split(fen, "/")
+    new = ""
+    for row in rows:
+        left = (8 - len(row))*" "
+        new += f"{row}{left}/"
+    new = new[:-1]
+    return new
+
+
 if __name__ == "__main__":
     for fen in sys.argv[1:]:
         if not validate(fen):
             print(f"invalid fen: {fen}")
             continue
-        print(decompress(fen))
-        print(compress(fen))
+        long_fen = decompress(fen)
+        compressed_fen = compress(long_fen)
+        compressed_fen_align = compressed_align(fen)
+
+        print(long_fen)
+        print(compressed_fen_align)
+        print(compressed_fen)
+
         dump(fen)

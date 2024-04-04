@@ -110,10 +110,7 @@ weights_slice(void *arg) {
                 Gsum[i] = gradient_sum(x+i, y);
             }
             weight(Gsum, w);
-            weights[WW*y + x+0] = w[0];
-            weights[WW*y + x+1] = w[1];
-            weights[WW*y + x+2] = w[2];
-            weights[WW*y + x+3] = w[3];
+            memcpy(&weights[WW*y + x], w, sizeof (w));
         }
     }
 

@@ -21,7 +21,7 @@ def filter_test(filename, i):
     normalization = np.empty(image.shape, dtype='float64')
     g = np.empty(image.shape, dtype='float64')
 
-    for i in range(10000):
+    for i in range(1000):
         lfilter(f, g, weights, normalization, f.shape[0])
         lfilter(g, f, weights, normalization, f.shape[0])
 

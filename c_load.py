@@ -5,7 +5,7 @@ import platform
 uname = platform.uname()[0]
 match uname:
     case "Linux":
-        library = "./libzerdax_original.so"
+        library = "./libzerdax.so"
     case "Windows":
         # library = r".\libzerdax.dll"
         print("this ṕrogram doesn't work on windows yet")

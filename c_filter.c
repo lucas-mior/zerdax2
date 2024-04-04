@@ -9,6 +9,7 @@
 #include <threads.h>
 #include <unistd.h>
 #include <math.h>
+#include <immintrin.h>
 #include "c_declarations.h"
 
 typedef int32_t int32;
@@ -30,8 +31,8 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline void weight(double *, double *);
-static inline double gradient_sum(uint32 x, uint32 y);
+static void weight(double *, double *);
+static double gradient_sum(uint32 x, uint32 y);
 
 void
 filter(double *restrict input0, double *restrict output0, 
@@ -116,7 +117,6 @@ weights_slice(void *arg) {
     thrd_exit(0);
 }
 
-#include <immintrin.h>
 double
 gradient_sum(uint32 x, uint32 y) {
     double G[2];

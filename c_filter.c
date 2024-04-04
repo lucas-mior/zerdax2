@@ -124,14 +124,14 @@ gradient_sum(uint32 x, uint32 y) {
     double i0[] = {input[WW*y + x+1], input[WW*(y+1) + x]};
     double i1[] = {input[WW*y + x-1], input[WW*(y-1) + x]};
 
-    __m128d vec0, vec1, vec2;
+    __m128d vec0, vec1, vecdiff, vecgrad;
 
     vec0 = _mm_load_pd(i0);
     vec1 = _mm_load_pd(i1);
-    vec2 = _mm_sub_pd(vec0, vec1);
-    vec2 = _mm_mul_pd(vec2, vec2);
+    vecdiff = _mm_sub_pd(vec0, vec1);
+    vecgrad = _mm_mul_pd(vecdiff, vecdiff);
 
-    _mm_store_pd(G, vec2); 
+    _mm_store_pd(G, vecgrad); 
 
     return G[0] + G[1];
 }

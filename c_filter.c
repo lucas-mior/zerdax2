@@ -181,11 +181,26 @@ matrix_convolute(void) {
     memset(output, 0, matrix_size * sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
+            __m256d veco, vecw, veci, vecm;
+            double o[VSIZE] = {0};
+            veco = _mm256_load_pd(o);
+
             for (int32 i = -1; i <= +1; i += 1) {
-                for (int32 j = -1; j <= +1; j += 1) {
-                    output[WW*y + x] += (weights[WW*(y+i) + x+j]*input[WW*(y+i) + x+j]);
-                }
+                double weight4[4] = {0};
+                double input4[4] = {0};
+                memcpy(weight4, &weights[WW*(y+i) + x-1],
+                       (VSIZE - 1)*sizeof(*weight4));
+                memcpy(input4, &input[WW*(y+i) + x-1],
+                       (VSIZE - 1)*sizeof(*input4));
+
+                vecw = _mm256_load_pd(weight4);
+                veci = _mm256_load_pd(input4);
+                vecm = _mm256_mul_pd(vecw, veci);
+                veco = _mm256_add_pd(veco, vecm);
+
             }
+            _mm256_store_pd(o, veco);
+            output[WW*y + x] = o[0] + o[1] + o[2];
             output[WW*y + x] /= normalization[WW*y + x];
         }
     }

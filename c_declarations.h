@@ -6,6 +6,7 @@
 #include <math.h>
 
 typedef int32_t int32;
+typedef uint8_t uint8;
 typedef unsigned long ulong;
 
 int32 segments_distance(int32 *restrict, int32 *restrict);

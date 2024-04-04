@@ -15,11 +15,15 @@
 
 /* #define THREADS sysconf(_SC_NPROCESSORS_ONLN) */
 #define THREADS 16
+#define VSIZE 4
+#define HH0 512
+#define WW0 512
+#define IMAGE_SIZE HH0*WW0
 
 typedef int32_t int32;
 typedef uint32_t uint32;
 
-static const int32 WW = 512;
+static const int32 WW = WW0;
 
 static double *restrict input;
 static double *restrict weights;
@@ -101,7 +105,6 @@ matrix_weights(void) {
     return;
 }
 
-#define VSIZE 4
 int
 weights_slice(void *arg) {
     Slice *slice = arg;
@@ -231,10 +234,9 @@ matrix_convolute(void) {
     return;
 }
 
-#define SIZE 262144
 static long hash(double *array) {
     long hash = 5381;
-    for (int i = 0; i < SIZE; i += 1) {
+    for (int i = 0; i < IMAGE_SIZE; i += 1) {
         long c;
         memcpy(&c, &array[i], sizeof (c));
         hash = ((hash << 5) + hash) + c;
@@ -248,22 +250,19 @@ static double randd(void) {
 }
 
 int main(int argc, char **argv) {
-    int hh0 = 512;
+    int hh0 = HH0;
 
-    double *input0 = malloc(SIZE*sizeof(double));
-    double *output0 = malloc(SIZE*sizeof(double));
-    double *normalization0 = malloc(SIZE*sizeof(double));
-    double *weights0 = malloc(SIZE*sizeof(double));
+    double *input0 = malloc(IMAGE_SIZE*sizeof(double));
+    double *output0 = malloc(IMAGE_SIZE*sizeof(double));
+    double *normalization0 = malloc(IMAGE_SIZE*sizeof(double));
+    double *weights0 = malloc(IMAGE_SIZE*sizeof(double));
 
     struct timespec t0, t1;
-    long diffsec;
-    long diffnsec;
-    double time_elapsed;
     (void) argc;
     (void) argv;
 
 
-    for (int i = 0; i < SIZE; i += 1) {
+    for (int i = 0; i < IMAGE_SIZE; i += 1) {
         input0[i] = randd();
     }
 
@@ -274,22 +273,27 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %ld\n", hash(output0));
 
-    diffsec = t1.tv_sec - t0.tv_sec;
-    diffnsec = t1.tv_nsec - t0.tv_nsec;
-    time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
-    printf("time elapsed for %d: %f\n", SIZE, time_elapsed);
-
-    uint8_t *gray = malloc(SIZE*sizeof(*gray));
-    for (int i = 0; i < SIZE; i += 1) {
-        gray[i] = output0[i]*255;
+    {
+        long diffsec = t1.tv_sec - t0.tv_sec;
+        long diffnsec = t1.tv_nsec - t0.tv_nsec;
+        double time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
+        printf("time elapsed for %d: %f\n", IMAGE_SIZE, time_elapsed);
     }
 
-    FILE *image1 = fopen("input.data", "w");
-    FILE *image2 = fopen("output.data", "w");
-    fwrite(input0, sizeof (*input0), SIZE, image1);
-    fwrite(gray, sizeof (*gray), SIZE, image2);
+    {
+        uint8 *gray = malloc(IMAGE_SIZE*sizeof(*gray));
+        FILE *image1 = fopen("input.data", "w");
+        FILE *image2 = fopen("output.data", "w");
 
-    free(gray);
+        for (int i = 0; i < IMAGE_SIZE; i += 1) {
+            gray[i] = (uint8) output0[i]*255;
+        }
+
+        fwrite(input0, sizeof (*input0), IMAGE_SIZE, image1);
+        fwrite(gray, sizeof (*gray), IMAGE_SIZE, image2);
+
+        free(gray);
+    }
     free(input0);
     free(output0);
     free(normalization0);

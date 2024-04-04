@@ -186,12 +186,11 @@ matrix_convolute(void) {
             veco = _mm256_load_pd(o);
 
             for (int32 i = -1; i <= +1; i += 1) {
-                double weight4[4] = {0};
-                double input4[4] = {0};
-                memcpy(weight4, &weights[WW*(y+i) + x-1],
-                       (VSIZE - 1)*sizeof(*weight4));
-                memcpy(input4, &input[WW*(y+i) + x-1],
-                       (VSIZE - 1)*sizeof(*input4));
+                double weight4[4];
+                double input4[4];
+                memcpy(weight4, &weights[WW*(y+i) + x-1], sizeof(weight4));
+                memcpy(input4, &input[WW*(y+i) + x-1], sizeof(input4));
+                weight4[3] = input4[3] = 0;
 
                 vecw = _mm256_load_pd(weight4);
                 veci = _mm256_load_pd(input4);

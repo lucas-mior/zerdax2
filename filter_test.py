@@ -21,16 +21,15 @@ def filter_test(filename, i):
     normalization = np.empty(image.shape, dtype='float64')
     g = np.empty(image.shape, dtype='float64')
 
-    # for i in range(1000):
-    lfilter(f, g, weights, normalization, f.shape[0])
-    lfilter(g, f, weights, normalization, f.shape[0])
-    lfilter(f, g, weights, normalization, f.shape[0])
+    for i in range(1000):
+        lfilter(f, g, weights, normalization, f.shape[0])
+        lfilter(g, f, weights, normalization, f.shape[0])
 
     g = np.round(g)
     g = np.clip(g, 0, 255)
     g = np.array(g, dtype='uint8')
     title = f"lfilter_{i}_{filename}"
-    draw.save(f"lfilter_{i}_{filename}.png", g, title=title)
+    # draw.save(f"lfilter_{i}_{filename}.png", g, title=title)
 
 
 if __name__ == "__main__":

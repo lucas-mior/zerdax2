@@ -31,8 +31,8 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static void weight(double *, double *);
-static double gradient_sum(uint32 x, uint32 y);
+static inline void weight(double *, double *);
+static inline double gradient_sum(uint32 x, uint32 y);
 
 void
 filter(double *restrict input0, double *restrict output0, 
@@ -97,20 +97,23 @@ matrix_weights(void) {
     return;
 }
 
+#define VSIZE 4
 int
 weights_slice(void *arg) {
     Slice *slice = arg;
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
-        for (uint32 x = 1; x < WW - 1; x += 2) {
-            double Gsum[2];
-            double w[2];
-            for (uint32 i = 0; i < 2; i += 1) {
+        for (uint32 x = 1; x < WW - 1; x += VSIZE) {
+            double Gsum[VSIZE];
+            double w[VSIZE];
+            for (uint32 i = 0; i < VSIZE; i += 1) {
                 Gsum[i] = gradient_sum(x+i, y);
             }
             weight(Gsum, w);
-            weights[WW*y + x] = w[0];
+            weights[WW*y + x+0] = w[0];
             weights[WW*y + x+1] = w[1];
+            weights[WW*y + x+2] = w[2];
+            weights[WW*y + x+3] = w[3];
         }
     }
 
@@ -138,15 +141,16 @@ gradient_sum(uint32 x, uint32 y) {
 
 void
 weight(double *Gsum, double *w) {
-    __m128d vecd;
-    double d[2];
+    __m256d vecd;
+    double d[VSIZE];
 
-    vecd = _mm_load_pd(Gsum);
-    vecd = _mm_sqrt_pd(vecd);
-    vecd = _mm_sqrt_pd(vecd);
-    _mm_store_pd(d, vecd);
+    
+    vecd = _mm256_load_pd(Gsum);
+    vecd = _mm256_sqrt_pd(vecd);
+    vecd = _mm256_sqrt_pd(vecd);
+    _mm256_store_pd(d, vecd);
 
-    for (int i = 0; i < 2; i += 1) {
+    for (int i = 0; i < VSIZE; i += 1) {
         w[i] = exp(-d[i]);
     }
     return;

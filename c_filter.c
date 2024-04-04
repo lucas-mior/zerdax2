@@ -30,7 +30,8 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline double weight(uint32, uint32);
+static inline void weight(double *, double *);
+static inline double gradient_sum(uint32 x, uint32 y);
 
 void
 filter(double *restrict input0, double *restrict output0, 
@@ -100,8 +101,15 @@ weights_slice(void *arg) {
     Slice *slice = arg;
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
-        for (uint32 x = 1; x < WW - 1; x += 1) {
-            weights[WW*y + x] = weight(x, y);
+        for (uint32 x = 1; x < WW - 1; x += 2) {
+            double Gsum[2];
+            double w[2];
+            for (uint32 i = 0; i < 2; i += 1) {
+                Gsum[i] = gradient_sum(x+i, y);
+            }
+            weight(Gsum, w);
+            weights[WW*y + x] = w[0];
+            weights[WW*y + x+1] = w[1];
         }
     }
 
@@ -110,9 +118,7 @@ weights_slice(void *arg) {
 
 #include <immintrin.h>
 double
-weight(uint32 x, uint32 y) {
-    double d, w;
-
+gradient_sum(uint32 x, uint32 y) {
     double G[2];
 
     double i0[] = {input[WW*y + x+1], input[WW*(y+1) + x]};
@@ -127,9 +133,23 @@ weight(uint32 x, uint32 y) {
 
     _mm_store_pd(G, vec2); 
 
-    d = sqrt(G[0] + G[1]);
-    w = exp(-sqrt(d));
-    return w;
+    return G[0] + G[1];
+}
+
+void
+weight(double *Gsum, double *w) {
+    __m128d vecd;
+    double d[2];
+
+    vecd = _mm_load_pd(Gsum);
+    vecd = _mm_sqrt_pd(vecd);
+    vecd = _mm_sqrt_pd(vecd);
+    _mm_store_pd(d, vecd);
+
+    for (int i = 0; i < 2; i += 1) {
+        w[i] = exp(-d[i]);
+    }
+    return;
 }
 
 void

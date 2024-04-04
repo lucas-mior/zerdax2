@@ -108,13 +108,26 @@ weights_slice(void *arg) {
     thrd_exit(0);
 }
 
+#include <immintrin.h>
 double
 weight(uint32 x, uint32 y) {
-    double Gx, Gy;
     double d, w;
 
-    Gx = input[WW*y + x+1] - input[WW*y + x-1];
-    Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+    double G[2];
+    double Gx, Gy;
+
+    double i0[] = {input[WW*y + x+1], input[WW*(y+1) + x]};
+    double i1[] = {input[WW*y + x-1], input[WW*(y-1) + x]};
+
+    __m128d vec0, vec1, vec2;
+
+    vec0 = _mm_load_pd(i0);
+    vec1 = _mm_load_pd(i1);
+    vec2 = _mm_sub_pd(vec0, vec1);
+    _mm_store_pd(G, vec2); 
+
+    Gx = G[0];
+    Gy = G[1];
 
     d = sqrt(Gx*Gx + Gy*Gy);
     w = exp(-sqrt(d));

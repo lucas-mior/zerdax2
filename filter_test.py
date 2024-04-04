@@ -28,8 +28,8 @@ def filter_test(filename, i):
     g = np.round(g)
     g = np.clip(g, 0, 255)
     g = np.array(g, dtype='uint8')
-    title = f"lfilter_{i}.png"
-    draw.save(f"lfilter_{i}", g, title=title)
+    title = f"lfilter_{i}_{filename}"
+    draw.save(f"lfilter_{i}_{filename}.png", g, title=title)
 
 
 if __name__ == "__main__":

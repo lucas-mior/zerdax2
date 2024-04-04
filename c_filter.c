@@ -164,7 +164,6 @@ matrix_normalization(void) {
             for (int32 i = -1; i <= +1; i += 1) {
                 double w[4];
                 memcpy(w, &weights[WW*(y+i) + x-1], sizeof (w));
-                w[3] = 0;
                 vec1 = _mm256_load_pd(w);
                 vecn = _mm256_add_pd(vecn, vec1);
             }
@@ -190,7 +189,6 @@ matrix_convolute(void) {
 
                 memcpy(weight4, &weights[WW*(y+i) + x-1], sizeof(weight4));
                 memcpy(input4, &input[WW*(y+i) + x-1], sizeof(input4));
-                weight4[3] = input4[3] = 0;
 
                 vecw = _mm256_load_pd(weight4);
                 veci = _mm256_load_pd(input4);

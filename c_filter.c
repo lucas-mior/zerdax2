@@ -192,3 +192,31 @@ matrix_convolute(void) {
 
     return;
 }
+
+#define SIZE 262144
+static double mean(double *a) {
+    double sum = 0;
+    for (int i = 0; i < SIZE; i += 1) {
+        sum += a[i];
+    }
+    return sum /= SIZE;
+}
+
+int main(int argc, char **argv) {
+    int hh0 = 512;
+
+    double *input0 = malloc(SIZE*sizeof(double));
+    double *output0 = malloc(SIZE*sizeof(double));
+    double *normalization0 = malloc(SIZE*sizeof(double));
+    double *weights0 = malloc(SIZE*sizeof(double));
+
+    for (int i = 0; i < SIZE; i += 1) {
+        input0[i] = (double)rand() / (double)RAND_MAX;
+    }
+    
+    printf("input0: %f\n", mean(input0));
+    filter(input0, output0, normalization0, weights0, hh0);
+    printf("output0: %f\n", mean(output0));
+
+    return 0;
+}

@@ -141,7 +141,6 @@ weight(double *Gsum, double *w) {
     __m256d vecd;
     double d[VSIZE];
 
-    
     vecd = _mm256_load_pd(Gsum);
     vecd = _mm256_sqrt_pd(vecd);
     vecd = _mm256_sqrt_pd(vecd);

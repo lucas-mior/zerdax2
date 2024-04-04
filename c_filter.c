@@ -231,12 +231,14 @@ matrix_convolute(void) {
 }
 
 #define SIZE 262144
-static double mean(double *a) {
-    double sum = 0;
+static long hash(double *array) {
+    long hash = 5381;
     for (int i = 0; i < SIZE; i += 1) {
-        sum += a[i];
+        long c;
+        memcpy(&c, &array[i], sizeof (c));
+        hash = ((hash << 5) + hash) + c;
     }
-    return sum /= SIZE;
+    return hash;
 }
 
 int main(int argc, char **argv) {
@@ -254,9 +256,9 @@ int main(int argc, char **argv) {
         input0[i] = (double)rand() / (double)RAND_MAX;
     }
     
-    printf("input0: %f\n", mean(input0));
+    printf("input0: %ld\n", hash(input0));
     filter(input0, output0, normalization0, weights0, hh0);
-    printf("output0: %f\n", mean(output0));
+    printf("output0: %ld\n", hash(output0));
 
     return 0;
 }

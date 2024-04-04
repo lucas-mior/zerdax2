@@ -12,6 +12,9 @@
 #include <immintrin.h>
 #include "c_declarations.h"
 
+/* #define THREADS sysconf(_SC_NPROCESSORS_ONLN) */
+#define THREADS 16
+
 typedef int32_t int32;
 typedef uint32_t uint32;
 
@@ -59,7 +62,7 @@ typedef struct Slice {
 
 void
 matrix_weights(void) {
-    long number_threads = sysconf(_SC_NPROCESSORS_ONLN);
+    long number_threads = THREADS;
     uint32 nthreads;
     uint32 range;
     thrd_t *threads;
@@ -238,6 +241,11 @@ static long hash(double *array) {
     return hash;
 }
 
+static double randd(void) {
+    ulong r53 = ((ulong) rand() << 21) ^ ((ulong) rand() >> 2);
+    return (double) r53 / 9007199254740991.0; // 2^53 - 1
+}
+
 int main(int argc, char **argv) {
     int hh0 = 512;
 
@@ -250,7 +258,7 @@ int main(int argc, char **argv) {
     (void) argv;
 
     for (int i = 0; i < SIZE; i += 1) {
-        input0[i] = (double)rand() / (double)RAND_MAX;
+        input0[i] = randd();
     }
     
     printf("input0: %ld\n", hash(input0));

@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
         long diffsec = t1.tv_sec - t0.tv_sec;
         long diffnsec = t1.tv_nsec - t0.tv_nsec;
         double time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
-        printf("time elapsed for %d: %f\n", IMAGE_SIZE, time_elapsed);
+        printf("time elapsed for %dx%d: %f\n", WW0, HH0, time_elapsed);
     }
 
     {

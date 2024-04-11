@@ -23,7 +23,6 @@ def lfilter():
     func.argtypes = [ndpointer(ct.c_float, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_float, flags="C_CONTIGUOUS"),
                      ndpointer(ct.c_float, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_float, flags="C_CONTIGUOUS"),
                      ct.c_size_t]
     return func
 

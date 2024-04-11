@@ -226,12 +226,11 @@ def find_edges(image):
     log.info("filtering image...")
     f = np.array(image, dtype=np.single)
     weights = np.empty(image.shape, dtype=np.single)
-    normalization = np.empty(image.shape, dtype=np.single)
     g = np.empty(image.shape, dtype=np.single)
 
-    lfilter(f, g, weights, normalization, f.shape[0])
-    lfilter(g, f, weights, normalization, f.shape[0])
-    lfilter(f, g, weights, normalization, f.shape[0])
+    lfilter(f, g, weights, f.shape[0])
+    lfilter(g, f, weights, f.shape[0])
+    lfilter(f, g, weights, f.shape[0])
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

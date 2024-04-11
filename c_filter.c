@@ -23,29 +23,25 @@ static const int32 WW = WW0;
 
 static floaty *restrict input;
 static floaty *restrict weights;
-static floaty *restrict normalization;
 static floaty *restrict output;
 static int32 hh;
 static uint32 matrix_size;
 static long number_threads = 0;
 
 void filter(floaty *restrict, floaty *restrict,
-            floaty *restrict, floaty *restrict,
-            int32 const);
+            floaty *restrict, int32 const);
 static void matrix_weights(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
-       floaty *restrict normalization0, floaty *restrict weights0,
-       int32 const hh0) {
+       floaty *restrict weights0, int32 const hh0) {
 
     number_threads = sysconf(_SC_NPROCESSORS_ONLN);
 
     input = input0;
     weights = weights0;
-    normalization = normalization0;
     output = output0;
     hh = hh0;
     matrix_size = (uint32) WW * (uint32) hh;
@@ -176,7 +172,6 @@ int main(int argc, char **argv) {
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
-    floaty *normalization0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *weights0 = malloc(IMAGE_SIZE*sizeof(floaty));
 
     struct timespec t0, t1;
@@ -191,7 +186,7 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t0);
     
     for (int i = 0; i < nfilters; i += 1) {
-        filter(input0, output0, normalization0, weights0, hh0);
+        filter(input0, output0, weights0, hh0);
     }
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %ld\n", hash(output0));
@@ -223,7 +218,6 @@ int main(int argc, char **argv) {
     }
     free(input0);
     free(output0);
-    free(normalization0);
     free(weights0);
 
     return 0;

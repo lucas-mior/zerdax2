@@ -13,9 +13,6 @@
 #include <unistd.h>
 #include "c_declarations.h"
 
-/* #define THREADS sysconf(_SC_NPROCESSORS_ONLN) */
-#define THREADS 16
-#define VSIZE 4
 #define WW0 512
 
 typedef int32_t int32;
@@ -30,6 +27,7 @@ static float_type *restrict normalization;
 static float_type *restrict output;
 static int32 hh;
 static uint32 matrix_size;
+static long number_threads = 0;
 
 void filter(float_type *restrict, float_type *restrict,
             float_type *restrict, float_type *restrict,
@@ -44,6 +42,8 @@ void
 filter(float_type *restrict input0, float_type *restrict output0,
        float_type *restrict normalization0, float_type *restrict weights0,
        int32 const hh0) {
+
+    number_threads = sysconf(_SC_NPROCESSORS_ONLN);
 
     input = input0;
     weights = weights0;
@@ -65,7 +65,6 @@ typedef struct Slice {
 
 void
 matrix_weights(void) {
-    long number_threads = THREADS;
     uint32 nthreads;
     uint32 range;
     thrd_t *threads;

@@ -133,18 +133,11 @@ matrix_normalization(void) {
     memset(normalization, 0, matrix_size * sizeof (*normalization));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
-            __m256d vecn, vec1;
-            double n[VSIZE] = {0};
-            vecn = _mm256_load_pd(n);
-
             for (int32 i = -1; i <= +1; i += 1) {
-                double w[4];
-                memcpy(w, &weights[WW*(y+i) + x-1], sizeof (w));
-                vec1 = _mm256_load_pd(w);
-                vecn = _mm256_add_pd(vecn, vec1);
+                for (int32 j = -1; j <= +1; j += 1) {
+                    normalization[WW*y + x] += weights[WW*(y+i) + x+j];
+                }
             }
-            _mm256_store_pd(n, vecn);
-            normalization[WW*y + x] = n[0] + n[1] + n[2];
         }
     }
     return;
@@ -155,40 +148,12 @@ matrix_convolute(void) {
     memset(output, 0, matrix_size * sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
-            __m256d veco, vecw, veci, vecm;
-            double o[VSIZE] = {0};
-            veco = _mm256_load_pd(o);
-
             for (int32 i = -1; i <= +1; i += 1) {
-                double weight4[4];
-                double input4[4];
-
-                memcpy(weight4, &weights[WW*(y+i) + x-1], sizeof(weight4));
-                memcpy(input4, &input[WW*(y+i) + x-1], sizeof(input4));
-
-                vecw = _mm256_load_pd(weight4);
-                veci = _mm256_load_pd(input4);
-                vecm = _mm256_mul_pd(vecw, veci);
-                veco = _mm256_add_pd(veco, vecm);
+                for (int32 j = -1; j <= +1; j += 1) {
+                    output[WW*y + x] += weights[WW*(y+i) + x+j]*input[WW*(y+i) + x+j];
+                }
             }
-            _mm256_store_pd(o, veco);
-            output[WW*y + x] = o[0] + o[1] + o[2];
-        }
-    }
-    for (int32 y = 1; y < hh - 1; y += 1) {
-        for (int32 x = 1; x < WW - 1; x += VSIZE) {
-            __m256d veco, vecn;
-            double n[VSIZE];
-            double o[VSIZE];
-            memcpy(n, &normalization[WW*y + x], sizeof (n));
-            memcpy(o, &output[WW*y + x], sizeof (n));
-
-            vecn = _mm256_load_pd(n);
-            veco = _mm256_load_pd(o);
-            veco = _mm256_div_pd(veco, vecn);
-
-            _mm256_store_pd(o, veco);
-            memcpy(&output[WW*y + x], o, sizeof (o));
+            output[WW*y + x] /= normalization[WW*y + x];
         }
     }
     for (uint32 x = 0; x < (matrix_size - 1); x += WW)

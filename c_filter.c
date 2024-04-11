@@ -107,7 +107,7 @@ weights_slice(void *arg) {
     Slice *slice = arg;
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
-        for (uint32 x = 1; x < WW - 1; x += VSIZE) {
+        for (uint32 x = 1; x < WW - 1; x += 1) {
             weights[WW*y + x] = weight(x, y);
         }
     }

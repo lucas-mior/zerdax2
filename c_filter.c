@@ -14,6 +14,7 @@
 #include "c_declarations.h"
 
 #define WW0 512
+#define MAX_THREADS 8
 
 typedef int32_t int32;
 typedef uint32_t uint32;
@@ -60,11 +61,11 @@ void
 matrix_weights(void) {
     uint32 nthreads;
     uint32 range;
-    thrd_t *threads;
-    Slice *slices;
+    thrd_t threads[MAX_THREADS];
+    Slice slices[MAX_THREADS];
 
-    if (number_threads > 8) {
-        nthreads = 8;
+    if (number_threads > MAX_THREADS) {
+        nthreads = MAX_THREADS;
     } else if (number_threads < 1) {
         nthreads = 1;
     } else {
@@ -72,8 +73,6 @@ matrix_weights(void) {
     }
 
     range = (uint32) (hh - 2) / nthreads;
-    threads = util_malloc(nthreads * sizeof (*threads));
-    slices = util_malloc(nthreads * sizeof (*slices));
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     for (uint32 i = 0; i < nthreads; i += 1) {
@@ -90,8 +89,6 @@ matrix_weights(void) {
     for (uint32 i = 0; i < nthreads; i += 1) {
         thrd_join(threads[i], NULL);
     }
-    free(threads);
-    free(slices);
     return;
 }
 

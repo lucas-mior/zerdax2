@@ -36,7 +36,7 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline float_type weight(uint32 x, uint32 y);
+static inline float_type weight(uint32, uint32);
 
 void
 filter(float_type *restrict input0, float_type *restrict output0,

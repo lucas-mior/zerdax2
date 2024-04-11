@@ -172,6 +172,7 @@ static floaty randd(void) {
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
+    int nfilters = 1000;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
@@ -188,7 +189,8 @@ int main(int argc, char **argv) {
 
     printf("input0: %ld\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
-    for (int i = 0; i < 1000; i += 1) {
+    
+    for (int i = 0; i < nfilters; i += 1) {
         filter(input0, output0, normalization0, weights0, hh0);
     }
     clock_gettime(CLOCK_REALTIME, &t1);
@@ -198,7 +200,8 @@ int main(int argc, char **argv) {
         long diffsec = t1.tv_sec - t0.tv_sec;
         long diffnsec = t1.tv_nsec - t0.tv_nsec;
         floaty time_elapsed = (floaty) diffsec + (floaty) diffnsec/1.0e9f;
-        printf("time elapsed for %dx%d: %f\n", WW0, HH0, time_elapsed);
+        printf("time elapsed for %dx%d: %f [%f / filter]\n",
+                WW0, HH0, time_elapsed, time_elapsed / nfilters);
     }
 
     {

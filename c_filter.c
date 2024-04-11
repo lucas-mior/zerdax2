@@ -20,28 +20,29 @@
 
 typedef int32_t int32;
 typedef uint32_t uint32;
+typedef float float_type;
 
 static const int32 WW = WW0;
 
-static double *restrict input;
-static double *restrict weights;
-static double *restrict normalization;
-static double *restrict output;
+static float_type *restrict input;
+static float_type *restrict weights;
+static float_type *restrict normalization;
+static float_type *restrict output;
 static int32 hh;
 static uint32 matrix_size;
 
-void filter(double *restrict, double *restrict,
-            double *restrict, double *restrict,
+void filter(float_type *restrict, float_type *restrict,
+            float_type *restrict, float_type *restrict,
             int32 const);
 static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline double weight(uint32 x, uint32 y);
+static inline float_type weight(uint32 x, uint32 y);
 
 void
-filter(double *restrict input0, double *restrict output0,
-       double *restrict normalization0, double *restrict weights0,
+filter(float_type *restrict input0, float_type *restrict output0,
+       float_type *restrict normalization0, float_type *restrict weights0,
        int32 const hh0) {
 
     input = input0;
@@ -115,16 +116,16 @@ weights_slice(void *arg) {
     thrd_exit(0);
 }
 
-double
+float_type
 weight(uint32 x, uint32 y) {
-    double Gx, Gy;
-    double d, w;
+    float_type Gx, Gy;
+    float_type d, w;
 
     Gx = input[WW*y + x+1] - input[WW*y + x-1];
     Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-    d = sqrt(Gx*Gx + Gy*Gy);
-    w = exp(-sqrt(d));
+    d = sqrtf(Gx*Gx + Gy*Gy);
+    w = expf(-sqrtf(d));
     return w;
 }
 
@@ -175,7 +176,7 @@ matrix_convolute(void) {
 #if TESTING_THIS_FILE
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0
-static long hash(double *array) {
+static long hash(float_type *array) {
     long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         long c;
@@ -185,18 +186,18 @@ static long hash(double *array) {
     return hash;
 }
 
-static double randd(void) {
-    ulong r53 = ((ulong) rand() << 21) ^ ((ulong) rand() >> 2);
-    return (double) r53 / 9007199254740991.0; // 2^53 - 1
+static float_type randd(void) {
+    uint r53 = ((uint) rand() << 10) ^ ((uint) rand() >> 1);
+    return (float_type) r53 / 9007199.0f; // 2^53 - 1
 }
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
 
-    double *input0 = malloc(IMAGE_SIZE*sizeof(double));
-    double *output0 = malloc(IMAGE_SIZE*sizeof(double));
-    double *normalization0 = malloc(IMAGE_SIZE*sizeof(double));
-    double *weights0 = malloc(IMAGE_SIZE*sizeof(double));
+    float_type *input0 = malloc(IMAGE_SIZE*sizeof(float_type));
+    float_type *output0 = malloc(IMAGE_SIZE*sizeof(float_type));
+    float_type *normalization0 = malloc(IMAGE_SIZE*sizeof(float_type));
+    float_type *weights0 = malloc(IMAGE_SIZE*sizeof(float_type));
 
     struct timespec t0, t1;
     (void) argc;
@@ -219,7 +220,7 @@ int main(int argc, char **argv) {
     {
         long diffsec = t1.tv_sec - t0.tv_sec;
         long diffnsec = t1.tv_nsec - t0.tv_nsec;
-        double time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
+        float_type time_elapsed = (float_type) diffsec + (float_type) diffnsec/1.0e9f;
         printf("time elapsed for %dx%d: %f\n", WW0, HH0, time_elapsed);
     }
 

@@ -117,13 +117,20 @@ weights_slice(void *arg) {
 
 float_type
 weight(uint32 x, uint32 y) {
-    float_type Gx, Gy;
     float_type d, w;
 
-    Gx = input[WW*y + x+1] - input[WW*y + x-1];
-    Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+    float_type G0[] = {input[WW*y + x+1], input[WW*(y+1) + x], 0, 0};
+    float_type G1[] = {input[WW*y + x-1], input[WW*(y-1) + x], 0, 0};
 
-    d = sqrtf(Gx*Gx + Gy*Gy);
+    __m128 vec0 = _mm_load_ps(G0);
+    __m128 vec1 = _mm_load_ps(G1);
+    __m128 vecdiff = _mm_sub_ps(vec0, vec1);
+    __m128 vecgrad = _mm_mul_ps(vecdiff, vecdiff);
+
+    float_type Gsq[4];
+    _mm_store_ps(Gsq, vecgrad);
+
+    d = sqrtf(Gsq[0] + Gsq[1]);
     w = expf(-sqrtf(d));
     return w;
 }

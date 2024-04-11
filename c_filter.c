@@ -209,11 +209,9 @@ int main(int argc, char **argv) {
 
     printf("input0: %ld\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
-    filter(input0, output0, normalization0, weights0, hh0);
-    filter(input0, output0, normalization0, weights0, hh0);
-    filter(input0, output0, normalization0, weights0, hh0);
-    filter(input0, output0, normalization0, weights0, hh0);
-    filter(input0, output0, normalization0, weights0, hh0);
+    for (int i = 0; i < 1000; i += 1) {
+        filter(input0, output0, normalization0, weights0, hh0);
+    }
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %ld\n", hash(output0));
 

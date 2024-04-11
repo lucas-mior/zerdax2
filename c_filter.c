@@ -36,7 +36,6 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline floaty weight(uint32, uint32);
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
@@ -108,24 +107,19 @@ weights_slice(void *arg) {
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
-            weights[WW*y + x] = weight(x, y);
+            floaty Gx, Gy;
+            floaty d, w;
+
+            Gx = input[WW*y + x+1] - input[WW*y + x-1];
+            Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+
+            d = sqrtf(Gx*Gx + Gy*Gy);
+            w = expf(-sqrtf(d));
+            weights[WW*y + x] = w;
         }
     }
 
     thrd_exit(0);
-}
-
-floaty
-weight(uint32 x, uint32 y) {
-    floaty Gx, Gy;
-    floaty d, w;
-
-    Gx = input[WW*y + x+1] - input[WW*y + x-1];
-    Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
-
-    d = sqrtf(Gx*Gx + Gy*Gy);
-    w = expf(-sqrtf(d));
-    return w;
 }
 
 void

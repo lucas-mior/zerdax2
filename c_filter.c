@@ -119,13 +119,31 @@ matrix_convolute(void) {
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
-            for (int32 i = -1; i <= +1; i += 1) {
-                for (int32 j = -1; j <= +1; j += 1) {
-                    floaty w = weights[WW*(y+i) + x+j];
-                    norm += w;
-                    output[WW*y + x] += w*input[WW*(y+i) + x+j];
-                }
-            }
+
+            floaty w00 = weights[WW*(y-1) + x-1];
+            floaty w01 = weights[WW*(y-1) + x-0];
+            floaty w02 = weights[WW*(y-1) + x+1];
+            floaty w10 = weights[WW*(y+0) + x-1];
+            floaty w11 = weights[WW*(y+0) + x-0];
+            floaty w12 = weights[WW*(y+0) + x+1];
+            floaty w20 = weights[WW*(y+1) + x-1];
+            floaty w21 = weights[WW*(y+1) + x-0];
+            floaty w22 = weights[WW*(y+1) + x+1];
+
+            norm = w00 + w01 + w02;
+            norm += w10 + w11 + w12;
+            norm += w20 + w21 + w22;
+
+            output[WW*y + x] += w00*input[WW*(y-1) + x-1];
+            output[WW*y + x] += w01*input[WW*(y-1) + x-0];
+            output[WW*y + x] += w02*input[WW*(y-1) + x+1];
+            output[WW*y + x] += w10*input[WW*(y+0) + x-1];
+            output[WW*y + x] += w11*input[WW*(y+0) + x-0];
+            output[WW*y + x] += w12*input[WW*(y+0) + x+1];
+            output[WW*y + x] += w20*input[WW*(y+1) + x-1];
+            output[WW*y + x] += w21*input[WW*(y+1) + x-0];
+            output[WW*y + x] += w22*input[WW*(y+1) + x+1];
+
             output[WW*y + x] /= norm;
         }
     }
@@ -165,7 +183,7 @@ static floaty randd(void) {
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
-    int nfilters = 1000;
+    int nfilters = 100;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));

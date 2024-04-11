@@ -18,7 +18,7 @@
 
 typedef int32_t int32;
 typedef uint32_t uint32;
-typedef double floaty;
+typedef float floaty;
 
 static const int32 WW = WW0;
 
@@ -104,8 +104,8 @@ weights_slice(void *arg) {
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-            d = sqrt(Gx*Gx + Gy*Gy);
-            w = exp(-sqrt(d));
+            d = sqrtf(Gx*Gx + Gy*Gy);
+            w = expf(-sqrtf(d));
             weights[WW*y + x] = w;
         }
     }

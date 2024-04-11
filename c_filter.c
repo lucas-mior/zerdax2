@@ -16,9 +16,7 @@
 /* #define THREADS sysconf(_SC_NPROCESSORS_ONLN) */
 #define THREADS 16
 #define VSIZE 4
-#define HH0 512
 #define WW0 512
-#define IMAGE_SIZE HH0*WW0
 
 typedef int32_t int32;
 typedef uint32_t uint32;
@@ -39,8 +37,7 @@ static void matrix_weights(void);
 static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
-static inline void weight(double *, double *);
-static inline double gradient_sum(uint32 x, uint32 y);
+static inline double weight(uint32 x, uint32 y);
 
 void
 filter(double *restrict input0, double *restrict output0,
@@ -111,13 +108,7 @@ weights_slice(void *arg) {
 
     for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += VSIZE) {
-            double Gsum[VSIZE];
-            double w[VSIZE];
-            for (uint32 i = 0; i < VSIZE; i += 1) {
-                Gsum[i] = gradient_sum(x+i, y);
-            }
-            weight(Gsum, w);
-            memcpy(&weights[WW*y + x], w, sizeof (w));
+            weights[WW*y + x] = weight(x, y);
         }
     }
 
@@ -125,38 +116,16 @@ weights_slice(void *arg) {
 }
 
 double
-gradient_sum(uint32 x, uint32 y) {
-    double G[2];
+weight(uint32 x, uint32 y) {
+    double Gx, Gy;
+    double d, w;
 
-    double i0[] = {input[WW*y + x+1], input[WW*(y+1) + x]};
-    double i1[] = {input[WW*y + x-1], input[WW*(y-1) + x]};
+    Gx = input[WW*y + x+1] - input[WW*y + x-1];
+    Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-    __m128d vec0, vec1, vecdiff, vecgrad;
-
-    vec0 = _mm_load_pd(i0);
-    vec1 = _mm_load_pd(i1);
-    vecdiff = _mm_sub_pd(vec0, vec1);
-    vecgrad = _mm_mul_pd(vecdiff, vecdiff);
-
-    _mm_store_pd(G, vecgrad);
-
-    return G[0] + G[1];
-}
-
-void
-weight(double *Gsum, double *w) {
-    __m256d vecd;
-    double d[VSIZE];
-
-    vecd = _mm256_load_pd(Gsum);
-    vecd = _mm256_sqrt_pd(vecd);
-    vecd = _mm256_sqrt_pd(vecd);
-    _mm256_store_pd(d, vecd);
-
-    for (int i = 0; i < VSIZE; i += 1) {
-        w[i] = exp(-d[i]);
-    }
-    return;
+    d = sqrt(Gx*Gx + Gy*Gy);
+    w = exp(-sqrt(d));
+    return w;
 }
 
 void
@@ -239,6 +208,8 @@ matrix_convolute(void) {
 #endif
 
 #if TESTING_THIS_FILE
+#define HH0 512
+#define IMAGE_SIZE HH0*WW0
 static long hash(double *array) {
     long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {

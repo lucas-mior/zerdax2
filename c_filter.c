@@ -234,6 +234,11 @@ matrix_convolute(void) {
     return;
 }
 
+#ifndef TESTING_THIS_FILE
+#define TESTING_THIS_FILE 0
+#endif
+
+#if TESTING_THIS_FILE
 static long hash(double *array) {
     long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
@@ -302,3 +307,4 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+#endif

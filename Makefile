@@ -11,7 +11,7 @@ libzerdax.so: $(SRC) Makefile
 	$(CC) $(CFLAGS) -shared -o $(OBJ) -fPIC -lm $(SRC)
 
 cfilter: $(SRC) Makefile
-	$(CC) $(CFLAGS) -o cfilter -fPIC -lm $(SRC)
+	$(CC) $(CFLAGS) -o cfilter -fPIC -lm $(SRC) -DTESTING_THIS_FILE=1
 
 clean:
 	rm $(OBJ)

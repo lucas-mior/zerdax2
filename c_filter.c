@@ -33,7 +33,6 @@ void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, floaty *restrict,
             int32 const);
 static void matrix_weights(void);
-static void matrix_normalization(void);
 static void matrix_convolute(void);
 static int weights_slice(void *);
 
@@ -52,7 +51,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
     matrix_size = (uint32) WW * (uint32) hh;
 
     matrix_weights();
-    matrix_normalization();
     matrix_convolute();
     return;
 }
@@ -123,31 +121,18 @@ weights_slice(void *arg) {
 }
 
 void
-matrix_normalization(void) {
-    memset(normalization, 0, matrix_size * sizeof (*normalization));
-    for (int32 y = 1; y < hh - 1; y += 1) {
-        for (int32 x = 1; x < WW - 1; x += 1) {
-            for (int32 i = -1; i <= +1; i += 1) {
-                for (int32 j = -1; j <= +1; j += 1) {
-                    normalization[WW*y + x] += weights[WW*(y+i) + x+j];
-                }
-            }
-        }
-    }
-    return;
-}
-
-void
 matrix_convolute(void) {
     memset(output, 0, matrix_size * sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
+            floaty norm = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
+                    norm += weights[WW*(y+i) + x+j];
                     output[WW*y + x] += weights[WW*(y+i) + x+j]*input[WW*(y+i) + x+j];
                 }
             }
-            output[WW*y + x] /= normalization[WW*y + x];
+            output[WW*y + x] /= norm;
         }
     }
     for (uint32 x = 0; x < (matrix_size - 1); x += WW)

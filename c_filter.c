@@ -72,7 +72,14 @@ work(void *arg) {
     number_ready += 1;
     mtx_unlock(&lock);
 
-    while (number_ready < NTHREADS);
+    struct timespec wait = {
+        .tv_sec = 0,
+        .tv_nsec = 100,
+    };
+
+    while (number_ready < NTHREADS) {
+        nanosleep(&wait, NULL);
+    }
 
     for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {

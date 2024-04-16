@@ -81,8 +81,9 @@ lines_bundle(int32 lines[][LINE_FIELDS],
                 number_bests += 1;
             }
         }
-        for (int j = 0; j < LINE_FIELDS; j += 1) {
+        for (int j = 0; j < LINE_FIELDS; j += 2) {
             best_line[j] /= number_bests;
+            best_line[j+1] /= number_bests;
         }
 
         memcpy(bundled[m], best_line, line_size);

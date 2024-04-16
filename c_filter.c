@@ -39,6 +39,9 @@ typedef struct Slice {
     uint32 id;
 } Slice;
 
+mtx_t lock;
+int number_ready;
+
 int
 work(void *arg) {
     Slice *slice = arg;
@@ -62,10 +65,16 @@ work(void *arg) {
 
     struct timespec time_wait = {
         .tv_sec = 0,
-        .tv_nsec = 100000,
+        .tv_nsec = 100,
     };
 
-    nanosleep(&time_wait, NULL);
+    mtx_lock(&lock);
+    number_ready += 1;
+    mtx_unlock(&lock);
+
+    while (number_ready < NTHREADS) {
+        nanosleep(&time_wait, NULL);
+    }
 
     for (int32 y = y0; y < (int32) y1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
@@ -100,6 +109,8 @@ filter(floaty *restrict input0, floaty *restrict output0,
     thrd_t threads[NTHREADS];
     Slice slices[NTHREADS];
     uint32 range = hh / NTHREADS;
+    number_ready = 0;
+    mtx_init(&lock, mtx_plain);
 
     for (uint32 i = 0; i < (NTHREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;

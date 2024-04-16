@@ -14,7 +14,7 @@ match uname:
         print(f"unsuported operating system: {uname}")
         exit(1)
 lib = ct.CDLL(library)
-floaty = ct.c_double
+floaty = ct.c_float
 
 
 def lfilter():

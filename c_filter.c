@@ -130,9 +130,8 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }
 
-    for (int i = 0; i < NTHREADS; i += 1) {
+    for (int i = 0; i < NTHREADS; i += 1)
         pthread_join(threads[i], NULL);
-    }
 
     for (int x = 0; x < (matrix_size - 1); x += WW)
         output[x] = output[x+1];
@@ -193,9 +192,9 @@ int main(int argc, char **argv) {
     printf("input0: %ld\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
     
-    for (int i = 0; i < nfilters; i += 1) {
+    for (int i = 0; i < nfilters; i += 1)
         filter(input0, output0, weights0, hh0);
-    }
+
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %ld\n", hash(output0));
 

@@ -6,9 +6,11 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <threads.h>
 #include <unistd.h>
 #include "c_declarations.h"
 
@@ -29,20 +31,17 @@ static uint32 matrix_size;
 void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32 const);
 
-void
-filter(floaty *restrict input0, floaty *restrict output0,
-       floaty *restrict weights0, int32 const hh0) {
+typedef struct Slice {
+    uint32 y0;
+    uint32 y1;
+} Slice;
 
-    input = input0;
-    weights = weights0;
-    output = output0;
-    hh = hh0;
-    matrix_size = (uint32) WW * (uint32) hh;
+int work(void *arg) {
+    Slice *slice = arg;
+    uint32 y0 = slice->y0;
+    uint32 y1 = slice->y1;
 
-    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    memset(output, 0, matrix_size * sizeof (*output));
-
-    for (uint32 y = 1; y < (uint32) hh; y += 1) {
+    for (uint32 y = y0; y < (uint32) y1 + 1; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;
@@ -56,7 +55,9 @@ filter(floaty *restrict input0, floaty *restrict output0,
         }
     }
 
-    for (int32 y = 1; y < hh - 1; y += 1) {
+    usleep(500);
+
+    for (int32 y = y0; y < (int32) y1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
             for (int32 i = -1; i <= +1; i += 1) {
@@ -69,6 +70,45 @@ filter(floaty *restrict input0, floaty *restrict output0,
             output[WW*y + x] /= norm;
         }
     }
+
+    thrd_exit(0);
+}
+
+void
+filter(floaty *restrict input0, floaty *restrict output0,
+       floaty *restrict weights0, int32 const hh0) {
+
+    input = input0;
+    weights = weights0;
+    output = output0;
+    hh = hh0;
+    matrix_size = (uint32) WW * (uint32) hh;
+
+    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
+    memset(output, 0, matrix_size * sizeof (*output));
+
+#define NUMBER_THREADS 8
+    uint32 range = hh / NUMBER_THREADS;
+    Slice slices[NUMBER_THREADS];
+    thrd_t threads[NUMBER_THREADS];
+
+    for (uint32 i = 0; i < (NUMBER_THREADS - 1); i += 1) {
+        slices[i].y0 = i*range + 1;
+        slices[i].y1 = (i + 1)*range + 1;
+
+        thrd_create(&threads[i], work, &slices[i]);
+    }
+    {
+        uint32 i = NUMBER_THREADS - 1;
+        slices[i].y0 = i*range + 1;
+        slices[i].y1 = hh - 1;
+
+        thrd_create(&threads[i], work, &slices[i]);
+    }
+
+    for (uint32 i = 0; i < NUMBER_THREADS; i += 1)
+        thrd_join(threads[i], NULL);
+
     for (uint32 x = 0; x < (matrix_size - 1); x += WW)
         output[x] = output[x+1];
     for (uint32 y = 0; y < WW-1; y += 1)

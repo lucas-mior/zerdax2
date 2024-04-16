@@ -43,7 +43,6 @@ void filter(floaty *restrict, floaty *restrict,
 typedef struct Slice {
     int y0;
     int y1;
-    int id;
 } Slice;
 
 static mtx_t lock;
@@ -54,7 +53,6 @@ work(void *arg) {
     Slice *slice = arg;
     int y0 = slice->y0;
     int y1 = slice->y1;
-    int id = slice->id;
 
     for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
@@ -90,27 +88,6 @@ work(void *arg) {
         }
     }
 
-    switch (id) {
-    case 4:
-        for (int x = 0; x < (matrix_size - 1); x += WW)
-            output[x] = output[x+1];
-        break;
-    case 5:
-        for (int y = 0; y < (WW - 1); y += 1)
-            output[y] = output[y+WW];
-        break;
-    case 6:
-        for (int x = WW - 1; x < (matrix_size - 1); x += WW)
-            output[x] = output[x-1];
-        break;
-    case 7:
-        for (int y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
-            output[y] = output[y-WW];
-        break;
-    default:
-        break;
-    }
-
     thrd_exit(0);
 }
 
@@ -135,14 +112,12 @@ filter(floaty *restrict input0, floaty *restrict output0,
     for (int i = 0; i < (NTHREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
-        slices[i].id = i;
 
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }{
         int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
-        slices[i].id = i;
 
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }
@@ -150,6 +125,15 @@ filter(floaty *restrict input0, floaty *restrict output0,
     for (int i = 0; i < NTHREADS; i += 1) {
         thrd_join(threads[i], NULL);
     }
+
+    for (int x = 0; x < (matrix_size - 1); x += WW)
+        output[x] = output[x+1];
+    for (int y = 0; y < (WW - 1); y += 1)
+        output[y] = output[y+WW];
+    for (int x = WW - 1; x < (matrix_size - 1); x += WW)
+        output[x] = output[x-1];
+    for (int y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
+        output[y] = output[y-WW];
 
     return;
 }

@@ -28,8 +28,6 @@ static uint32 matrix_size;
 
 void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32 const);
-static void matrix_weights(void);
-static void matrix_convolute(void);
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,

@@ -1,6 +1,7 @@
-CC = clang
+CC = gcc
 CFLAGS = -g -O3 -fPIC -flto
-CFLAGS += -Weverything -Wall -Wextra -Wno-unsafe-buffer-usage 
+CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage 
+# CFLAGS += -Weverything
 LDFLAGS = -lm
 OBJ = libzerdax.so
 SRC = c_filter.c c_segments.c c_lines_bundle.c c_util.c

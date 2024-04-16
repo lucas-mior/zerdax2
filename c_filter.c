@@ -103,6 +103,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     int range = hh / NTHREADS;
     for (int i = 0; i < NTHREADS; i += 1) {
         pthread_mutex_init(&mutexes[i], NULL);
+        pthread_mutex_lock(&mutexes[i]);
     }
 
     input = input0;
@@ -119,16 +120,12 @@ filter(floaty *restrict input0, floaty *restrict output0,
         slices[i].y1 = (i+1)*range + 1;
         slices[i].id = i;
 
-        pthread_mutex_lock(&mutexes[i]);
-
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
         int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
         slices[i].id = i;
-
-        pthread_mutex_lock(&mutexes[i]);
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }

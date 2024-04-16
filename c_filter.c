@@ -69,13 +69,13 @@ work(void *arg) {
 
     pthread_mutex_unlock(&mutexes[id]);
 
-    if (id > 0) {
-        pthread_mutex_lock(&mutexes[id - 1]);
-        pthread_mutex_unlock(&mutexes[id - 1]);
-    }
     if (id < (NTHREADS - 1)) {
         pthread_mutex_lock(&mutexes[id + 1]);
         pthread_mutex_unlock(&mutexes[id + 1]);
+    }
+    if (id > 0) {
+        pthread_mutex_lock(&mutexes[id - 1]);
+        pthread_mutex_unlock(&mutexes[id - 1]);
     }
 
     for (int y = y0; y < y1; y += 1) {

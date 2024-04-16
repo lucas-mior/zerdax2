@@ -2,15 +2,14 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
-#include <immintrin.h>
-#include <pthread.h>
-#include <time.h>
 #include <math.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+
 #include "c_declarations.h"
 
 #define WW0 512

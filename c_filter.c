@@ -52,30 +52,34 @@ filter(floaty *restrict input0, floaty *restrict output0,
     return;
 }
 
-static double
-weight(uint32 x, uint32 y) {
-    floaty Gx, Gy;
-    floaty d, w;
-
-    Gx = input[WW*y + x+1] - input[WW*y + x-1];
-    Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
-
-    d = sqrtf(Gx*Gx + Gy*Gy);
-    w = expf(-sqrtf(d));
-    return w;
-}
-
 void
 matrix_weights(void) {
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, matrix_size * sizeof (*output));
 
     for (uint32 x = 1; x < WW - 1; x += 1) {
-        weights[WW*1 + x] = weight(x, 1);
+        uint32 y = 1;
+        floaty Gx, Gy;
+        floaty d, w;
+
+        Gx = input[WW*y + x+1] - input[WW*y + x-1];
+        Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+
+        d = sqrtf(Gx*Gx + Gy*Gy);
+        w = expf(-sqrtf(d));
+        weights[WW*y + x] = w;
     }
     for (uint32 y = 2; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
-            weights[WW*y + x] = weight(x, y);
+            floaty Gx, Gy;
+            floaty d, w;
+
+            Gx = input[WW*y + x+1] - input[WW*y + x-1];
+            Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+
+            d = sqrtf(Gx*Gx + Gy*Gy);
+            w = expf(-sqrtf(d));
+            weights[WW*y + x] = w;
         }
         y -= 1;
         for (uint32 x = 1; x < WW - 1; x += 1) {

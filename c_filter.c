@@ -17,7 +17,9 @@
 #define WW0 512
 #define NTHREADS 8
 
-typedef float floaty;
+typedef double floaty;
+#define SQRT sqrt
+#define EXP exp
 
 static const int WW = WW0;
 
@@ -52,8 +54,8 @@ work(void *arg) {
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-            d = sqrtf(Gx*Gx + Gy*Gy);
-            w = expf(-sqrtf(d));
+            d = SQRT(Gx*Gx + Gy*Gy);
+            w = EXP(-SQRT(d));
             weights[WW*y + x] = w;
         }
     }

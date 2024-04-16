@@ -74,7 +74,7 @@ work(void *arg) {
 
     struct timespec wait = {
         .tv_sec = 0,
-        .tv_nsec = 100,
+        .tv_nsec = 1000,
     };
 
     while (number_ready < NTHREADS) {
@@ -171,7 +171,7 @@ randd(void) {
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
-    int nfilters = 1000;
+    int nfilters = 10000;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
                 WW0, HH0, time_elapsed, time_elapsed / nfilters);
     }
 
-    {
+    if (false) {
         uint8 *gray = malloc(IMAGE_SIZE*sizeof(*gray));
         FILE *image1 = fopen("input.data", "w");
         FILE *image2 = fopen("output.data", "w");

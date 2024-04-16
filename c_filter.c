@@ -75,13 +75,16 @@ matrix_weights(void) {
     range = (uint32) (hh - 2) / nthreads;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    for (uint32 i = 0; i < nthreads; i += 1) {
+    for (uint32 i = 0; i < (nthreads - 1); i += 1) {
         slices[i].start_y = i*range + 1;
-        if (i == nthreads - 1) {
-            slices[i].end_y = (uint32) hh - 1;
-        } else {
-            slices[i].end_y = (uint32) (i + 1)*range + 1;
-        }
+        slices[i].end_y = (uint32) (i + 1)*range + 1;
+
+        thrd_create(&threads[i], weights_slice, (void *) &slices[i]);
+    }
+    {
+        uint32 i = nthreads - 1;
+        slices[i].start_y = i*range + 1;
+        slices[i].end_y = (uint32) hh - 1;
 
         thrd_create(&threads[i], weights_slice, (void *) &slices[i]);
     }

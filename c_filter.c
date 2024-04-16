@@ -41,13 +41,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
     hh = hh0;
     matrix_size = (uint32) WW * (uint32) hh;
 
-    matrix_weights();
-    matrix_convolute();
-    return;
-}
-
-void
-matrix_weights(void) {
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     for (uint32 y = 1; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
@@ -62,11 +55,7 @@ matrix_weights(void) {
             weights[WW*y + x] = w;
         }
     }
-    return;
-}
 
-void
-matrix_convolute(void) {
     memset(output, 0, matrix_size * sizeof (*output));
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {

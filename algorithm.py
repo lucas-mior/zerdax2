@@ -10,7 +10,7 @@ import intersect
 import objects
 import fen
 import draw
-from c_load import lfilter
+import c_load
 # import shutil
 
 basename = ""
@@ -224,13 +224,13 @@ def create_canny(image):
 
 def find_edges(image):
     log.info("filtering image...")
-    f = np.array(image, dtype=np.double)
-    weights = np.empty(image.shape, dtype=np.double)
-    g = np.empty(image.shape, dtype=np.double)
+    f = np.array(image, dtype=c_load.floaty)
+    weights = np.empty(image.shape, dtype=c_load.floaty)
+    g = np.empty(image.shape, dtype=c_load.floaty)
 
-    lfilter(f, g, weights, f.shape[0])
-    lfilter(g, f, weights, f.shape[0])
-    lfilter(f, g, weights, f.shape[0])
+    c_load.lfilter(f, g, weights, f.shape[0])
+    c_load.lfilter(g, f, weights, f.shape[0])
+    c_load.lfilter(f, g, weights, f.shape[0])
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

@@ -14,15 +14,16 @@ match uname:
         print(f"unsuported operating system: {uname}")
         exit(1)
 lib = ct.CDLL(library)
+floaty = ct.c_double
 
 
 def lfilter():
     func = lib.filter
 
     func.restype = None
-    func.argtypes = [ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_double, flags="C_CONTIGUOUS"),
+    func.argtypes = [ndpointer(floaty, flags="C_CONTIGUOUS"),
+                     ndpointer(floaty, flags="C_CONTIGUOUS"),
+                     ndpointer(floaty, flags="C_CONTIGUOUS"),
                      ct.c_size_t]
     return func
 

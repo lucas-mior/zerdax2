@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -O3 -fPIC -flto
+CFLAGS = -g -O3 -march=native -fPIC -flto
 CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage
 # CFLAGS += -Weverything
 LDFLAGS = -lm -lpthread

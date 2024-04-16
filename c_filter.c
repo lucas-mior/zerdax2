@@ -4,7 +4,7 @@
 
 #include <immintrin.h>
 #include <threads.h>
-#include <assert.h>
+#include <time.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -59,7 +59,12 @@ work(void *arg) {
         }
     }
 
-    usleep(100);
+    struct timespec time_wait = {
+        .tv_sec = 0,
+        .tv_nsec = 100000,
+    };
+
+    nanosleep(&time_wait, NULL);
 
     for (int32 y = y0; y < (int32) y1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {

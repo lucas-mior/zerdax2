@@ -7,7 +7,7 @@
 
 #include "c_declarations.h"
 
-static int32 minimum(int32 const [4]);
+static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
 static int32 distance_point_segment(int32 const, int32 const, int32 *restrict);
 

@@ -41,15 +41,17 @@ void filter(floaty *restrict, floaty *restrict,
 typedef struct Slice {
     int y0;
     int y1;
+    int id;
 } Slice;
 
-static pthread_barrier_t barrier;
+static pthread_mutex_t mutexes[NTHREADS];
 
 static void *
 work(void *arg) {
     Slice *slice = arg;
     int y0 = slice->y0;
     int y1 = slice->y1;
+    int id = slice->id;
 
     for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
@@ -65,7 +67,16 @@ work(void *arg) {
         }
     }
 
-    pthread_barrier_wait(&barrier);
+    pthread_mutex_unlock(&mutexes[id]);
+
+    if (id > 0) {
+        pthread_mutex_lock(&mutexes[id - 1]);
+        pthread_mutex_unlock(&mutexes[id - 1]);
+    }
+    if (id < (NTHREADS - 1)) {
+        pthread_mutex_lock(&mutexes[id + 1]);
+        pthread_mutex_unlock(&mutexes[id + 1]);
+    }
 
     for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
@@ -90,7 +101,9 @@ filter(floaty *restrict input0, floaty *restrict output0,
     pthread_t threads[NTHREADS];
     Slice slices[NTHREADS];
     int range = hh / NTHREADS;
-    pthread_barrier_init(&barrier, NULL, NTHREADS);
+    for (int i = 0; i < NTHREADS; i += 1) {
+        pthread_mutex_init(&mutexes[i], NULL);
+    }
 
     input = input0;
     weights = weights0;
@@ -104,12 +117,18 @@ filter(floaty *restrict input0, floaty *restrict output0,
     for (int i = 0; i < (NTHREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
+        slices[i].id = i;
+
+        pthread_mutex_lock(&mutexes[i]);
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
         int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
+        slices[i].id = i;
+
+        pthread_mutex_lock(&mutexes[i]);
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }

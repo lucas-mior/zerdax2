@@ -65,7 +65,7 @@ work(void *arg) {
 
     while (number_ready < NTHREADS);
 
-    for (int y = y0; y < (int) y1; y += 1) {
+    for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
             for (int i = -1; i <= +1; i += 1) {
@@ -95,7 +95,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     weights = weights0;
     output = output0;
     hh = hh0;
-    matrix_size = (int) WW * (int) hh;
+    matrix_size = WW * hh;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, (size_t) matrix_size * sizeof (*output));
@@ -119,11 +119,11 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     for (int x = 0; x < (matrix_size - 1); x += WW)
         output[x] = output[x+1];
-    for (int y = 0; y < WW-1; y += 1)
+    for (int y = 0; y < (WW - 1); y += 1)
         output[y] = output[y+WW];
-    for (int x = WW-1; x < (matrix_size - 1); x += WW)
+    for (int x = WW - 1; x < (matrix_size - 1); x += WW)
         output[x] = output[x-1];
-    for (int y = (int)(hh-1)*WW; y < (matrix_size - 1); y += 1)
+    for (int y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
         output[y] = output[y-WW];
 
     return;

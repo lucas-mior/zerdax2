@@ -2,6 +2,7 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
+#define _DEFAULT_SOURCE
 #include <immintrin.h>
 #include <threads.h>
 #include <time.h>

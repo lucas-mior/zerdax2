@@ -17,7 +17,7 @@
 #define WW0 512
 #define NTHREADS 8
 
-#define USE_DOUBLE 1
+#define USE_DOUBLE 0
 
 #if USE_DOUBLE
 typedef double floaty;
@@ -155,9 +155,11 @@ static long hash(floaty *array) {
     return hash;
 }
 
-static floaty randd(void) {
-    uint r53 = ((uint) rand() << 10) ^ ((uint) rand() >> 1);
-    return (floaty) r53 / 9007199.0f; // 2^53 - 1
+static inline floaty
+randd(void) {
+    long r;
+    while ((r = rand()) < 0);
+    return (floaty) (double) r;
 }
 
 int main(int argc, char **argv) {
@@ -172,8 +174,11 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
-    for (int i = 0; i < IMAGE_SIZE; i += 1) {
-        input0[i] = randd();
+    for (int i = 0; i < IMAGE_SIZE; i += 4) {
+        input0[i+0] = randd();
+        input0[i+1] = randd();
+        input0[i+2] = randd();
+        input0[i+3] = randd();
     }
 
     printf("input0: %ld\n", hash(input0));

@@ -57,8 +57,8 @@ matrix_weights(void) {
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, matrix_size * sizeof (*output));
 
-    uint32 y = 1;
     for (uint32 x = 1; x < WW - 1; x += 1) {
+        uint32 y = 1;
         floaty Gx, Gy;
         floaty d, w;
 
@@ -69,7 +69,7 @@ matrix_weights(void) {
         w = expf(-sqrtf(d));
         weights[WW*y + x] = w;
     }
-    for (y = 2; y < (uint32) hh; y += 1) {
+    for (uint32 y = 2; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;

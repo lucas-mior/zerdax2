@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g -O3 -fPIC -fopenmp
+CFLAGS = -g -O3 -fPIC -flto
 CFLAGS += -Weverything -Wall -Wextra -Wno-unsafe-buffer-usage 
 LDFLAGS = -lm
 OBJ = libzerdax.so

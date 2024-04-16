@@ -34,7 +34,6 @@ void filter(floaty *restrict, floaty *restrict,
 typedef struct Slice {
     int y0;
     int y1;
-    int id;
 } Slice;
 
 static mtx_t lock;
@@ -45,7 +44,6 @@ work(void *arg) {
     Slice *slice = arg;
     int y0 = slice->y0;
     int y1 = slice->y1;
-    int id = slice->id;
 
     for (int y = y0; y < (int) (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
@@ -100,19 +98,17 @@ filter(floaty *restrict input0, floaty *restrict output0,
     matrix_size = (int) WW * (int) hh;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    memset(output, 0, matrix_size * sizeof (*output));
+    memset(output, 0, (size_t) matrix_size * sizeof (*output));
 
     for (int i = 0; i < (NTHREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
-        slices[i].id = i;
 
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }{
         int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
-        slices[i].id = i;
 
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }
@@ -183,7 +179,7 @@ int main(int argc, char **argv) {
     {
         long diffsec = t1.tv_sec - t0.tv_sec;
         long diffnsec = t1.tv_nsec - t0.tv_nsec;
-        floaty time_elapsed = (floaty) diffsec + (floaty) diffnsec/1.0e9f;
+        double time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
         printf("time elapsed for %dx%d: %f [%f / filter]\n",
                 WW0, HH0, time_elapsed, time_elapsed / nfilters);
     }

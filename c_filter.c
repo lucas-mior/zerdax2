@@ -17,9 +17,17 @@
 #define WW0 512
 #define NTHREADS 8
 
+#define USE_DOUBLE 1
+
+#if USE_DOUBLE
 typedef double floaty;
 #define SQRT sqrt
 #define EXP exp
+#else
+typedef float floaty;
+#define SQRT sqrtf
+#define EXP expf
+#endif
 
 static const int WW = WW0;
 

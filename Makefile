@@ -1,7 +1,7 @@
-CC = gcc
-CFLAGS = -g -O3 -march=native -fPIC -flto
+CC = clang
+CFLAGS = -g -O3 -march=native -fPIC -flto -D_DEFAULT_SOURCE
 CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage
-# CFLAGS += -Weverything
+CFLAGS += -Weverything
 LDFLAGS = -lm -lpthread
 OBJ = libzerdax.so
 SRC = c_filter.c c_segments.c c_lines_bundle.c c_util.c

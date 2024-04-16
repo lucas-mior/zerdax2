@@ -2,7 +2,6 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
-#define _DEFAULT_SOURCE
 #include <immintrin.h>
 #include <pthread.h>
 #include <time.h>
@@ -159,6 +158,7 @@ randd(void) {
 int main(int argc, char **argv) {
     int hh0 = HH0;
     int nfilters = 2000;
+    bool save_results = false;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
                 WW0, HH0, time_elapsed, time_elapsed / nfilters);
     }
 
-    if (false) {
+    if (save_results) {
         uint8 *gray = malloc(IMAGE_SIZE*sizeof(*gray));
         FILE *image1 = fopen("input.data", "w");
         FILE *image2 = fopen("output.data", "w");

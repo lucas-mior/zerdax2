@@ -8,13 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
 #include <time.h>
 #include <unistd.h>
 #include "c_declarations.h"
 
 #define WW0 512
-#define MAX_THREADS 8
 
 typedef int32_t int32;
 typedef uint32_t uint32;
@@ -27,19 +25,15 @@ static floaty *restrict weights;
 static floaty *restrict output;
 static int32 hh;
 static uint32 matrix_size;
-static long number_threads = 0;
 
 void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32 const);
 static void matrix_weights(void);
 static void matrix_convolute(void);
-static int weights_slice(void *);
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int32 const hh0) {
-
-    number_threads = sysconf(_SC_NPROCESSORS_ONLN);
 
     input = input0;
     weights = weights0;
@@ -52,54 +46,10 @@ filter(floaty *restrict input0, floaty *restrict output0,
     return;
 }
 
-typedef struct Slice {
-    uint32 start_y;
-    uint32 end_y;
-} Slice;
-
 void
 matrix_weights(void) {
-    uint32 nthreads;
-    uint32 range;
-    thrd_t threads[MAX_THREADS];
-    Slice slices[MAX_THREADS];
-
-    if (number_threads > MAX_THREADS) {
-        nthreads = MAX_THREADS;
-    } else if (number_threads < 1) {
-        nthreads = 1;
-    } else {
-        nthreads = (uint32) number_threads;
-    }
-
-    range = (uint32) (hh - 2) / nthreads;
-
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    for (uint32 i = 0; i < (nthreads - 1); i += 1) {
-        slices[i].start_y = i*range + 1;
-        slices[i].end_y = (uint32) (i + 1)*range + 1;
-
-        thrd_create(&threads[i], weights_slice, (void *) &slices[i]);
-    }
-    {
-        uint32 i = nthreads - 1;
-        slices[i].start_y = i*range + 1;
-        slices[i].end_y = (uint32) hh - 1;
-
-        thrd_create(&threads[i], weights_slice, (void *) &slices[i]);
-    }
-
-    for (uint32 i = 0; i < nthreads; i += 1) {
-        thrd_join(threads[i], NULL);
-    }
-    return;
-}
-
-int
-weights_slice(void *arg) {
-    Slice *slice = arg;
-
-    for (uint32 y = slice->start_y; y < slice->end_y; y += 1) {
+    for (uint32 y = 1; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;
@@ -112,8 +62,7 @@ weights_slice(void *arg) {
             weights[WW*y + x] = w;
         }
     }
-
-    thrd_exit(0);
+    return;
 }
 
 void

@@ -18,39 +18,37 @@
 #define WW0 512
 #define NTHREADS 8
 
-typedef int32_t int32;
-typedef uint32_t uint32;
 typedef float floaty;
 
-static const int32 WW = WW0;
+static const int WW = WW0;
 
 static floaty *restrict input;
 static floaty *restrict weights;
 static floaty *restrict output;
-static int32 hh;
-static uint32 matrix_size;
+static int hh;
+static int matrix_size;
 
 void filter(floaty *restrict, floaty *restrict,
-            floaty *restrict, int32 const);
+            floaty *restrict, int const);
 
 typedef struct Slice {
-    uint32 y0;
-    uint32 y1;
-    uint32 id;
+    int y0;
+    int y1;
+    int id;
 } Slice;
 
-mtx_t lock;
-volatile int number_ready;
+static mtx_t lock;
+static volatile int number_ready;
 
-int
+static int
 work(void *arg) {
     Slice *slice = arg;
-    uint32 y0 = slice->y0;
-    uint32 y1 = slice->y1;
-    uint32 id = slice->id;
+    int y0 = slice->y0;
+    int y1 = slice->y1;
+    int id = slice->id;
 
-    for (uint32 y = y0; y < (uint32) (y1 + 1); y += 1) {
-        for (uint32 x = 1; x < WW - 1; x += 1) {
+    for (int y = y0; y < (int) (y1 + 1); y += 1) {
+        for (int x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;
 
@@ -69,11 +67,11 @@ work(void *arg) {
 
     while (number_ready < NTHREADS);
 
-    for (int32 y = y0; y < (int32) y1; y += 1) {
-        for (int32 x = 1; x < WW - 1; x += 1) {
+    for (int y = y0; y < (int) y1; y += 1) {
+        for (int x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
-            for (int32 i = -1; i <= +1; i += 1) {
-                for (int32 j = -1; j <= +1; j += 1) {
+            for (int i = -1; i <= +1; i += 1) {
+                for (int j = -1; j <= +1; j += 1) {
                     floaty w = weights[WW*(y+i) + x+j];
                     norm += w;
                     output[WW*y + x] += w*input[WW*(y+i) + x+j];
@@ -88,31 +86,30 @@ work(void *arg) {
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
-       floaty *restrict weights0, int32 const hh0) {
+       floaty *restrict weights0, int const hh0) {
+    thrd_t threads[NTHREADS];
+    Slice slices[NTHREADS];
+    int range = hh / NTHREADS;
+    number_ready = 0;
+    mtx_init(&lock, mtx_plain);
 
     input = input0;
     weights = weights0;
     output = output0;
     hh = hh0;
-    matrix_size = (uint32) WW * (uint32) hh;
+    matrix_size = (int) WW * (int) hh;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, matrix_size * sizeof (*output));
 
-    thrd_t threads[NTHREADS];
-    Slice slices[NTHREADS];
-    uint32 range = hh / NTHREADS;
-    number_ready = 0;
-    mtx_init(&lock, mtx_plain);
-
-    for (uint32 i = 0; i < (NTHREADS - 1); i += 1) {
+    for (int i = 0; i < (NTHREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
         slices[i].id = i;
 
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }{
-        uint32 i = NTHREADS - 1;
+        int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
         slices[i].id = i;
@@ -120,17 +117,17 @@ filter(floaty *restrict input0, floaty *restrict output0,
         thrd_create(&threads[i], work, (void *) &slices[i]);
     }
 
-    for (uint32 i = 0; i < NTHREADS; i += 1) {
+    for (int i = 0; i < NTHREADS; i += 1) {
         thrd_join(threads[i], NULL);
     }
 
-    for (uint32 x = 0; x < (matrix_size - 1); x += WW)
+    for (int x = 0; x < (matrix_size - 1); x += WW)
         output[x] = output[x+1];
-    for (uint32 y = 0; y < WW-1; y += 1)
+    for (int y = 0; y < WW-1; y += 1)
         output[y] = output[y+WW];
-    for (uint32 x = WW-1; x < (matrix_size - 1); x += WW)
+    for (int x = WW-1; x < (matrix_size - 1); x += WW)
         output[x] = output[x-1];
-    for (uint32 y = (uint32)(hh-1)*WW; y < (matrix_size - 1); y += 1)
+    for (int y = (int)(hh-1)*WW; y < (matrix_size - 1); y += 1)
         output[y] = output[y-WW];
 
     return;

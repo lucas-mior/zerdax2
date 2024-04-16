@@ -74,8 +74,9 @@ lines_bundle(int32 lines[][LINE_FIELDS],
         for (int i = 0; i < group->length; i += 1) {
             int32 *line = group->lines[i];
             if (group->diff[i] <= median_diff) {
-                for (int j = 0; j < LINE_FIELDS; j += 1) {
+                for (int j = 0; j < LINE_FIELDS; j += 2) {
                     best_line[j] += line[j];
+                    best_line[j+1] += line[j+1];
                 }
                 number_bests += 1;
             }

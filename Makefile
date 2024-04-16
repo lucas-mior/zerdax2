@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -O3 -fPIC -fopenmp
 CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage 
-LDFLAGS = -lm -fopenmp
+LDFLAGS = -lm
 OBJ = libzerdax.so
 SRC = c_filter.c c_segments.c c_lines_bundle.c c_util.c
 

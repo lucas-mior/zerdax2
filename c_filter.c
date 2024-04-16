@@ -29,10 +29,6 @@ static uint32 matrix_size;
 void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32 const);
 
-#include <omp.h>
-#define NT 4
-#define thrd_no omp_get_thread_num
-
 void
 filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int32 const hh0) {
@@ -46,7 +42,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, matrix_size * sizeof (*output));
 
-    #pragma omp parallel for num_threads(8)
     for (uint32 y = 1; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
@@ -61,7 +56,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
         }
     }
 
-    #pragma omp parallel for num_threads(8)
     for (int32 y = 1; y < hh - 1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;

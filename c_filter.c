@@ -4,7 +4,7 @@
 
 #define _DEFAULT_SOURCE
 #include <immintrin.h>
-#include <threads.h>
+#include <pthread.h>
 #include <time.h>
 #include <math.h>
 #include <stdio.h>
@@ -45,10 +45,9 @@ typedef struct Slice {
     int y1;
 } Slice;
 
-static mtx_t lock;
-static volatile int number_ready;
+static pthread_barrier_t barrier;
 
-static int
+static void *
 work(void *arg) {
     Slice *slice = arg;
     int y0 = slice->y0;
@@ -68,18 +67,7 @@ work(void *arg) {
         }
     }
 
-    mtx_lock(&lock);
-    number_ready += 1;
-    mtx_unlock(&lock);
-
-    struct timespec wait = {
-        .tv_sec = 0,
-        .tv_nsec = 1000,
-    };
-
-    while (number_ready < NTHREADS) {
-        nanosleep(&wait, NULL);
-    }
+    pthread_barrier_wait(&barrier);
 
     for (int y = y0; y < y1; y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
@@ -95,17 +83,16 @@ work(void *arg) {
         }
     }
 
-    thrd_exit(0);
+    pthread_exit(0);
 }
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int const hh0) {
-    thrd_t threads[NTHREADS];
+    pthread_t threads[NTHREADS];
     Slice slices[NTHREADS];
     int range = hh / NTHREADS;
-    number_ready = 0;
-    mtx_init(&lock, mtx_plain);
+    pthread_barrier_init(&barrier, NULL, NTHREADS);
 
     input = input0;
     weights = weights0;
@@ -120,17 +107,17 @@ filter(floaty *restrict input0, floaty *restrict output0,
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
 
-        thrd_create(&threads[i], work, (void *) &slices[i]);
+        pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
         int i = NTHREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
 
-        thrd_create(&threads[i], work, (void *) &slices[i]);
+        pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }
 
     for (int i = 0; i < NTHREADS; i += 1) {
-        thrd_join(threads[i], NULL);
+        pthread_join(threads[i], NULL);
     }
 
     for (int x = 0; x < (matrix_size - 1); x += WW)
@@ -171,7 +158,7 @@ randd(void) {
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
-    int nfilters = 10000;
+    int nfilters = 2000;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));

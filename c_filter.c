@@ -29,7 +29,6 @@ static uint32 matrix_size;
 void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32 const);
 static void matrix_weights(void);
-static void matrix_convolute(void);
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
@@ -42,14 +41,35 @@ filter(floaty *restrict input0, floaty *restrict output0,
     matrix_size = (uint32) WW * (uint32) hh;
 
     matrix_weights();
-    matrix_convolute();
+    for (uint32 x = 0; x < (matrix_size - 1); x += WW)
+        output[x] = output[x+1];
+    for (uint32 y = 0; y < WW-1; y += 1)
+        output[y] = output[y+WW];
+    for (uint32 x = WW-1; x < (matrix_size - 1); x += WW)
+        output[x] = output[x-1];
+    for (uint32 y = (uint32)(hh-1)*WW; y < (matrix_size - 1); y += 1)
+        output[y] = output[y-WW];
     return;
 }
 
 void
 matrix_weights(void) {
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    for (uint32 y = 1; y < (uint32) hh; y += 1) {
+    memset(output, 0, matrix_size * sizeof (*output));
+
+    uint32 y = 1;
+    for (uint32 x = 1; x < WW - 1; x += 1) {
+        floaty Gx, Gy;
+        floaty d, w;
+
+        Gx = input[WW*y + x+1] - input[WW*y + x-1];
+        Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+
+        d = sqrtf(Gx*Gx + Gy*Gy);
+        w = expf(-sqrtf(d));
+        weights[WW*y + x] = w;
+    }
+    for (y = 2; y < (uint32) hh; y += 1) {
         for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;
@@ -61,15 +81,8 @@ matrix_weights(void) {
             w = expf(-sqrtf(d));
             weights[WW*y + x] = w;
         }
-    }
-    return;
-}
-
-void
-matrix_convolute(void) {
-    memset(output, 0, matrix_size * sizeof (*output));
-    for (int32 y = 1; y < hh - 1; y += 1) {
-        for (int32 x = 1; x < WW - 1; x += 1) {
+        y -= 1;
+        for (uint32 x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
@@ -80,16 +93,8 @@ matrix_convolute(void) {
             }
             output[WW*y + x] /= norm;
         }
+        y += 1;
     }
-    for (uint32 x = 0; x < (matrix_size - 1); x += WW)
-        output[x] = output[x+1];
-    for (uint32 y = 0; y < WW-1; y += 1)
-        output[y] = output[y+WW];
-    for (uint32 x = WW-1; x < (matrix_size - 1); x += WW)
-        output[x] = output[x-1];
-    for (uint32 y = (uint32)(hh-1)*WW; y < (matrix_size - 1); y += 1)
-        output[y] = output[y-WW];
-
     return;
 }
 

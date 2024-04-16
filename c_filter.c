@@ -59,7 +59,7 @@ work(void *arg) {
         }
     }
 
-    usleep(500);
+    usleep(100);
 
     for (int32 y = y0; y < (int32) y1; y += 1) {
         for (int32 x = 1; x < WW - 1; x += 1) {

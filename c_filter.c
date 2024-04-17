@@ -53,7 +53,6 @@ work(void *arg) {
     int y0 = slice->y0;
     int y1 = slice->y1;
     int id = slice->id;
-    size_t dy = (size_t) (y1 - y0);
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {

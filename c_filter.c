@@ -13,7 +13,7 @@
 #include "c_declarations.h"
 
 #define WW0 512
-#define NTHREADS 8
+#define MAX_THREADS 8
 
 #define USE_DOUBLE 0
 
@@ -44,7 +44,7 @@ typedef struct Slice {
     int id;
 } Slice;
 
-static pthread_mutex_t mutexes[NTHREADS];
+static pthread_mutex_t mutexes[MAX_THREADS];
 
 static void *
 work(void *arg) {
@@ -69,7 +69,7 @@ work(void *arg) {
 
     pthread_mutex_unlock(&mutexes[id]);
 
-    if (id < (NTHREADS - 1)) {
+    if (id < (MAX_THREADS - 1)) {
         pthread_mutex_lock(&mutexes[id + 1]);
         pthread_mutex_unlock(&mutexes[id + 1]);
     }
@@ -98,10 +98,10 @@ work(void *arg) {
 void
 filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int const hh0) {
-    pthread_t threads[NTHREADS];
-    Slice slices[NTHREADS];
-    int range = hh / NTHREADS;
-    for (int i = 0; i < NTHREADS; i += 1) {
+    pthread_t threads[MAX_THREADS];
+    Slice slices[MAX_THREADS];
+    int range = hh / MAX_THREADS;
+    for (int i = 0; i < MAX_THREADS; i += 1) {
         pthread_mutex_init(&mutexes[i], NULL);
         pthread_mutex_lock(&mutexes[i]);
     }
@@ -115,14 +115,14 @@ filter(floaty *restrict input0, floaty *restrict output0,
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, (size_t) matrix_size * sizeof (*output));
 
-    for (int i = 0; i < (NTHREADS - 1); i += 1) {
+    for (int i = 0; i < (MAX_THREADS - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
-        int i = NTHREADS - 1;
+        int i = MAX_THREADS - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
         slices[i].id = i;
@@ -130,7 +130,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }
 
-    for (int i = 0; i < NTHREADS; i += 1)
+    for (int i = 0; i < MAX_THREADS; i += 1)
         pthread_join(threads[i], NULL);
 
     for (int x = 0; x < (matrix_size - 1); x += WW)

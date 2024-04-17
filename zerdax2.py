@@ -26,7 +26,7 @@ if __name__ == '__main__':
     log.basicConfig(level=level, format='[%(levelname)s] %(message)s')
 
     for filename in args.filenames:
-        print(f"============ zerdax2.py {filename} ============")
+        print(f"============ zerdax2.py {filename} ============", flush=True)
         # try:
         fen = algorithm.main(filename)
         # except Exception:

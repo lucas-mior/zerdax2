@@ -17,6 +17,7 @@ basename = ""
 debug = False
 WIDTH_INPUT = 1920
 WIDTH_BOARD = 512  # used for board crop and perspective transform
+np.seterr(all='raise')
 
 
 def main(filename):

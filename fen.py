@@ -49,15 +49,13 @@ def decompress(fen):
 
 def dump(fen):
     fblack = "\033[01;38;2;000;000;000m"
-    fgray = "\033[01;38;2;200;200;200m"
     fwhite = "\033[01;38;2;255;255;255m"
 
     bblack = "\033[01;48;2;000;000;000m"
-    bgray = "\033[01;48;2;200;200;200m"
     bwhite = "\033[01;48;2;255;255;255m"
     reset = '\033[0;m'
 
-    print(f"  {bwhite}{fblack} A B C D E F G H {reset} ", sep="")
+    print(f"\n  {bwhite}{fblack} A B C D E F G H {reset} ", sep="")
 
     fen = re.sub(r'^', " ", fen)
     fen = re.sub(r'/', "\n ", fen)

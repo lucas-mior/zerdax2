@@ -199,7 +199,6 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
-    srand(0);
     for (int i = 0; i < IMAGE_SIZE; i += 4) {
         input0[i+0] = randd();
         input0[i+1] = randd();

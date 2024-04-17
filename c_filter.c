@@ -53,8 +53,9 @@ work(void *arg) {
     int y0 = slice->y0;
     int y1 = slice->y1;
     int id = slice->id;
+    size_t dy = (size_t) (y1 - y0);
 
-    for (int y = y0; y < y1; y += 1) {
+    for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
             floaty d, w;
@@ -79,7 +80,7 @@ work(void *arg) {
         pthread_mutex_unlock(&mutexes[id - 1]);
     }
 
-    for (int y = y0; y < y1; y += 1) {
+    for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
             floaty norm = 0;
             for (int i = -1; i <= +1; i += 1) {
@@ -124,15 +125,18 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_mutex_lock(&mutexes[i]);
     }
 
+    memset(output, 0, hh * WW * sizeof (*output));
+    memset(weights, 0, hh * WW * sizeof (*weights));
+
     for (int i = 0; i < (nthreads - 1); i += 1) {
-        slices[i].y0 = i*range + 1;
-        slices[i].y1 = (i+1)*range + 1;
+        slices[i].y0 = i*range;
+        slices[i].y1 = (i+1)*range;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
         int i = nthreads - 1;
-        slices[i].y0 = i*range + 1;
+        slices[i].y0 = i*range;
         slices[i].y1 = hh - 1;
         slices[i].id = i;
 

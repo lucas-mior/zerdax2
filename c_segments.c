@@ -103,6 +103,10 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
     return (int32) distance;
 }
 
+#ifndef TESTING_THIS_FILE
+#define TESTING_THIS_FILE 1
+#endif
+
 #if TESTING_THIS_FILE
 
 #define LINESIZE 4

@@ -1,3 +1,6 @@
+#ifndef C_FILTER_C
+#define C_FILTER_C
+
 /* Filter proposed by Bing Wang and ShaoSheng Fan
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
@@ -252,4 +255,6 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+#endif
+
 #endif

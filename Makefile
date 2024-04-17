@@ -1,7 +1,7 @@
 CC = clang
 
 CFLAGS = -g -O3 -march=native -fPIC -flto -D_DEFAULT_SOURCE
-CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage
+CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage -Wno-unused-macros
 CFLAGS += -Weverything
 
 LDFLAGS = -lm -lpthread

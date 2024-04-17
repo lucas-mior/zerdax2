@@ -192,7 +192,7 @@ randd(void) {
 int main(int argc, char **argv) {
     int hh0 = HH0;
     int nfilters = 2000;
-    bool save_results = false;
+    bool save_results = true;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
@@ -233,21 +233,11 @@ int main(int argc, char **argv) {
     }
 
     if (save_results) {
-        uint8 *gray = malloc(IMAGE_SIZE*sizeof(*gray));
         FILE *image1 = fopen("input.data", "w");
         FILE *image2 = fopen("output.data", "w");
 
-        for (int i = 0; i < IMAGE_SIZE; i += 4) {
-            gray[i+0] = (uint8) output0[i+0]*255;
-            gray[i+1] = (uint8) output0[i+1]*255;
-            gray[i+2] = (uint8) output0[i+2]*255;
-            gray[i+3] = (uint8) output0[i+3]*255;
-        }
-
         fwrite(input0, sizeof (*input0), IMAGE_SIZE, image1);
-        fwrite(gray, sizeof (*gray), IMAGE_SIZE, image2);
-
-        free(gray);
+        fwrite(output0, sizeof (*output0), IMAGE_SIZE, image2);
     }
     free(input0);
     free(output0);

@@ -11,7 +11,6 @@ import objects
 import fen
 import draw
 import c_load
-# import shutil
 
 basename = ""
 debug = False

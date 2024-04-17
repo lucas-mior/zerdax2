@@ -119,7 +119,8 @@ static int nthreads;
 
 #define PRINT_LINE(name) print_line(QUOTE(name), name)
 
-void print_line(char *name, int *line) {
+static void
+print_line(char *name, int *line) {
     printf("%s = [", name);
     for (int i = 0; i < (LINESIZE - 1); i += 1)
         printf("%d, ", line[i]);
@@ -130,18 +131,10 @@ void print_line(char *name, int *line) {
 
 int main(void) {
     struct timespec t0, t1;
+    int ncalcs = 1000000;
+    int distance = 0;
     int line0[LINESIZE];
     int line1[LINESIZE];
-    for (int i = 0; i < LINESIZE; i += 1) {
-        line0[i] = rand() % 512;
-        line1[i] = rand() % 512;
-    }
-    int ncalcs = 1000;
-
-    PRINT_LINE(line0);
-    PRINT_LINE(line1);
-
-    clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
     if (nthreads < 1)
@@ -149,9 +142,31 @@ int main(void) {
     else if (nthreads > MAX_THREADS)
         nthreads = MAX_THREADS;
     
+    for (int i = 0; i < LINESIZE; i += 1) {
+        line0[i] = rand() % 512;
+        line1[i] = rand() % 512;
+    }
+
+    PRINT_LINE(line0);
+    PRINT_LINE(line1);
+
+    clock_gettime(CLOCK_REALTIME, &t0);
+
     for (int i = 0; i < ncalcs; i += 1)
-        segments_distance(line0, line1);
+        distance += segments_distance(line0, line1);
+
+    printf("total distance: %d\n", distance);
 
     clock_gettime(CLOCK_REALTIME, &t1);
+
+    {
+        long seconds = t1.tv_sec - t0.tv_sec;
+        long nanos = t1.tv_nsec - t0.tv_nsec;
+        double total_seconds = (double) seconds + (double) nanos/1.0e9;
+        double per_calc = (total_seconds / ncalcs);
+        printf("time elapsed for %d: %fs [%es / calculation]\n",
+                ncalcs, total_seconds, per_calc);
+    }
+    exit(0);
 }
 #endif

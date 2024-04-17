@@ -146,9 +146,9 @@ int main(void) {
     for (int i = 0; i < ncalcs; i += 1)
         distance += segments_distance(line0, line1);
 
-    printf("total distance: %d\n", distance);
-
     clock_gettime(CLOCK_REALTIME, &t1);
+
+    printf("total distance: %d\n", distance);
 
     {
         long seconds = t1.tv_sec - t0.tv_sec;

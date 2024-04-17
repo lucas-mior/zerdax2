@@ -17,3 +17,5 @@ cfilter
 callgrind*
 tests
 vgcore*
+.cache/
+compile_commands.json

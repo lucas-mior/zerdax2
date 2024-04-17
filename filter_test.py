@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import sys
 
-from c_load import lfilter
+import c_load
 import draw
 
 WIDTH_BOARD = 512  # used for board crop and perspective transform
@@ -16,14 +16,14 @@ def filter_test(filename, i):
     height_input = round(image.shape[0] * aspect_ratio)
     image = cv2.resize(image, (WIDTH_BOARD, height_input))
 
-    f = np.array(image, dtype='float32')
-    weights = np.empty(image.shape, dtype='float32')
-    g = np.empty(image.shape, dtype='float32')
+    f = np.array(image, dtype=c_load.floaty)
+    weights = np.empty(image.shape, dtype=c_load.floaty)
+    g = np.empty(image.shape, dtype=c_load.floaty)
 
     # for i in range(1000):
-    lfilter(f, g, weights, f.shape[0])
-    lfilter(g, f, weights, f.shape[0])
-    lfilter(f, g, weights, f.shape[0])
+    c_load.lfilter(f, g, weights, f.shape[0])
+    c_load.lfilter(g, f, weights, f.shape[0])
+    c_load.lfilter(f, g, weights, f.shape[0])
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

@@ -17,7 +17,6 @@ match uname:
 lib = ct.CDLL(library)
 floaty = ct.c_float
 nthreads = os.cpu_count()
-print("nthreads:", nthreads)
 
 
 def lfilter():

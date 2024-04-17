@@ -54,6 +54,13 @@ work(void *arg) {
     int y1 = slice->y1;
     int id = slice->id;
 
+    int dy = y1 - y0 + 1;
+    if (y1 == (hh - 2))
+        dy += 1;
+
+    memset(&(output[y0*WW]), 0, dy * WW * sizeof (*output));
+    memset(&(weights[y0*WW]), 0, dy * WW * sizeof (*output));
+
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {
             floaty Gx, Gy;
@@ -118,9 +125,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     range = hh / nthreads;
 
-    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    memset(output, 0, (size_t) matrix_size * sizeof (*output));
-
     for (int i = 0; i < nthreads; i += 1) {
         pthread_mutex_init(&mutexes[i], NULL);
         pthread_mutex_lock(&mutexes[i]);
@@ -128,7 +132,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     for (int i = 0; i < (nthreads - 1); i += 1) {
         slices[i].y0 = i*range;
-        slices[i].y1 = (i+1)*range;
+        slices[i].y1 = (i + 1)*range;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);

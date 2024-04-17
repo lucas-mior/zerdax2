@@ -58,8 +58,8 @@ work(void *arg) {
     if (y1 == (hh - 2))
         dy += 1;
 
-    memset(&(output[y0*WW]), 0, dy * WW * sizeof (*output));
-    memset(&(weights[y0*WW]), 0, dy * WW * sizeof (*output));
+    memset(&(output[y0*WW]), 0, (size_t) dy * WW * sizeof (*output));
+    memset(&(weights[y0*WW]), 0, (size_t) dy * WW * sizeof (*output));
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < WW - 1; x += 1) {

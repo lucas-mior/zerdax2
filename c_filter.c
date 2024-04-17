@@ -134,7 +134,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     }{
         int i = nthreads - 1;
         slices[i].y0 = i*range;
-        slices[i].y1 = hh - 1;
+        slices[i].y1 = hh - 2;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);

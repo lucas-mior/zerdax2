@@ -189,14 +189,14 @@ int main(int argc, char **argv) {
         input0[i+3] = randd();
     }
 
-    printf("input0: %ld\n", hash(input0));
+    printf("input0: %lu\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
     
     for (int i = 0; i < nfilters; i += 1)
         filter(input0, output0, weights0, hh0);
 
     clock_gettime(CLOCK_REALTIME, &t1);
-    printf("output0: %ld\n", hash(output0));
+    printf("output0: %lu\n", hash(output0));
 
     {
         long diffsec = t1.tv_sec - t0.tv_sec;

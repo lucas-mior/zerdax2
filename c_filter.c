@@ -108,13 +108,15 @@ filter(floaty *restrict input0, floaty *restrict output0,
     weights = weights0;
     output = output0;
     hh = hh0;
-    nthreads = nthreads0;
     matrix_size = WW * hh;
 
-    if (nthreads < 1)
+    if (nthreads0 < 1)
         nthreads = 1;
-    else if (nthreads > MAX_THREADS)
+    else if (nthreads0 > MAX_THREADS)
         nthreads = MAX_THREADS;
+    else
+        nthreads = nthreads0;
+
     range = hh / nthreads;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));

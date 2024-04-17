@@ -222,11 +222,11 @@ int main(int argc, char **argv) {
     printf("output0: %lu\n", hash_function(output0));
 
     {
-        long diffsec = t1.tv_sec - t0.tv_sec;
-        long diffnsec = t1.tv_nsec - t0.tv_nsec;
-        double time_elapsed = (double) diffsec + (double) diffnsec/1.0e9;
+        long seconds = t1.tv_sec - t0.tv_sec;
+        long nanos = t1.tv_nsec - t0.tv_nsec;
+        double total_seconds = (double) seconds + (double) nanos/1.0e9;
         printf("time elapsed for %dx%d: %f [%f / filter]\n",
-                WW0, HH0, time_elapsed, time_elapsed / nfilters);
+                WW0, HH0, total_seconds, total_seconds / nfilters);
     }
 
     if (save_results) {

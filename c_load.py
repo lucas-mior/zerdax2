@@ -2,6 +2,7 @@ import ctypes as ct
 from numpy.ctypeslib import ndpointer
 import platform
 import os
+import re
 
 uname = platform.uname()[0]
 match uname:
@@ -20,15 +21,17 @@ nthreads = os.cpu_count()
 floaty = None
 with open("c_filter.c", 'r') as file:
     for line in file:
-        if "#define USE_DOUBLE 0" in line:
-            floaty = ct.c_float
+        match = re.match(r"\s*#define\s+USE_DOUBLE\s+(\d+)\s*", line)
+        if match:
+            use_double_value = int(match.group(1))
+            if use_double_value == 0:
+                floaty = ct.c_float
+            else:
+                floaty = ct.c_double
             break
-        elif "#define USE_DOUBLE 1" in line:
-            floaty = ct.c_double
-            break
-    if floaty is None:
-        print("Error findind #define USE_DOUBLE in c_filter.c")
-        exit(1)
+if floaty is None:
+    print("Error finding #define USE_DOUBLE in c_filter.c")
+    exit(1)
 
 
 def lfilter():

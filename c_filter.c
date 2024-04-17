@@ -15,7 +15,7 @@
 #define WW0 512
 #define MAX_THREADS 8
 
-#define USE_DOUBLE 1
+#define USE_DOUBLE 0
 
 #if USE_DOUBLE
 typedef double floaty;

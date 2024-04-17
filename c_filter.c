@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
         input0[i+3] = randd();
     }
 
-    printf("input0: %lu\n", hash_function(input0));
+    printf("input hash: %lu\n", hash_function(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
         filter(input0, output0, weights0, hh0, nthreads);
 
     clock_gettime(CLOCK_REALTIME, &t1);
-    printf("output0: %lu\n", hash_function(output0));
+    printf("output hash: %lu\n", hash_function(output0));
 
     {
         long seconds = t1.tv_sec - t0.tv_sec;

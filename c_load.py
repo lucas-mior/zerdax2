@@ -17,7 +17,7 @@ match uname:
 lib = ct.CDLL(library)
 nthreads = os.cpu_count()
 
-floaty = ct.c_float
+floaty = None
 with open("c_filter.c", 'r') as file:
     for line in file:
         if "#define USE_DOUBLE 0" in line:
@@ -26,8 +26,9 @@ with open("c_filter.c", 'r') as file:
         elif "#define USE_DOUBLE 1" in line:
             floaty = ct.c_double
             break
-    print("Error findind #define USE_DOUBLE in c_filter.c")
-    exit(1)
+    if floaty is None:
+        print("Error findind #define USE_DOUBLE in c_filter.c")
+        exit(1)
 
 
 def lfilter():

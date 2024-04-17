@@ -111,14 +111,14 @@ filter(floaty *restrict input0, floaty *restrict output0,
     nthreads = nthreads0;
     matrix_size = WW * hh;
 
-    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
-    memset(output, 0, (size_t) matrix_size * sizeof (*output));
-
     if (nthreads < 1)
         nthreads = 1;
     else if (nthreads > MAX_THREADS)
         nthreads = MAX_THREADS;
     range = hh / nthreads;
+
+    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
+    memset(output, 0, (size_t) matrix_size * sizeof (*output));
 
     for (int i = 0; i < nthreads; i += 1) {
         pthread_mutex_init(&mutexes[i], NULL);

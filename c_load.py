@@ -15,8 +15,19 @@ match uname:
         print(f"unsuported operating system: {uname}")
         exit(1)
 lib = ct.CDLL(library)
-floaty = ct.c_float
 nthreads = os.cpu_count()
+
+floaty = ct.c_float
+with open("c_filter.c", 'r') as file:
+    for line in file:
+        if "#define USE_DOUBLE 0" in line:
+            floaty = ct.c_float
+            break
+        elif "#define USE_DOUBLE 1" in line:
+            floaty = ct.c_double
+            break
+    print("Error findind #define USE_DOUBLE in c_filter.c")
+    exit(1)
 
 
 def lfilter():

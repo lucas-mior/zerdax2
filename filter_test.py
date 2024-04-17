@@ -21,9 +21,9 @@ def filter_test(filename, i):
     g = np.empty(image.shape, dtype=c_load.floaty)
 
     # for i in range(1000):
-    c_load.lfilter(f, g, weights, f.shape[0])
-    c_load.lfilter(g, f, weights, f.shape[0])
-    c_load.lfilter(f, g, weights, f.shape[0])
+    c_load.lfilter(f, g, weights, f.shape[0], c_load.nthreads)
+    c_load.lfilter(g, f, weights, f.shape[0], c_load.nthreads)
+    c_load.lfilter(f, g, weights, f.shape[0], c_load.nthreads)
 
     g = np.round(g)
     g = np.clip(g, 0, 255)

@@ -113,6 +113,10 @@ filter(floaty *restrict input0, floaty *restrict output0,
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, (size_t) matrix_size * sizeof (*output));
 
+    if (nthreads < 1)
+        nthreads = 1;
+    else if (nthreads > MAX_THREADS)
+        nthreads = MAX_THREADS;
     range = hh / nthreads;
 
     for (int i = 0; i < nthreads; i += 1) {

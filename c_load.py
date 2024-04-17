@@ -1,6 +1,7 @@
 import ctypes as ct
 from numpy.ctypeslib import ndpointer
 import platform
+import os
 
 uname = platform.uname()[0]
 match uname:
@@ -15,6 +16,8 @@ match uname:
         exit(1)
 lib = ct.CDLL(library)
 floaty = ct.c_float
+nthreads = os.cpu_count()
+print("nthreads:", nthreads)
 
 
 def lfilter():
@@ -24,7 +27,8 @@ def lfilter():
     func.argtypes = [ndpointer(floaty, flags="C_CONTIGUOUS"),
                      ndpointer(floaty, flags="C_CONTIGUOUS"),
                      ndpointer(floaty, flags="C_CONTIGUOUS"),
-                     ct.c_size_t]
+                     ct.c_size_t,
+                     ct.c_int]
     return func
 
 

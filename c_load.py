@@ -20,34 +20,34 @@ nthreads = os.cpu_count()
 
 
 def lfilter():
-    func = lib.filter
+    function = lib.filter
 
-    func.restype = None
-    func.argtypes = [ndpointer(floaty, flags="C_CONTIGUOUS"),
-                     ndpointer(floaty, flags="C_CONTIGUOUS"),
-                     ndpointer(floaty, flags="C_CONTIGUOUS"),
-                     ct.c_size_t,
-                     ct.c_int]
-    return func
+    function.restype = None
+    function.argtypes = [ndpointer(floaty, flags="C_CONTIGUOUS"),
+                         ndpointer(floaty, flags="C_CONTIGUOUS"),
+                         ndpointer(floaty, flags="C_CONTIGUOUS"),
+                         ct.c_size_t,
+                         ct.c_int]
+    return function
 
 
 def segments_distance():
-    func = lib.segments_distance
+    function = lib.segments_distance
 
-    func.restype = ct.c_int32
-    func.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_int32, flags="C_CONTIGUOUS")]
-    return func
+    function.restype = ct.c_int32
+    function.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
+                         ndpointer(ct.c_int32, flags="C_CONTIGUOUS")]
+    return function
 
 
 def lines_bundle():
-    func = lib.lines_bundle
+    function = lib.lines_bundle
 
-    func.restype = ct.c_int32
-    func.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
-                     ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
-                     ct.c_int32, ct.c_int32]
-    return func
+    function.restype = ct.c_int32
+    function.argtypes = [ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
+                         ndpointer(ct.c_int32, flags="C_CONTIGUOUS"),
+                         ct.c_int32, ct.c_int32]
+    return function
 
 
 segments_distance = segments_distance()

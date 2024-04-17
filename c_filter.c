@@ -156,7 +156,7 @@ static long hash(floaty *array) {
     long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         long c;
-        memcpy(&c, &array[i], sizeof (c));
+        memcpy(&c, &array[i], sizeof (*array));
         hash = ((hash << 5) + hash) + c;
     }
     return hash;

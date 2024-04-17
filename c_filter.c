@@ -152,7 +152,8 @@ filter(floaty *restrict input0, floaty *restrict output0,
 #if TESTING_THIS_FILE
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0
-static unsigned long hash(floaty *array) {
+static unsigned long
+hash(floaty *array) {
     unsigned long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         unsigned long c;

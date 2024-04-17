@@ -3,9 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+#include <unistd.h>
 #include <math.h>
 
 #include "c_declarations.h"
+#define MAX_THREADS 4
 
 static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
@@ -100,3 +103,55 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
     distance = round(sqrt(dx*dx + dy*dy));
     return (int32) distance;
 }
+
+#ifndef TESTING_THIS_FILE
+#define TESTING_THIS_FILE 1
+#endif
+
+static int nthreads;
+
+#if TESTING_THIS_FILE
+
+#define LINESIZE 4
+
+#define Q(x) #x
+#define QUOTE(x) Q(x)
+
+#define PRINT_LINE(name) print_line(QUOTE(name), name)
+
+void print_line(char *name, int *line) {
+    printf("%s = [", name);
+    for (int i = 0; i < (LINESIZE - 1); i += 1)
+        printf("%d, ", line[i]);
+    printf("%d]\n", line[LINESIZE - 1]);
+
+    return;
+}
+
+int main(void) {
+    struct timespec t0, t1;
+    int line0[LINESIZE];
+    int line1[LINESIZE];
+    for (int i = 0; i < LINESIZE; i += 1) {
+        line0[i] = rand() % 512;
+        line1[i] = rand() % 512;
+    }
+    int ncalcs = 1000;
+
+    PRINT_LINE(line0);
+    PRINT_LINE(line1);
+
+    clock_gettime(CLOCK_REALTIME, &t0);
+
+    nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
+    if (nthreads < 1)
+        nthreads = 1;
+    else if (nthreads > MAX_THREADS)
+        nthreads = MAX_THREADS;
+    
+    for (int i = 0; i < ncalcs; i += 1)
+        segments_distance(line0, line1);
+
+    clock_gettime(CLOCK_REALTIME, &t1);
+}
+#endif

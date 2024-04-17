@@ -33,10 +33,11 @@ static floaty *restrict input;
 static floaty *restrict weights;
 static floaty *restrict output;
 static int hh;
+static int nthreads;
 static int matrix_size;
 
 void filter(floaty *restrict, floaty *restrict,
-            floaty *restrict, int const);
+            floaty *restrict, int, int);
 
 typedef struct Slice {
     int y0;
@@ -69,7 +70,7 @@ work(void *arg) {
 
     pthread_mutex_unlock(&mutexes[id]);
 
-    if (id < (MAX_THREADS - 1)) {
+    if (id < (nthreads - 1)) {
         pthread_mutex_lock(&mutexes[id + 1]);
         pthread_mutex_unlock(&mutexes[id + 1]);
     }
@@ -97,32 +98,36 @@ work(void *arg) {
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
-       floaty *restrict weights0, int const hh0) {
+       floaty *restrict weights0, int hh0, int nthreads0) {
     pthread_t threads[MAX_THREADS];
     Slice slices[MAX_THREADS];
-    int range = hh / MAX_THREADS;
-    for (int i = 0; i < MAX_THREADS; i += 1) {
-        pthread_mutex_init(&mutexes[i], NULL);
-        pthread_mutex_lock(&mutexes[i]);
-    }
+    int range;
 
     input = input0;
     weights = weights0;
     output = output0;
     hh = hh0;
+    nthreads = nthreads0;
     matrix_size = WW * hh;
 
     memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
     memset(output, 0, (size_t) matrix_size * sizeof (*output));
 
-    for (int i = 0; i < (MAX_THREADS - 1); i += 1) {
+    range = hh / nthreads;
+
+    for (int i = 0; i < nthreads; i += 1) {
+        pthread_mutex_init(&mutexes[i], NULL);
+        pthread_mutex_lock(&mutexes[i]);
+    }
+
+    for (int i = 0; i < (nthreads - 1); i += 1) {
         slices[i].y0 = i*range + 1;
         slices[i].y1 = (i+1)*range + 1;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }{
-        int i = MAX_THREADS - 1;
+        int i = nthreads - 1;
         slices[i].y0 = i*range + 1;
         slices[i].y1 = hh - 1;
         slices[i].id = i;
@@ -130,7 +135,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
     }
 
-    for (int i = 0; i < MAX_THREADS; i += 1)
+    for (int i = 0; i < nthreads; i += 1)
         pthread_join(threads[i], NULL);
 
     for (int x = 0; x < (matrix_size - 1); x += WW)
@@ -192,9 +197,15 @@ int main(int argc, char **argv) {
 
     printf("input0: %lu\n", hash(input0));
     clock_gettime(CLOCK_REALTIME, &t0);
+
+    nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
+    if (nthreads < 1)
+        nthreads = 1;
+    else if (nthreads > MAX_THREADS)
+        nthreads = MAX_THREADS;
     
     for (int i = 0; i < nfilters; i += 1)
-        filter(input0, output0, weights0, hh0);
+        filter(input0, output0, weights0, hh0, nthreads);
 
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output0: %lu\n", hash(output0));

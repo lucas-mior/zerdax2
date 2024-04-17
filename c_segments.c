@@ -8,7 +8,6 @@
 #include <math.h>
 
 #include "c_declarations.h"
-#define MAX_THREADS 4
 
 static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
@@ -104,12 +103,6 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
     return (int32) distance;
 }
 
-#ifndef TESTING_THIS_FILE
-#define TESTING_THIS_FILE 1
-#endif
-
-static int nthreads;
-
 #if TESTING_THIS_FILE
 
 #define LINESIZE 4
@@ -136,12 +129,6 @@ int main(void) {
     int line0[LINESIZE];
     int line1[LINESIZE];
 
-    nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
-    if (nthreads < 1)
-        nthreads = 1;
-    else if (nthreads > MAX_THREADS)
-        nthreads = MAX_THREADS;
-    
     for (int i = 0; i < LINESIZE; i += 1) {
         line0[i] = rand() % 512;
         line1[i] = rand() % 512;

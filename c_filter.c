@@ -125,8 +125,8 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_mutex_lock(&mutexes[i]);
     }
 
-    memset(output, 0, matrix_size * sizeof (*output));
-    memset(weights, 0, matrix_size * sizeof (*weights));
+    memset(output, 0, (size_t) matrix_size * sizeof (*output));
+    memset(weights, 0, (size_t) matrix_size * sizeof (*weights));
 
     for (int i = 0; i < (nthreads - 1); i += 1) {
         slices[i].y0 = i*range;

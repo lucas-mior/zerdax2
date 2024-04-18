@@ -65,7 +65,7 @@ work(void *arg) {
     memset(&(weights[y0*WW]), 0, (size_t) dy * WW * sizeof (*weights));
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
-        for (int x = 1; x < WW - 1; x += 1) {
+        for (int x = 1; x < (WW - 1); x += 1) {
             floaty Gx, Gy;
             floaty d, w;
 
@@ -90,7 +90,7 @@ work(void *arg) {
     }
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
-        for (int x = 1; x < WW - 1; x += 1) {
+        for (int x = 1; x < (WW - 1); x += 1) {
             floaty norm = 0;
             for (int i = -1; i <= +1; i += 1) {
                 for (int j = -1; j <= +1; j += 1) {

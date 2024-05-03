@@ -18,6 +18,8 @@
 #define TESTING_THIS_FILE 0
 
 #include "c_util.c"
+#include "c_segments.c"
+#include "c_lines_bundle.c"
 
 #pragma pop_macro("TESTING_THIS_FILE")
 

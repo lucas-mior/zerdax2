@@ -1,3 +1,6 @@
+#ifndef C_LINES_BUNDLE_C
+#define C_LINES_BUNDLE_C
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,7 +8,13 @@
 #include <stdbool.h>
 #include <math.h>
 
+#pragma push_macro("TESTING_THIS_FILE")
+#define TESTING_THIS_FILE 0
+
 #include "c_declarations.h"
+#include "c_util.c"
+
+#pragma pop_macro("TESTING_THIS_FILE")
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
@@ -162,3 +171,5 @@ check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
     }
     return true;
 }
+
+#endif

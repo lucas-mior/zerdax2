@@ -8,12 +8,18 @@
 #include <math.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "c_declarations.h"
+#pragma push_macro("TESTING_THIS_FILE")
+#define TESTING_THIS_FILE 0
+
+#include "c_util.c"
+
+#pragma pop_macro("TESTING_THIS_FILE")
 
 #define WW0 512
 #define MAX_THREADS 8
@@ -195,9 +201,9 @@ int main(int argc, char **argv) {
     int nfilters = 2000;
     bool save_results = false;
 
-    floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
-    floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));
-    floaty *weights0 = malloc(IMAGE_SIZE*sizeof(floaty));
+    floaty *input0 = util_malloc(IMAGE_SIZE*sizeof(floaty));
+    floaty *output0 = util_malloc(IMAGE_SIZE*sizeof(floaty));
+    floaty *weights0 = util_malloc(IMAGE_SIZE*sizeof(floaty));
 
     struct timespec t0, t1;
     (void) argc;

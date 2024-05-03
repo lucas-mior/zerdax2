@@ -1,3 +1,6 @@
+#ifndef C_SEGMENTS_C
+#define C_SEGMENTS_C
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +10,12 @@
 #include <unistd.h>
 #include <math.h>
 
+#pragma push_macro("TESTING_THIS_FILE")
+#define TESTING_THIS_FILE 0
+
 #include "c_declarations.h"
+
+#pragma pop_macro("TESTING_THIS_FILE")
 
 static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
@@ -160,4 +168,6 @@ int main(void) {
     }
     exit(0);
 }
+#endif
+
 #endif

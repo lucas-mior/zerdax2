@@ -1,12 +1,12 @@
 CC = clang
 
 CFLAGS = -g -O3 -march=native -fPIC -flto -D_DEFAULT_SOURCE
-CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage -Wno-unused-macros
+CFLAGS += -Wall -Wextra -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-unused-function
 CFLAGS += -Weverything
 
 LDFLAGS = -lm -lpthread
 
-SRC = c_filter.c c_segments.c c_lines_bundle.c c_util.c
+SRC = c_filter.c
 
 all: libzerdax.so cfilter csegments
 

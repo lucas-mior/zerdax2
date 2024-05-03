@@ -228,8 +228,8 @@ int main(int argc, char **argv) {
         long seconds = t1.tv_sec - t0.tv_sec;
         long nanos = t1.tv_nsec - t0.tv_nsec;
         double total_seconds = (double) seconds + (double) nanos/1.0e9;
-        printf("time elapsed for %dx%d: %f [%f / filter]\n",
-                WW0, HH0, total_seconds, total_seconds / nfilters);
+        printf("time elapsed for %d filters of size %dx%d: %f [%f / filter]\n",
+                nfilters, WW0, HH0, total_seconds, total_seconds / nfilters);
     }
 
     if (save_results) {

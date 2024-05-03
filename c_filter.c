@@ -168,6 +168,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 #endif
 
 #if TESTING_THIS_FILE
+#include <errno.h>
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0
 
@@ -233,8 +234,24 @@ int main(int argc, char **argv) {
     }
 
     if (save_results) {
-        FILE *image1 = fopen("input.data", "w");
-        FILE *image2 = fopen("output.data", "w");
+        char *input_file = "input.data";
+        char *output_file = "output.data";
+
+        FILE *image1;
+        FILE *image2;
+
+        if (!(image1 = fopen(input_file, "r"))) {
+            fprintf(stderr,
+                    "Error opening \"%s\" for writing: %s\n",
+                    input_file, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+        if (!(image2 = fopen(output_file, "w"))) {
+            fprintf(stderr,
+                    "Error opening \"%s\" for writing: %s\n",
+                    output_file, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
 
         fwrite(input0, sizeof (*input0), IMAGE_SIZE, image1);
         fwrite(output0, sizeof (*output0), IMAGE_SIZE, image2);

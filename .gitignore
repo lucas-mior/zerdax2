@@ -19,3 +19,5 @@ tests
 vgcore*
 .cache/
 compile_commands.json
+*.data
+csegments

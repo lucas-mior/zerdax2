@@ -193,7 +193,7 @@ randd(void) {
 int main(int argc, char **argv) {
     int hh0 = HH0;
     int nfilters = 2000;
-    bool save_results = true;
+    bool save_results = false;
 
     floaty *input0 = malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = malloc(IMAGE_SIZE*sizeof(floaty));

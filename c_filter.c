@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
         FILE *image1;
         FILE *image2;
 
-        if (!(image1 = fopen(input_file, "r"))) {
+        if (!(image1 = fopen(input_file, "w"))) {
             fprintf(stderr,
                     "Error opening \"%s\" for writing: %s\n",
                     input_file, strerror(errno));

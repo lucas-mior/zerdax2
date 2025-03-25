@@ -27,7 +27,7 @@
 #define WW0 512
 #define MAX_THREADS 8
 
-#define USE_DOUBLE 1
+#define USE_DOUBLE 0
 
 #if USE_DOUBLE
 typedef double floaty;
@@ -232,6 +232,8 @@ int main(int argc, char **argv) {
     (void) argc;
     (void) argv;
 
+    save_results = argc > 1;
+
     for (int i = 0; i < IMAGE_SIZE; i += 4) {
         input0[i+0] = randd();
         input0[i+1] = randd();
@@ -284,6 +286,7 @@ int main(int argc, char **argv) {
     if (save_results) {
         char *input_file = "input.data";
         char *output_file = "output.data";
+        size_t written;
 
         FILE *image1;
         FILE *image2;
@@ -299,8 +302,20 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
-        fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
+        written = fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
+        if (written < sizeof(*input0)*IMAGE_SIZE) {
+            fprintf(stderr, "Error writing to %s: %s.\n",
+                            input_file, strerror(errno));
+        }
+
+        written = fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
+        if (written < sizeof(*output0)*IMAGE_SIZE) {
+            fprintf(stderr, "Error writing to %s: %s.\n",
+                            output_file, strerror(errno));
+        }
+
+        fclose(image1);
+        fclose(image2);
     }
     free(input0);
     free(output0);

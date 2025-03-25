@@ -206,14 +206,15 @@ typedef struct SaveHash {
     uint32 w;
     uint32 h;
     uint32 use_double;
+    uint32 unused;
     uint64 hash_input;
     uint64 hash_output;
 } SaveHash;
 
 #define LENGHT(X) (int)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
-    {512, 512, 0, 8707747967837504398u, 6217956780236870917u},
-    {1080, 1080, 0, 13196852808646899663u, 11178258618305559813u},
+    {512, 512, 0, 0, 8707747967837504398u, 6217956780236870917u},
+    {1080, 1080, 0, 0, 13196852808646899663u, 11178258618305559813u},
 };
 
 int main(int argc, char **argv) {

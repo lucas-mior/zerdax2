@@ -6,6 +6,7 @@
  * 2009 Second International Workshop on Computer Science and Engineering */
 
 #include <math.h>
+#include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -232,13 +233,17 @@ int main(int argc, char **argv) {
 
     clock_gettime(CLOCK_REALTIME, &t1);
     printf("output hash: %lu\n", hash_function(output0));
+    assert(hash_function(output0) == 6217956780236870917);
 
     {
         long seconds = t1.tv_sec - t0.tv_sec;
         long nanos = t1.tv_nsec - t0.tv_nsec;
-        double total_seconds = (double) seconds + (double) nanos/1.0e9;
-        printf("time elapsed for %d filters of size %dx%d: %f [%f / filter]\n",
-                nfilters, WW0, HH0, total_seconds, total_seconds / nfilters);
+
+        double total_seconds = (double)seconds + (double)nanos/1.0e9;
+        double micros_per_filter = 1e6*(total_seconds/(double)nfilters);
+        double nanos_per_pixel = 1e3*(micros_per_filter/((double)WW0*HH0));
+        printf("(%s): %gs = %gus per filter = %gns per pixel\n",
+                __FILE__, total_seconds, micros_per_filter, nanos_per_pixel);
     }
 
     if (save_results) {

@@ -147,14 +147,14 @@ filter(floaty *restrict input0, floaty *restrict output0,
         slices[i].y1 = (i + 1)*range;
         slices[i].id = i;
 
-        pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
+        pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }{
         int i = nthreads - 1;
         slices[i].y0 = i*range;
         slices[i].y1 = hh - 2;
         slices[i].id = i;
 
-        pthread_create(&threads[i], NULL, work, (void *) &slices[i]);
+        pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }
 
     for (int i = 0; i < nthreads; i += 1)

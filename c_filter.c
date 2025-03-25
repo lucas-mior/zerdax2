@@ -211,7 +211,7 @@ typedef struct SaveHash {
 
 #define LENGHT(X) (int)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
-    /* {512, 512, 6217956780236870917u}, */
+    {512, 512, 8707747967837504398u, 6217956780236870917u},
     {1080, 1080, 13196852808646899663u, 11178258618305559813u},
 };
 
@@ -251,8 +251,10 @@ int main(int argc, char **argv) {
         filter(input0, output0, weights0, hh0, nthreads);
 
     clock_gettime(CLOCK_REALTIME, &t1);
+
     hash_output = hash_function(output0);
     printf("output hash: %luu\n", hash_output);
+
     for (int i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
         if ((save_hash.w == WW0) && (save_hash.h == HH0)) {

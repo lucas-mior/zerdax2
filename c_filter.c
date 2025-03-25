@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 
         double total_seconds = (double)seconds + (double)nanos/1.0e9;
         double micros_per_filter = 1e6*(total_seconds/(double)nfilters);
-        double nanos_per_pixel = 1e3*(micros_per_filter/((double)WW0*HH0));
+        double nanos_per_pixel = 1e3*(micros_per_filter/((double)IMAGE_SIZE));
 
         printf("(%s): %gs = %gus per filter = %gns per pixel\n",
                 __FILE__, total_seconds, micros_per_filter, nanos_per_pixel);

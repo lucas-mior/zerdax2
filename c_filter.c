@@ -196,7 +196,7 @@ static inline floaty
 randd(void) {
     long r;
     while ((r = rand()) < 0);
-    return (floaty) (double) r;
+    return (floaty)(double)r;
 }
 
 typedef uint32_t uint32;

@@ -24,7 +24,7 @@
 
 #pragma pop_macro("TESTING_THIS_FILE")
 
-#define WW0 3980
+#define WW0 512
 #define MAX_THREADS 8
 
 #define USE_DOUBLE 0
@@ -178,7 +178,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
 #if TESTING_THIS_FILE
 #include <errno.h>
-#define HH0 3980
+#define HH0 512
 #define IMAGE_SIZE HH0*WW0
 
 static unsigned long
@@ -217,7 +217,7 @@ static SaveHash hash_remember[] = {
 
 int main(int argc, char **argv) {
     int hh0 = HH0;
-    int nfilters = 200;
+    int nfilters = 2000;
     bool save_results = false;
     uint64 hash_input;
     uint64 hash_output;

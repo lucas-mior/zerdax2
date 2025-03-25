@@ -286,10 +286,9 @@ int main(int argc, char **argv) {
     if (save_results) {
         char *input_file = "input.data";
         char *output_file = "output.data";
-        size_t written;
-
         FILE *image1;
         FILE *image2;
+        size_t written;
 
         if ((image1 = fopen(input_file, "w")) == NULL) {
             error("Error opening '%s' for writing: %s.\n",

@@ -303,19 +303,25 @@ int main(int argc, char **argv) {
         }
 
         written = fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
-        if (written < sizeof(*input0)*IMAGE_SIZE) {
+        if (written < IMAGE_SIZE) {
             fprintf(stderr, "Error writing to %s: %s.\n",
                             input_file, strerror(errno));
         }
 
         written = fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
-        if (written < sizeof(*output0)*IMAGE_SIZE) {
+        if (written < IMAGE_SIZE) {
             fprintf(stderr, "Error writing to %s: %s.\n",
                             output_file, strerror(errno));
         }
 
-        fclose(image1);
-        fclose(image2);
+        if (fclose(image1)) {
+            fprintf(stderr, "Error closing %s: %s.\n",
+                            input_file, strerror(errno));
+        }
+        if (fclose(image2)) {
+            fprintf(stderr, "Error closing %s: %s.\n",
+                            output_file, strerror(errno));
+        }
     }
     free(input0);
     free(output0);

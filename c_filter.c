@@ -69,8 +69,8 @@ work(void *arg) {
     if (y1 == (hh - 2))
         dy += 1;
 
-    memset(&(output[y0*WW]), 0, (size_t) dy * WW * sizeof (*output));
-    memset(&(weights[y0*WW]), 0, (size_t) dy * WW * sizeof (*weights));
+    memset(&(output[y0*WW]), 0, (size_t)dy*WW*sizeof(*output));
+    memset(&(weights[y0*WW]), 0, (size_t)dy*WW*sizeof(*weights));
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < (WW - 1); x += 1) {
@@ -185,7 +185,7 @@ hash_function(floaty *array) {
     unsigned long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         unsigned long c = 0;
-        memcpy(&c, &array[i], sizeof (*array));
+        memcpy(&c, &array[i], sizeof(*array));
         hash = ((hash << 5) + hash) + c;
     }
     return hash;
@@ -261,8 +261,8 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        fwrite(input0, sizeof (*input0), IMAGE_SIZE, image1);
-        fwrite(output0, sizeof (*output0), IMAGE_SIZE, image2);
+        fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
+        fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
     }
     free(input0);
     free(output0);

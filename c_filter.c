@@ -286,15 +286,13 @@ int main(int argc, char **argv) {
         FILE *image2;
 
         if (!(image1 = fopen(input_file, "w"))) {
-            fprintf(stderr,
-                    "Error opening '%s' for writing: %s.\n",
-                    input_file, strerror(errno));
+            fprintf(stderr, "Error opening '%s' for writing: %s.\n",
+                            input_file, strerror(errno));
             exit(EXIT_FAILURE);
         }
         if (!(image2 = fopen(output_file, "w"))) {
-            fprintf(stderr,
-                    "Error opening '%s' for writing: %s.\n",
-                    output_file, strerror(errno));
+            fprintf(stderr, "Error opening '%s' for writing: %s.\n",
+                            output_file, strerror(errno));
             exit(EXIT_FAILURE);
         }
 

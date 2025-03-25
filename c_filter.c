@@ -292,35 +292,31 @@ int main(int argc, char **argv) {
         FILE *image2;
 
         if ((image1 = fopen(input_file, "w")) == NULL) {
-            fprintf(stderr, "Error opening '%s' for writing: %s.\n",
-                            input_file, strerror(errno));
+            error("Error opening '%s' for writing: %s.\n",
+                  input_file, strerror(errno));
             exit(EXIT_FAILURE);
         }
         if ((image2 = fopen(output_file, "w")) == NULL) {
-            fprintf(stderr, "Error opening '%s' for writing: %s.\n",
-                            output_file, strerror(errno));
+            error("Error opening '%s' for writing: %s.\n",
+                  output_file, strerror(errno));
             exit(EXIT_FAILURE);
         }
 
         written = fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
         if (written < IMAGE_SIZE) {
-            fprintf(stderr, "Error writing to %s: %s.\n",
-                            input_file, strerror(errno));
+            error("Error writing to %s: %s.\n", input_file, strerror(errno));
         }
 
         written = fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
         if (written < IMAGE_SIZE) {
-            fprintf(stderr, "Error writing to %s: %s.\n",
-                            output_file, strerror(errno));
+            error("Error writing to %s: %s.\n", output_file, strerror(errno));
         }
 
         if (fclose(image1)) {
-            fprintf(stderr, "Error closing %s: %s.\n",
-                            input_file, strerror(errno));
+            error("Error closing %s: %s.\n", input_file, strerror(errno));
         }
         if (fclose(image2)) {
-            fprintf(stderr, "Error closing %s: %s.\n",
-                            output_file, strerror(errno));
+            error("Error closing %s: %s.\n", output_file, strerror(errno));
         }
     }
     free(input0);

@@ -199,10 +199,28 @@ randd(void) {
     return (floaty) (double) r;
 }
 
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+
+typedef struct SaveHash {
+    uint32 w;
+    uint32 h;
+    uint64 hash_input;
+    uint64 hash_output;
+} SaveHash;
+
+#define LENGHT(X) (int)(sizeof(X) / sizeof(*X))
+static SaveHash hash_remember[] = {
+    /* {512, 512, 6217956780236870917u}, */
+    {1080, 1080, 13196852808646899663u, 11178258618305559813u},
+};
+
 int main(int argc, char **argv) {
     int hh0 = HH0;
     int nfilters = 2000;
     bool save_results = false;
+    uint64 hash_input;
+    uint64 hash_output;
 
     floaty *input0 = util_malloc(IMAGE_SIZE*sizeof(floaty));
     floaty *output0 = util_malloc(IMAGE_SIZE*sizeof(floaty));
@@ -219,7 +237,8 @@ int main(int argc, char **argv) {
         input0[i+3] = randd();
     }
 
-    printf("input hash: %lu\n", hash_function(input0));
+    hash_input = hash_function(input0);
+    printf("input hash: %luu\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
@@ -232,8 +251,16 @@ int main(int argc, char **argv) {
         filter(input0, output0, weights0, hh0, nthreads);
 
     clock_gettime(CLOCK_REALTIME, &t1);
-    printf("output hash: %lu\n", hash_function(output0));
-    assert(hash_function(output0) == 6217956780236870917);
+    hash_output = hash_function(output0);
+    printf("output hash: %luu\n", hash_output);
+    for (int i = 0; i < LENGHT(hash_remember); i += 1) {
+        SaveHash save_hash = hash_remember[i];
+        if ((save_hash.w == WW0) && (save_hash.h == HH0)) {
+             assert(hash_output == save_hash.hash_output);
+             assert(hash_input == save_hash.hash_input);
+             break;
+        }
+    }
 
     {
         long seconds = t1.tv_sec - t0.tv_sec;
@@ -242,9 +269,11 @@ int main(int argc, char **argv) {
         double total_seconds = (double)seconds + (double)nanos/1.0e9;
         double micros_per_filter = 1e6*(total_seconds/(double)nfilters);
         double nanos_per_pixel = 1e3*(micros_per_filter/((double)IMAGE_SIZE));
+        double fps = (double)nfilters/total_seconds;
 
-        printf("(%s): %gs = %gus per filter = %gns per pixel\n",
-                __FILE__, total_seconds, micros_per_filter, nanos_per_pixel);
+        printf("%s:\n", __FILE__);
+        printf("%gs = %gus per filter = %gns per pixel = %gHz\n",
+               total_seconds, micros_per_filter, nanos_per_pixel, fps);
     }
 
     if (save_results) {

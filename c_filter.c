@@ -274,8 +274,8 @@ int main(int argc, char **argv) {
         double fps = (double)nfilters/total_seconds;
 
         printf("%s:\n", __FILE__);
-        printf("%gs = %gus per filter = %gns per pixel = %gHz\n",
-               total_seconds, micros_per_filter, nanos_per_pixel, fps);
+        printf("%gs = %gus per filter = %gns per pixel = %uHz\n",
+               total_seconds, micros_per_filter, nanos_per_pixel, (uint)fps);
     }
 
     if (save_results) {

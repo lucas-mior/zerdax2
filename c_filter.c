@@ -79,12 +79,13 @@ work(void *arg) {
         for (int x = 1; x < (WW - 1); x += 1) {
             floaty Gx, Gy;
             floaty d, w;
+            float xx;
 
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
             /* floaty xx = FMA(Gx, Gx, Gy*Gy); */
-            floaty xx = Gx*Gx + Gy*Gy;
+            xx = Gx*Gx + Gy*Gy;
             d = SQRT(xx);
             w = EXP(-SQRT(d));
             weights[WW*y + x] = w;

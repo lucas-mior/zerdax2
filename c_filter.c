@@ -33,10 +33,12 @@
 typedef double floaty;
 #define SQRT sqrt
 #define EXP exp
+#define FMA fma
 #else
 typedef float floaty;
 #define SQRT sqrtf
 #define EXP expf
+#define FMA fmaf
 #endif
 
 static const int WW = WW0;
@@ -81,7 +83,9 @@ work(void *arg) {
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-            d = SQRT(Gx*Gx + Gy*Gy);
+            /* floaty xx = FMA(Gx, Gx, Gy*Gy); */
+            floaty xx = Gx*Gx + Gy*Gy;
+            d = SQRT(xx);
             w = EXP(-SQRT(d));
             weights[WW*y + x] = w;
         }

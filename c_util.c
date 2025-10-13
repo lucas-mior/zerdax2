@@ -27,7 +27,6 @@ error(char *format, ...) {
         exit(EXIT_FAILURE);
     }
 
-    buffer[n] = '\0';
     if ((w = write(STDERR_FILENO, buffer, (size_t)n)) < n) {
         fprintf(stderr, "Error writing to STDERR_FILENO");
         if (w < 0)

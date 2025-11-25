@@ -21,7 +21,7 @@
 #define WW0 512
 #define MAX_THREADS 8
 
-#define USE_DOUBLE 0
+#define USE_DOUBLE 1
 
 #if USE_DOUBLE
 typedef double floaty;
@@ -214,6 +214,7 @@ typedef struct SaveHash {
 #define LENGHT(X) (int)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
     {512, 512, 0, 0, 8707747967837504398u, 6217956780236870917u},
+    {512, 512, 1, 0, 5682732646359110917u, 16220435064243098885u},
     {1080, 1080, 0, 0, 13196852808646899663u, 11178258618305559813u},
 };
 

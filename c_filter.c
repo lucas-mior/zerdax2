@@ -176,7 +176,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     return;
 }
 
-#if __INCLUDE_LEVEL__ == 0
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
 #include <errno.h>
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0

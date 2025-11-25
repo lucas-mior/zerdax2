@@ -67,7 +67,7 @@ work(void *arg) {
         for (int x = 1; x < (WW - 1); x += 1) {
             floaty Gx, Gy;
             floaty d, w;
-            float xx;
+            floaty xx;
 
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];

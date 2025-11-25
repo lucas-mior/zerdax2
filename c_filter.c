@@ -72,7 +72,7 @@ work(void *arg) {
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
             Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
 
-            /* floaty xx = FMA(Gx, Gx, Gy*Gy); */
+            /* xx = fma(Gx, Gx, Gy*Gy); */
             xx = Gx*Gx + Gy*Gy;
             d = sqrt(xx);
             w = exp(-sqrt(d));

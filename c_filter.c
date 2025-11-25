@@ -262,7 +262,8 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
-        if ((save_hash.w == WW0) && (save_hash.h == HH0)
+        if ((save_hash.w == WW0) 
+            && (save_hash.h == HH0)
             && (save_hash.use_double == USE_DOUBLE)) {
              assert(hash_output == save_hash.hash_output);
              assert(hash_input == save_hash.hash_input);

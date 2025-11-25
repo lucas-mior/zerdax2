@@ -83,22 +83,22 @@ work(void *arg) {
     pthread_mutex_unlock(&mutexes[id]);
 
     do {
-        if (id < (nthreads - 1)) {
-            if (!pthread_mutex_trylock(&mutexes[id + 1])) {
-                pthread_mutex_unlock(&mutexes[id + 1]);
+        if (id > 0) {
+            if (!pthread_mutex_trylock(&mutexes[id - 1])) {
+                pthread_mutex_unlock(&mutexes[id - 1]);
             } else {
-                if (id > 0) {
-                    pthread_mutex_lock(&mutexes[id - 1]);
-                    pthread_mutex_unlock(&mutexes[id - 1]);
+                if (id < (nthreads - 1)) {
+                    pthread_mutex_lock(&mutexes[id + 1]);
+                    pthread_mutex_unlock(&mutexes[id + 1]);
                 }
-                pthread_mutex_lock(&mutexes[id + 1]);
-                pthread_mutex_unlock(&mutexes[id + 1]);
+                pthread_mutex_lock(&mutexes[id - 1]);
+                pthread_mutex_unlock(&mutexes[id - 1]);
                 break;
             }
         }
-        if (id > 0) {
-            pthread_mutex_lock(&mutexes[id - 1]);
-            pthread_mutex_unlock(&mutexes[id - 1]);
+        if (id < (nthreads - 1)) {
+            pthread_mutex_lock(&mutexes[id + 1]);
+            pthread_mutex_unlock(&mutexes[id + 1]);
         }
     } while (0);
 

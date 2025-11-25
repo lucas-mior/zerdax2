@@ -5,7 +5,6 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
-#include <math.h>
 #include <assert.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -14,15 +13,9 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
-#pragma push_macro("TESTING_THIS_FILE")
-#define TESTING_THIS_FILE 0
+#include <tgmath.h>
 
 #include "c_util.c"
-#include "c_segments.c"
-#include "c_lines_bundle.c"
-
-#pragma pop_macro("TESTING_THIS_FILE")
 
 #define WW0 512
 #define MAX_THREADS 8
@@ -31,14 +24,8 @@
 
 #if USE_DOUBLE
 typedef double floaty;
-#define SQRT sqrt
-#define EXP exp
-#define FMA fma
 #else
 typedef float floaty;
-#define SQRT sqrtf
-#define EXP expf
-#define FMA fmaf
 #endif
 
 static const int WW = WW0;
@@ -86,8 +73,8 @@ work(void *arg) {
 
             /* floaty xx = FMA(Gx, Gx, Gy*Gy); */
             xx = Gx*Gx + Gy*Gy;
-            d = SQRT(xx);
-            w = EXP(-SQRT(d));
+            d = sqrt(xx);
+            w = exp(-sqrt(d));
             weights[WW*y + x] = w;
         }
     }
@@ -177,11 +164,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     return;
 }
 
-#ifndef TESTING_THIS_FILE
-#define TESTING_THIS_FILE 0
-#endif
-
-#if TESTING_THIS_FILE
+#if __INCLUDE_LEVEL__ == 0
 #include <errno.h>
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0

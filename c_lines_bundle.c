@@ -8,13 +8,8 @@
 #include <stdbool.h>
 #include <math.h>
 
-#pragma push_macro("TESTING_THIS_FILE")
-#define TESTING_THIS_FILE 0
-
 #include "c_declarations.h"
 #include "c_util.c"
-
-#pragma pop_macro("TESTING_THIS_FILE")
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
@@ -115,7 +110,7 @@ compare(const void *a, const void *b) {
 
 int32
 median(int32 *array, int32 length) {
-    qsort(array, (size_t) length, sizeof(*array), compare);
+    qsort(array, (size_t)length, sizeof(*array), compare);
     if ((length % 2) == 0) {
         double result = round((array[(length/2) - 1] + array[length/2]) / 2.0);
         return (int32) result;

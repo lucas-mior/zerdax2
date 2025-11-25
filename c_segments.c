@@ -10,12 +10,7 @@
 #include <unistd.h>
 #include <math.h>
 
-#pragma push_macro("TESTING_THIS_FILE")
-#define TESTING_THIS_FILE 0
-
 #include "c_declarations.h"
-
-#pragma pop_macro("TESTING_THIS_FILE")
 
 static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
@@ -111,11 +106,7 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
     return (int32) distance;
 }
 
-#ifndef TESTING_THIS_FILE
-#define TESTING_THIS_FILE 1
-#endif
-
-#if TESTING_THIS_FILE
+#if __INCLUDE_LEVEL__ == 0
 
 #define LINESIZE 4
 

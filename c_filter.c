@@ -87,6 +87,7 @@ work(void *arg) {
             if (!pthread_mutex_trylock(&mutexes[id + 1])) {
                 pthread_mutex_unlock(&mutexes[id + 1]);
             } else {
+                error("trylock_failed\n");
                 if (id > 0) {
                     pthread_mutex_lock(&mutexes[id - 1]);
                     pthread_mutex_unlock(&mutexes[id - 1]);

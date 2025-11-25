@@ -82,24 +82,25 @@ work(void *arg) {
 
     pthread_mutex_unlock(&mutexes[id]);
 
-    if (id < (nthreads - 1)) {
-        if (!pthread_mutex_trylock(&mutexes[id + 1])) {
-            pthread_mutex_unlock(&mutexes[id + 1]);
-        } else {
-            if (id > 0) {
-                pthread_mutex_lock(&mutexes[id - 1]);
-                pthread_mutex_unlock(&mutexes[id - 1]);
+    do {
+        if (id < (nthreads - 1)) {
+            if (!pthread_mutex_trylock(&mutexes[id + 1])) {
+                pthread_mutex_unlock(&mutexes[id + 1]);
+            } else {
+                if (id > 0) {
+                    pthread_mutex_lock(&mutexes[id - 1]);
+                    pthread_mutex_unlock(&mutexes[id - 1]);
+                }
+                pthread_mutex_lock(&mutexes[id + 1]);
+                pthread_mutex_unlock(&mutexes[id + 1]);
+                break;
             }
-            pthread_mutex_lock(&mutexes[id + 1]);
-            pthread_mutex_unlock(&mutexes[id + 1]);
-            goto ready;
         }
-    }
-    if (id > 0) {
-        pthread_mutex_lock(&mutexes[id - 1]);
-        pthread_mutex_unlock(&mutexes[id - 1]);
-    }
-ready:
+        if (id > 0) {
+            pthread_mutex_lock(&mutexes[id - 1]);
+            pthread_mutex_unlock(&mutexes[id - 1]);
+        }
+    } while (0);
 
     for (int y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int x = 1; x < (WW - 1); x += 1) {

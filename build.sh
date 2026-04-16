@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# shellcheck disable=SC2086
 set -e
 
 CC="clang"
@@ -8,7 +10,9 @@ CFLAGS="$CFLAGS -Wall -Wextra -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-u
 CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
 CFLAGS="$CFLAGS -Weverything -Wno-format-nonliteral"
 
-CPPFLAGS="-Icbase"
+dir=$(dirname "$(readlink -f "$0")")
+cbase="cbase"
+CPPFLAGS="$CPPFLAGS -I$dir/$cbase"
 LDFLAGS="-lm -lpthread"
 
 SRC="c_filter.c"

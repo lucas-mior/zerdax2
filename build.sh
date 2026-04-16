@@ -3,6 +3,19 @@
 # shellcheck disable=SC2086
 set -e
 
+error () {
+    >&2 printf "$@"
+    return
+}
+
+if [ -n "$BASH_VERSION" ]; then
+    # shellcheck disable=SC3044
+    shopt -s expand_aliases
+fi
+
+alias trace_on='set -x'
+alias trace_off='{ set +x; } 2>/dev/null'
+
 CC="${CC:-cc}"
 
 CFLAGS="-std=c11 -D_DEFAULT_SOURCE"
@@ -44,15 +57,21 @@ if [ "$TARGET" = "clean" ]; then
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "libzerdax.so" ]; then
+    trace_on
     ctags --kinds-C=+l *.h *.c || true
     vtags.sed tags > .tags.vim || true
     $CC $CPPFLAGS $CFLAGS -shared -o libzerdax.so $LDFLAGS $SRC
+    trace_off
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "cfilter" ]; then
+    trace_on
     $CC $CPPFLAGS $CFLAGS -o cfilter $LDFLAGS c_filter.c
+    trace_off
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "csegments" ]; then
+    trace_on
     $CC $CPPFLAGS $CFLAGS -o csegments $LDFLAGS c_segments.c
+    trace_off
 fi

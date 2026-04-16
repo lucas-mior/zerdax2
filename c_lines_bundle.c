@@ -9,7 +9,7 @@
 #include <math.h>
 
 #include "c_declarations.h"
-#include "util.c"
+#include "memory.c"
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
@@ -112,7 +112,10 @@ int32
 median(int32 *array, int32 length) {
     qsort(array, (size_t)length, sizeof(*array), compare);
     if ((length % 2) == 0) {
-        double result = round((array[(length/2) - 1] + array[length/2]) / 2.0);
+        int32 left = array[length/2 - 1];
+        int32 right = array[length/2];
+        double average = (double)(left + right) / 2.0;
+        double result = round(average);
         return (int32) result;
     } else {
         return array[length/2];

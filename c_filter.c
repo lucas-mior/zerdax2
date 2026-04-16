@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <tgmath.h>
 
-#include "c_util.c"
+#include "util.c"
 
 #define WW0 512
 #define MAX_THREADS 8
@@ -225,9 +225,9 @@ int main(int argc, char **argv) {
     uint64 hash_input;
     uint64 hash_output;
 
-    floaty *input0 = util_malloc(IMAGE_SIZE*sizeof(*input0));
-    floaty *output0 = util_malloc(IMAGE_SIZE*sizeof(*output0));
-    floaty *weights0 = util_malloc(IMAGE_SIZE*sizeof(*weights0));
+    floaty *input0 = malloc2(IMAGE_SIZE*sizeof(*input0));
+    floaty *output0 = malloc2(IMAGE_SIZE*sizeof(*output0));
+    floaty *weights0 = malloc2(IMAGE_SIZE*sizeof(*weights0));
 
     struct timespec t0, t1;
     (void) argc;

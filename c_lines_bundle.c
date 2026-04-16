@@ -9,7 +9,7 @@
 #include <math.h>
 
 #include "c_declarations.h"
-#include "c_util.c"
+#include "util.c"
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6
@@ -45,7 +45,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
              int32 bundled[][LINE_FIELDS],
              int32 nlines, int32 min_distance0) {
     int m;
-    Group *group = util_realloc(NULL, sizeof(*group));
+    Group *group = xmalloc(sizeof(*group));
     min_distance = min_distance0;
     first = last = group;
     first->next = NULL;
@@ -134,7 +134,7 @@ append(Group *group, int32 line[LINE_FIELDS]) {
 void
 groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
-    group->next = util_realloc(NULL, sizeof(*group));
+    group->next = xmalloc(sizeof(*group));
     group = group->next;
     group->next = NULL;
     group->length = 0;

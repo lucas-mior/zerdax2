@@ -46,7 +46,7 @@ fi
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "libzerdax.so" ]; then
     ctags --kinds-C=+l *.h *.c || true
     vtags.sed tags > .tags.vim || true
-    $CC $CPPFLAGS $CFLAGS -o libzerdax.so $LDFLAGS $SRC -shared
+    $CC $CPPFLAGS $CFLAGS -shared -o libzerdax.so $LDFLAGS $SRC
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "cfilter" ]; then

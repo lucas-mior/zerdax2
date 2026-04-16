@@ -1034,7 +1034,6 @@ typedef struct UtilCopyFilesAsync {
 static int32
 util_copy_file_async(char *destination, char *source, int *dest_fd) {
     int32 source_fd;
-    int32 fadvise_err;
 
     if ((source_fd = open(source, O_RDONLY)) < 0) {
         error("Error opening %s for reading: %s.\n", source, strerror(errno));
@@ -1049,12 +1048,15 @@ util_copy_file_async(char *destination, char *source, int *dest_fd) {
         return -1;
     }
 
+#if 0
+    int32 fadvise_err;
     if ((fadvise_err = posix_fadvise(source_fd,
                                      0, 0,
                                      POSIX_FADV_WILLNEED)) < 0) {
         error("Error in posix_fadvise(POSIX_FADV_WILLNEED): %s.\n",
               strerror(fadvise_err));
     }
+#endif
 
     return source_fd;
 }

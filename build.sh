@@ -18,7 +18,7 @@ alias trace_off='{ set +x; } 2>/dev/null'
 
 CC="${CC:-cc}"
 
-CFLAGS="-std=c11 -D_DEFAULT_SOURCE"
+CFLAGS="$CFLAGS -std=c11 -D_DEFAULT_SOURCE"
 CFLAGS="$CFLAGS -g -O3 -march=native -fPIC -flto"
 CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Werror"
@@ -54,6 +54,11 @@ TARGET="${1:-all}"
 if [ "$TARGET" = "clean" ]; then
     rm -f libzerdax.so cfilter
     exit 0
+fi
+if [ "$TARGET" = "check" ]; then
+    CC=gcc CFLAGS="-fanalyzer" ./build.sh
+    scan-build --view -analyze-headers --status-bugs ./build.sh
+    exit
 fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "libzerdax.so" ]; then

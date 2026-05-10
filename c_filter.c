@@ -182,7 +182,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 #define IMAGE_SIZE HH0*WW0
 
 static unsigned long
-hash_function(floaty *array) {
+hash_array(floaty *array) {
     unsigned long hash = 5381;
     for (int i = 0; i < IMAGE_SIZE; i += 1) {
         unsigned long c = 0;
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
         input0[i+3] = randd();
     }
 
-    hash_input = hash_function(input0);
+    hash_input = hash_array(input0);
     printf("input hash: %luu\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
 
     clock_gettime(CLOCK_REALTIME, &t1);
 
-    hash_output = hash_function(output0);
+    hash_output = hash_array(output0);
     printf("output hash: %luu\n", hash_output);
 
     for (int i = 0; i < LENGHT(hash_remember); i += 1) {

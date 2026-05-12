@@ -38,6 +38,7 @@ if [ $CC = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-pre-c11-compat"
     CFLAGS="$CFLAGS -Wno-constant-logical-operand"
     CFLAGS="$CFLAGS -Wno-cast-qual"
+    CFLAGS="$CFLAGS -Wno-cast-function-type-strict"
 
     # TODO: implement safe floating point comparisons
     CFLAGS="$CFLAGS -Wno-float-equal"

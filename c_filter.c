@@ -199,9 +199,6 @@ randd(void) {
     return (floaty)(double)r;
 }
 
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-
 typedef struct SaveHash {
     uint32 w;
     uint32 h;

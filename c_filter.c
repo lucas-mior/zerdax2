@@ -301,17 +301,21 @@ int32 main(int32 argc, char **argv) {
         }
 
         written = fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
-        if (written < IMAGE_SIZE)
+        if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", input_file, strerror(errno));
+        }
 
         written = fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
-        if (written < IMAGE_SIZE)
+        if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", output_file, strerror(errno));
+        }
 
-        if (fclose(image1))
+        if (fclose(image1)) {
             error("Error closing %s: %s.\n", input_file, strerror(errno));
-        if (fclose(image2))
+        }
+        if (fclose(image2)) {
             error("Error closing %s: %s.\n", output_file, strerror(errno));
+        }
     }
     free(input0);
     free(output0);

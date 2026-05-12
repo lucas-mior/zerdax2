@@ -64,8 +64,8 @@ fi
 
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "libzerdax.so" ]; then
     trace_on
-    ctags --kinds-C=+l *.h *.c || true
-    vtags.sed tags > .tags.vim || true
+    ctags --kinds-C=+l+d cbase/*.c *.h *.c  2> /dev/null || true
+    vtags.sed tags | sort | uniq > .tags.vim 2> /dev/null || true
     $CC $CPPFLAGS $CFLAGS -shared -o libzerdax.so $LDFLAGS $SRC
     trace_off
 fi

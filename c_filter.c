@@ -287,7 +287,7 @@ int32 main(int32 argc, char **argv) {
         char *output_file = "output.data";
         FILE *image1;
         FILE *image2;
-        size_t written;
+        int64 written;
 
         if ((image1 = fopen(input_file, "w")) == NULL) {
             error("Error opening '%s' for writing: %s.\n",
@@ -300,12 +300,12 @@ int32 main(int32 argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        written = fwrite(input0, sizeof(*input0), IMAGE_SIZE, image1);
+        written = fwrite64(input0, sizeof(*input0), IMAGE_SIZE, image1);
         if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", input_file, strerror(errno));
         }
 
-        written = fwrite(output0, sizeof(*output0), IMAGE_SIZE, image2);
+        written = fwrite64(output0, sizeof(*output0), IMAGE_SIZE, image2);
         if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", output_file, strerror(errno));
         }

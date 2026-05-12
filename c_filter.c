@@ -317,9 +317,9 @@ int32 main(int32 argc, char **argv) {
             error("Error closing %s: %s.\n", output_file, strerror(errno));
         }
     }
-    free(input0);
-    free(output0);
-    free(weights0);
+    free2(input0, IMAGE_SIZE*sizeof(*input0));
+    free2(output0, IMAGE_SIZE*sizeof(*output0));
+    free2(weights0, IMAGE_SIZE*sizeof(*weights0));
 
     return 0;
 }

@@ -29,22 +29,22 @@ typedef double floaty;
 typedef float floaty;
 #endif
 
-static const int WW = WW0;
+static const int32 WW = WW0;
 
 static floaty *restrict input;
 static floaty *restrict weights;
 static floaty *restrict output;
-static int hh;
-static int nthreads;
-static int matrix_size;
+static int32 hh;
+static int32 nthreads;
+static int32 matrix_size;
 
 void filter(floaty *restrict, floaty *restrict,
-            floaty *restrict, int, int);
+            floaty *restrict, int32, int32);
 
 typedef struct Slice {
-    int y0;
-    int y1;
-    int id;
+    int32 y0;
+    int32 y1;
+    int32 id;
 } Slice;
 
 static pthread_mutex_t mutexes[MAX_THREADS];
@@ -52,19 +52,19 @@ static pthread_mutex_t mutexes[MAX_THREADS];
 static void *
 work(void *arg) {
     Slice *slice = arg;
-    int y0 = slice->y0;
-    int y1 = slice->y1;
-    int id = slice->id;
+    int32 y0 = slice->y0;
+    int32 y1 = slice->y1;
+    int32 id = slice->id;
 
-    int dy = y1 - y0 + 1;
+    int32 dy = y1 - y0 + 1;
     if (y1 == (hh - 2))
         dy += 1;
 
-    memset(&(output[y0*WW]), 0, (size_t)dy*WW*sizeof(*output));
-    memset(&(weights[y0*WW]), 0, (size_t)dy*WW*sizeof(*weights));
+    memset64(&(output[y0*WW]), 0, dy*WW*SIZEOF(*output));
+    memset64(&(weights[y0*WW]), 0, dy*WW*SIZEOF(*weights));
 
-    for (int y = y0 + 1; y < (y1 + 1); y += 1) {
-        for (int x = 1; x < (WW - 1); x += 1) {
+    for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
+        for (int32 x = 1; x < (WW - 1); x += 1) {
             floaty Gx, Gy;
             floaty d, w;
             floaty xx;
@@ -102,11 +102,11 @@ work(void *arg) {
         }
     } while (0);
 
-    for (int y = y0 + 1; y < (y1 + 1); y += 1) {
-        for (int x = 1; x < (WW - 1); x += 1) {
+    for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
+        for (int32 x = 1; x < (WW - 1); x += 1) {
             floaty norm = 0;
-            for (int i = -1; i <= +1; i += 1) {
-                for (int j = -1; j <= +1; j += 1) {
+            for (int32 i = -1; i <= +1; i += 1) {
+                for (int32 j = -1; j <= +1; j += 1) {
                     floaty w = weights[WW*(y+i) + x+j];
                     norm += w;
                     output[WW*y + x] += w*input[WW*(y+i) + x+j];
@@ -121,10 +121,10 @@ work(void *arg) {
 
 void
 filter(floaty *restrict input0, floaty *restrict output0,
-       floaty *restrict weights0, int hh0, int nthreads0) {
+       floaty *restrict weights0, int32 hh0, int32 nthreads0) {
     pthread_t threads[MAX_THREADS];
     Slice slices[MAX_THREADS];
-    int range;
+    int32 range;
 
     input = input0;
     weights = weights0;
@@ -141,19 +141,19 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     range = hh / nthreads;
 
-    for (int i = 0; i < nthreads; i += 1) {
+    for (int32 i = 0; i < nthreads; i += 1) {
         pthread_mutex_init(&mutexes[i], NULL);
         pthread_mutex_lock(&mutexes[i]);
     }
 
-    for (int i = 0; i < (nthreads - 1); i += 1) {
+    for (int32 i = 0; i < (nthreads - 1); i += 1) {
         slices[i].y0 = i*range;
         slices[i].y1 = (i + 1)*range;
         slices[i].id = i;
 
         pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }{
-        int i = nthreads - 1;
+        int32 i = nthreads - 1;
         slices[i].y0 = i*range;
         slices[i].y1 = hh - 2;
         slices[i].id = i;
@@ -161,16 +161,16 @@ filter(floaty *restrict input0, floaty *restrict output0,
         pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }
 
-    for (int i = 0; i < nthreads; i += 1)
+    for (int32 i = 0; i < nthreads; i += 1)
         pthread_join(threads[i], NULL);
 
-    for (int x = 0; x < (matrix_size - 1); x += WW)
+    for (int32 x = 0; x < (matrix_size - 1); x += WW)
         output[x] = output[x+1];
-    for (int y = 0; y < (WW - 1); y += 1)
+    for (int32 y = 0; y < (WW - 1); y += 1)
         output[y] = output[y+WW];
-    for (int x = WW - 1; x < (matrix_size - 1); x += WW)
+    for (int32 x = WW - 1; x < (matrix_size - 1); x += WW)
         output[x] = output[x-1];
-    for (int y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
+    for (int32 y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
         output[y] = output[y-WW];
 
     return;
@@ -184,7 +184,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 static unsigned long
 hash_array(floaty *array) {
     unsigned long hash = 5381;
-    for (int i = 0; i < IMAGE_SIZE; i += 1) {
+    for (int32 i = 0; i < IMAGE_SIZE; i += 1) {
         unsigned long c = 0;
         memcpy(&c, &array[i], sizeof(*array));
         hash = ((hash << 5) + hash) + c;
@@ -211,16 +211,16 @@ typedef struct SaveHash {
     uint64 hash_output;
 } SaveHash;
 
-#define LENGHT(X) (int)(sizeof(X) / sizeof(*X))
+#define LENGHT(X) (int32)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
     {512, 512, 0, 0, 8707747967837504398u, 6217956780236870917u},
     {512, 512, 1, 0, 5682732646359110917u, 16220435064243098885u},
     {1080, 1080, 0, 0, 13196852808646899663u, 11178258618305559813u},
 };
 
-int main(int argc, char **argv) {
-    int hh0 = HH0;
-    int nfilters = 2000;
+int32 main(int32 argc, char **argv) {
+    int32 hh0 = HH0;
+    int32 nfilters = 2000;
     bool save_results = false;
     uint64 hash_input;
     uint64 hash_output;
@@ -235,7 +235,7 @@ int main(int argc, char **argv) {
 
     save_results = argc > 1;
 
-    for (int i = 0; i < IMAGE_SIZE; i += 4) {
+    for (int32 i = 0; i < IMAGE_SIZE; i += 4) {
         input0[i+0] = randd();
         input0[i+1] = randd();
         input0[i+2] = randd();
@@ -246,13 +246,13 @@ int main(int argc, char **argv) {
     printf("input hash: %luu\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
-    nthreads = (int) sysconf(_SC_NPROCESSORS_ONLN);
+    nthreads = (int32) sysconf(_SC_NPROCESSORS_ONLN);
     if (nthreads < 1)
         nthreads = 1;
     else if (nthreads > MAX_THREADS)
         nthreads = MAX_THREADS;
     
-    for (int i = 0; i < nfilters; i += 1)
+    for (int32 i = 0; i < nfilters; i += 1)
         filter(input0, output0, weights0, hh0, nthreads);
 
     clock_gettime(CLOCK_REALTIME, &t1);
@@ -260,7 +260,7 @@ int main(int argc, char **argv) {
     hash_output = hash_array(output0);
     printf("output hash: %luu\n", hash_output);
 
-    for (int i = 0; i < LENGHT(hash_remember); i += 1) {
+    for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
         if ((save_hash.w == WW0) 
             && (save_hash.h == HH0)

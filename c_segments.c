@@ -111,9 +111,6 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
 
 #define LINESIZE 4
 
-#define Q(x) #x
-#define QUOTE(x) Q(x)
-
 #define PRINT_LINE(name) print_line(QUOTE(name), name)
 
 static void

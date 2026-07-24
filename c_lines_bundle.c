@@ -45,7 +45,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
              int32 bundled[][LINE_FIELDS],
              int32 nlines, int32 min_distance0) {
     int m;
-    Group *group = xmalloc(sizeof(*group));
+    Group *group = xmalloc(sizeof(*group), 0);
     min_distance = min_distance0;
     first = last = group;
     first->next = NULL;
@@ -137,12 +137,14 @@ append(Group *group, int32 line[LINE_FIELDS]) {
 void
 groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
-    group->next = xmalloc(sizeof(*group));
+
+    group->next = xmalloc(sizeof(*group), 0);
     group = group->next;
     group->next = NULL;
     group->length = 0;
     append(group, line);
     last = group;
+
     return;
 }
 

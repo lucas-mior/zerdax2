@@ -10,6 +10,8 @@
 #include <math.h>
 
 #include "c_declarations.h"
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 static inline int32 minimum(int32 const [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);

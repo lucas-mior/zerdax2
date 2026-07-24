@@ -16,7 +16,8 @@
 #include <unistd.h>
 #include <tgmath.h>
 
-#include "util.c"
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 
 #define WW0 512
 #define MAX_THREADS 8

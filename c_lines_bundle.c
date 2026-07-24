@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <math.h>
 
+#define CBASE_IMPLEMENT
+#include "cbase.h"
 #include "c_declarations.h"
 #include "memory.c"
 

@@ -241,7 +241,7 @@ int32 main(int32 argc, char **argv) {
     }
 
     hash_input = hash_array(input0);
-    printf("input hash: %luu\n", hash_input);
+    printf("input hash: %lluu\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int32) sysconf(_SC_NPROCESSORS_ONLN);
@@ -256,7 +256,7 @@ int32 main(int32 argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t1);
 
     hash_output = hash_array(output0);
-    printf("output hash: %luu\n", hash_output);
+    printf("output hash: %lluu\n", hash_output);
 
     for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];

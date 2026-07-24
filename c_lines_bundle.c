@@ -17,7 +17,7 @@
 #define LINE_FIELDS 6
 #define I_ANGLE 5
 
-static const int32 min_angle = 15 * 100;
+static const int32 min_angle = 15*100;
 static const size_t line_size = LINE_FIELDS*sizeof(int32);
 static int32 min_distance;
 
@@ -33,9 +33,7 @@ typedef struct Group {
 static Group *first = NULL;
 static Group *last = NULL;
 
-int32 lines_bundle(int32 [][LINE_FIELDS],
-                   int32 [][LINE_FIELDS],
-                   int32, int32 );
+int32 lines_bundle(int32 [][LINE_FIELDS], int32 [][LINE_FIELDS], int32, int32 );
 static int32 compare(const void *, const void *);
 static int32 median(int32 *, int32);
 static void append(Group *, int32 [LINE_FIELDS]);

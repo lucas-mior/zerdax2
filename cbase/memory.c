@@ -12,18 +12,6 @@
 
 #include "cbase.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <pthread.h>
-
-#include "platform_detection.h"
-#include "base_macros.h"
-#include "primitives.h"
-#include "rapidhash.h"
-
 static int64 memory_page_size = 0;
 
 #include "memory.h"
@@ -50,17 +38,17 @@ static struct Hash_alloc_map *allocations = NULL;
 static pthread_mutex_t allocations_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define X64(FUNC) \
-INLINE void \
+CBASE_API_DEF void \
 CAT(FUNC, 64)(void *dest, void *source, int64 n) { \
     if (n == 0) \
         return; \
     if (DEBUGGING) { \
         if (n < 0) { \
-            error("Error: Invalid n = %lld\n", (llong)n); \
+            error("Error: Invalid n = %lld\n", n); \
             fatal(EXIT_FAILURE); \
         } \
         if ((ullong)n >= (ullong)SIZE_MAX) { \
-            error("Error: n (%lld) is bigger than SIZEMAX\n", (llong)n); \
+            error("Error: n (%lld) is bigger than SIZEMAX\n", n); \
             fatal(EXIT_FAILURE); \
         } \
     } \
@@ -72,18 +60,18 @@ X64(memcpy)
 X64(memmove)
 #undef X64
 
-INLINE void
+CBASE_API_DEF void
 memset64(void *buffer, int value, int64 size) {
     if (size == 0) {
         return;
     }
     if (DEBUGGING) {
         if (size < 0) {
-            error("Error: Invalid size = %lld\n", (llong)size);
+            error("Error: Invalid size = %lld\n", size);
             fatal(EXIT_FAILURE);
         }
         if ((ullong)size >= (ullong)SIZE_MAX) {
-            error("Error: Size (%lld) is bigger than SIZEMAX\n", (llong)size);
+            error("Error: Size (%lld) is bigger than SIZEMAX\n", size);
             fatal(EXIT_FAILURE);
         }
     }
@@ -91,7 +79,7 @@ memset64(void *buffer, int value, int64 size) {
     return;
 }
 
-INLINE void *
+CBASE_API_DEF void *
 xmalloc(int64 size, bool zero) {
     void *p;
 
@@ -99,7 +87,7 @@ xmalloc(int64 size, bool zero) {
         size = 1;
     }
     if ((p = malloc((size_t)size)) == NULL) {
-        error("Failed to allocate %lld bytes.\n", (llong)size);
+        error("Failed to allocate %lld bytes.\n", size);
         fatal(EXIT_FAILURE);
     }
     if (zero) {
@@ -109,7 +97,7 @@ xmalloc(int64 size, bool zero) {
     return p;
 }
 
-static void
+CBASE_API_DEF void
 memory_check(void) {
     if (RUNNING_ON_VALGRIND) {
         return;
@@ -133,7 +121,7 @@ memory_check(void) {
                 if (p[-MEMORY_PADDING + j] != 0xDC) {
                     error_impl(info.file, info.line, info.func,
                                "Memory underflow detected (size %lld).\n",
-                               (llong)info.size);
+                               info.size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -142,7 +130,7 @@ memory_check(void) {
                 if (p[info.size + j] != 0xDC) {
                     error_impl(info.file, info.line, info.func,
                                "Memory overflow detected (size %lld).\n",
-                               (llong)info.size);
+                               info.size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -152,7 +140,7 @@ memory_check(void) {
                     if (p[j] != 0xCD) {
                         error_impl(info.file, info.line, info.func,
                                    "Use after free detected (size %lld).\n",
-                                   (llong)info.size);
+                                   info.size);
                         fatal(EXIT_FAILURE);
                     }
                 }
@@ -163,7 +151,7 @@ memory_check(void) {
     return;
 }
 
-static void *
+CBASE_API_DEF void *
 malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
     void *p;
     uchar *ptr;
@@ -179,12 +167,12 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
 
     if (size < 0) {
         error_impl(file, line, func,
-                   "Invalid allocation size = %lld.\n", (llong)size);
+                   "Invalid allocation size = %lld.\n", size);
         fatal(EXIT_FAILURE);
     }
     if (size >= (MAXOF(size) - 2*MEMORY_PADDING)) {
         error_impl(file, line, func,
-                   "Allocation size (%lld) is too big.\n", (llong)size);
+                   "Allocation size (%lld) is too big.\n", size);
         fatal(EXIT_FAILURE);
     }
 
@@ -226,21 +214,21 @@ malloc_debug(char *file, int32 line, char *func, int64 size, bool zero) {
     return p;
 }
 
-INLINE void *
+CBASE_API_DEF void *
 xrealloc(void *old, int64 new_size) {
     void *p;
     uint64 old_save = (uint64)old;
 
     if ((p = realloc(old, (size_t)new_size)) == NULL) {
         error("Failed to reallocate %lld bytes from %llx.\n",
-              (llong)new_size, (ullong)old_save);
+              new_size, (ullong)old_save);
         fatal(EXIT_FAILURE);
     }
 
     return p;
 }
 
-INLINE void *
+CBASE_API_DEF void *
 realloc4(void *old, int64 old_capacity, int64 new_capacity, int64 obj_size) {
     int64 new_size = new_capacity*obj_size;
     (void)old_capacity;
@@ -248,7 +236,7 @@ realloc4(void *old, int64 old_capacity, int64 new_capacity, int64 obj_size) {
     return xrealloc(old, new_size);
 }
 
-static void *
+CBASE_API_DEF void *
 realloc_debug(char *file, int32 line, char *func,
               void *old, int64 old_capacity, int64 new_capacity,
               int64 obj_size) {
@@ -262,18 +250,18 @@ realloc_debug(char *file, int32 line, char *func,
 
     if (obj_size <= 0) {
         error_impl(file, line, func,
-                   "realloc: invalid object size = %lld.\n", (llong)obj_size);
+                   "realloc: invalid object size = %lld.\n", obj_size);
         fatal(EXIT_FAILURE);
     }
     if (new_capacity < 0) {
         error_impl(file, line, func,
-                   "realloc: invalid capacity = %lld.\n", (llong)new_capacity);
+                   "realloc: invalid capacity = %lld.\n", new_capacity);
         fatal(EXIT_FAILURE);
     }
     if ((MAXOF(new_size) / obj_size) < new_capacity) {
         error_impl(file, line, func,
                    "realloc: %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
 
@@ -329,7 +317,7 @@ realloc_debug(char *file, int32 line, char *func,
                            "Reallocation old size does not match size"
                            " allocated on %s:%d: %s(): %lld != %lld\n",
                            old_info.file, old_info.line, old_info.func,
-                           (llong)old_info.size, (llong)old_size);
+                           old_info.size, old_size);
                 fatal(EXIT_FAILURE);
             }
 
@@ -339,7 +327,7 @@ realloc_debug(char *file, int32 line, char *func,
                                "Memory underflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -349,7 +337,7 @@ realloc_debug(char *file, int32 line, char *func,
                                "Memory overflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -404,7 +392,7 @@ realloc_debug(char *file, int32 line, char *func,
     return p;
 }
 
-static void *
+CBASE_API_DEF void *
 realloc_flex_debug(char *file, int32 line, char *func,
                    void *old, int64 struct_size,
                    int64 old_capacity, int64 new_capacity, int64 obj_size) {
@@ -418,29 +406,29 @@ realloc_flex_debug(char *file, int32 line, char *func,
 
     if (obj_size <= 0) {
         error_impl(file, line, func,
-                   "Invalid object size = %lld.\n", (llong)obj_size);
+                   "Invalid object size = %lld.\n", obj_size);
         fatal(EXIT_FAILURE);
     }
     if (struct_size < 0) {
         error_impl(file, line, func,
-                   "Invalid struct size = %lld.\n", (llong)struct_size);
+                   "Invalid struct size = %lld.\n", struct_size);
         fatal(EXIT_FAILURE);
     }
     if (new_capacity < 0) {
         error_impl(file, line, func,
-                   "Invalid new capacity = %lld.\n", (llong)new_capacity);
+                   "Invalid new capacity = %lld.\n", new_capacity);
         fatal(EXIT_FAILURE);
     }
     if ((INT64_MAX / obj_size) < new_capacity) {
         error_impl(file, line, func,
                    "Allocating %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
     if ((INT64_MAX - struct_size) < (new_capacity*obj_size)) {
         error_impl(file, line, func,
                    "Allocating %lld objects of size %lld is too much.\n",
-                   (llong)new_capacity, (llong)obj_size);
+                   new_capacity, obj_size);
         fatal(EXIT_FAILURE);
     }
 
@@ -496,7 +484,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                            "Reallocation old size does not match size"
                            " allocated on %s:%d: %s(): %lld != %lld\n",
                            old_info.file, old_info.line, old_info.func,
-                           (llong)old_info.size, (llong)old_size);
+                           old_info.size, old_size);
                 fatal(EXIT_FAILURE);
             }
 
@@ -506,7 +494,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                                "Memory underflow detected before realloc\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -516,7 +504,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
                                "Memory overflow detected before realloc.\n");
                     error_impl(old_info.file, old_info.line, old_info.func,
                                "Allocated here (old size = %lld bytes).\n",
-                               (llong)old_size);
+                               old_size);
                     fatal(EXIT_FAILURE);
                 }
             }
@@ -572,7 +560,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
     return p;
 }
 
-static void
+CBASE_API_DEF void
 free_debug(char *file, int32 line, char *func,
            void *pointer, int64 size) {
     DebugAllocInfo info;
@@ -586,7 +574,7 @@ free_debug(char *file, int32 line, char *func,
     if (size < 0) {
         error_impl(file, line, func,
                    "Error: freeing allocation of negative size = %lld.\n",
-                   (llong)size);
+                   size);
         fatal(EXIT_FAILURE);
     }
 
@@ -614,7 +602,7 @@ free_debug(char *file, int32 line, char *func,
         if (info.size != size) {
             error_impl(file, line, func,
                        "Allocation size mismatch: Expected %lld, got %lld.\n",
-                       (llong)info.size, (llong)size);
+                       info.size, size);
             error_impl(info.file, info.line, info.func,
                        "Memory was allocated here. (reallocated = %d)\n",
                        info.reallocated);
@@ -663,7 +651,7 @@ free_debug(char *file, int32 line, char *func,
     return;
 }
 
-INLINE void
+CBASE_API_DEF void
 free2_(void *pointer, int64 size) {
     (void)size;
     if (pointer) {
@@ -672,97 +660,99 @@ free2_(void *pointer, int64 size) {
     return;
 }
 
+static int64
+memory_mapping_size(int64 size) {
+    if (size < 0) {
+        error("Invalid size = %lld\n", size);
+        fatal(EXIT_FAILURE);
+    }
+    if (size == 0) {
+        size = 1;
+    }
+
+    if (memory_page_size == 0) {
 #if OS_UNIX
-static void *
+        long page_size;
+
+        if ((page_size = sysconf(_SC_PAGESIZE)) <= 0) {
+            error("Error getting page size: %s.\n", strerror(errno));
+            fatal(EXIT_FAILURE);
+        }
+        memory_page_size = (int64)page_size;
+#elif OS_WINDOWS
+        SYSTEM_INFO system_info;
+
+        GetSystemInfo(&system_info);
+        memory_page_size = (int64)system_info.dwPageSize;
+        if (memory_page_size <= 0) {
+            fprintf(stderr, "Error getting page size.\n");
+            fatal(EXIT_FAILURE);
+        }
+#else
+        memory_page_size = 4096;
+#endif
+    }
+
+    return ALIGN_POWER_OF_2(size, memory_page_size);
+}
+
+#if OS_UNIX
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
     int64 size_original = *size;
 
-    if (*size < 0) {
-        error("Invalid size = %lld\n", (llong)*size);
-        fatal(EXIT_FAILURE);
-    }
-    if (*size == 0) {
-        *size = 1;
-    }
-
-    if (RUNNING_ON_VALGRIND) {
-        return xmalloc(*size, true);
-    }
-    if (memory_page_size == 0) {
-        long aux;
-        if ((aux = sysconf(_SC_PAGESIZE)) <= 0) {
-            error("Error getting page size: %s.\n", strerror(errno));
-            fatal(EXIT_FAILURE);
-        }
-        memory_page_size = aux;
-    }
+    *size = memory_mapping_size(*size);
 
     do {
-        if ((*size >= SIZEMB(2)) && FLAGS_HUGE_PAGES) {
-            *size = ALIGN_POWER_OF_2(*size, SIZEMB(2));
+        if ((size_original >= SIZEMB(2)) && FLAGS_HUGE_PAGES) {
+            *size = ALIGN_POWER_OF_2(size_original, SIZEMB(2));
             p = mmap(NULL, (size_t)*size, PROT_READ | PROT_WRITE,
-                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE
-                     | FLAGS_HUGE_PAGES,
+                     MAP_ANONYMOUS | MAP_PRIVATE | FLAGS_HUGE_PAGES,
                      -1, 0);
             if (p != MAP_FAILED) {
                 break;
             }
         }
-        *size = ALIGN_POWER_OF_2(size_original, memory_page_size);
+        *size = memory_mapping_size(size_original);
         p = mmap(NULL, (size_t)*size, PROT_READ | PROT_WRITE,
-                 MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE, -1, 0);
+                 MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     } while (0);
     if (p == MAP_FAILED) {
-        error("Error in mmap(%lld): %s.\n", (llong)*size, strerror(errno));
+        error("Error in mmap(%lld): %s.\n", *size, strerror(errno));
         fatal(EXIT_FAILURE);
     }
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
-    if (RUNNING_ON_VALGRIND) {
-        free(p);
-        return;
-    }
     if (munmap(p, (size_t)size) < 0) {
         error("Error in munmap(%p, %lld): %s.\n",
-              p, (llong)size, strerror(errno));
+              p, size, strerror(errno));
         fatal(EXIT_FAILURE);
     }
     return;
 }
 #elif OS_WINDOWS
-static void *
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
 
+    *size = memory_mapping_size(*size);
     if (RUNNING_ON_VALGRIND) {
-        if (*size == 0) {
-            *size = 1;
-        }
         return xmalloc(*size, true);
-    }
-    if (memory_page_size == 0) {
-        SYSTEM_INFO system_info;
-        GetSystemInfo(&system_info);
-        memory_page_size = system_info.dwPageSize;
-        if (memory_page_size <= 0) {
-            fprintf(stderr, "Error getting page size.\n");
-            fatal(EXIT_FAILURE);
-        }
     }
 
     p = VirtualAlloc(NULL, (size_t)*size, MEM_COMMIT | MEM_RESERVE,
                      PAGE_READWRITE);
     if (p == NULL) {
         fprintf(stderr, "Error in VirtualAlloc(%lld): %lu.\n",
-                        (llong)*size, GetLastError());
+                        *size, GetLastError());
         fatal(EXIT_FAILURE);
     }
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
     (void)size;
     if (RUNNING_ON_VALGRIND) {
@@ -775,36 +765,37 @@ xmunmap(void *p, int64 size) {
     return;
 }
 #else
-static void *
+CBASE_API_DEF void *
 xmmap_commit(int64 *size) {
     void *p;
 
+    *size = memory_mapping_size(*size);
     p = malloc2(*size);
     memset64(p, 0, *size);
     return p;
 }
-static void
+CBASE_API_DEF void
 xmunmap(void *p, int64 size) {
     free2(p, (int64)size);
     return;
 }
 #endif
 
-static void *
+CBASE_API_DEF void *
 xmemdup(void *source, int64 size) {
     void *p = malloc2(size);
     memcpy64(p, source, size);
     return p;
 }
 
-static char *
+CBASE_API_DEF char *
 xstrdup(char *string) {
     char *p;
     int64 length = strlen32(string) + 1;
 
     if ((p = malloc2(length)) == NULL) {
         error("Error allocating %lld bytes to duplicate '%s': %s\n",
-              (llong)length, string, strerror(errno));
+              length, string, strerror(errno));
         fatal(EXIT_FAILURE);
     }
 
@@ -812,7 +803,7 @@ xstrdup(char *string) {
     return p;
 }
 
-static char *
+CBASE_API_DEF char *
 xstrndup(char *s, int64 n) {
     char *out = malloc2(n + 1);
     memcpy64(out, s, n);
@@ -821,7 +812,7 @@ xstrndup(char *s, int64 n) {
 }
 
 #if 0 == TESTING_memory
-static inline void
+CBASE_API_DEF void
 memory_functions_sink(void) {
     (void)memory_check;
     (void)realloc4;
@@ -835,8 +826,6 @@ memory_functions_sink(void) {
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 // flags: -lm
-#include <signal.h>
-#include <setjmp.h>
 
 static sigjmp_buf test_jump_env;
 static bool caught_expected_fail = false;
@@ -886,6 +875,17 @@ int main(void) {
     }
 
     printf("--- Starting Comprehensive Memory Tests ---\n");
+
+    {
+        int64 size = 1;
+        char *mapping;
+
+        mapping = xmmap_commit(&size);
+        ASSERT_MORE(size, 1);
+        ASSERT_EQUAL(size % memory_page_size, 0);
+        ASSERT_EQUAL(mapping[0], 0);
+        xmunmap(mapping, size);
+    }
 
     {
         int64 size = 256;

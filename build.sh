@@ -42,6 +42,8 @@ if [ $CC = "clang" ]; then
 
     # TODO: implement safe floating point comparisons
     CFLAGS="$CFLAGS -Wno-float-equal"
+    CFLAGS="$CFLAGS -Wno-implicit-int-enum-cast"
+    CFLAGS="$CFLAGS -Wno-assign-enum"
 fi
 
 dir=$(dirname "$(readlink -f "$0")")

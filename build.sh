@@ -25,7 +25,6 @@ CFLAGS="$CFLAGS -Wfatal-errors"
 CFLAGS="$CFLAGS -Wall -Wextra"
 CFLAGS="$CFLAGS -Wno-gnu-union-cast"
 
-CFLAGS="$CFLAGS -Wno-unused-function"
 CFLAGS="$CFLAGS -Wno-unused-macros"
 CFLAGS="$CFLAGS -Wno-implicit-void-ptr-cast"
 

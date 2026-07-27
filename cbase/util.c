@@ -154,6 +154,15 @@ strequal(char *s1, char *s2) {
 }
 
 CBASE_API_DEF bool
+optional_strequal(char *a, int32 a_len, char *b, int32 b_len) {
+    if ((a == NULL) || (b == NULL)) {
+        return false;
+    }
+
+    return strequal2(a, a_len, b, b_len);
+}
+
+CBASE_API_DEF bool
 strequal2(char *a, int32 a_len, char *b, int32 b_len) {
     if (a_len != b_len) {
         return false;
@@ -806,9 +815,7 @@ error_impl(char *file, int32 line, char *func, char *format, ...) {
     }
 #endif
 
-    if (big_buffer) {
-        free2(big_buffer, m);
-    }
+    free2(big_buffer, m);
     return;
 }
 
@@ -1697,6 +1704,18 @@ write_entire_file(char *path, char *text, int64 text_len) {
 
 #define STR_BUILDER_INITIAL_CAPACITY 16
 
+CBASE_API_DEF char *
+sb_opt_cstr(StrBuilder *buffer) {
+    if (buffer == NULL) {
+        return "";
+    }
+    if (buffer->data == NULL) {
+        return "";
+    }
+
+    return buffer->data;
+}
+
 CBASE_API_DEF void
 sb_init(StrBuilder *str_builder) {
     str_builder->data = NULL;
@@ -1707,10 +1726,7 @@ sb_init(StrBuilder *str_builder) {
 
 CBASE_API_DEF void
 sb_free(StrBuilder *str_builder) {
-    if (str_builder->data) {
-        free2(str_builder->data, str_builder->cap);
-    }
-
+    free2(str_builder->data, str_builder->cap);
     sb_init(str_builder);
     return;
 }
@@ -1833,10 +1849,11 @@ sb_append(StrBuilder *str_builder, char *data, int32 data_len) {
     bool aliases = false;
     int32 data_offset = 0;
 
-    if (data_len <= 0) {
-        return;
-    }
-    if (data == NULL) {
+    if ((data_len <= 0) || (data == NULL)) {
+        if (str_builder->data == NULL) {
+            sb_reserve(str_builder, 8);
+            str_builder->data[0] = '\0';
+        }
         return;
     }
 
@@ -1871,10 +1888,23 @@ sb_append(StrBuilder *str_builder, char *data, int32 data_len) {
 
 CBASE_API_DEF void
 sb_append_byte(StrBuilder *str_builder, char byte) {
+    if (byte == '\0') {
+        return;
+    }
     sb_reserve(str_builder, 1);
     str_builder->data[str_builder->len] = byte;
     str_builder->len += 1;
     str_builder->data[str_builder->len] = '\0';
+    return;
+}
+
+CBASE_API_DEF void
+sb_append_byte_if_not(StrBuilder *str_builder, char byte) {
+    if ((str_builder->len > 0)
+        && (str_builder->data[str_builder->len - 1] == byte)) {
+        return;
+    }
+    sb_append_byte(str_builder, byte);
     return;
 }
 
@@ -1967,9 +1997,7 @@ str_builder_array_destroy(StrBuilderArray *array) {
     }
 
     str_builder_array_clear(array);
-    if (array->items) {
-        free2(array->items, array->cap*SIZEOF(*array->items));
-    }
+    free2(array->items, array->cap*SIZEOF(*array->items));
     str_builder_array_init(array);
     return;
 }

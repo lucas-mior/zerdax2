@@ -24,3 +24,5 @@ csegments
 temp_delete_me
 xadrez/
 *.S
+*.cmd
+*.o

@@ -87,8 +87,8 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
         dx = px - x0;
         dy = py - y0;
     } else {
-        double t;
-        t = (double) ((px - x0)*dx + (py - y0)*dy) / (double) (dx*dx + dy*dy);
+        double t = (double)((px - x0)*dx + (py - y0)*dy)
+                            / (double)(dx*dx + dy*dy);
 
         if (t < 0) {
             dx = px - x0;

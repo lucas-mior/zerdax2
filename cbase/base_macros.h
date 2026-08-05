@@ -122,10 +122,12 @@ _Generic((SIZE), \
 #define ALIGN(x) ALIGN_POWER_OF_2(x, ALIGNMENT)
 
 #if defined(__GNUC__)
+#define ASSUME_ALIGNED_EXPR(X) __builtin_assume_aligned((X), ALIGNMENT)
 #define ASSUME_ALIGNED(X) do { \
     X = __builtin_assume_aligned(X, ALIGNMENT); \
 } while (0)
 #else
+#define ASSUME_ALIGNED_EXPR(X) (X)
 #define ASSUME_ALIGNED(X) do {} while (0)
 #endif
 
@@ -155,12 +157,14 @@ _Generic((SIZE), \
 #endif
 
 #if CC_GCC || CC_CLANG
-#define UNUSED __attribute__((unused))
+#define UNUSED __attribute((unused))
 #else
 #define UNUSED
 #endif
 
-#define π 3.14159265358979323846264338327950288
+#define π  3.14159265358979323846264338327950288
+#define π2 2*π
+#define τ  2*π
 
 #if !defined(__has_builtin)
   #define __has_builtin(x) 0
@@ -174,6 +178,8 @@ _Generic((SIZE), \
   #define UNREACHABLE() do { } while(0)
 #endif
 
+// __func__ returns const char *
+// which breaks the qualifiers when passing it around
 #define FUNC__ (char *)__func__
 #define FUNC FUNC__
 
@@ -182,9 +188,9 @@ _Generic((SIZE), \
 #endif
 
 #if TESTING
-  #define TRAP(...) raise(SIGILL)
+  #define TRAP(...) do { raise(SIGILL); exit(EXIT_FAILURE); } while (0)
 #else
-  #if defined(__GNUC__) || defined(__clang__)
+  #if CC_GCC || CC_CLANG
     #define TRAP(...) __builtin_trap()
   #elif defined(_MSC_VER)
     #define TRAP(...) __debugbreak()

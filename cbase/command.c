@@ -266,7 +266,7 @@ command_windows_run_process(Command *command, enum CommandFlag flags) {
 #endif
 
 #if OS_UNIX
-CBASE_API_DEF bool
+CBASE_PRIVATE bool
 command_pipe_set_nonblock(int32 fd) {
     int flags;
 
@@ -281,7 +281,7 @@ command_pipe_set_nonblock(int32 fd) {
     return true;
 }
 
-CBASE_API_DEF void
+CBASE_PRIVATE void
 command_result_close_poll_fd(struct pollfd *pipe, int32 *fd, int32 *left) {
     if (*fd >= 0) {
         XCLOSE(fd);
@@ -293,7 +293,7 @@ command_result_close_poll_fd(struct pollfd *pipe, int32 *fd, int32 *left) {
     return;
 }
 
-CBASE_API_DEF void
+CBASE_PRIVATE void
 command_result_process_stdin_event(
     Command *command,
     struct pollfd *pipe,
@@ -359,7 +359,7 @@ command_result_process_stdin_event(
     return;
 }
 
-CBASE_API_DEF void
+CBASE_PRIVATE void
 command_result_process_output_event(
     Command *command,
     struct pollfd *pipe,
@@ -644,7 +644,7 @@ command_start(Command *command, enum CommandFlag flags) {
         command_error_set(command, EINVAL);
         return false;
     }
-    if (command->stdin_buffer_enabled
+    if ((command->stdin_buffer != NULL)
         && (flags & (COMMAND_ASYNC
                      |COMMAND_DETACHED
                      |COMMAND_STDIN_TTY
@@ -653,7 +653,7 @@ command_start(Command *command, enum CommandFlag flags) {
         return false;
     }
 
-    if (command->stdin_buffer_enabled) {
+    if (command->stdin_buffer != NULL) {
         xpipe(stdin_pipe);
         if (!command_pipe_set_nonblock(stdin_pipe[1])) {
             command_error_set(command, errno);
@@ -705,7 +705,7 @@ command_start(Command *command, enum CommandFlag flags) {
                 _exit(0);
             }
         }
-        if (command->stdin_buffer_enabled) {
+        if (command->stdin_buffer != NULL) {
             command_child_exec(command,
                                flags,
                                stdin_pipe,
@@ -797,7 +797,7 @@ command_run(Command *command, enum CommandFlag flags) {
     if (flags & COMMAND_ASYNC) {
         return true;
     }
-    if (command_flags_capture(flags) || command->stdin_buffer_enabled) {
+    if (command_flags_capture(flags) || (command->stdin_buffer != NULL)) {
         command_result_process_io(command, flags);
     }
     return command_wait(command);
@@ -810,7 +810,7 @@ command_run(Command *command, enum CommandFlag flags) {
     }
     if (command_flags_capture(flags)
         || (flags & COMMAND_ASYNC)
-        || command->stdin_buffer_enabled) {
+        || (command->stdin_buffer != NULL)) {
         command_error_set(command, ENOSYS);
         return false;
     }
@@ -982,13 +982,12 @@ command_stdin_buffer_set(Command *command, char *data, int64 data_len) {
     if (data_len < 0) {
         return false;
     }
-    if ((data_len > 0) && (data == NULL)) {
+    if (data == NULL) {
         return false;
     }
 
     command->stdin_buffer = data;
     command->stdin_buffer_len = data_len;
-    command->stdin_buffer_enabled = true;
     return true;
 }
 
@@ -1000,7 +999,6 @@ command_stdin_buffer_clear(Command *command) {
 
     command->stdin_buffer = NULL;
     command->stdin_buffer_len = 0;
-    command->stdin_buffer_enabled = false;
     return;
 }
 
@@ -1366,7 +1364,8 @@ main(int argc, char **argv) {
 
         command_reset(&cmd);
         ASSERT_EQUAL(cmd.argc, 0);
-        ASSERT(!cmd.stdin_buffer_enabled);
+        ASSERT(cmd.stdin_buffer == NULL);
+        ASSERT(!command_stdin_buffer_set(&cmd, NULL, 0));
 
         {
             enum {

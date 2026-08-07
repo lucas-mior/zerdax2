@@ -22,10 +22,28 @@ CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 cd "$dir" || exit
 program=$(basename "$(readlink -f "$(dirname "$0")")")
 script=$(basename "$0")
+
+targets=$(cat <<'EOF_TARGETS'
+build
+debug
+fast_feedback
+install
+uninstall
+test
+check
+clean
+all
+libzerdax.so
+cfilter
+csegments
+EOF_TARGETS
+)
 target="${1:-build}"
 
-if [ "$target" = "test" ]; then
-    exit
+if ! printf '%s\n' "$targets" | grep -qx "$target"; then
+    echo "usage: $script <targets>"
+    printf '%s\n' "$targets"
+    exit 1
 fi
 
 printf "

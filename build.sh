@@ -100,17 +100,17 @@ if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Wno-bad-function-cast"
 fi
 case "$target" in
-"debug")
+debug)
     CFLAGS="$CFLAGS -g3 -O0 -fPIC"
     CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
     ;;
-"build"|"all"|"libzerdax.so"|"cfilter"|"csegments")
+build|all|libzerdax.so|cfilter|csegments)
     CFLAGS="$CFLAGS $GNUSOURCE -g3 -O2 -fPIC -flto -march=native -ftree-vectorize"
     ;;
-"fast_feedback")
+fast_feedback)
     CFLAGS="$CFLAGS $GNUSOURCE -fPIC -Werror"
     ;;
-"test"|"install"|"uninstall"|"clean")
+test|install|uninstall|clean)
     ;;
 *)
     CFLAGS="$CFLAGS -O2"
@@ -168,15 +168,15 @@ build_csegments () {
 }
 
 case "$target" in
-"clean")
+clean)
     trace_on
     rm -rf bin tags .tags.vim
     trace_off
     ;;
-"test")
+test)
     exit
     ;;
-"check")
+check)
     CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" "$0" build
     CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
     CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
@@ -186,7 +186,7 @@ case "$target" in
     CC=clang CFLAGS="$CFLAGS" "$0" build
     exit
     ;;
-"install")
+install)
     if [ ! -f "$lib" ] || [ ! -f "$cfilter" ] || [ ! -f "$csegments" ]; then
         "$0" build
     fi
@@ -196,20 +196,20 @@ case "$target" in
     install -Dm755 "$csegments" "${DESTDIR}${PREFIX}/bin/csegments"
     trace_off
     ;;
-"uninstall")
+uninstall)
     trace_on
     rm -f "${DESTDIR}${PREFIX}/lib/libzerdax.so"
     rm -f "${DESTDIR}${PREFIX}/bin/cfilter"
     rm -f "${DESTDIR}${PREFIX}/bin/csegments"
     trace_off
     ;;
-"libzerdax.so")
+libzerdax.so)
     build_library
     ;;
-"cfilter")
+cfilter)
     build_cfilter
     ;;
-"csegments")
+csegments)
     build_csegments
     ;;
 *)

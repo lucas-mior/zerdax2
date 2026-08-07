@@ -22,7 +22,7 @@ CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 cd "$dir" || exit
 program=$(basename "$(readlink -f "$(dirname "$0")")")
 script=$(basename "$0")
-target="${1:-build}"
+target="${1:-debug}"
 
 if [ "$target" = "test" ]; then
     exit

@@ -150,7 +150,7 @@ build_library () {
 
 build_cfilter () {
     trace_on
-    $CC $CPPFLAGS $CFLAGS -o "$cfilter" "c_filter.c" $LDFLAGS
+    $CC -DTESTING_c_filter=1 $CPPFLAGS $CFLAGS -o "$cfilter" "c_filter.c" $LDFLAGS
     trace_off
 }
 

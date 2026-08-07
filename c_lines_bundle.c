@@ -1,17 +1,9 @@
 #ifndef C_LINES_BUNDLE_C
 #define C_LINES_BUNDLE_C
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <math.h>
-
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 #include "c_declarations.h"
-#include "memory.c"
 
 #define MAX_LINES_IN_GROUP 8
 #define LINE_FIELDS 6

@@ -5,7 +5,11 @@
  * "An improved CANNY edge detection algorithm"
  * 2009 Second International Workshop on Computer Science and Engineering */
 
-#include <tgmath.h>
+#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
+#define TESTING_c_filter 1
+#elif !defined(TESTING_c_filter)
+#define TESTING_c_filter 0
+#endif
 
 #define CBASE_IMPLEMENT
 #include "cbase.h"
@@ -168,8 +172,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     return;
 }
 
-#if defined(__INCLUDE_LEVEL__) && (__INCLUDE_LEVEL__ == 0)
-#include <errno.h>
+#if TESTING_c_filter
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0
 
@@ -315,6 +318,6 @@ int32 main(int32 argc, char **argv) {
 
     return 0;
 }
-#endif
+#endif /* TESTING_c_filter */
 
-#endif
+#endif /* C_FILTER_C */

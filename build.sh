@@ -67,15 +67,18 @@ if echo "$OS" | grep -q "Linux"; then
     fi
 fi
 
-requested_cc=${CC:-}
 case "$target" in
-"debug"|"test"|"fast_feedback")
-    CC="${requested_cc:-tcc}"
+debug|test)
+    CC="${CC:-tcc}"
+    ;;
+fast_feedback)
+    CC="${CC:-clang}"
     ;;
 *)
-    CC="${requested_cc:-cc}"
+    CC="${CC:-cc}"
     ;;
 esac
+
 if [ "$CC" = "clang" ]; then
     CFLAGS="$CFLAGS -Weverything"
     CFLAGS="$CFLAGS -Wno-unsafe-buffer-usage"

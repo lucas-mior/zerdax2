@@ -614,14 +614,8 @@ strerror_r(int errnum, char *buffer, size_t size) {
     int32 len = strlen32(error_message);
 
     ASSERT_MORE(size, 0);
-    ASSERT_LESS(size, MAXOF(len));
-
-    if (len >= (int32)size) {
-        len = (int32)size - 1;
-    }
-
-    memcpy64(buffer, error_message, len);
-    buffer[len] = '\0';
+    memcpy64(buffer, error_message, MIN(len + 1, size - 1));
+    buffer[size - 1] = '\0';
 
     return 0;
 }
@@ -1014,7 +1008,7 @@ util_copy_file_async_parsed(UtilCopyFilesAsync *copy_files) {
             if (n <= 0) {
                 break;
             }
-            if (!(pipes[i].revents & POLLIN)) {
+            if (!(pipes[i].revents & POLL_IN)) {
                 pipes[i].revents = 0;
                 continue;
             }
@@ -2916,10 +2910,8 @@ main(int argc, char **argv) {
             fatal(EXIT_FAILURE);
         }
 
-        if (util_filename_from(buffer2, sizeof(buffer2), fd) == 0) {
-            ASSERT(realpath(name, buffer3) != NULL);
-            ASSERT_EQUAL(buffer3, buffer2);
-        }
+        util_filename_from(buffer2, sizeof(buffer2), fd);
+        ASSERT_EQUAL(realpath(name, buffer3), buffer2);
         xunlink(name);
 
         XCLOSE(&fd);
@@ -2938,10 +2930,8 @@ main(int argc, char **argv) {
             fatal(EXIT_FAILURE);
         }
 
-        if (util_filename_from(buffer4, sizeof(buffer4), fd) == 0) {
-            ASSERT(realpath(buffer2, buffer3) != NULL);
-            ASSERT_EQUAL(buffer3, buffer4);
-        }
+        util_filename_from(buffer4, sizeof(buffer4), fd);
+        ASSERT_EQUAL(realpath(buffer2, buffer3), buffer4);
         XCLOSE(&fd);
         xunlink(buffer2);
     }

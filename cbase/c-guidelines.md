@@ -1,5 +1,4 @@
 # C coding guidelines for 64-bit PC programming
-Use this together with c-format.md
 
 ## Note
 When a rule says "prefer", avoid changing already-readable code unless the
@@ -260,7 +259,7 @@ In general, avoid `strcmp()`:
   null terminated):
   * use `STREQUAL(s1, s1_len, s2)`
 - For strings that we know the length of both (they might be null terminated,
-  but not necessarly):
+  but not necessarly:
   * use `STREQUAL(s1, s1_len, s2, s2_len)`
 - Use `strcmp()` when comparing strings for sorting purposes.
 

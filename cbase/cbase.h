@@ -94,6 +94,7 @@ CBASE_API_DECL void *memrchr64(void *, int32, int64);
 
 #include "assert.c"
 #include "generic.c"
+#include "minmax.c"
 
 #define UTF_INVALID 0xFFFD
 
@@ -140,12 +141,12 @@ typedef struct UtilCopyFilesAsync {
     int32 unused;
 } UtilCopyFilesAsync;
 
+CBASE_API_DECL bool util_is_integer(char *string);
 CBASE_API_DECL int32 util_copy_file_async(char *, char *, int *);
 CBASE_API_DECL void util_copy_file_async_parsed(UtilCopyFilesAsync *);
 CBASE_API_DECL void *util_copy_file_async_thread(void *);
 #endif
 
-CBASE_API_DECL bool util_is_integer(char *string);
 CBASE_API_DECL void util_segv_handler(int32) __attribute__((noreturn));
 CBASE_API_DECL int32 itoa2(char *, int32, llong);
 CBASE_API_DECL long atoi2(char *);
@@ -280,10 +281,6 @@ CBASE_API_DECL void xpthread_create(
 );
 CBASE_API_DECL void xpthread_join(pthread_t *, void **);
 CBASE_API_DECL void xpthread_mutex_destroy(pthread_mutex_t *);
-CBASE_API_DECL void xpthread_mutex_init(
-    pthread_mutex_t *,
-    pthread_mutexattr_t *
-);
 CBASE_API_DECL void xpthread_mutex_lock(pthread_mutex_t *);
 CBASE_API_DECL void xpthread_mutex_unlock(pthread_mutex_t *);
 #endif
@@ -355,11 +352,13 @@ _Generic((VAR), \
 #define XFCLOSE(F, FILENAME) \
     xfclose(__FILE__, __LINE__, FUNC__, F, FILENAME)
 
-#define SB_APPEND_2(SB, STRING)      sb_append(SB, STRING, strlen32(STRING))
-#define SB_APPEND_3(SB, STRING, LEN) sb_append(SB, STRING, (int32)(LEN))
+#define SB_APPEND_2(BUILDER, STRING) \
+    sb_append(BUILDER, STRING, strlen32(STRING))
+#define SB_APPEND_3(BUILDER, STRING, LEN) \
+    sb_append(BUILDER, STRING, (int32)(LEN))
 #define SB_APPEND(...) SELECT_ON_NUM_ARGS(SB_APPEND_, __VA_ARGS__)
 
-#define strequal2_3(A, A_LEN, B)        strequal2(A, A_LEN, B, strlen32(B))
+#define strequal2_3(A, A_LEN, B) strequal2(A, A_LEN, B, strlen32(B))
 #define strequal2_4(A, A_LEN, B, B_LEN) strequal2(A, A_LEN, B, B_LEN)
 #define STREQUAL(...) SELECT_ON_NUM_ARGS(strequal2_, __VA_ARGS__)
 
@@ -524,9 +523,10 @@ CBASE_API_DECL char *command_str(Command *, int32 *);
 CBASE_API_DECL void command_vector_reserve(char ***, int32 **, int32 *, int32, int32);
 CBASE_API_DECL bool command_wait(Command *);
 
-#define COMMAND_PUSH(CMD, ...)                                             \
-    command_push_array(CMD,                                                \
-                       (SIZEOF((char *[]){__VA_ARGS__}) / SIZEOF(char *)), \
+#define COMMAND_PUSH(CMD, ...) \
+    command_push_array(CMD, \
+                       (int32)(sizeof((char *[]){__VA_ARGS__}) \
+                               /sizeof(char *)), \
                        (char *[]){__VA_ARGS__})
 
 #define COMMAND_ENV_PUSH_2(A, B) command_env_push(A, B)
@@ -539,15 +539,16 @@ CBASE_API_DECL bool command_wait(Command *);
 #define MAX_NTHREADS 64
 #endif
 
-// Note: it is ok to typedef union here
-typedef union GenericArrayHeader {
-    struct {
-        int32 count;
-        int32 cap;
-    };
-    uchar padding[ALIGNMENT];
-    max_align_t alignment;
+typedef struct GenericArrayHeader {
+    ldouble alignment;
+    int32 count;
+    int32 cap;
+    int64 padding;
 } GenericArrayHeader;
+_Static_assert(_Alignof(GenericArrayHeader) <= ALIGNMENT,
+               "GenericArrayHeader alignment exceeds allocator alignment");
+_Static_assert((sizeof(GenericArrayHeader)%ALIGNMENT) == 0,
+               "GenericArrayHeader size must preserve payload alignment");
 
 CBASE_API_DECL void *generic_array_init(int32, int64);
 CBASE_API_DECL void *generic_array_grow(void *, int64);
@@ -557,43 +558,34 @@ CBASE_API_DECL void generic_array_set_count(void *, int32);
 
 #define ARRAY_HEADER(ARRAY) \
     ((GenericArrayHeader *)ASSUME_ALIGNED_EXPR((void *)(ARRAY)) - 1)
-
 #define ARRAY_LEN(ARRAY) ((ARRAY) ? ARRAY_HEADER(ARRAY)->count : 0)
-
 #define ARRAY_CAPACITY(ARRAY) generic_array_capacity(ARRAY)
-
 #define ARRAY_RESERVE(ARRAY, NEEDED_COUNT) \
     generic_array_reserve((void **)&(ARRAY), \
                           (NEEDED_COUNT), \
                           SIZEOF(*(ARRAY)))
-
 #define ARRAY_SET_COUNT(ARRAY, COUNT) \
     generic_array_set_count((ARRAY), (COUNT))
-
 #define ARRAY_INIT_COUNT(ARRAY, COUNT) do { \
-    ARRAY_INIT((ARRAY), (COUNT));           \
-    ARRAY_SET_COUNT((ARRAY), (COUNT));      \
+    ARRAY_INIT((ARRAY), (COUNT)); \
+    ARRAY_SET_COUNT((ARRAY), (COUNT)); \
 } while (0)
-
-#define ARRAY_CLEAR(ARRAY) do {            \
-    if (ARRAY) {                           \
-        ARRAY_HEADER(ARRAY)->count = 0;    \
-    }                                      \
+#define ARRAY_CLEAR(ARRAY) do { \
+    if (ARRAY) { \
+        ARRAY_HEADER(ARRAY)->count = 0; \
+    } \
 } while (0)
-
-#define ARRAY_FREE(ARRAY) do {                                               \
-    if (ARRAY) {                                                             \
-        GenericArrayHeader *array_header_ = ARRAY_HEADER(ARRAY);             \
-        free2(array_header_,                                                 \
-              SIZEOF(*array_header_) + array_header_->cap*SIZEOF(*(ARRAY))); \
+#define ARRAY_FREE(ARRAY) do { \
+    if (ARRAY) { \
+        GenericArrayHeader *array_header_ = ARRAY_HEADER(ARRAY); \
+        free2(array_header_, SIZEOF(*array_header_) \
+              + array_header_->cap*SIZEOF(*(ARRAY))); \
         (ARRAY) = NULL; \
     } \
 } while (0)
-
 #define ARRAY_PUSH(ARRAY, ...) \
     ((ARRAY) = generic_array_grow((ARRAY), SIZEOF(*(ARRAY))), \
      (ARRAY)[ARRAY_HEADER(ARRAY)->count++] = (__VA_ARGS__))
-
 #define ARRAY_INIT(ARRAY, CAPACITY) \
     ((ARRAY) = generic_array_init((CAPACITY), SIZEOF(*(ARRAY))))
 

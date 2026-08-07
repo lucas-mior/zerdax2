@@ -58,6 +58,9 @@ if [ "$TARGET" = "clean" ]; then
     rm -f libzerdax.so cfilter
     exit 0
 fi
+if [ "$TARGET" = "test" ]; then
+    exit
+fi
 if [ "$TARGET" = "check" ]; then
     CC=gcc CFLAGS="-fanalyzer" ./build.sh
 

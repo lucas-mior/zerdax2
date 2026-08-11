@@ -24,7 +24,6 @@ mkdir -p bin
 CC=$(get_compiler "$target")
 
 CPPFLAGS="$CPPFLAGS -I$dir/cbase"
-CPPFLAGS="$CPPFLAGS -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
@@ -52,24 +51,16 @@ fi
 
 LDFLAGS="$LDFLAGS -lm -lpthread"
 
-OS=$(uname -a)
-GNUSOURCE=
-if echo "$OS" | grep -q "Linux"; then
-    if echo "$OS" | grep -q "GNU"; then
-        GNUSOURCE="-D_GNU_SOURCE"
-    fi
-fi
-
 case "$target" in
 debug)
     CFLAGS="$CFLAGS -g3 -O0 -fPIC"
-    CPPFLAGS="$CPPFLAGS $GNUSOURCE -DDEBUGGING=1"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 build|all|libzerdax.so|cfilter|csegments)
-    CFLAGS="$CFLAGS $GNUSOURCE -g3 -O2 -fPIC -flto -march=native -ftree-vectorize"
+    CFLAGS="$CFLAGS -g3 -O2 -fPIC -flto -march=native -ftree-vectorize"
     ;;
 fast_feedback)
-    CFLAGS="$CFLAGS $GNUSOURCE -fPIC"
+    CFLAGS="$CFLAGS -fPIC"
     ;;
 test|install|uninstall|clean)
     ;;

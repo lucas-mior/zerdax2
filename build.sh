@@ -53,7 +53,7 @@ LDFLAGS="$LDFLAGS -lm -lpthread"
 
 case "$target" in
 debug)
-    CFLAGS="$CFLAGS -g3 -O0 -fPIC"
+    CFLAGS="$CFLAGS -g3 -Og -fPIC"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
 build|all|libzerdax.so|cfilter|csegments)

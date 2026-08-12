@@ -181,7 +181,7 @@ hash_array(floaty *array) {
     unsigned long hash = 5381;
     for (int32 i = 0; i < IMAGE_SIZE; i += 1) {
         unsigned long c = 0;
-        memcpy64(&c, &array[i], sizeof(*array));
+        memcpy64(&c, &array[i], SIZEOF(*array));
         hash = ((hash << 5) + hash) + c;
     }
     return hash;

@@ -8,9 +8,9 @@ dir=$(dirname "$(readlink -f "$0")")
 
 cd "$dir" || exit
 script=$(basename "$0")
-build_parse_args "$@"
+common_build_parse_args "$@"
 
-build_print_invocation "$script"
+common_build_print_invocation "$script"
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -21,7 +21,7 @@ cfilter="bin/cfilter"
 csegments="bin/csegments"
 mkdir -p bin
 
-CC=$(get_compiler "$mode")
+CC=$(common_get_compiler "$mode")
 
 CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 
@@ -70,7 +70,7 @@ test|install|uninstall|clean)
 esac
 
 build_library () {
-    build_tags
+    common_build_tags
     trace_on
     $CC $CPPFLAGS $CFLAGS -shared -o "$lib" $LDFLAGS "$src"
     trace_off
@@ -95,7 +95,7 @@ clean)
     trace_off
     ;;
 test)
-    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$target"
+    TEST_EXCLUDE_PATTERN='(^|/)cbase/' common_test "$target"
     exit
     ;;
 check)

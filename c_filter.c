@@ -176,11 +176,11 @@ filter(floaty *restrict input0, floaty *restrict output0,
 #define HH0 512
 #define IMAGE_SIZE HH0*WW0
 
-static unsigned long
+static uint64
 hash_array(floaty *array) {
-    unsigned long hash = 5381;
+    uint64 hash = 5381;
     for (int32 i = 0; i < IMAGE_SIZE; i += 1) {
-        unsigned long c = 0;
+        uint64 c = 0;
         memcpy64(&c, &array[i], SIZEOF(*array));
         hash = ((hash << 5) + hash) + c;
     }

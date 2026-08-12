@@ -3,10 +3,11 @@
 # shellcheck disable=SC2086
 
 dir=$(dirname "$(readlink -f "$0")")
-# shellcheck source=/dev/null
-. "$dir/cbase/common.sh"
-
 cd "$dir" || exit
+
+# shellcheck source=./cbase/common.sh
+. "./cbase/common.sh"
+
 script=$(basename "$0")
 common_build_parse_args "$@"
 

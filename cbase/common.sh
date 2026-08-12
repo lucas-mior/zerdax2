@@ -53,7 +53,7 @@ common_get_program() {
     basename "$(readlink -f "$(dirname "$1")")"
 }
 
-common_needs_rebuild_includes () {
+common_outdated_includes () {
     source_file=$1
 
     awk '
@@ -69,7 +69,7 @@ common_needs_rebuild_includes () {
     ' "$source_file"
 }
 
-common_needs_rebuild_resolve_include () {
+common_outdated_resolve_include () {
     source_file=$1
     include_file=$2
     source_dir=$(dirname "$source_file")
@@ -87,7 +87,7 @@ common_needs_rebuild_resolve_include () {
     return 1
 }
 
-common_needs_rebuild_source_is_newer () {
+common_outdated_source_is_newer () {
     rebuild_target=$1
     source_file=$2
     seen_file=$3
@@ -110,14 +110,14 @@ common_needs_rebuild_source_is_newer () {
         return 1
     fi
 
-    for include_file in $(common_needs_rebuild_includes "$source_file"); do
+    for include_file in $(common_outdated_includes "$source_file"); do
         resolved_file=$(
-            common_needs_rebuild_resolve_include "$source_file" "$include_file" \
+            common_outdated_resolve_include "$source_file" "$include_file" \
                 || true
         )
 
         if [ -n "$resolved_file" ] \
-                && common_needs_rebuild_source_is_newer \
+                && common_outdated_source_is_newer \
                     "$rebuild_target" "$resolved_file" "$seen_file"; then
             return 0
         fi
@@ -126,7 +126,7 @@ common_needs_rebuild_source_is_newer () {
     return 1
 }
 
-common_needs_rebuild () {
+common_outdated () {
     rebuild_target=$1
     shift
 
@@ -134,11 +134,11 @@ common_needs_rebuild () {
         return 0
     fi
 
-    seen_file=${TMPDIR:-/tmp}/common_needs_rebuild.$$.seen
+    seen_file=${TMPDIR:-/tmp}/common_outdated.$$.seen
     : > "$seen_file"
 
     for source_file do
-        if common_needs_rebuild_source_is_newer \
+        if common_outdated_source_is_newer \
                 "$rebuild_target" "$source_file" "$seen_file"; then
             rm -f "$seen_file"
             return 0
@@ -503,7 +503,6 @@ common_test_compile_and_run_source () {
     test_name=$(basename "$test_src")
     test_module=${test_name%.c}
     test_exe=$(common_test_executable_path "$test_module")
-    test_flags=$(awk '/flags:/ { $1=$2=""; print $0 }' "$test_src")
     test_cc=$CC
     test_cmd_flags="$CPPFLAGS $TEST_CPPFLAGS $CFLAGS $TEST_CFLAGS"
     test_added_flags=""
@@ -565,7 +564,6 @@ common_test_compile_and_run_source () {
     test_added_flags="$test_added_flags $TEST_EXTRA_DEFS"
     if [ -n "$test_msvc_compiler" ]; then
         test_added_flags=$(common_gcc_flags_to_msvc "$test_msvc_compiler" $test_added_flags)
-        test_flags=$(common_gcc_flags_to_msvc "$test_msvc_compiler" $test_flags)
         test_tail_ldflags=$(common_gcc_flags_to_msvc "$test_msvc_compiler" $test_tail_ldflags)
     fi
     test_cmdline="$test_cmdline $test_added_flags"
@@ -574,7 +572,7 @@ common_test_compile_and_run_source () {
     else
         test_cmdline="$test_cmdline -o $test_exe $test_src"
     fi
-    test_cmdline="$test_cmdline $test_flags $test_tail_ldflags"
+    test_cmdline="$test_cmdline $test_tail_ldflags"
 
     trace_on
     if $test_cmdline < /dev/null; then

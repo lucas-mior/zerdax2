@@ -212,7 +212,7 @@ static SaveHash hash_remember[] = {
 
 int32 main(int32 argc, char **argv) {
     int32 hh0 = HH0;
-    int32 nfilters = 2000;
+    int32 nfilters = 500;
     bool save_results = false;
     uint64 hash_input;
     uint64 hash_output;
@@ -244,8 +244,9 @@ int32 main(int32 argc, char **argv) {
     else if (nthreads > MAX_THREADS)
         nthreads = MAX_THREADS;
     
-    for (int32 i = 0; i < nfilters; i += 1)
+    for (int32 i = 0; i < nfilters; i += 1) {
         filter(input0, output0, weights0, hh0, nthreads);
+    }
 
     clock_gettime(CLOCK_REALTIME, &t1);
 

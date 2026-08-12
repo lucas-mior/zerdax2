@@ -10,7 +10,7 @@
 #define I_ANGLE 5
 
 static const int32 min_angle = 15*100;
-static const size_t line_size = LINE_FIELDS*sizeof(int32);
+static const int64 line_size = LINE_FIELDS*SIZEOF(int32);
 static int32 min_distance;
 
 typedef struct Group {

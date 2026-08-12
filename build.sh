@@ -8,9 +8,9 @@ dir=$(dirname "$(readlink -f "$0")")
 
 cd "$dir" || exit
 script=$(basename "$0")
-target="${1:-debug}"
+build_parse_args "$@"
 
-printf "\n${script} ${RED}${1:-} ${2:-}$RES\n"
+build_print_invocation "$script"
 
 PREFIX="${PREFIX:-/usr/local}"
 DESTDIR="${DESTDIR:-/}"
@@ -21,7 +21,7 @@ cfilter="bin/cfilter"
 csegments="bin/csegments"
 mkdir -p bin
 
-CC=$(get_compiler "$target")
+CC=$(get_compiler "$mode")
 
 CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 
@@ -51,7 +51,7 @@ fi
 
 LDFLAGS="$LDFLAGS -lm -lpthread"
 
-case "$target" in
+case "$mode" in
 debug)
     CFLAGS="$CFLAGS -g3 -Og -fPIC"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
@@ -88,14 +88,14 @@ build_csegments () {
     trace_off
 }
 
-case "$target" in
+case "$mode" in
 clean)
     trace_on
     rm -rf bin tags .tags.vim
     trace_off
     ;;
 test)
-    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$2"
+    TEST_EXCLUDE_PATTERN='(^|/)cbase/' test "$target"
     exit
     ;;
 check)

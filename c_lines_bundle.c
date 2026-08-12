@@ -51,7 +51,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
     }
 
     m = 0;
-    memcpy(bundled[m], group->lines[0], line_size);
+    memcpy64(bundled[m], group->lines[0], line_size);
     group = group->next;
     m += 1;
 
@@ -82,7 +82,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
             best_line[j+1] /= number_bests;
         }
 
-        memcpy(bundled[m], best_line, line_size);
+        memcpy64(bundled[m], best_line, line_size);
         {
             void *aux = group;
             group = group->next;
@@ -121,7 +121,7 @@ append(Group *group, int32 line[LINE_FIELDS]) {
         return;
 
     group->angles[j] = line[I_ANGLE];
-    memcpy(group->lines[j], line, line_size);
+    memcpy64(group->lines[j], line, line_size);
     group->length += 1;
     return;
 }

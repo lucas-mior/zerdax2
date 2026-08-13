@@ -66,7 +66,6 @@ fast_feedback)
 test|install|uninstall|clean)
     ;;
 *)
-    CFLAGS="$CFLAGS -O2"
     ;;
 esac
 
@@ -139,9 +138,19 @@ cfilter)
 csegments)
     build_csegments
     ;;
-*)
+all|build|debug|fast_feedback)
     build_library
     build_cfilter
     build_csegments
+    ;;
+esac
+
+
+case "$mode" in
+all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+    ;;
+*)
+    echo "Unknown mode $mode"
+    exit 1
     ;;
 esac

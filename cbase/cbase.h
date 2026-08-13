@@ -44,7 +44,13 @@ extern void *memrchr64(void *, int32, int64);
 
 #define UTF_INVALID 0xFFFD
 
-extern int32 random_utf8_string(char *, int32, int32);
+typedef struct DirEntry {
+    int32 name_len;
+    char name[256];
+} DirEntry;
+
+extern int32 get_directory_entries(char *, DirEntry **);
+extern int32 utf8_random_string(char *, int32, int32);
 extern int32 utf8_byte_position(char *, int32, int32);
 extern int32 utf8_capitalize_first_letters(char *, int32,
                                                    char *, int32);
@@ -219,6 +225,10 @@ extern int xclosedir(DIR *, char *);
 #endif
 extern int xfclose(char *, int32, char *, FILE *, char *);
 extern FILE *xfopen(char *, int32, char *, char *, char *);
+#if OS_WINDOWS
+extern void windows_set_errno(DWORD);
+#endif
+
 #if OS_UNIX
 extern void xdup2(int, int);
 extern void xkill(pid_t, int);
@@ -329,7 +339,7 @@ _Generic((VAR), \
     sb_append(BUILDER, STRING, (int32)(LEN))
 #define SB_APPEND(...) SELECT_ON_NUM_ARGS(SB_APPEND_, __VA_ARGS__)
 
-#define HERE here_impl(__FILE__, __LINE__, (char *)__func__)
+#define HERE here_impl(__FILE__, __LINE__, FUNC__)
 
 #define NCALLS(INTERVAL) do { \
     static int64 ncalls_ncalls = 1; \
@@ -341,7 +351,7 @@ _Generic((VAR), \
 } while (0)
 
 #define PRINT_TIMINGS_3(N, T0, T1) \
-    print_timings(__FILE__, __LINE__, (char *)__func__, N, T0, T1)
+    print_timings(__FILE__, __LINE__, FUNC__, N, T0, T1)
 #define PRINT_TIMINGS_4(N, T0, T1, NAME) \
     print_timings(__FILE__, __LINE__, NAME, N, T0, T1)
 #define PRINT_TIMINGS(...) SELECT_ON_NUM_ARGS(PRINT_TIMINGS_, __VA_ARGS__)
@@ -557,6 +567,20 @@ extern void generic_array_set_count(void *, int32);
 #define ARRAY_INIT(ARRAY, CAPACITY) \
     ((ARRAY) = generic_array_init((CAPACITY), SIZEOF(*(ARRAY))))
 
+#if CC_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+#endif
+
+// when you need a valid symbol
+// to silence clangd warnings in include-based templates.
+typedef void ThrowAwayFunction();
+extern void throw_away_function();
+
+#if CC_CLANG
+#pragma clang diagnostic pop
+#endif
+
 #include "meta.h"
 
 #endif /* CBASE_H */
@@ -570,6 +594,10 @@ extern void generic_array_set_count(void *, int32);
 #include "array.c"
 #include "utf8.c"
 #include "util.c"
+#if OS_WINDOWS
+#include "windows.c"
+#endif
+#include "directory.c"
 #include "threads.c"
 
 #define ENUM_NAME CommandFlag

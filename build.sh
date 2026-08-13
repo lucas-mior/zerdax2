@@ -11,6 +11,14 @@ cd "$dir" || exit
 script=$(basename "$0")
 common_build_parse_args "$@"
 
+case "$mode" in
+all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+    ;;
+*)
+    common_build_unknown_mode
+    ;;
+esac
+
 common_build_print_invocation "$script"
 
 PREFIX="${PREFIX:-/usr/local}"
@@ -65,7 +73,10 @@ fast_feedback)
     ;;
 test|install|uninstall|clean)
     ;;
+all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+    ;;
 *)
+    common_build_unknown_mode
     ;;
 esac
 
@@ -99,18 +110,7 @@ test)
     exit
     ;;
 check)
-    set +e
-
-    CC=gcc CFLAGS="-fanalyzer -fdiagnostics-color=never" "$0" build
-
-    CFLAGS="--analyze -Xanalyzer -analyzer-output=text"
-    CFLAGS="$CFLAGS -Xanalyzer -analyzer-werror"
-    CFLAGS="$CFLAGS -Xanalyzer -analyzer-opt-analyze-headers"
-    CFLAGS="$CFLAGS -Wno-unused-command-line-argument"
-    CFLAGS="$CFLAGS -fno-color-diagnostics"
-    CC=clang CFLAGS="$CFLAGS" "$0" build
-
-    exit
+    common_build_run_analyzers build
     ;;
 install)
     if [ ! -f "$lib" ] || [ ! -f "$cfilter" ] || [ ! -f "$csegments" ]; then
@@ -142,15 +142,5 @@ all|build|debug|fast_feedback)
     build_library
     build_cfilter
     build_csegments
-    ;;
-esac
-
-
-case "$mode" in
-all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
-    ;;
-*)
-    echo "Unknown mode $mode"
-    exit 1
     ;;
 esac

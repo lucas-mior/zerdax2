@@ -33,8 +33,8 @@
  *   - rapidhash source repository: https://github.com/Nicoshev/rapidhash
  */
 
-#if !defined(RAPIDHASH_H)
-#define RAPIDHASH_H
+#if !defined(RAPIDHASH_C)
+#define RAPIDHASH_C
 
 #include "cbase.h"
 #if defined(_MSC_VER)
@@ -45,12 +45,12 @@
 #endif
 
 #define NOEXCEPT
-#define RAPIDHASH_CONSTEXPR static const
+#define RAPIDHASH_CONSTEXPR const
 #if !defined(RAPIDHASH_INLINE)
-#if defined(__GNUC__)
-#define RAPIDHASH_INLINE static inline __attribute__((always_inline))
+#if CC_GCC || CC_CLANG
+#define RAPIDHASH_INLINE inline __attribute__((always_inline))
 #else
-#define RAPIDHASH_INLINE static inline
+#define RAPIDHASH_INLINE inline
 #endif
 #endif
 
@@ -82,7 +82,7 @@
       || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
     #define RAPIDHASH_BIG_ENDIAN
   #else
-#if defined(__GNUC__) || defined(__clang__)
+#if CC_GCC || CC_CLANG
     #warning "could not determine endianness! Falling back to little endian."
 #endif
     #define RAPIDHASH_LITTLE_ENDIAN
@@ -360,7 +360,7 @@ rapidhash_withSeed(void *key, int64 len, uint64 seed) {
     return rapidhash_internal(key, len, seed, rapid_secret);
 }
 
-static uint64
+uint64
 rapidhash(void *key, int64 len) {
     return rapidhash_withSeed(key, len, rapid_seed);
 }
@@ -433,4 +433,4 @@ rapidhash128(void *key, uint64 len) {
     return rapidhash128_internal(key, len, rapid_seed, rapid_secret);
 }
 
-#endif /* RAPIDHASH_H */
+#endif /* RAPIDHASH_C */

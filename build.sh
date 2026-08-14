@@ -12,7 +12,7 @@ script=$(basename "$0")
 common_build_parse_args "$@"
 
 case "$mode" in
-all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+all|build|cfilter|check|clean|cross|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
     ;;
 *)
     common_build_unknown_mode
@@ -26,6 +26,7 @@ DESTDIR="${DESTDIR:-/}"
 
 src="c_filter.c"
 lib="bin/libzerdax.so"
+libflag="-shared"
 cfilter="bin/cfilter"
 csegments="bin/csegments"
 mkdir -p bin
@@ -71,9 +72,27 @@ build|all|libzerdax.so|cfilter|csegments)
 fast_feedback)
     CFLAGS="$CFLAGS -fPIC"
     ;;
+cross)
+    common_build_cross_all windows
+    cross="$target"
+
+    CFLAGS="$CFLAGS -O2"
+    CFLAGS="$CFLAGS -fPIC"
+    CFLAGS="$CFLAGS -Wno-padded"
+    CFLAGS="$CFLAGS -target $cross"
+
+    case "$cross" in
+    *macos*)
+        lib="bin/libzerdax.dylib"
+        libflag="-dynamiclib"
+        ;;
+    *)
+        ;;
+    esac
+    ;;
 test|install|uninstall|clean)
     ;;
-all|build|cfilter|check|clean|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+all|build|cfilter|check|clean|cross|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
     ;;
 *)
     common_build_unknown_mode
@@ -83,7 +102,7 @@ esac
 build_library () {
     common_build_tags
     trace_on
-    $CC $CPPFLAGS $CFLAGS -shared -o "$lib" $LDFLAGS "$src"
+    $CC $CPPFLAGS $CFLAGS $libflag -o "$lib" $LDFLAGS "$src"
     trace_off
 }
 
@@ -138,7 +157,7 @@ cfilter)
 csegments)
     build_csegments
     ;;
-all|build|debug|fast_feedback)
+all|build|cross|debug|fast_feedback)
     build_library
     build_cfilter
     build_csegments

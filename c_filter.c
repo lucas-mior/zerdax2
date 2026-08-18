@@ -243,6 +243,7 @@ hash_array(floaty *array) {
 
 static uint8
 image_sample(floaty value) {
+    floaty result;
     ASSERT(isfinite(value));
 
     if (value <= 0) {
@@ -252,7 +253,8 @@ image_sample(floaty value) {
         return 255;
     }
 
-    return (uint8)round(value);
+    result = round(value);
+    return (uint8)result;
 }
 
 static uint64

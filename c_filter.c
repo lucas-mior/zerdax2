@@ -187,6 +187,30 @@ hash_array(floaty *array) {
     return hash;
 }
 
+static uint8
+image_sample(floaty value) {
+    ASSERT(isfinite(value));
+
+    if (value <= 0) {
+        return 0;
+    }
+    if (value >= 255) {
+        return 255;
+    }
+
+    return (uint8)round(value);
+}
+
+static uint64
+hash_image_array(floaty *array) {
+    uint64 hash = 5381;
+    for (int32 i = 0; i < IMAGE_SIZE; i += 1) {
+        uint64 c = image_sample(array[i]);
+        hash = ((hash << 5) + hash) + c;
+    }
+    return hash;
+}
+
 static inline floaty
 randd(void) {
     int64 r;
@@ -207,7 +231,7 @@ typedef struct SaveHash {
 
 #define LENGHT(X) (int32)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
-    {512, 512, 1, 0, 154476712296453381ull, 3818820595809138139ull},
+    {512, 512, 1, 0, 154476712296453381ull, 9060896705864926636ull},
 };
 
 int32 main(int32 argc, char **argv) {
@@ -250,7 +274,7 @@ int32 main(int32 argc, char **argv) {
 
     clock_gettime(CLOCK_REALTIME, &t1);
 
-    hash_output = hash_array(output0);
+    hash_output = hash_image_array(output0);
     printf("output hash: %lluull\n", hash_output);
 
     for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {

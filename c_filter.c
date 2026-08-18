@@ -44,6 +44,54 @@ typedef struct Slice {
 } Slice;
 
 static pthread_mutex_t mutexes[MAX_THREADS];
+static pthread_mutex_t all_locks_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t all_locks_cond = PTHREAD_COND_INITIALIZER;
+static int32 all_locks_count;
+
+static void
+xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
+    int err;
+
+    if ((err = pthread_cond_wait(cond, mutex))) {
+        error("Error waiting for cond %p: %s.\n", (void *)cond,
+              strerror(err));
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+static void
+xcond_broadcast(pthread_cond_t *cond) {
+    int err;
+
+    if ((err = pthread_cond_broadcast(cond))) {
+        error("Error broadcasting cond %p: %s.\n", (void *)cond,
+              strerror(err));
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+static void
+wait_for_all_slice_locks(void) {
+    xpthread_mutex_lock(&all_locks_mutex);
+    all_locks_count += 1;
+    if (all_locks_count == nthreads) {
+        xcond_broadcast(&all_locks_cond);
+    }
+    while (all_locks_count < nthreads) {
+        xcond_wait(&all_locks_cond, &all_locks_mutex);
+    }
+    xpthread_mutex_unlock(&all_locks_mutex);
+    return;
+}
+
+static void
+wait_for_slice_weights(int32 id) {
+    xpthread_mutex_lock(&mutexes[id]);
+    xpthread_mutex_unlock(&mutexes[id]);
+    return;
+}
 
 static void *
 work(void *arg) {
@@ -52,12 +100,22 @@ work(void *arg) {
     int32 y1 = slice->y1;
     int32 id = slice->id;
 
-    int32 dy = y1 - y0 + 1;
-    if (y1 == (hh - 2))
-        dy += 1;
+    int32 clear_y0 = y0;
+    int32 clear_dy;
 
-    memset64(&(output[y0*WW]), 0, dy*WW*SIZEOF(*output));
-    memset64(&(weights[y0*WW]), 0, dy*WW*SIZEOF(*weights));
+    if (id > 0) {
+        clear_y0 += 1;
+    }
+    clear_dy = y1 - clear_y0 + 1;
+    if (y1 == (hh - 2)) {
+        clear_dy += 1;
+    }
+
+    xpthread_mutex_lock(&mutexes[id]);
+    wait_for_all_slice_locks();
+
+    memset64(&(output[clear_y0*WW]), 0, clear_dy*WW*SIZEOF(*output));
+    memset64(&(weights[clear_y0*WW]), 0, clear_dy*WW*SIZEOF(*weights));
 
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int32 x = 1; x < (WW - 1); x += 1) {
@@ -76,27 +134,14 @@ work(void *arg) {
         }
     }
 
-    pthread_mutex_unlock(&mutexes[id]);
+    xpthread_mutex_unlock(&mutexes[id]);
 
-    do {
-        if (id > 0) {
-            if (!pthread_mutex_trylock(&mutexes[id - 1])) {
-                pthread_mutex_unlock(&mutexes[id - 1]);
-            } else {
-                if (id < (nthreads - 1)) {
-                    pthread_mutex_lock(&mutexes[id + 1]);
-                    pthread_mutex_unlock(&mutexes[id + 1]);
-                }
-                pthread_mutex_lock(&mutexes[id - 1]);
-                pthread_mutex_unlock(&mutexes[id - 1]);
-                break;
-            }
-        }
-        if (id < (nthreads - 1)) {
-            pthread_mutex_lock(&mutexes[id + 1]);
-            pthread_mutex_unlock(&mutexes[id + 1]);
-        }
-    } while (0);
+    if (id > 0) {
+        wait_for_slice_weights(id - 1);
+    }
+    if (id < (nthreads - 1)) {
+        wait_for_slice_weights(id + 1);
+    }
 
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int32 x = 1; x < (WW - 1); x += 1) {
@@ -128,18 +173,19 @@ filter(floaty *restrict input0, floaty *restrict output0,
     hh = hh0;
     matrix_size = WW * hh;
 
-    if (nthreads0 < 1)
+    if (nthreads0 < 1) {
         nthreads = 1;
-    else if (nthreads0 > MAX_THREADS)
+    } else if (nthreads0 > MAX_THREADS) {
         nthreads = MAX_THREADS;
-    else
+    } else {
         nthreads = nthreads0;
+    }
 
     range = hh / nthreads;
 
+    all_locks_count = 0;
     for (int32 i = 0; i < nthreads; i += 1) {
-        pthread_mutex_init(&mutexes[i], NULL);
-        pthread_mutex_lock(&mutexes[i]);
+        xpthread_mutex_init(&mutexes[i], NULL);
     }
 
     for (int32 i = 0; i < (nthreads - 1); i += 1) {
@@ -147,27 +193,35 @@ filter(floaty *restrict input0, floaty *restrict output0,
         slices[i].y1 = (i + 1)*range;
         slices[i].id = i;
 
-        pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
+        xpthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }{
         int32 i = nthreads - 1;
         slices[i].y0 = i*range;
         slices[i].y1 = hh - 2;
         slices[i].id = i;
 
-        pthread_create(&threads[i], NULL, work, (void *)&slices[i]);
+        xpthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }
 
-    for (int32 i = 0; i < nthreads; i += 1)
-        pthread_join(threads[i], NULL);
+    for (int32 i = 0; i < nthreads; i += 1) {
+        xpthread_join(&threads[i], NULL);
+    }
+    for (int32 i = 0; i < nthreads; i += 1) {
+        xpthread_mutex_destroy(&mutexes[i]);
+    }
 
-    for (int32 x = 0; x < (matrix_size - 1); x += WW)
+    for (int32 x = 0; x < (matrix_size - 1); x += WW) {
         output[x] = output[x+1];
-    for (int32 y = 0; y < (WW - 1); y += 1)
+    }
+    for (int32 y = 0; y < (WW - 1); y += 1) {
         output[y] = output[y+WW];
-    for (int32 x = WW - 1; x < (matrix_size - 1); x += WW)
+    }
+    for (int32 x = WW - 1; x < (matrix_size - 1); x += WW) {
         output[x] = output[x-1];
-    for (int32 y = (hh - 1)*WW; y < (matrix_size - 1); y += 1)
+    }
+    for (int32 y = (hh - 1)*WW; y < (matrix_size - 1); y += 1) {
         output[y] = output[y-WW];
+    }
 
     return;
 }

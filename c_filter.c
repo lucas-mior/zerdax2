@@ -189,7 +189,7 @@ hash_array(floaty *array) {
 
 static inline floaty
 randd(void) {
-    long r;
+    int64 r;
     while ((r = rand_int()) < 0);
     return (floaty)(double)r;
 }

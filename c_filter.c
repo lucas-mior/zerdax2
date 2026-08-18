@@ -43,53 +43,13 @@ typedef struct Slice {
     int32 id;
 } Slice;
 
-static pthread_mutex_t mutexes[MAX_THREADS];
-static pthread_mutex_t all_locks_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t all_locks_cond = PTHREAD_COND_INITIALIZER;
-static int32 all_locks_count;
-
-static void
-xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
-    int err;
-
-    if ((err = pthread_cond_wait(cond, mutex))) {
-        error("Error waiting for cond %p: %s.\n", (void *)cond,
-              strerror(err));
-        fatal(EXIT_FAILURE);
-    }
-    return;
-}
-
-static void
-xcond_broadcast(pthread_cond_t *cond) {
-    int err;
-
-    if ((err = pthread_cond_broadcast(cond))) {
-        error("Error broadcasting cond %p: %s.\n", (void *)cond,
-              strerror(err));
-        fatal(EXIT_FAILURE);
-    }
-    return;
-}
-
-static void
-wait_for_all_slice_locks(void) {
-    xpthread_mutex_lock(&all_locks_mutex);
-    all_locks_count += 1;
-    if (all_locks_count == nthreads) {
-        xcond_broadcast(&all_locks_cond);
-    }
-    while (all_locks_count < nthreads) {
-        xcond_wait(&all_locks_cond, &all_locks_mutex);
-    }
-    xpthread_mutex_unlock(&all_locks_mutex);
-    return;
-}
+static _Atomic int32 slice_weights_done[MAX_THREADS];
 
 static void
 wait_for_slice_weights(int32 id) {
-    xpthread_mutex_lock(&mutexes[id]);
-    xpthread_mutex_unlock(&mutexes[id]);
+    while (!atomic_load_explicit(&slice_weights_done[id],
+                                 memory_order_acquire)) {
+    }
     return;
 }
 
@@ -111,9 +71,6 @@ work(void *arg) {
         clear_dy += 1;
     }
 
-    xpthread_mutex_lock(&mutexes[id]);
-    wait_for_all_slice_locks();
-
     memset64(&(output[clear_y0*WW]), 0, clear_dy*WW*SIZEOF(*output));
     memset64(&(weights[clear_y0*WW]), 0, clear_dy*WW*SIZEOF(*weights));
 
@@ -134,7 +91,7 @@ work(void *arg) {
         }
     }
 
-    xpthread_mutex_unlock(&mutexes[id]);
+    atomic_store_explicit(&slice_weights_done[id], 1, memory_order_release);
 
     if (id > 0) {
         wait_for_slice_weights(id - 1);
@@ -183,9 +140,9 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     range = hh / nthreads;
 
-    all_locks_count = 0;
     for (int32 i = 0; i < nthreads; i += 1) {
-        xpthread_mutex_init(&mutexes[i], NULL);
+        atomic_store_explicit(&slice_weights_done[i], 0,
+                              memory_order_relaxed);
     }
 
     for (int32 i = 0; i < (nthreads - 1); i += 1) {
@@ -206,10 +163,6 @@ filter(floaty *restrict input0, floaty *restrict output0,
     for (int32 i = 0; i < nthreads; i += 1) {
         xpthread_join(&threads[i], NULL);
     }
-    for (int32 i = 0; i < nthreads; i += 1) {
-        xpthread_mutex_destroy(&mutexes[i]);
-    }
-
     for (int32 x = 0; x < (matrix_size - 1); x += WW) {
         output[x] = output[x+1];
     }

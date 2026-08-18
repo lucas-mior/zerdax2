@@ -43,6 +43,7 @@ typedef struct Slice {
     int32 y0;
     int32 y1;
     int32 id;
+    int32 padding;
 } Slice;
 
 static void

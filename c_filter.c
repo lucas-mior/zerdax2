@@ -38,15 +38,15 @@ void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32, int32);
 
 typedef struct Slice {
+    _Atomic int32 *slice_weights_done;
+
     int32 y0;
     int32 y1;
     int32 id;
 } Slice;
 
-static _Atomic int32 slice_weights_done[MAX_THREADS];
-
 static void
-wait_for_slice_weights(int32 id) {
+wait_for_slice_weights(_Atomic int32 *slice_weights_done, int32 id) {
     while (!atomic_load_explicit(&slice_weights_done[id],
                                  memory_order_acquire)) {
     }
@@ -56,6 +56,7 @@ wait_for_slice_weights(int32 id) {
 static void *
 work(void *arg) {
     Slice *slice = arg;
+    _Atomic int32 *slice_weights_done = slice->slice_weights_done;
     int32 y0 = slice->y0;
     int32 y1 = slice->y1;
     int32 id = slice->id;
@@ -94,10 +95,10 @@ work(void *arg) {
     atomic_store_explicit(&slice_weights_done[id], 1, memory_order_release);
 
     if (id > 0) {
-        wait_for_slice_weights(id - 1);
+        wait_for_slice_weights(slice_weights_done, id - 1);
     }
     if (id < (nthreads - 1)) {
-        wait_for_slice_weights(id + 1);
+        wait_for_slice_weights(slice_weights_done, id + 1);
     }
 
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
@@ -122,6 +123,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int32 hh0, int32 nthreads0) {
     pthread_t threads[MAX_THREADS];
     Slice slices[MAX_THREADS];
+    _Atomic int32 slice_weights_done[MAX_THREADS];
     int32 range;
 
     input = input0;
@@ -141,11 +143,11 @@ filter(floaty *restrict input0, floaty *restrict output0,
     range = hh / nthreads;
 
     for (int32 i = 0; i < nthreads; i += 1) {
-        atomic_store_explicit(&slice_weights_done[i], 0,
-                              memory_order_relaxed);
+        atomic_init(&slice_weights_done[i], 0);
     }
 
     for (int32 i = 0; i < (nthreads - 1); i += 1) {
+        slices[i].slice_weights_done = slice_weights_done;
         slices[i].y0 = i*range;
         slices[i].y1 = (i + 1)*range;
         slices[i].id = i;
@@ -153,6 +155,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
         xpthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }{
         int32 i = nthreads - 1;
+        slices[i].slice_weights_done = slice_weights_done;
         slices[i].y0 = i*range;
         slices[i].y1 = hh - 2;
         slices[i].id = i;

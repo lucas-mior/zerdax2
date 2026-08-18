@@ -38,18 +38,55 @@ void filter(floaty *restrict, floaty *restrict,
             floaty *restrict, int32, int32);
 
 typedef struct Slice {
-    _Atomic int32 *slice_weights_done;
+    pthread_mutex_t *done_mutex;
+    pthread_cond_t *done_cond;
+    int32 *slice_weights_done;
 
     int32 y0;
     int32 y1;
     int32 id;
-    int32 padding;
 } Slice;
 
 static void
-wait_for_slice_weights(_Atomic int32 *slice_weights_done, int32 id) {
-    while (!atomic_load_explicit(&slice_weights_done[id],
-                                 memory_order_acquire)) {
+xcond_init(pthread_cond_t *cond) {
+    int err;
+
+    if ((err = pthread_cond_init(cond, NULL))) {
+        error("Error initializing cond %p: %s.\n", (void *)cond,
+              strerror(err));
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+static void
+xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
+    int err;
+
+    if ((err = pthread_cond_wait(cond, mutex))) {
+        error("Error waiting on cond %p: %s.\n", (void *)cond, strerror(err));
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+static void
+xcond_broadcast(pthread_cond_t *cond) {
+    int err;
+
+    if ((err = pthread_cond_broadcast(cond))) {
+        error("Error broadcasting cond %p: %s.\n", (void *)cond,
+              strerror(err));
+        fatal(EXIT_FAILURE);
+    }
+    return;
+}
+
+static void
+wait_for_slice_weights(pthread_mutex_t *done_mutex, pthread_cond_t *done_cond,
+                       int32 *slice_weights_done, int32 id) {
+    while (!slice_weights_done[id]) {
+        xcond_wait(done_cond, done_mutex);
     }
     return;
 }
@@ -57,7 +94,9 @@ wait_for_slice_weights(_Atomic int32 *slice_weights_done, int32 id) {
 static void *
 work(void *arg) {
     Slice *slice = arg;
-    _Atomic int32 *slice_weights_done = slice->slice_weights_done;
+    pthread_mutex_t *done_mutex = slice->done_mutex;
+    pthread_cond_t *done_cond = slice->done_cond;
+    int32 *slice_weights_done = slice->slice_weights_done;
     int32 y0 = slice->y0;
     int32 y1 = slice->y1;
     int32 id = slice->id;
@@ -93,14 +132,19 @@ work(void *arg) {
         }
     }
 
-    atomic_store_explicit(&slice_weights_done[id], 1, memory_order_release);
+    xpthread_mutex_lock(done_mutex);
+    slice_weights_done[id] = 1;
+    xcond_broadcast(done_cond);
 
     if (id > 0) {
-        wait_for_slice_weights(slice_weights_done, id - 1);
+        wait_for_slice_weights(done_mutex, done_cond, slice_weights_done,
+                               id - 1);
     }
     if (id < (nthreads - 1)) {
-        wait_for_slice_weights(slice_weights_done, id + 1);
+        wait_for_slice_weights(done_mutex, done_cond, slice_weights_done,
+                               id + 1);
     }
+    xpthread_mutex_unlock(done_mutex);
 
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int32 x = 1; x < (WW - 1); x += 1) {
@@ -124,7 +168,9 @@ filter(floaty *restrict input0, floaty *restrict output0,
        floaty *restrict weights0, int32 hh0, int32 nthreads0) {
     pthread_t threads[MAX_THREADS];
     Slice slices[MAX_THREADS];
-    _Atomic int32 slice_weights_done[MAX_THREADS];
+    pthread_mutex_t done_mutex;
+    pthread_cond_t done_cond;
+    int32 slice_weights_done[MAX_THREADS];
     int32 range;
 
     input = input0;
@@ -143,11 +189,16 @@ filter(floaty *restrict input0, floaty *restrict output0,
 
     range = hh / nthreads;
 
+    xpthread_mutex_init(&done_mutex, NULL);
+    xcond_init(&done_cond);
+
     for (int32 i = 0; i < nthreads; i += 1) {
-        atomic_init(&slice_weights_done[i], 0);
+        slice_weights_done[i] = 0;
     }
 
     for (int32 i = 0; i < (nthreads - 1); i += 1) {
+        slices[i].done_mutex = &done_mutex;
+        slices[i].done_cond = &done_cond;
         slices[i].slice_weights_done = slice_weights_done;
         slices[i].y0 = i*range;
         slices[i].y1 = (i + 1)*range;
@@ -156,6 +207,8 @@ filter(floaty *restrict input0, floaty *restrict output0,
         xpthread_create(&threads[i], NULL, work, (void *)&slices[i]);
     }{
         int32 i = nthreads - 1;
+        slices[i].done_mutex = &done_mutex;
+        slices[i].done_cond = &done_cond;
         slices[i].slice_weights_done = slice_weights_done;
         slices[i].y0 = i*range;
         slices[i].y1 = hh - 2;
@@ -167,6 +220,9 @@ filter(floaty *restrict input0, floaty *restrict output0,
     for (int32 i = 0; i < nthreads; i += 1) {
         xpthread_join(&threads[i], NULL);
     }
+    xpthread_cond_destroy(&done_cond);
+    xpthread_mutex_destroy(&done_mutex);
+
     for (int32 x = 0; x < (matrix_size - 1); x += WW) {
         output[x] = output[x+1];
     }

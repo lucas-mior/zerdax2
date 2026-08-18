@@ -190,8 +190,10 @@ hash_array(floaty *array) {
 static inline floaty
 randd(void) {
     int64 r;
-    while ((r = rand_int()) < 0);
-    return (floaty)(double)r;
+
+    while ((r = rand_int()) < 0) {
+    }
+    return (floaty)(r % 256);
 }
 
 typedef struct SaveHash {
@@ -205,7 +207,7 @@ typedef struct SaveHash {
 
 #define LENGHT(X) (int32)(sizeof(X) / sizeof(*X))
 static SaveHash hash_remember[] = {
-    {512, 512, 1, 0, 743517840547517701ull, 16220435064243098885ull},
+    {512, 512, 1, 0, 154476712296453381ull, 3818820595809138139ull},
 };
 
 int32 main(int32 argc, char **argv) {

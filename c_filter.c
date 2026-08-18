@@ -258,8 +258,8 @@ int32 main(int32 argc, char **argv) {
         if ((save_hash.w == WW0) 
             && (save_hash.h == HH0)
             && (save_hash.use_double == USE_DOUBLE)) {
-             assert(hash_output == save_hash.hash_output);
-             assert(hash_input == save_hash.hash_input);
+             ASSERT_EQUAL(hash_output, save_hash.hash_output);
+             ASSERT_EQUAL(hash_input, save_hash.hash_input);
              break;
         }
     }

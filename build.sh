@@ -31,7 +31,22 @@ cfilter="bin/cfilter"
 csegments="bin/csegments"
 mkdir -p bin
 
+OS=$(uname -a)
 CC=$(common_get_compiler "$mode")
+
+if [ "$mode" = "cross" ]; then
+    if [ "$target" != "all" ]; then
+        OS="$target"
+    fi
+fi
+
+case "$OS" in
+*MINGW*|*MSYS*|*CYGWIN*|*mingw*|*msys*|*cygwin*|*windows*)
+    ;;
+*)
+    CFLAGS="$CFLAGS -pthread"
+    ;;
+esac
 
 CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 

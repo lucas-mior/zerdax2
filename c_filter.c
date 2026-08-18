@@ -265,8 +265,8 @@ int32 main(int32 argc, char **argv) {
     }
 
     {
-        long seconds = t1.tv_sec - t0.tv_sec;
-        long nanos = t1.tv_nsec - t0.tv_nsec;
+        int64 seconds = t1.tv_sec - t0.tv_sec;
+        int64 nanos = t1.tv_nsec - t0.tv_nsec;
 
         double total_seconds = (double)seconds + (double)nanos/1.0e9;
         double micros_per_filter = 1e6*(total_seconds/(double)nfilters);

@@ -1,0 +1,17 @@
+
+build.sh [01;38;2;255;000;000mtest[0m
+
+Testing [01;38;2;255;000;000m./c_filter.c[0m ...
++ tcc -I/home/lucas/.local/src/000mine/zerdax2/cbase -pthread -std=c11 -Wfatal-errors -Wextra -Wall -Werror=all -Werror=extra -Wno-unused-variable -DTESTING_c_filter=1 -DTESTING=1 -o /tmp/c_filter_test ./c_filter.c -lm
++ [ 1 != 0 ]
++ common_test_run_binary /tmp/c_filter_test
++ test_exe=/tmp/c_filter_test
++ test_status=0
++ [ -n  ]
++ /tmp/c_filter_test
+input hash: 154476712296453381ull
+output hash: 9060896705864926636ull
+./c_filter.c:
+4.86248s = 9724.96us per filter = 37.0978ns per pixel = 102Hz
++ [ 0 != 0 ]
++ return 0

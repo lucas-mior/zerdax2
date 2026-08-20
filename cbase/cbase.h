@@ -246,10 +246,21 @@ extern bool32 striqual2(char *, int32, char *, int32);
 extern int64 strftime2(char *, int64, char *, struct tm *);
 extern int strncmp32(char *, char *, int64);
 extern char *strncpy32(char *, char *, int64);
+extern void sleep_ms(int64);
+extern void sleep_ns(int64);
+extern void sleep_us(int64);
 extern double timediff(struct timespec, struct timespec);
 extern void time_monotonic_coarse(struct timespec *);
 extern void time_monotonic_precise(struct timespec *);
 extern void timezone_init(void);
+extern char *cbase_getcwd(char *, int64);
+extern int32 cbase_mkdir(char *);
+extern int32 cbase_rmdir(char *);
+extern int32 cbase_unlink(char *);
+extern int32 cbase_remove_file(char *);
+extern int32 cbase_remove_empty_dir(char *);
+extern int32 cbase_mkstemps(char *, int32);
+extern int32 cbase_make_temp_file(char *, int32, char *, char *);
 extern int32 util_copy_file_sync(char *, char *);
 extern void util_die_notify(char *, char *, ...);
 extern bool util_equal_files(char *, char *);
@@ -297,6 +308,7 @@ extern int xclose(char *, int, int *, char *, char *);
 #if HAS_POSIX_WIN_SUBSET
 extern int xclosedir(DIR *, char *);
 #endif
+extern char *cbase_mkdtemp(char *);
 extern int xfclose(char *, int32, char *, FILE *, char *);
 extern FILE *xfopen(char *, int32, char *, char *, char *);
 #if OS_WINDOWS
@@ -321,6 +333,7 @@ extern void xpthread_mutex_lock(pthread_mutex_t *);
 extern void xpthread_mutex_unlock(pthread_mutex_t *);
 #endif
 extern int xunlink(char *);
+extern bool xregular_file_exists(char *);
 extern void test_make_temp_dir(char *, int32, char *);
 extern void test_remove_tree(char *);
 extern void test_join_path(char *, int64, char *, char *);
@@ -700,6 +713,8 @@ extern void throw_away_function();
 #include "utf8.c"
 #include "util.c"
 #include "string.c"
+#include "time.c"
+#include "fs.c"
 #if OS_WINDOWS
 #include "windows.c"
 #endif

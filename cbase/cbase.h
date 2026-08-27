@@ -162,7 +162,7 @@ int32 random_ascii_string(char *, int32, int32);
 bool path_missing(char *);
 int32 read_entire_file(char *, char **);
 char *remove_escape_sequences(char *, int32 *);
-void sb_append(StrBuilder *, char *, int32);
+void sb_append(StrBuilder *, char *, int64);
 void sb_append_byte(StrBuilder *, char);
 void sb_append_byte_if_not(StrBuilder *, char);
 void sb_clear(StrBuilder *);
@@ -172,7 +172,7 @@ void sb_init(StrBuilder *);
 void sb_itoa(StrBuilder *, llong);
 void sb_move(StrBuilder *, StrBuilder *);
 void sb_printf(StrBuilder *, char *, ...);
-void sb_reserve(StrBuilder *, int32);
+void sb_reserve(StrBuilder *, int64);
 int32 sb_set(StrBuilder *, char *, int32);
 char *sb_steal(StrBuilder *, int32 *, int32 *);
 char *sb_steal_exact(StrBuilder *, int32 *);
@@ -422,21 +422,21 @@ _Generic((VAR), \
     }), \
     (char[SIZE]){ LITERAL })
 
-#define MEM_LITERAL_SHORT_LENGTHS(X) \
-    X(2), \
-    X(3), \
-    X(4), \
-    X(5), \
-    X(6), \
-    X(7), \
-    X(8), \
-    X(9), \
-    X(10), \
-    X(11), \
-    X(12), \
-    X(13), \
-    X(14), \
-    X(15)
+#define MEM_LITERAL_SHORT_LENGTHS(XX) \
+    XX(2), \
+    XX(3), \
+    XX(4), \
+    XX(5), \
+    XX(6), \
+    XX(7), \
+    XX(8), \
+    XX(9), \
+    XX(10), \
+    XX(11), \
+    XX(12), \
+    XX(13), \
+    XX(14), \
+    XX(15)
 
 #define MEM_LITERAL_SHORT_GENERIC_SLOT(N) \
     char (*)[N]: CAT(mem_literal_short_, N)
@@ -488,7 +488,7 @@ _Generic((char (*)[STRLIT_LEN(LITERAL)])0, \
 #define SB_APPEND_2(BUILDER, STRING) \
     sb_append(BUILDER, STRING, strlen32(STRING))
 #define SB_APPEND_3(BUILDER, STRING, LEN) \
-    sb_append(BUILDER, STRING, (int32)(LEN))
+    sb_append(BUILDER, STRING, LEN)
 #define SB_APPEND(...) SELECT_ON_NUM_ARGS(SB_APPEND_, __VA_ARGS__)
 
 #define HERE here_impl(__FILE__, __LINE__, FUNC__)
@@ -526,15 +526,15 @@ _Generic((char (*)[STRLIT_LEN(LITERAL)])0, \
 #define ENUM_BITFLAGS 1
 #define ENUM_PREFIX_ COMMAND_
 #define ENUM_FIELDS \
-    X(COMMAND_CAPTURE_STDOUT)      \
-    X(COMMAND_CAPTURE_STDERR)      \
-    X(COMMAND_MERGE_STDERR)        \
-    X(COMMAND_ASYNC)               \
-    X(COMMAND_DETACHED)            \
-    X(COMMAND_NEW_SESSION)         \
-    X(COMMAND_NEW_PROCESS_GROUP)   \
-    X(COMMAND_STDIN_TTY)           \
-    X(COMMAND_CLOSE_STDIN)
+    XX(COMMAND_CAPTURE_STDOUT)      \
+    XX(COMMAND_CAPTURE_STDERR)      \
+    XX(COMMAND_MERGE_STDERR)        \
+    XX(COMMAND_ASYNC)               \
+    XX(COMMAND_DETACHED)            \
+    XX(COMMAND_NEW_SESSION)         \
+    XX(COMMAND_NEW_PROCESS_GROUP)   \
+    XX(COMMAND_STDIN_TTY)           \
+    XX(COMMAND_CLOSE_STDIN)
 #define XENUMS_DECLARE_ONLY 1
 #define XENUMS_NO_TESTS 1
 #include "xenums.c"
@@ -759,15 +759,15 @@ void throw_away_function();
 #define ENUM_PREFIX_ COMMAND_
 #define ENUM_UNDERLYING_TYPE uint32
 #define ENUM_FIELDS \
-    X(COMMAND_CAPTURE_STDOUT)      \
-    X(COMMAND_CAPTURE_STDERR)      \
-    X(COMMAND_MERGE_STDERR)        \
-    X(COMMAND_ASYNC)               \
-    X(COMMAND_DETACHED)            \
-    X(COMMAND_NEW_SESSION)         \
-    X(COMMAND_NEW_PROCESS_GROUP)   \
-    X(COMMAND_STDIN_TTY)           \
-    X(COMMAND_CLOSE_STDIN)
+    XX(COMMAND_CAPTURE_STDOUT)      \
+    XX(COMMAND_CAPTURE_STDERR)      \
+    XX(COMMAND_MERGE_STDERR)        \
+    XX(COMMAND_ASYNC)               \
+    XX(COMMAND_DETACHED)            \
+    XX(COMMAND_NEW_SESSION)         \
+    XX(COMMAND_NEW_PROCESS_GROUP)   \
+    XX(COMMAND_STDIN_TTY)           \
+    XX(COMMAND_CLOSE_STDIN)
 #define XENUMS_FUNCTIONS_ONLY 1
 #define XENUMS_NO_TESTS 1
 #include "xenums.c"

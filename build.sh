@@ -12,7 +12,7 @@ script=$(basename "$0")
 common_build_parse_args "$@"
 
 case "$mode" in
-all|build|cfilter|check|clean|cross|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+all|build|cfilter|check|clean|cross|csegments|debug|debug-fast|fast_feedback|install|libzerdax.so|test|uninstall)
     ;;
 *)
     common_build_unknown_mode
@@ -81,6 +81,10 @@ debug)
     CFLAGS="$CFLAGS -g3 -Og -fPIC"
     CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
     ;;
+debug-fast)
+    CFLAGS="$CFLAGS -g2 -O2 -fPIC -flto -march=native -ftree-vectorize"
+    CPPFLAGS="$CPPFLAGS -DDEBUGGING=1"
+    ;;
 build|all|libzerdax.so|cfilter|csegments)
     CFLAGS="$CFLAGS -g3 -O2 -fPIC -flto -march=native -ftree-vectorize"
     ;;
@@ -107,7 +111,7 @@ cross)
     ;;
 test|install|uninstall|clean)
     ;;
-all|build|cfilter|check|clean|cross|csegments|debug|fast_feedback|install|libzerdax.so|test|uninstall)
+all|build|cfilter|check|clean|cross|csegments|debug|debug-fast|fast_feedback|install|libzerdax.so|test|uninstall)
     ;;
 *)
     common_build_unknown_mode
@@ -172,7 +176,7 @@ cfilter)
 csegments)
     build_csegments
     ;;
-all|build|cross|debug|fast_feedback)
+all|build|cross|debug|debug-fast|fast_feedback)
     build_library
     build_cfilter
     build_csegments

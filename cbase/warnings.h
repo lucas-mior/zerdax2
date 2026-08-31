@@ -17,7 +17,7 @@
 #endif
 
 #if CC_CLANG
-  /* #pragma clang diagnostic warning "-Weverything" */
+  #pragma clang diagnostic warning "-Weverything"
   #pragma clang diagnostic ignored "-Wconstant-logical-operand"
   #pragma clang diagnostic ignored "-Wassign-enum"
   #pragma clang diagnostic ignored "-Wc++-keyword"

@@ -14,7 +14,7 @@
 #define CBASE_IMPLEMENT
 #include "cbase.h"
 
-#define WW0 512
+#define WW0 1920
 #define MAX_THREADS 8
 
 #define USE_DOUBLE 1
@@ -240,7 +240,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
 }
 
 #if TESTING_c_filter
-#define HH0 512
+#define HH0 1080
 #define IMAGE_SIZE HH0*WW0
 
 static uint64

@@ -77,7 +77,6 @@ cross)
 
     CFLAGS="$CFLAGS -O2"
     CFLAGS="$CFLAGS -fPIC"
-    CFLAGS="$CFLAGS -Wno-padded"
     CFLAGS="$CFLAGS -target $cross"
 
     case "$cross" in

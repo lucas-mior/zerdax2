@@ -52,7 +52,7 @@ CPPFLAGS="$CPPFLAGS -I$dir/cbase"
 
 CFLAGS="$CFLAGS -std=c11"
 CFLAGS="$CFLAGS -Wfatal-errors"
-# CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
+CFLAGS="$CFLAGS -Werror"  # Only uncomment occasionally, keep this line
 
 LDFLAGS="$LDFLAGS -lm"
 

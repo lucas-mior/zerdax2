@@ -127,7 +127,11 @@ test)
     exit
     ;;
 check)
-    common_build_run_analyzers build
+    (
+        common_build_run_analyzers build
+    )
+    echo "static analysis finished."
+    exit
     ;;
 install)
     if [ ! -f "$lib" ] || [ ! -f "$cfilter" ] || [ ! -f "$csegments" ]; then

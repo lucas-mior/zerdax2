@@ -110,13 +110,13 @@ sort_merge_subsorted(
 
     ASSERT_NON_NEGATIVE(n);
     ASSERT_POSITIVE(p);
-    ASSERT_LESS_EQUAL(p, MAX_NTHREADS);
+    ASSERT_LE(p, MAX_NTHREADS);
 
     if ((n <= 1) || (p == 1)) {
         return;
     }
 
-    ASSERT_LESS_EQUAL_VAR(p, n);
+    ASSERT_LE_VAR(p, n);
     ASSERT_POSITIVE(obj_size);
     ASSERT(array);
     ASSERT(compare);
@@ -237,7 +237,7 @@ test_sorting(int32 n, int32 p) {
 
     for (int32 i = 0; i < n; i += 1) {
         if (i < (n - 1)) {
-            ASSERT_LESS_EQUAL_VAR(array[i], array[i + 1]);
+            ASSERT_LE_VAR(array[i], array[i + 1]);
         }
     }
 
@@ -265,7 +265,7 @@ test_partition_removal(void) {
                          SIZEOF(*array), compare_int);
 
     for (int32 i = 0; i < LENGTH(array); i += 1) {
-        ASSERT_EQUAL_VAR(array[i], expected[i]);
+        ASSERT_EQ_VAR(array[i], expected[i]);
     }
     return;
 }

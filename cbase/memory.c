@@ -331,7 +331,7 @@ realloc_debug(char *file, int32 line, char *func,
 
     old_size = old_capacity*obj_size;
     new_size = new_capacity*obj_size;
-    ASSERT_LESS_EQUAL(new_size, MAXOF(new_size) - 2*MEMORY_PADDING);
+    ASSERT_LE(new_size, MAXOF(new_size) - 2*MEMORY_PADDING);
 
     {
         DebugAllocInfo info;
@@ -498,7 +498,7 @@ realloc_flex_debug(char *file, int32 line, char *func,
 
     old_size = struct_size + old_capacity*obj_size;
     new_size = struct_size + new_capacity*obj_size;
-    ASSERT_LESS_EQUAL(new_size, MAXOF(new_size) - 2*MEMORY_PADDING);
+    ASSERT_LE(new_size, MAXOF(new_size) - 2*MEMORY_PADDING);
 
     {
         DebugAllocInfo info;
@@ -912,7 +912,7 @@ int main(void) {
 
         if (DEBUGGING_MEMORY && !RUNNING_ON_VALGRIND) {
             for (int32 i = 0; i < size; i += 1) {
-                ASSERT_EQUAL((uchar)p[i], 0xCD);
+                ASSERT_EQ((uchar)p[i], 0xCD);
             }
             printf("Memory correctly initialized with debug byte.\n");
         }

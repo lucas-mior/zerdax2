@@ -351,8 +351,8 @@ int32 main(int32 argc, char **argv) {
         if ((save_hash.w == WW0) 
             && (save_hash.h == HH0)
             && (save_hash.use_double == USE_DOUBLE)) {
-             ASSERT_EQ_VAR(hash_output, save_hash.hash_output);
-             ASSERT_EQ_VAR(hash_input, save_hash.hash_input);
+             ASSERT_EQ(hash_output, save_hash.hash_output);
+             ASSERT_EQ(hash_input, save_hash.hash_input);
              break;
         }
     }

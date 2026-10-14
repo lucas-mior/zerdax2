@@ -108,8 +108,8 @@ sort_merge_subsorted(
     char *output;
     char *array2 = array;
 
-    ASSERT_NON_NEGATIVE(n);
-    ASSERT_POSITIVE(p);
+    ASSERT_GE(n, 0);
+    ASSERT_GT(p, 0);
     ASSERT_LE(p, MAX_NTHREADS);
 
     if ((n <= 1) || (p == 1)) {
@@ -117,7 +117,7 @@ sort_merge_subsorted(
     }
 
     ASSERT_LE_VAR(p, n);
-    ASSERT_POSITIVE(obj_size);
+    ASSERT_GT(obj_size, 0);
     ASSERT(array);
     ASSERT(compare);
 
@@ -137,7 +137,9 @@ sort_merge_subsorted(
         offsets[k] = offsets[k - 1] + n_sub[k - 1];
     }
 
-    for (int32 k = 0; k < p; k += 1) {
+    heap[0].value = &array2[offsets[0]*obj_size];
+    heap[0].p_index = 0;
+    for (int32 k = 1; k < p; k += 1) {
         heap[k].value = &array2[offsets[k]*obj_size];
         heap[k].p_index = k;
     }
@@ -216,7 +218,7 @@ test_sorting(int32 n, int32 p) {
         n_sub[i] = n / p + (n % p);
     }
 
-    printf("n_sub[P - 1] = %d\n", n_sub[p - 1]);
+    fmt_printf("n_sub[P - 1] = %d\n", n_sub[p - 1]);
 
     rand_int_seed(42);
     for (int32 i = 0; i < n; i += 1) {

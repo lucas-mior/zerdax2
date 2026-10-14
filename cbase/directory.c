@@ -225,8 +225,7 @@ directory_entry_index(DirEntry *entries, int32 length, char *name) {
 static void
 test_directory_entries_are_valid(DirEntry *entries, int32 length) {
     for (int32 i = 0; i < length; i += 1) {
-        ASSERT_NON_NEGATIVE(entries[i].name_len);
-        ASSERT_LT(entries[i].name_len, SIZEOF(entries[i].name));
+        ASSERT_BETWEEN(entries[i].name_len, 0, SIZEOF(entries[i].name) - 1);
         ASSERT_EQ(entries[i].name_len, strlen32(entries[i].name));
         ASSERT_EQ(entries[i].name[entries[i].name_len], '\0');
     }
@@ -239,10 +238,10 @@ test_get_directory_entries_reads_directory(void) {
     DirEntry *entries = NULL;
     int32 length = get_directory_entries("cbase", &entries);
 
-    ASSERT_POSITIVE(length);
+    ASSERT_GT(length, 0);
     test_directory_entries_are_valid(entries, length);
-    ASSERT_NON_NEGATIVE(directory_entry_index(entries, length, "cbase.h"));
-    ASSERT_NON_NEGATIVE(directory_entry_index(entries, length, "directory.c"));
+    ASSERT_GE(directory_entry_index(entries, length, "cbase.h"), 0);
+    ASSERT_GE(directory_entry_index(entries, length, "directory.c"), 0);
 
     free2(entries, (int64)length*SIZEOF(*entries));
     return;
@@ -252,8 +251,8 @@ static void
 test_get_directory_entries_reports_missing_directory(void) {
     DirEntry *entries = NULL;
 
-    ASSERT_NEGATIVE(get_directory_entries("cbase/this_dir_must_not_exist",
-                                          &entries));
+    ASSERT_LT(get_directory_entries("cbase/this_dir_must_not_exist", &entries),
+              0);
     return;
 }
 

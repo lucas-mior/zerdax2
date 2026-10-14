@@ -22,39 +22,6 @@
 #define FMT_NULL_STRING "null"
 #endif
 
-// For a binary floating type, MANT_DIG - MIN_EXP is the number of decimal
-// fractional places needed to represent its smallest subnormal exactly.
-enum {
-    FMT_FLOAT_RYU_BUFFER_SIZE = 2000,
-    FMT_DOUBLE_MAX_DECIMAL_PRECISION = DBL_MANT_DIG - DBL_MIN_EXP,
-    FMT_LDOUBLE_MAX_DECIMAL_PRECISION = LDBL_MANT_DIG - LDBL_MIN_EXP,
-    FMT_FLOAT_MAX_FIXED_PREFIX = 312,
-    FMT_FLOAT_MAX_EXP_PREFIX = 8,
-    FMT_LDOUBLE_MAX_FIXED_PREFIX = LDBL_MAX_10_EXP + 8,
-    FMT_DOUBLE_PRINTF_BUFFER_SIZE = FMT_FLOAT_MAX_FIXED_PREFIX
-                                    + FMT_DOUBLE_MAX_DECIMAL_PRECISION + 8,
-    FMT_LDOUBLE_PRINTF_BUFFER_SIZE = FMT_LDOUBLE_MAX_FIXED_PREFIX
-                                     + FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 8,
-    FMT_DOUBLE_HEX_DIGITS = 13,
-    FMT_LDOUBLE_MAX_HEX_DIGITS = (LDBL_MANT_DIG - 1 + 3)/4,
-    FMT_DOUBLE_FRACTION_BITS = 52,
-    FMT_DOUBLE_EXPONENT_BIAS = 1023,
-    FMT_DOUBLE_SUBNORMAL_EXPONENT = -1022,
-    FMT_BIG_UINT_WORD_BITS = 32,
-    // log2(10) is less than 10/3, so this bounds every decimal body.
-    FMT_BIG_UINT_MAX_BITS = (FMT_LDOUBLE_PRINTF_BUFFER_SIZE*10 + 2)/3,
-    FMT_BIG_UINT_MAX_WORDS = (FMT_BIG_UINT_MAX_BITS
-                              + FMT_BIG_UINT_WORD_BITS - 1)
-                             /FMT_BIG_UINT_WORD_BITS,
-    FMT_LDOUBLE_DOUBLE_FRACTION_BITS = 52,
-    FMT_LDOUBLE_DOUBLE_EXPONENT_BIAS = 1023,
-    FMT_LDOUBLE_X87_FRACTION_BITS = 63,
-    FMT_LDOUBLE_X87_EXPONENT_BIAS = 16383,
-    FMT_LDOUBLE_X87_EXPONENT_MASK = 0x7fff,
-    FMT_LDOUBLE_BINARY128_FRACTION_BITS = 112,
-    FMT_LDOUBLE_BINARY128_EXPONENT_BIAS = 16383,
-};
-
 #if FLT_RADIX == 2 \
     && ((LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP) \
         || (LDBL_MANT_DIG == 64 && LDBL_MAX_EXP == 16384) \
@@ -494,7 +461,7 @@ fmt_sink_init(FormatSink *sink, char *buffer, int64 capacity) {
 static void
 fmt_sink_add_total(FormatSink *sink, int64 len) {
     ASSERT(sink != NULL);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GE(len, 0);
 
     if (sink->status < 0) {
         return;
@@ -515,8 +482,7 @@ fmt_sink_write(FormatSink *sink, char *data, int64 len) {
 
     ASSERT(sink != NULL);
     ASSERT(data != NULL);
-    ASSERT_NON_NEGATIVE(len);
-    ASSERT_LT(len, INT32_MAX);
+    ASSERT_BETWEEN(len, 0, INT32_MAX - 1);
 
     if (sink->status < 0) {
         return;
@@ -583,7 +549,7 @@ fmt_sink_write_repeat(FormatSink *sink, char byte, int64 len) {
     int32 copy_len;
 
     ASSERT(sink != NULL);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GE(len, 0);
 
     if (sink->status < 0) {
         return;
@@ -843,8 +809,8 @@ fmt_integer_prefix(FormatSpec *spec, FormatIntegerValue value,
                    char *prefix, int32 digit_len, int64 precision_zeros) {
     ASSERT(spec != NULL);
     ASSERT(prefix != NULL);
-    ASSERT_NON_NEGATIVE(digit_len);
-    ASSERT_NON_NEGATIVE(precision_zeros);
+    ASSERT_GE(digit_len, 0);
+    ASSERT_GE(precision_zeros, 0);
 
     if (fmt_is_signed_integer_conversion(spec->conversion)) {
         if (value.negative) {
@@ -970,7 +936,7 @@ fmt_write_padded_bytes(FormatSink *sink, FormatSpec *spec,
 
     ASSERT(sink != NULL);
     ASSERT(spec != NULL);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GE(len, 0);
     ASSERT(data != NULL || len == 0);
 
     spaces = fmt_pad_len(spec->width, len);
@@ -991,7 +957,7 @@ fmt_store_count(FormatSpec *spec, FormatArgs *args, int64 count,
                 bool write_count) {
     ASSERT(spec != NULL);
     ASSERT(args != NULL);
-    ASSERT_NON_NEGATIVE(count);
+    ASSERT_GE(count, 0);
 
     if (spec->length == FMT_LENGTH_HH
         || spec->length == FMT_LENGTH_W8) {
@@ -1171,7 +1137,7 @@ static int32 UNUSED
 fmt_binary_float_set_significand_bit(FormatBinaryFloat *parts,
                                      int32 bit_index) {
     ASSERT(parts != NULL);
-    ASSERT_NON_NEGATIVE(bit_index);
+    ASSERT_GE(bit_index, 0);
 
     if (bit_index < 64) {
         parts->significand_low |= UINT64_C(1) << bit_index;
@@ -1188,7 +1154,7 @@ static bool
 fmt_binary_float_test_significand_bit(FormatBinaryFloat *parts,
                                       int32 bit_index) {
     ASSERT(parts != NULL);
-    ASSERT_NON_NEGATIVE(bit_index);
+    ASSERT_GE(bit_index, 0);
 
     if (bit_index < 64) {
         return parts->significand_low & (UINT64_C(1) << bit_index);
@@ -1249,7 +1215,7 @@ fmt_binary_float_copy_significand(FormatBinaryFloat *parts,
 static void
 fmt_big_uint_normalize(FormatBigUInt *value) {
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(value->len);
+    ASSERT_GE(value->len, 0);
     ASSERT_LE(value->len, FMT_BIG_UINT_MAX_WORDS);
 
     while (value->len > 0 && value->words[value->len - 1] == 0) {
@@ -1261,7 +1227,7 @@ fmt_big_uint_normalize(FormatBigUInt *value) {
 static int32
 fmt_big_uint_ensure_word(FormatBigUInt *value, int32 index) {
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(index);
+    ASSERT_GE(index, 0);
 
     if (index >= FMT_BIG_UINT_MAX_WORDS) {
         return -EOVERFLOW;
@@ -1367,7 +1333,7 @@ fmt_big_uint_test_bit(FormatBigUInt *value, int32 bit_index) {
     int32 bit_offset;
 
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(bit_index);
+    ASSERT_GE(bit_index, 0);
 
     word_index = bit_index / FMT_BIG_UINT_WORD_BITS;
     bit_offset = bit_index % FMT_BIG_UINT_WORD_BITS;
@@ -1385,7 +1351,7 @@ fmt_big_uint_shift_left(FormatBigUInt *value, int32 shift) {
     int32 max_new_len;
 
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(shift);
+    ASSERT_GE(shift, 0);
 
     if (value->len == 0 || shift == 0) {
         return 0;
@@ -1437,7 +1403,7 @@ fmt_big_uint_shift_right(FormatBigUInt *value, int32 shift) {
     int32 bit_shift;
 
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(shift);
+    ASSERT_GE(shift, 0);
 
     if (value->len == 0 || shift == 0) {
         return;
@@ -1478,7 +1444,7 @@ fmt_big_uint_has_low_bits(FormatBigUInt *value, int32 bits) {
     int32 partial_bits;
 
     ASSERT(value != NULL);
-    ASSERT_NON_NEGATIVE(bits);
+    ASSERT_GE(bits, 0);
 
     if (bits == 0 || value->len == 0) {
         return false;
@@ -1507,7 +1473,7 @@ fmt_big_uint_remainder_half(FormatBigUInt *value, int32 bits) {
     int32 half_bit;
 
     ASSERT(value != NULL);
-    ASSERT_POSITIVE(bits);
+    ASSERT_GT(bits, 0);
 
     if (!fmt_big_uint_has_low_bits(value, bits)) {
         return FMT_REMAINDER_ZERO;
@@ -1562,7 +1528,7 @@ fmt_big_uint_div_small(FormatBigUInt *value, uint32 divisor) {
     uint64 remainder;
 
     ASSERT(value != NULL);
-    ASSERT_POSITIVE(divisor);
+    ASSERT_GT(divisor, 0);
 
     remainder = 0;
     for (int32 i = value->len - 1; i >= 0; i -= 1) {
@@ -1583,7 +1549,7 @@ fmt_big_uint_to_decimal(FormatBigUInt *value, char *buffer, int32 capacity) {
 
     ASSERT(value != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT_BETWEEN(value->len, 0, FMT_BIG_UINT_MAX_WORDS);
 
     if (value->len == 0) {
@@ -1688,7 +1654,7 @@ fmt_binary_float_scaled_decimal(FormatBinaryFloat *parts,
     int32 status;
 
     ASSERT(parts != NULL);
-    ASSERT_NON_NEGATIVE(decimal_places);
+    ASSERT_GE(decimal_places, 0);
     ASSERT(integer != NULL);
     ASSERT(remainder != NULL);
 
@@ -1719,7 +1685,7 @@ static int32 UNUSED
 fmt_binary_float_set_zero(FormatBinaryFloat *parts, bool negative,
                           int32 precision_bits) {
     ASSERT(parts != NULL);
-    ASSERT_POSITIVE(precision_bits);
+    ASSERT_GT(precision_bits, 0);
 
     fmt_binary_float_zero_significand(parts);
     parts->binary_exponent = 0;
@@ -1763,9 +1729,10 @@ fmt_decode_binary64_ldouble(ldouble value, FormatBinaryFloat *parts) {
         parts->binary_exponent = 1 - FMT_LDOUBLE_DOUBLE_EXPONENT_BIAS
                                  - FMT_LDOUBLE_DOUBLE_FRACTION_BITS;
     } else {
-        fmt_binary_float_set_significand_uint64(
-            parts,
-            (UINT64_C(1) << FMT_LDOUBLE_DOUBLE_FRACTION_BITS) | fraction);
+        uint64 significand =
+            (UINT64_C(1) << FMT_LDOUBLE_DOUBLE_FRACTION_BITS) | fraction;
+
+        fmt_binary_float_set_significand_uint64(parts, significand);
         parts->binary_exponent = (int32)exponent_bits
                                  - FMT_LDOUBLE_DOUBLE_EXPONENT_BIAS
                                  - FMT_LDOUBLE_DOUBLE_FRACTION_BITS;
@@ -1865,9 +1832,9 @@ fmt_decode_binary128_ldouble(ldouble value, FormatBinaryFloat *parts) {
     fmt_binary_float_set_significand_uint128(parts, low, fraction_high);
     if (exponent_bits != 0) {
         int32 status;
+        int32 fraction_bits = FMT_LDOUBLE_BINARY128_FRACTION_BITS;
 
-        status = fmt_binary_float_set_significand_bit(
-            parts, FMT_LDOUBLE_BINARY128_FRACTION_BITS);
+        status = fmt_binary_float_set_significand_bit(parts, fraction_bits);
         if (status < 0) {
             return status;
         }
@@ -2010,7 +1977,7 @@ fmt_float_special_body(double value, FormatSpec *spec,
 static void
 fmt_float_uppercase_body(char *body, int32 body_len) {
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
 
     for (int32 i = 0; i < body_len; i += 1) {
         if (body[i] == 'e') {
@@ -2026,7 +1993,7 @@ fmt_float_force_decimal_point(char *body, int32 body_len, int32 capacity) {
     bool found_point;
 
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
     ASSERT(body_len < capacity);
 
     exponent_index = body_len;
@@ -2070,7 +2037,7 @@ fmt_hex_digit_char(int32 digit, bool upper) {
     char lower_digits[] = "0123456789abcdef";
     char upper_digits[] = "0123456789ABCDEF";
 
-    ASSERT_NON_NEGATIVE(digit);
+    ASSERT_GE(digit, 0);
     ASSERT_LE(digit, 15);
 
     if (upper) {
@@ -2097,7 +2064,7 @@ fmt_float_hex_fraction_digits(uint64 fraction, char *digits, bool upper) {
 static bool
 fmt_float_hex_has_nonzero_tail(char *digits, int32 start) {
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(start);
+    ASSERT_GE(start, 0);
     ASSERT_LE(start, FMT_DOUBLE_HEX_DIGITS);
 
     for (int32 i = start; i < FMT_DOUBLE_HEX_DIGITS; i += 1) {
@@ -2114,8 +2081,7 @@ fmt_float_hex_should_round(char first_digit, char *digits, int32 precision) {
     int32 even_digit;
 
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(precision);
-    ASSERT_LT(precision, FMT_DOUBLE_HEX_DIGITS);
+    ASSERT_BETWEEN(precision, 0, FMT_DOUBLE_HEX_DIGITS);
 
     round_digit = fmt_hex_digit_value(digits[precision]);
     if (round_digit > 8) {
@@ -2141,8 +2107,7 @@ fmt_float_hex_round(char *first_digit, char *digits, int32 precision,
                     bool upper) {
     ASSERT(first_digit != NULL);
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(precision);
-    ASSERT_LT(precision, FMT_DOUBLE_HEX_DIGITS);
+    ASSERT_BETWEEN(precision, 0, FMT_DOUBLE_HEX_DIGITS);
 
     if (!fmt_float_hex_should_round(*first_digit, digits, precision)) {
         return;
@@ -2159,8 +2124,8 @@ fmt_float_hex_round(char *first_digit, char *digits, int32 precision,
         digits[i] = '0';
     }
 
-    *first_digit = fmt_hex_digit_char(
-        fmt_hex_digit_value(*first_digit) + 1, upper);
+    *first_digit = fmt_hex_digit_char(fmt_hex_digit_value(*first_digit) + 1,
+                                      upper);
     return;
 }
 
@@ -2180,8 +2145,8 @@ fmt_float_hex_trim_digits(char *digits) {
 static int32
 fmt_buffer_put(char *buffer, int32 capacity, int32 len, char byte) {
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GE(len, 0);
 
     if (len >= capacity) {
         return -EOVERFLOW;
@@ -2194,10 +2159,10 @@ static int32
 fmt_buffer_write(char *buffer, int32 capacity, int32 len,
                  char *source, int32 source_len) {
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GE(len, 0);
     ASSERT(source != NULL);
-    ASSERT_NON_NEGATIVE(source_len);
+    ASSERT_GE(source_len, 0);
 
     if (source_len > capacity - len) {
         return -EOVERFLOW;
@@ -2215,8 +2180,8 @@ fmt_float_hex_append_exponent(char *buffer, int32 capacity, int32 len,
     int32 status;
 
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GE(len, 0);
 
     if (upper) {
         if ((status = fmt_buffer_put(buffer, capacity, len, 'P')) < 0) {
@@ -2255,8 +2220,8 @@ fmt_float_decimal_append_exponent(char *buffer, int32 capacity,
     int32 status;
 
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GE(len, 0);
 
     if (upper) {
         if ((status = fmt_buffer_put(buffer, capacity, len, 'E')) < 0) {
@@ -2379,9 +2344,9 @@ fmt_ldouble_format_fixed_digits(char *buffer, int32 capacity,
     int32 len;
 
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_POSITIVE(digit_len);
-    ASSERT_NON_NEGATIVE(precision);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GT(digit_len, 0);
+    ASSERT_GE(precision, 0);
 
     if (precision == 0) {
         if (!alternate) {
@@ -2431,10 +2396,10 @@ fmt_ldouble_generate_fixed_body(FormatSpec *spec, ldouble value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(integer != NULL);
     ASSERT(fmt_float_is_fixed(spec->conversion));
-    ASSERT_NON_NEGATIVE(spec->precision);
+    ASSERT_GE(spec->precision, 0);
 
     if ((status = fmt_decompose_ldouble(value, &parts)) < 0) {
         return status;
@@ -2453,17 +2418,17 @@ fmt_ldouble_generate_fixed_body(FormatSpec *spec, ldouble value,
         return digit_len;
     }
 
-    return fmt_ldouble_format_fixed_digits(
-        buffer, capacity, digit_len, spec->precision,
-        spec->flags & FMT_FLAG_ALTERNATE);
+    return fmt_ldouble_format_fixed_digits(buffer, capacity, digit_len,
+                                           spec->precision,
+                                           spec->flags & FMT_FLAG_ALTERNATE);
 }
 
 static int32
 fmt_decimal_round_digits(char *digits, int32 *len, int32 keep, bool round_up) {
     ASSERT(digits != NULL);
     ASSERT(len != NULL);
-    ASSERT_POSITIVE(*len);
-    ASSERT_POSITIVE(keep);
+    ASSERT_GT(*len, 0);
+    ASSERT_GT(keep, 0);
     ASSERT_LE_VAR(keep, *len);
 
     *len = keep;
@@ -2545,7 +2510,7 @@ fmt_ldouble_exp_exponent(FormatBinaryFloat *parts,
     ASSERT(parts != NULL);
     ASSERT(exponent != NULL);
     ASSERT(integer != NULL);
-    ASSERT_NON_NEGATIVE(value);
+    ASSERT(value >= 0.0L);
 
     if (parts->zero) {
         *exponent = 0;
@@ -2577,9 +2542,9 @@ fmt_ldouble_exp_digits(FormatBinaryFloat *parts, ldouble value,
     int32 status;
 
     ASSERT(parts != NULL);
-    ASSERT_NON_NEGATIVE(significant_len);
+    ASSERT_GE(significant_len, 0);
     ASSERT(digits != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(digits_len != NULL);
     ASSERT(decimal_exponent != NULL);
     ASSERT(integer != NULL);
@@ -2641,9 +2606,9 @@ fmt_ldouble_exp_digits(FormatBinaryFloat *parts, ldouble value,
         }
         if (integer_digit_len == significant_len) {
             bool round_up;
+            int32 last_digit = digits[integer_digit_len - 1] - '0';
 
-            round_up = fmt_remainder_should_round(
-                remainder, (digits[integer_digit_len - 1] - '0') & 1);
+            round_up = fmt_remainder_should_round(remainder, last_digit & 1);
             status = fmt_decimal_round_digits(digits, &integer_digit_len,
                                               significant_len, round_up);
             if (status < 0) {
@@ -2698,9 +2663,9 @@ fmt_ldouble_format_exp_digits(char *buffer, int32 capacity,
     int32 len;
 
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
-    ASSERT_POSITIVE(digit_len);
-    ASSERT_NON_NEGATIVE(precision);
+    ASSERT_GT(capacity, 0);
+    ASSERT_GT(digit_len, 0);
+    ASSERT_GE(precision, 0);
 
     if (precision > 0 || alternate) {
         len = 2 + precision;
@@ -2735,10 +2700,10 @@ fmt_ldouble_generate_exp_body(FormatSpec *spec, ldouble value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(integer != NULL);
     ASSERT(fmt_float_is_exp(spec->conversion));
-    ASSERT_NON_NEGATIVE(spec->precision);
+    ASSERT_GE(spec->precision, 0);
 
     if ((status = fmt_decompose_ldouble(value, &parts)) < 0) {
         return status;
@@ -2779,7 +2744,7 @@ fmt_ldouble_parse_decimal_exponent(char *body, int32 body_len,
     int32 sign;
 
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
     ASSERT(exponent != NULL);
 
     index = 0;
@@ -2836,7 +2801,7 @@ fmt_ldouble_strip_trailing_zeros(char *body, int32 body_len) {
     int32 end;
 
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
 
     exponent_index = body_len;
     point_index = -1;
@@ -2880,7 +2845,7 @@ fmt_ldouble_generate_general_body(FormatSpec *spec, ldouble value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(integer != NULL);
     ASSERT(fmt_float_is_general(spec->conversion));
     ASSERT(spec->precision >= 1);
@@ -2930,7 +2895,7 @@ fmt_ldouble_hex_digit_count(FormatBinaryFloat *parts) {
     int32 fraction_bits;
 
     ASSERT(parts != NULL);
-    ASSERT_POSITIVE(parts->precision_bits);
+    ASSERT_GT(parts->precision_bits, 0);
 
     fraction_bits = parts->precision_bits - 1;
     return (fraction_bits + 3)/4;
@@ -2943,7 +2908,7 @@ fmt_ldouble_hex_fraction_digits(FormatBinaryFloat *parts,
 
     ASSERT(parts != NULL);
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(digit_len);
+    ASSERT_GE(digit_len, 0);
 
     fraction_bits = parts->precision_bits - 1;
     for (int32 i = 0; i < digit_len; i += 1) {
@@ -2967,7 +2932,7 @@ fmt_ldouble_hex_fraction_digits(FormatBinaryFloat *parts,
 static bool
 fmt_ldouble_hex_has_nonzero_tail(char *digits, int32 start, int32 digit_len) {
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(start);
+    ASSERT_GE(start, 0);
     ASSERT_LE_VAR(start, digit_len);
 
     for (int32 i = start; i < digit_len; i += 1) {
@@ -2985,8 +2950,8 @@ fmt_ldouble_hex_should_round(char first_digit,
     int32 even_digit;
 
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(digit_len);
-    ASSERT_NON_NEGATIVE(precision);
+    ASSERT_GE(digit_len, 0);
+    ASSERT_GE(precision, 0);
     ASSERT_LT_VAR(precision, digit_len);
 
     round_digit = fmt_hex_digit_value(digits[precision]);
@@ -3013,8 +2978,8 @@ fmt_ldouble_hex_round(char *first_digit, char *digits,
                       int32 digit_len, int32 precision, bool upper) {
     ASSERT(first_digit != NULL);
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(digit_len);
-    ASSERT_NON_NEGATIVE(precision);
+    ASSERT_GE(digit_len, 0);
+    ASSERT_GE(precision, 0);
     ASSERT_LT_VAR(precision, digit_len);
 
     if (!fmt_ldouble_hex_should_round(*first_digit,
@@ -3033,15 +2998,15 @@ fmt_ldouble_hex_round(char *first_digit, char *digits,
         digits[i] = '0';
     }
 
-    *first_digit = fmt_hex_digit_char(
-        fmt_hex_digit_value(*first_digit) + 1, upper);
+    *first_digit = fmt_hex_digit_char(fmt_hex_digit_value(*first_digit) + 1,
+                                      upper);
     return;
 }
 
 static int32
 fmt_ldouble_hex_trim_digits(char *digits, int32 digit_len) {
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(digit_len);
+    ASSERT_GE(digit_len, 0);
 
     while (digit_len > 0 && digits[digit_len - 1] == '0') {
         digit_len -= 1;
@@ -3061,10 +3026,10 @@ fmt_ldouble_write_hex_body(FormatSpec *spec, char *buffer,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(digits != NULL);
-    ASSERT_NON_NEGATIVE(stored_digit_len);
-    ASSERT_NON_NEGATIVE(output_digit_len);
+    ASSERT_GE(stored_digit_len, 0);
+    ASSERT_GE(output_digit_len, 0);
 
     upper = fmt_float_is_upper(spec->conversion);
     len = 0;
@@ -3123,7 +3088,7 @@ fmt_ldouble_generate_hex_body(FormatSpec *spec, ldouble value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(fmt_float_is_hex(spec->conversion));
 
     upper = fmt_float_is_upper(spec->conversion);
@@ -3142,8 +3107,8 @@ fmt_ldouble_generate_hex_body(FormatSpec *spec, ldouble value,
         exponent = 0;
     } else {
         exponent = parts.binary_exponent + parts.precision_bits - 1;
-        if (fmt_binary_float_test_significand_bit(
-                &parts, parts.precision_bits - 1)) {
+        if (fmt_binary_float_test_significand_bit(&parts,
+                                                  parts.precision_bits - 1)) {
             first_digit = '1';
         } else {
             first_digit = '0';
@@ -3179,7 +3144,7 @@ fmt_ldouble_generate_body(FormatSpec *spec, ldouble value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(integer != NULL);
 
     if (isnan(value) || isinf(value)) {
@@ -3239,7 +3204,7 @@ fmt_ldouble_generate_body(FormatSpec *spec, ldouble value,
                           FormatBigUInt *integer) {
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(integer != NULL);
 
     (void)value;
@@ -3260,7 +3225,7 @@ fmt_write_float_sign(FormatSink *sink, FormatSpec *spec,
     ASSERT(sink != NULL);
     ASSERT(spec != NULL);
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
 
     inner_len = body_len;
     if (sign != '\0') {
@@ -3314,7 +3279,7 @@ fmt_float_generate_hex_body(FormatSpec *spec, double value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(fmt_float_is_hex(spec->conversion));
 
     upper = fmt_float_is_upper(spec->conversion);
@@ -3340,8 +3305,7 @@ fmt_float_generate_hex_body(FormatSpec *spec, double value,
     } else {
         ASSERT(spec->precision <= INT32_MAX);
         if (spec->precision < FMT_DOUBLE_HEX_DIGITS) {
-            fmt_float_hex_round(&first_digit, digits,
-                                spec->precision, upper);
+            fmt_float_hex_round(&first_digit, digits, spec->precision, upper);
         }
         digit_len = spec->precision;
     }
@@ -3399,7 +3363,7 @@ fmt_float_parse_exponent(char *body, int32 body_len, int32 *exponent) {
     int32 sign;
 
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
     ASSERT(exponent != NULL);
 
     index = 0;
@@ -3456,7 +3420,7 @@ fmt_float_strip_trailing_zeros(char *body, int32 body_len) {
     int32 end;
 
     ASSERT(body != NULL);
-    ASSERT_NON_NEGATIVE(body_len);
+    ASSERT_GE(body_len, 0);
 
     exponent_index = body_len;
     point_index = -1;
@@ -3499,7 +3463,7 @@ fmt_float_generate_general_body(FormatSpec *spec, double value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
     ASSERT(fmt_float_is_general(spec->conversion));
     ASSERT(spec->precision >= 1);
 
@@ -3547,7 +3511,7 @@ fmt_float_generate_body(FormatSpec *spec, double value,
 
     ASSERT(spec != NULL);
     ASSERT(buffer != NULL);
-    ASSERT_POSITIVE(capacity);
+    ASSERT_GT(capacity, 0);
 
     if (isnan(value) || isinf(value)) {
         int32 status;
@@ -3595,7 +3559,7 @@ fmt_float_generate_body(FormatSpec *spec, double value,
 static int32
 fmt_estimate_add(int64 *total, int64 len) {
     ASSERT(total != NULL);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GE(len, 0);
 
     if (len > (INT32_MAX - *total)) {
         return -EOVERFLOW;
@@ -3610,7 +3574,7 @@ fmt_estimate_add(int64 *total, int64 len) {
 static int64
 fmt_estimate_apply_width(FormatSpec *spec, int64 len) {
     ASSERT(spec != NULL);
-    ASSERT_NON_NEGATIVE(len);
+    ASSERT_GE(len, 0);
 
     return MAX(len, spec->width);
 }
@@ -4137,8 +4101,7 @@ fmt_execute_spec(FormatSink *sink, FormatSpec *spec, FormatArgs *fmt_args) {
         if (sink->status < 0) {
             return sink->status;
         }
-        return fmt_store_count(spec, fmt_args, sink->total,
-                               sink->write_count);
+        return fmt_store_count(spec, fmt_args, sink->total, sink->write_count);
     }
     if (fmt_is_float_conversion(spec->conversion)) {
         if (!fmt_float_is_fixed(spec->conversion)
@@ -4178,8 +4141,7 @@ fmt_execute_spec(FormatSink *sink, FormatSpec *spec, FormatArgs *fmt_args) {
             int32 body_len;
 
             value = va_arg(fmt_args->args, double);
-            body_len = fmt_float_generate_body(spec, value, body,
-                                               SIZEOF(body));
+            body_len = fmt_float_generate_body(spec, value, body, SIZEOF(body));
             if (body_len < 0) {
                 return body_len;
             }
@@ -4411,35 +4373,492 @@ fmt_sprintf(char *buffer, int64 capacity, char *format, ...) {
     return len;
 }
 
-void
-str_float64(String *string, double value) {
+const FmtLocale fmt_locale_c = {
+    .weekday_abbr = {
+        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+    },
+    .weekday = {
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+        "Saturday",
+    },
+    .month_abbr = {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    },
+    .month = {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+    },
+    .am = "AM",
+    .pm = "PM",
+    .am_lower = "am",
+    .pm_lower = "pm",
+    .date_time_fmt = "%a %b %e %H:%M:%S %Y",
+    .date_fmt = "%m/%d/%y",
+    .time_fmt = "%H:%M:%S",
+    .time_12_fmt = "%I:%M:%S %p",
+};
+
+static void
+fmt_strftime_write_number(FormatSink *sink, int64 value,
+                          int32 width, char pad) {
+    char digits[64];
+    uint64 magnitude;
     int32 len;
+    bool negative;
 
-    str_reserve(string, FMT_FLOAT_RYU_BUFFER_SIZE);
-    len = fmt_float64_shortest(string->data + string->len,
-                               string->cap - string->len, value);
-    ASSERT_NON_NEGATIVE(len);
-    string->len += len;
-    return;
-}
-
-void
-str_float64_fixed(String *str, double value, int32 precision) {
-    int32 len;
-
-    str_reserve(str, FMT_FLOAT_RYU_BUFFER_SIZE);
-    len = fmt_float64_fixed(str->data + str->len, str->cap - str->len,
-                            value, precision);
-    if (len < 0) {
-        error("Invalid float precision %d.\n", precision);
-        fatal(EXIT_FAILURE);
+    negative = value < 0;
+    if (negative) {
+        magnitude = (uint64)(-(value + 1)) + 1;
+    } else {
+        magnitude = (uint64)value;
     }
-    str->len += len;
+    len = fmt_integer_digits(digits, magnitude, 10, false);
 
+    if (negative) {
+        fmt_sink_write_byte(sink, '-');
+        width -= 1;
+    }
+    if (width > len) {
+        fmt_sink_write_repeat(sink, pad, width - len);
+    }
+    fmt_sink_write(sink, digits, len);
     return;
 }
 
-void ATTR_PRINTF(1, 2)
+static int32
+fmt_strftime_days_in_year(int64 year) {
+    if (((year%4) == 0)
+        && (((year%100) != 0) || ((year%400) == 0))) {
+        return 366;
+    }
+    return 365;
+}
+
+static void
+fmt_strftime_iso_week(struct tm *time_info,
+                      int64 *iso_year, int32 *iso_week) {
+    int64 year = 1900 + (int64)time_info->tm_year;
+    int32 iso_wday;
+    int32 thursday_yday;
+
+    iso_wday = time_info->tm_wday;
+    if (iso_wday == 0) {
+        iso_wday = 7;
+    }
+
+    thursday_yday = time_info->tm_yday + 4 - iso_wday;
+    *iso_year = year;
+    if (thursday_yday < 0) {
+        *iso_year -= 1;
+        thursday_yday += fmt_strftime_days_in_year(*iso_year);
+    } else if (thursday_yday >= fmt_strftime_days_in_year(year)) {
+        thursday_yday -= fmt_strftime_days_in_year(year);
+        *iso_year += 1;
+    }
+
+    *iso_week = thursday_yday/7 + 1;
+    return;
+}
+
+static void
+fmt_strftime_write_string(FormatSink *sink, const char *string) {
+    ASSERT(string != NULL);
+
+    while (*string != '\0') {
+        fmt_sink_write_byte(sink, *string);
+        string += 1;
+    }
+    return;
+}
+
+static void
+fmt_strftime_write_name(FormatSink *sink, const char *const *names,
+                        int32 names_len, int32 index) {
+    if ((index < 0) || (index >= names_len)) {
+        fmt_sink_write_byte(sink, '?');
+        return;
+    }
+
+    fmt_strftime_write_string(sink, names[index]);
+    return;
+}
+
+static void
+fmt_strftime_format(FormatSink *sink, const char *format,
+                    struct tm *time_info, const FmtLocale *locale) {
+    const char *cursor;
+
+    ASSERT(format != NULL);
+    ASSERT(locale != NULL);
+
+    cursor = format;
+    while (*cursor != '\0') {
+        char modifier = '\0';
+        char conversion;
+        int64 year;
+
+        if (*cursor != '%') {
+            fmt_sink_write_byte(sink, *cursor);
+            cursor += 1;
+            continue;
+        }
+
+        cursor += 1;
+        if (*cursor == 'E' || *cursor == 'O') {
+            modifier = *cursor;
+            cursor += 1;
+        }
+        if (*cursor == '\0') {
+            fmt_sink_write_byte(sink, '%');
+            if (modifier != '\0') {
+                fmt_sink_write_byte(sink, modifier);
+            }
+            break;
+        }
+
+        conversion = *cursor;
+        cursor += 1;
+        year = 1900 + (int64)time_info->tm_year;
+
+        if ((modifier == 'E')
+            && (conversion != 'c')
+            && (conversion != 'C')
+            && (conversion != 'x')
+            && (conversion != 'X')
+            && (conversion != 'y')
+            && (conversion != 'Y')) {
+            fmt_sink_write_byte(sink, '%');
+            fmt_sink_write_byte(sink, modifier);
+            fmt_sink_write_byte(sink, conversion);
+            continue;
+        }
+        if ((modifier == 'O')
+            && (conversion != 'd')
+            && (conversion != 'e')
+            && (conversion != 'H')
+            && (conversion != 'I')
+            && (conversion != 'm')
+            && (conversion != 'M')
+            && (conversion != 'S')
+            && (conversion != 'u')
+            && (conversion != 'U')
+            && (conversion != 'V')
+            && (conversion != 'w')
+            && (conversion != 'W')
+            && (conversion != 'y')) {
+            fmt_sink_write_byte(sink, '%');
+            fmt_sink_write_byte(sink, modifier);
+            fmt_sink_write_byte(sink, conversion);
+            continue;
+        }
+
+        switch (conversion) {
+        case 'a':
+            fmt_strftime_write_name(sink, locale->weekday_abbr,
+                                    LENGTH(locale->weekday_abbr),
+                                    time_info->tm_wday);
+            break;
+        case 'A':
+            fmt_strftime_write_name(sink, locale->weekday,
+                                    LENGTH(locale->weekday),
+                                    time_info->tm_wday);
+            break;
+        case 'b':
+        case 'h':
+            fmt_strftime_write_name(sink, locale->month_abbr,
+                                    LENGTH(locale->month_abbr),
+                                    time_info->tm_mon);
+            break;
+        case 'B':
+            fmt_strftime_write_name(sink, locale->month,
+                                    LENGTH(locale->month),
+                                    time_info->tm_mon);
+            break;
+        case 'c':
+            fmt_strftime_format(sink, locale->date_time_fmt, time_info, locale);
+            break;
+        case 'C': {
+            int64 century = year/100;
+            int64 year_in_century = year%100;
+
+            if (year_in_century < 0) {
+                century -= 1;
+            }
+            fmt_strftime_write_number(sink, century, 2, '0');
+            break;
+        }
+        case 'd':
+            fmt_strftime_write_number(sink, time_info->tm_mday, 2, '0');
+            break;
+        case 'D':
+            fmt_strftime_format(sink, "%m/%d/%y", time_info, locale);
+            break;
+        case 'e':
+            fmt_strftime_write_number(sink, time_info->tm_mday, 2, ' ');
+            break;
+        case 'F':
+            fmt_strftime_format(sink, "%Y-%m-%d", time_info, locale);
+            break;
+        case 'g':
+        case 'G': {
+            int64 iso_year;
+            int32 iso_week;
+
+            fmt_strftime_iso_week(time_info, &iso_year, &iso_week);
+            if (conversion == 'G') {
+                fmt_strftime_write_number(sink, iso_year, 4, '0');
+            } else {
+                int64 year_in_century = iso_year%100;
+
+                if (year_in_century < 0) {
+                    year_in_century += 100;
+                }
+                fmt_strftime_write_number(sink, year_in_century, 2, '0');
+            }
+            break;
+        }
+        case 'H':
+            fmt_strftime_write_number(sink, time_info->tm_hour, 2, '0');
+            break;
+        case 'I': {
+            int32 hour = time_info->tm_hour%12;
+
+            if (hour == 0) {
+                hour = 12;
+            }
+            fmt_strftime_write_number(sink, hour, 2, '0');
+            break;
+        }
+        case 'j':
+            fmt_strftime_write_number(sink, time_info->tm_yday + 1, 3, '0');
+            break;
+        case 'k':
+            fmt_strftime_write_number(sink, time_info->tm_hour, 2, ' ');
+            break;
+        case 'l': {
+            int32 hour = time_info->tm_hour%12;
+
+            if (hour == 0) {
+                hour = 12;
+            }
+            fmt_strftime_write_number(sink, hour, 2, ' ');
+            break;
+        }
+        case 'm':
+            fmt_strftime_write_number(sink, time_info->tm_mon + 1, 2, '0');
+            break;
+        case 'M':
+            fmt_strftime_write_number(sink, time_info->tm_min, 2, '0');
+            break;
+        case 'n':
+            fmt_sink_write_byte(sink, '\n');
+            break;
+        case 'p':
+            if (time_info->tm_hour < 12) {
+                fmt_strftime_write_string(sink, locale->am);
+            } else {
+                fmt_strftime_write_string(sink, locale->pm);
+            }
+            break;
+        case 'P':
+            if (time_info->tm_hour < 12) {
+                fmt_strftime_write_string(sink, locale->am_lower);
+            } else {
+                fmt_strftime_write_string(sink, locale->pm_lower);
+            }
+            break;
+        case 'r':
+            fmt_strftime_format(sink, locale->time_12_fmt, time_info, locale);
+            break;
+        case 'R':
+            fmt_strftime_format(sink, "%H:%M", time_info, locale);
+            break;
+        case 's': {
+            int64 epoch_year = year;
+            int64 month = 1 + (int64)time_info->tm_mon;
+            int64 era;
+            int64 year_of_era;
+            int64 day_of_year;
+            int64 day_of_era;
+            int64 days;
+            int64 seconds;
+
+            // Gregorian civil-date conversion. A 400-year era has 146097
+            // days; 719468 shifts its March-based epoch to Unix day zero.
+            epoch_year -= month <= 2;
+            if (epoch_year >= 0) {
+                era = epoch_year/400;
+            } else {
+                era = (epoch_year - 399)/400;
+            }
+            year_of_era = epoch_year - era*400;
+            if (month > 2) {
+                month -= 3;
+            } else {
+                month += 9;
+            }
+            day_of_year = (153*month + 2)/5 + time_info->tm_mday - 1;
+            day_of_era = year_of_era*365 + year_of_era/4 - year_of_era/100
+                         + day_of_year;
+            days = era*146097 + day_of_era - 719468;
+
+            seconds = days*86400;
+            seconds += (int64)time_info->tm_hour*3600;
+            seconds += (int64)time_info->tm_min*60;
+            seconds += time_info->tm_sec;
+#if OS_UNIX
+            seconds -= (int64)time_info->tm_gmtoff;
+#endif
+            fmt_strftime_write_number(sink, seconds, 1, '0');
+            break;
+        }
+        case 'S':
+            fmt_strftime_write_number(sink, time_info->tm_sec, 2, '0');
+            break;
+        case 't':
+            fmt_sink_write_byte(sink, '\t');
+            break;
+        case 'T':
+            fmt_strftime_format(sink, "%H:%M:%S", time_info, locale);
+            break;
+        case 'u': {
+            int32 weekday = time_info->tm_wday;
+
+            if (weekday == 0) {
+                weekday = 7;
+            }
+            fmt_strftime_write_number(sink, weekday, 1, '0');
+            break;
+        }
+        case 'U': {
+            int32 week;
+
+            week = (time_info->tm_yday + 7 - time_info->tm_wday)/7;
+            fmt_strftime_write_number(sink, week, 2, '0');
+            break;
+        }
+        case 'V': {
+            int64 iso_year;
+            int32 iso_week;
+
+            fmt_strftime_iso_week(time_info, &iso_year, &iso_week);
+            fmt_strftime_write_number(sink, iso_week, 2, '0');
+            break;
+        }
+        case 'w':
+            fmt_strftime_write_number(sink, time_info->tm_wday, 1, '0');
+            break;
+        case 'W': {
+            int32 monday_weekday = (time_info->tm_wday + 6)%7;
+            int32 week;
+
+            week = (time_info->tm_yday + 7 - monday_weekday)/7;
+            fmt_strftime_write_number(sink, week, 2, '0');
+            break;
+        }
+        case 'x':
+            fmt_strftime_format(sink, locale->date_fmt, time_info, locale);
+            break;
+        case 'X':
+            fmt_strftime_format(sink, locale->time_fmt, time_info, locale);
+            break;
+        case 'y': {
+            int64 year_in_century = year%100;
+
+            if (year_in_century < 0) {
+                year_in_century += 100;
+            }
+            fmt_strftime_write_number(sink, year_in_century, 2, '0');
+            break;
+        }
+        case 'Y':
+            fmt_strftime_write_number(sink, year, 4, '0');
+            break;
+        case 'z':
+#if OS_UNIX
+            if (time_info->tm_isdst >= 0) {
+                int64 offset = (int64)time_info->tm_gmtoff;
+                int64 minutes;
+                int64 hours;
+
+                if (offset < 0) {
+                    fmt_sink_write_byte(sink, '-');
+                    offset = -offset;
+                } else {
+                    fmt_sink_write_byte(sink, '+');
+                }
+                minutes = (offset/60)%60;
+                hours = offset/3600;
+                fmt_strftime_write_number(sink, hours, 2, '0');
+                fmt_strftime_write_number(sink, minutes, 2, '0');
+            }
+#endif
+            break;
+        case 'Z':
+#if OS_UNIX
+            if (time_info->tm_zone != NULL) {
+                fmt_strftime_write_string(sink, time_info->tm_zone);
+            }
+#endif
+            break;
+        case '%':
+            fmt_sink_write_byte(sink, '%');
+            break;
+        default:
+            fmt_sink_write_byte(sink, '%');
+            if (modifier != '\0') {
+                fmt_sink_write_byte(sink, modifier);
+            }
+            fmt_sink_write_byte(sink, conversion);
+            break;
+        }
+    }
+    return;
+}
+
+int32
+fmt_strftime_l(char *buffer, int64 capacity, char *format,
+               struct tm *time_info, const FmtLocale *locale) {
+    FormatSink sink;
+    int32 len;
+
+    ASSERT(locale != NULL);
+
+    if ((format == NULL) || (time_info == NULL) || (locale == NULL)) {
+        if ((buffer != NULL) && (capacity > 0)) {
+            buffer[0] = '\0';
+        }
+        return 0;
+    }
+    if ((capacity < 0) || (capacity > INT32_MAX)) {
+        return 0;
+    }
+    if ((capacity > 0) && (buffer == NULL)) {
+        return 0;
+    }
+    if (fmt_sink_init(&sink, buffer, capacity) < 0) {
+        return 0;
+    }
+
+    fmt_strftime_format(&sink, format, time_info, locale);
+    len = fmt_sink_finish(&sink);
+    if ((len < 0) || (len >= capacity)) {
+        if (capacity > 0) {
+            buffer[0] = '\0';
+        }
+        return 0;
+    }
+    return len;
+}
+
+int32
+fmt_strftime(char *buffer, int64 capacity,
+             char *format, struct tm *time_info) {
+    return fmt_strftime_l(buffer, capacity, format, time_info, &fmt_locale_c);
+}
+
+int32 ATTR_PRINTF(1, 2)
 fmt_printf(char *format, ...) {
     char buffer[4096];
     char *big_buffer = NULL;
@@ -4480,7 +4899,7 @@ fmt_printf(char *format, ...) {
     fflush(stdout);
     write_all(STDOUT_FILENO, pbuffer, n);
     free2(big_buffer, capacity);
-    return;
+    return n;
 }
 
 #if TESTING_fmt
@@ -4707,7 +5126,7 @@ static void
 test_fmt_bytes_cap(char *expected, int32 expected_len, char *format, ...) {
     char buffer[256];
 
-    ASSERT_NON_NEGATIVE(expected_len);
+    ASSERT_GE(expected_len, 0);
     ASSERT_LT(expected_len + 2, SIZEOF(buffer));
 
     for (int32 capacity = 0; capacity <= expected_len + 2; capacity += 1) {
@@ -4886,13 +5305,11 @@ test_fmt_pointer_count_outputs(void) {
     ASSERT_EQ(buffer[2], (char)0x7f);
 
     count8 = -1;
-    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%hhn", &count8),
-              3);
+    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%hhn", &count8), 3);
     ASSERT_EQ(count8, 3);
 
     count16 = -1;
-    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%hn", &count16),
-              3);
+    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%hn", &count16), 3);
     ASSERT_EQ(count16, 3);
 
     count64 = -1;
@@ -4901,8 +5318,7 @@ test_fmt_pointer_count_outputs(void) {
     ASSERT_EQ(count64, 3);
 
     count8 = -1;
-    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%w8n", &count8),
-              3);
+    ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "abc%w8n", &count8), 3);
     ASSERT_EQ(count8, 3);
 
     count16 = -1;
@@ -5000,16 +5416,19 @@ test_fmt_printf_float_outputs(void) {
 
     ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "%.*f", -1, 1.25), 8);
     ASSERT_EQ(buffer, "1.250000");
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*f",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*f",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION, true_min),
               FMT_DOUBLE_MAX_DECIMAL_PRECISION + 2);
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*e",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*e",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION, 1.0),
               FMT_DOUBLE_MAX_DECIMAL_PRECISION + 6);
     ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%100000f", 1.0), 100000);
     ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer),
                                 "%.1048576f", 1.0), -ERANGE);
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*e",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*e",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION + 1, 1.0),
               -ERANGE);
     ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.100000e", 1.0), -ERANGE);
@@ -5053,10 +5472,12 @@ test_fmt_printf_general_outputs(void) {
     ASSERT_EQ(buffer, "1.25");
     ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "%.*g", 0, 123.0), 5);
     ASSERT_EQ(buffer, "1e+02");
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%#.*g",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%#.*g",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION, 1.0),
               FMT_DOUBLE_MAX_DECIMAL_PRECISION + 1);
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*g",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*g",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION + 1, 1.0),
               -ERANGE);
 
@@ -5114,12 +5535,14 @@ test_fmt_printf_hex_float_outputs(void) {
 
     ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "%.*a", -1, 1.5), 8);
     ASSERT_EQ(buffer, "0x1.8p+0");
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*a",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*a",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION, 1.0),
               FMT_DOUBLE_MAX_DECIMAL_PRECISION + 7);
     ASSERT_EQ(fmt_test_snprintf(buffer, SIZEOF(buffer), "%.1048576a", 1.0),
               -ERANGE);
-    ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*a",
+    ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                "%.*a",
                                 FMT_DOUBLE_MAX_DECIMAL_PRECISION + 1, 1.0),
               -ERANGE);
 
@@ -5336,39 +5759,42 @@ test_fmt_printf_ldouble_outputs(void) {
     if (fmt_test_ldouble_supported()) {
         true_min = ldexpl(1.0L, LDBL_MIN_EXP - LDBL_MANT_DIG);
         if (true_min != 0.0L) {
-            ASSERT_EQ(fmt_test_snprintf(
-                          NULL, 0, "%.*Lf",
-                          FMT_LDOUBLE_MAX_DECIMAL_PRECISION, true_min),
+            int32 precision = FMT_LDOUBLE_MAX_DECIMAL_PRECISION;
+
+            ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*Lf", precision, true_min),
                       FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 2);
-            ASSERT_POSITIVE(fmt_test_snprintf(
-                NULL, 0, "%.*Le", FMT_LDOUBLE_MAX_DECIMAL_PRECISION,
-                true_min));
+            ASSERT_GT(fmt_test_snprintf(NULL, 0, "%.*Le", precision, true_min),
+                      0);
         }
         ASSERT_EQ(fmt_test_snprintf(NULL, 0,
                                     "%.*Lf",
                                     FMT_LDOUBLE_MAX_DECIMAL_PRECISION,
                                     LDBL_MAX),
                   FMT_LDOUBLE_MAX_DECIMAL_PRECISION + LDBL_MAX_10_EXP + 2);
-        ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*Le",
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%.*Le",
                                     FMT_LDOUBLE_MAX_DECIMAL_PRECISION, 0.0L),
                   FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 6);
-        ASSERT_EQ(fmt_test_snprintf(
-                      NULL, 0, "%#.*Lg",
-                      FMT_LDOUBLE_MAX_DECIMAL_PRECISION, 0.0L),
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%#.*Lg",
+                                    FMT_LDOUBLE_MAX_DECIMAL_PRECISION, 0.0L),
                   FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 1);
-        ASSERT_EQ(fmt_test_snprintf(
-                      NULL, 0, "%.*La",
-                      FMT_LDOUBLE_MAX_DECIMAL_PRECISION, 0.0L),
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%.*La",
+                                    FMT_LDOUBLE_MAX_DECIMAL_PRECISION, 0.0L),
                   FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 7);
-        ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*Lf",
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%.*Lf",
                                     FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 1,
                                     1.0L),
                   -ERANGE);
-        ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*Le",
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%.*Le",
                                     FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 1,
                                     1.0L),
                   -ERANGE);
-        ASSERT_EQ(fmt_test_snprintf(NULL, 0, "%.*Lg",
+        ASSERT_EQ(fmt_test_snprintf(NULL, 0,
+                                    "%.*Lg",
                                     FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 1,
                                     1.0L),
                   -ERANGE);
@@ -5451,12 +5877,12 @@ test_fmt_planned_plan(void) {
     int32 count;
 
     estimate = fmt_test_planned_estimate(&plan, format, 7, 4, span, 1.25);
-    ASSERT_POSITIVE(estimate);
+    ASSERT_GT(estimate, 0);
     ASSERT(plan.valid);
     ASSERT(plan.format == format);
 
     len = fmt_test_planned_sprintf(&plan, buffer, SIZEOF(buffer),
-                                  7, 4, span, 1.25);
+                                   7, 4, span, 1.25);
     ASSERT_EQ(len, 17);
     ASSERT_EQ(buffer, len + 1, "x=7 s=a\0bc f=1.25", 18);
 
@@ -5475,8 +5901,7 @@ test_fmt_planned_plan(void) {
 
     estimate = fmt_test_planned_estimate(&plan, "[%s]", (char *)NULL);
     ASSERT_EQ(estimate, 7);
-    len = fmt_test_planned_sprintf(&plan, buffer, SIZEOF(buffer),
-                                   (char *)NULL);
+    len = fmt_test_planned_sprintf(&plan, buffer, SIZEOF(buffer), (char *)NULL);
     ASSERT_EQ(len, 7);
     ASSERT_EQ(buffer, "[<nil>]");
 
@@ -5522,6 +5947,170 @@ test_fmt_planned_plan(void) {
         ASSERT_EQ(fmt_test_planned_estimate(&plan, too_long), -EOVERFLOW);
         ASSERT(!plan.valid);
     }
+
+    return;
+}
+
+static void
+test_fmt_strftime(void) {
+    char buffer[512];
+    char tiny[4];
+    struct tm time_info = {0};
+    int32 len;
+
+    time_info.tm_year = 122;
+    time_info.tm_mon = 0;
+    time_info.tm_mday = 2;
+    time_info.tm_hour = 3;
+    time_info.tm_min = 4;
+    time_info.tm_sec = 5;
+    time_info.tm_wday = 0;
+    time_info.tm_yday = 1;
+    time_info.tm_isdst = 0;
+#if OS_UNIX
+    time_info.tm_gmtoff = 0;
+    time_info.tm_zone = "UTC";
+#endif
+
+    len = fmt_strftime(buffer, SIZEOF(buffer),
+                       "%a|%A|%b|%B|%c|%C|%d|%D|%e|%F|%g|%G|%h|%H|%I|%j|"
+                       "%k|%l|%m|%M|%p|%P|%r|%R|%s|%S|%T|%u|%U|%V|%w|%W|"
+                       "%x|%X|%y|%Y|%%", &time_info);
+    ASSERT_EQ(buffer,
+              "Sun|Sunday|Jan|January|Sun Jan  2 03:04:05 2022|20|02|"
+              "01/02/22| 2|2022-01-02|21|2021|Jan|03|03|002| 3| 3|01|"
+              "04|AM|am|03:04:05 AM|03:04|1641092645|05|03:04:05|7|01|"
+              "52|0|00|01/02/22|03:04:05|22|2022|%");
+    ASSERT_EQ(len, strlen32(buffer));
+
+    len = fmt_strftime(buffer, SIZEOF(buffer), "%n%t", &time_info);
+    ASSERT_EQ(len, 2);
+    ASSERT_EQ(buffer, 3, "\n\t", 3);
+
+    len = fmt_strftime(buffer, SIZEOF(buffer),
+                       "%Ec|%EC|%Ex|%EX|%Ey|%EY|%Od|%Oe|%OH|%OI|%Om|%OM|"
+                       "%OS|%Ou|%OU|%OV|%Ow|%OW|%Oy",
+                       &time_info);
+    ASSERT_EQ(buffer,
+              "Sun Jan  2 03:04:05 2022|20|01/02/22|03:04:05|22|2022|02|"
+              " 2|03|03|01|04|05|7|01|52|0|00|22");
+    ASSERT_EQ(len, strlen32(buffer));
+
+    len = fmt_strftime(buffer, SIZEOF(buffer), "%Ea|%Ob|%Q|%", &time_info);
+    ASSERT_EQ(buffer, "%Ea|%Ob|%Q|%");
+    ASSERT_EQ(len, 12);
+
+    time_info.tm_year = 121;
+    time_info.tm_mon = 0;
+    time_info.tm_mday = 1;
+    time_info.tm_wday = 5;
+    time_info.tm_yday = 0;
+    len = fmt_strftime(buffer, SIZEOF(buffer), "%G-%V-%g", &time_info);
+    ASSERT_EQ(len, 10);
+    ASSERT_EQ(buffer, "2020-53-20");
+
+    time_info.tm_year = 118;
+    time_info.tm_mon = 11;
+    time_info.tm_mday = 31;
+    time_info.tm_wday = 1;
+    time_info.tm_yday = 364;
+    len = fmt_strftime(buffer, SIZEOF(buffer), "%G-%V-%g", &time_info);
+    ASSERT_EQ(len, 10);
+    ASSERT_EQ(buffer, "2019-01-19");
+
+    time_info.tm_year = 122;
+    time_info.tm_mon = 0;
+    time_info.tm_mday = 2;
+    time_info.tm_hour = 3;
+    time_info.tm_min = 4;
+    time_info.tm_sec = 5;
+    time_info.tm_wday = 0;
+    time_info.tm_yday = 1;
+    time_info.tm_isdst = 0;
+#if OS_UNIX
+    time_info.tm_gmtoff = -3*3600 - 30*60;
+    time_info.tm_zone = "TEST";
+    len = fmt_strftime(buffer, SIZEOF(buffer), "%z|%Z|%s", &time_info);
+    ASSERT_EQ(buffer, "-0330|TEST|1641105245");
+    ASSERT_EQ(len, strlen32(buffer));
+#endif
+
+    ASSERT_EQ(fmt_strftime(buffer, 5, "%Y", &time_info), 4);
+    ASSERT_EQ(buffer, "2022");
+    ASSERT_ZERO(fmt_strftime(tiny, SIZEOF(tiny), "%Y", &time_info));
+    ASSERT_EQ(tiny, "");
+    ASSERT_ZERO(fmt_strftime(NULL, 0, "%Y", &time_info));
+    ASSERT_ZERO(fmt_strftime(buffer, SIZEOF(buffer), "", &time_info));
+    ASSERT_EQ(buffer, "");
+    ASSERT_ZERO(fmt_strftime(buffer, SIZEOF(buffer), NULL, &time_info));
+    ASSERT_EQ(buffer, "");
+    ASSERT_ZERO(fmt_strftime(buffer, SIZEOF(buffer), "%Y", NULL));
+    ASSERT_EQ(buffer, "");
+
+    return;
+}
+
+static void
+test_fmt_strftime_locale(void) {
+    static const FmtLocale locale = {
+        .weekday_abbr = {
+            "d0", "d1", "d2", "d3", "d4", "d5", "d6",
+        },
+        .weekday = {
+            "day0", "day1", "day2", "day3", "day4", "day5", "day6",
+        },
+        .month_abbr = {
+            "m01", "m02", "m03", "m04", "m05", "m06",
+            "m07", "m08", "m09", "m10", "m11", "m12",
+        },
+        .month = {
+            "month01", "month02", "month03", "month04", "month05",
+            "month06", "month07", "month08", "month09", "month10",
+            "month11", "month12",
+        },
+        .am = "before-noon",
+        .pm = "after-noon",
+        .am_lower = "before-noon-lower",
+        .pm_lower = "after-noon-lower",
+        .date_time_fmt = "%A/%B/%e/%Y/%X",
+        .date_fmt = "%Y.%m.%d",
+        .time_fmt = "%Hh%Mm%Ss",
+        .time_12_fmt = "%Ih%Mm%Ss %p",
+    };
+    char buffer[512];
+    struct tm time_info = {0};
+    int32 len;
+
+    time_info.tm_year = 122;
+    time_info.tm_mon = 0;
+    time_info.tm_mday = 2;
+    time_info.tm_hour = 15;
+    time_info.tm_min = 4;
+    time_info.tm_sec = 5;
+    time_info.tm_wday = 0;
+    time_info.tm_yday = 1;
+    time_info.tm_isdst = 0;
+
+    len = fmt_strftime_l(buffer, SIZEOF(buffer),
+                         "%a|%A|%b|%B|%p|%P|%c|%x|%X|%r",
+                         &time_info, &locale);
+    ASSERT_EQ(buffer,
+              "d0|day0|m01|month01|after-noon|after-noon-lower|"
+              "day0/month01/ 2/2022/15h04m05s|2022.01.02|15h04m05s|"
+              "03h04m05s after-noon");
+    ASSERT_EQ(len, strlen32(buffer));
+
+    len = fmt_strftime_l(buffer, SIZEOF(buffer),
+                         "%Ec|%Ex|%EX",
+                         &time_info, &locale);
+    ASSERT_EQ(buffer, "day0/month01/ 2/2022/15h04m05s|2022.01.02|15h04m05s");
+    ASSERT_EQ(len, strlen32(buffer));
+
+    len = fmt_strftime_l(buffer, SIZEOF(buffer),
+                         "%A|%B|%p|%P|%x|%X",
+                         &time_info, &fmt_locale_c);
+    ASSERT_EQ(buffer, "Sunday|January|PM|pm|01/02/22|15:04:05");
+    ASSERT_EQ(len, strlen32(buffer));
 
     return;
 }
@@ -5725,7 +6314,7 @@ test_fmt_float32_round_trip(float value) {
     int32 len;
 
     len = fmt_float32_shortest(buffer, SIZEOF(buffer), value);
-    ASSERT_POSITIVE(len);
+    ASSERT_GT(len, 0);
 
     end = NULL;
     parsed = strtof(buffer, &end);
@@ -5743,9 +6332,10 @@ test_fmt_float64_round_trip(double value) {
     int32 len;
 
     len = fmt_float64_shortest(buffer, SIZEOF(buffer), value);
-    ASSERT_POSITIVE(len);
+    ASSERT_GT(len, 0);
 
     end = NULL;
+    // Keep libc strtod() as an independent oracle for formatter output.
     parsed = strtod(buffer, &end);
     ASSERT(end == buffer + len);
     ASSERT_EQ(test_fmt_float64_bits(parsed), test_fmt_float64_bits(value));
@@ -5774,6 +6364,8 @@ main(void) {
     test_fmt_printf_ldouble_outputs();
     test_fmt_ldouble_decomposition();
     test_fmt_ldouble_decimal_helpers();
+    test_fmt_strftime();
+    test_fmt_strftime_locale();
     test_fmt_public_api();
     test_fmt_planned_plan();
     test_fmt_estimate();

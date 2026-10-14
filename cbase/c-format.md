@@ -53,14 +53,24 @@ For non-formatting coding guidelines, see `c-guidelines.md`.
 ## Function calls
 
 - Never use space before parenthesis of function calls.
-- Try to never break function calls before the first argument:
+
+### Never break function calls before the first argument:
+Exception: generated files ending in `.meta.h` may break before the first
+argument.
+
+The list below explains what to do:
+
+1. First, try to fit the entire call in a single line:
   ```c
   // bad
   this_function_call(
       argument, other, many, arguments, x, y, width, height);
   // good
   this_function_call(argument, other, many, arguments, x, y, width, height);
+  ```
 
+2. If it doesn't fit, try to break after the first argument:
+  ```c
   // bad
   this_function_call_is_very_long_but(
       argument, other, many, arguments, x, y, width, height);
@@ -68,28 +78,51 @@ For non-formatting coding guidelines, see `c-guidelines.md`.
   this_function_call_is_very_long_but(argument, other, many, arguments,
                                       x, y, width, height);
   ```
-- If the function is assigning to a varible, it may help to break after the `=`
-  to avoid having to break before the first argument:
+  * Note: remember to align subsequent lines so that they align correctly:
+  ```c
+  // bad
+  this_function_call_is_very_long_but(argument, other, many, arguments,
+                          x, y, width, height);
+
+  // good
+  this_function_call_is_very_long_but(argument, other, many, arguments,
+                                      x, y, width, height);
+  ```
+    + Note: if aligning subsequent arguments would overflow the 80 column limit,
+      then try doing alternatives 3, 4, 5, 6 and 7, below, then go back to 2.
+
+3. If it still does not fit, but it is an assignment, try to break after the
+   `=`:
   ```c
   // bad
   int32 assignment = this_function_call_is_even_more_long_but(
       argument_very_long, other, many, arguments, width, height);
-
-  // bad
-  int32 assignment
-      = this_function_call_is_even_more_long_but(argument_very_long, other,
-                                                 many, arguments,
-                                                 width, height);
-
   // good
   int32 assignment =
       this_function_call_is_even_more_long_but(argument_very_long, other, many,
                                                arguments,
                                                width, height);
   ```
-  * If the first argument would not fit in 80 columns, even after trying to
-    break after the `=` in case of assignment, then it is okay to break before
-    the first arg. But always try to fit it first.
+4. If it still does not fit, try creating aliases for the arguments as needed:
+  ```c
+  // bad
+  this_function_call_is_even_more_longer_still(
+      &this_is_array_to_use_right_here[i], 0);
+
+  // good
+  int32 *item = &this_is_array_to_use_right_here[i];
+  this_function_call_is_even_more_longer_still(item, 0);
+  );
+  ```
+5. If it still does not fit, change the name of the arguments to the function to
+   be shorter.
+6. If it still does not fit, change the name of the function to be shorter.
+7. If it still does not fit, and the function is from an external library that
+   we can't change, create a wrapper for it with a shorter name.
+
+Important: only try 2 if 1 does not work, only try 3 if 2 and 1 do not work,
+only try 4 if 1, 2, and 3 do not work, and so on. Remember to do a final pass,
+do the alignment, as explained in 2.
 
 ## Identation
 When breaking long lines that are long expressions, try to make them readable
@@ -108,12 +141,54 @@ if ((flags & MY_FLAG_EXAMPLE1)
 }
 ```
 
+## Function headers
+Put qualifiers and return type in one line, function name and argument in the
+other:
+```c
+// good
+static int32
+my_function(int32 x, int32 y) {
+    return x*y;
+}
+```
+
+If the arguments do not fit all in a single line including the ending `) {`,
+then break (try to group related arguments together, like in function calls)
+and align:
+```c
+// bad (no need to break before the first argument).
+static void
+my_function(
+    StructType arg, int32 *what, int32 what_len, char *name, int32 name_len
+) {
+    return;
+}
+
+// better, but still bad
+// (we are separating what and what_len, which are clearly related)
+static void
+my_function(StructType arg, int32 *what,
+            int32 what_len, char *name, int32 name_len) {
+    return;
+}
+
+// good
+static void
+my_function(StructType arg,
+            int32 *what, int32 what_len, char *name, int32 name_len) {
+    return;
+}
+```
+
 When formatting printf-like function calls, try to fit the entire call in a
 single line; If it does not fit, try to fit the format string and the arguments
 in the same line; if it still does not fit, try to align the beggining of the
 first argument for the format string with the beggining of the format string; if
 it still does not fit; put the format string on a new line and the arguments for
-the format string below it. See the examples below:
+the format string below it. When wrapping the call, the line containing the end
+of the format string must contain either all format arguments or none of them.
+The format arguments may continue on later lines, but the first format-argument
+line must be aligned with the format string. See the examples below:
 ```c
 static void
 function(void) {
@@ -129,7 +204,7 @@ function(void) {
                "this fits in one line: %d\n",
                x);
 
-    // bad (format arguments are split across lines)
+    // bad (the format-string line contains some, but not all, arguments)
     str_printf(&str, "this does not fit in single line because of: %d, %d\n", x,
                y);
 
@@ -137,22 +212,22 @@ function(void) {
     str_printf(&str, "this does not fit in a single line because of: %d, %d\n",
                      x, y);
 
-    // also good (format string is separate; format arguments stay together)
+    // also good (the format-string line contains all format arguments)
     str_printf(&str,
                "this does not fit in a single line because of: %d, %d\n", x, y);
 
     // bad (passes the 80 column limit)
     str_printf(&str, "this is a format string for writing the numbers %d and %d.", x, y);
 
-    // also bad (format string is with some format arguments, but not all)
+    // also bad (the format-string line contains some, but not all, arguments)
     str_printf(&str, "this is format string for writing numbers %d and %d.", x,
                      y);
 
-    // good (format string and all format arguments fit on the same line)
+    // good (the format-string line contains all format arguments)
     str_printf(&str,
                "this is format string for writing numbers %d and %d.", x, y);
 
-    // also good (format string is separate; format arguments stay together)
+    // also good (the format-string line contains no format arguments)
     str_printf(&str,
                "this is a format string for writing the numbers %d and %d.",
                x, y);
@@ -161,13 +236,19 @@ function(void) {
     str_printf(&str, "this is a format string for writing numbers %d and %d.",
                      x, y);
 
-    // bad (one format argument is separated from the others
-    printf("some format string says: %s = %g\n", states[i],
-           X[final_step*nstates + i]);
+    // bad (the format-string line contains some, but not all, arguments)
+    fmt_printf("some format string says: %s = %g\n", states[i],
+               X[final_step*nstates + i]);
 
-    // good (format arguments stay together; first arg is aligned with fmt str)
-    printf("some format string says: %s = %g\n",
-           states[i], X[final_step*nstates + i]);
+    // good (the format-string line contains no format arguments)
+    fmt_printf("some format string says: %s = %g\n",
+               states[i], X[final_step*nstates + i]);
+
+    // also good (the format-string line contains no format arguments; the
+    // arguments may continue on later lines)
+    fmt_printf("some format string says: %s = %g\n",
+               states[i],
+               X[final_step*nstates + i]);
 
     return;
 }
@@ -182,7 +263,7 @@ function(void) {
     int32 x = 1;
     int32 y = 2;
 
-    // bad
+    // bad (split the format string instead of exceeding the line limit)
     str_printf(&str,
                "this is a huge huge huge huge huge huge huge huge huge huge format string = %d",
                x);

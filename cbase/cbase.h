@@ -105,6 +105,39 @@ opt_strlen32(char *string) {
     return strlen32(string);
 }
 
+// For a binary floating type, MANT_DIG - MIN_EXP is the number of decimal
+// fractional places needed to represent its smallest subnormal exactly.
+enum {
+    FMT_FLOAT_RYU_BUFFER_SIZE = 2000,
+    FMT_DOUBLE_MAX_DECIMAL_PRECISION = DBL_MANT_DIG - DBL_MIN_EXP,
+    FMT_LDOUBLE_MAX_DECIMAL_PRECISION = LDBL_MANT_DIG - LDBL_MIN_EXP,
+    FMT_FLOAT_MAX_FIXED_PREFIX = 312,
+    FMT_FLOAT_MAX_EXP_PREFIX = 8,
+    FMT_LDOUBLE_MAX_FIXED_PREFIX = LDBL_MAX_10_EXP + 8,
+    FMT_DOUBLE_PRINTF_BUFFER_SIZE = FMT_FLOAT_MAX_FIXED_PREFIX
+                                    + FMT_DOUBLE_MAX_DECIMAL_PRECISION + 8,
+    FMT_LDOUBLE_PRINTF_BUFFER_SIZE = FMT_LDOUBLE_MAX_FIXED_PREFIX
+                                     + FMT_LDOUBLE_MAX_DECIMAL_PRECISION + 8,
+    FMT_DOUBLE_HEX_DIGITS = 13,
+    FMT_LDOUBLE_MAX_HEX_DIGITS = (LDBL_MANT_DIG - 1 + 3)/4,
+    FMT_DOUBLE_FRACTION_BITS = 52,
+    FMT_DOUBLE_EXPONENT_BIAS = 1023,
+    FMT_DOUBLE_SUBNORMAL_EXPONENT = -1022,
+    FMT_BIG_UINT_WORD_BITS = 32,
+    // log2(10) is less than 10/3, so this bounds every decimal body.
+    FMT_BIG_UINT_MAX_BITS = (FMT_LDOUBLE_PRINTF_BUFFER_SIZE*10 + 2)/3,
+    FMT_BIG_UINT_MAX_WORDS = (FMT_BIG_UINT_MAX_BITS
+                              + FMT_BIG_UINT_WORD_BITS - 1)
+                             /FMT_BIG_UINT_WORD_BITS,
+    FMT_LDOUBLE_DOUBLE_FRACTION_BITS = 52,
+    FMT_LDOUBLE_DOUBLE_EXPONENT_BIAS = 1023,
+    FMT_LDOUBLE_X87_FRACTION_BITS = 63,
+    FMT_LDOUBLE_X87_EXPONENT_BIAS = 16383,
+    FMT_LDOUBLE_X87_EXPONENT_MASK = 0x7fff,
+    FMT_LDOUBLE_BINARY128_FRACTION_BITS = 112,
+    FMT_LDOUBLE_BINARY128_EXPONENT_BIAS = 16383,
+};
+
 #include "i18n.h"
 #include "allocator.h"
 #include "memory.h"
@@ -184,8 +217,8 @@ typedef struct StrFlexList {
 
 #define SFLIT(literal) ((StrFlex *)&(struct {  \
     int32 len;                                 \
-    char data[sizeof(literal)];                \
-}){ sizeof(literal) - 1, literal })
+    char data[SIZEOF(literal)];                \
+}){ SIZEOF(literal) - 1, literal })
 
 // Macro trick to pass the int32 len and char *data for "%.*s" formatters.
 // Note: the single argument version is just for exploration purposes,
@@ -284,6 +317,7 @@ void str_free(String *);
 void str_itoa(String *string, llong num);
 void str_float64(String *string, double value);
 void str_float64_fixed(String *string, double value, int32 precision);
+void str_float64_exp(String *string, double value, int32 precision);
 void str_bytes_pretty(String *string, llong size);
 void str_move(String *dest, String *source);
 void str_printf(String *string, char *fmt, ...);
@@ -291,7 +325,7 @@ void str_reserve(String *string, int64 extra);
 int32 str_set(String *string, char *data, int32 data_len);
 char *str_steal(String *string, int32 *len);
 char *str_opt_cstr(String *);
-char *signal_name(int32 signum);
+char *signal_get_name(int32 signum);
 void send_signal(char *executable, int32 signal_number);
 
 INLINE bool32
@@ -403,13 +437,33 @@ typedef struct FmtPlan {
     bool valid;
 } FmtPlan;
 
-// cbase printf-compatible formatter. It returns the byte count that would
+// Caller-owned immutable locale data for fmt_strftime_l. Strings are opaque
+// bytes and may contain UTF-8. Locale format strings may use fmt_strftime
+// directives but must not form recursive %c/%x/%X/%r expansion cycles.
+typedef struct FmtLocale {
+    const char *weekday_abbr[7];
+    const char *weekday[7];
+    const char *month_abbr[12];
+    const char *month[12];
+    const char *am;
+    const char *pm;
+    const char *am_lower;
+    const char *pm_lower;
+    const char *date_time_fmt;
+    const char *date_fmt;
+    const char *time_fmt;
+    const char *time_12_fmt;
+} FmtLocale;
+
+extern const FmtLocale fmt_locale_c;
+
+// cbase fmt_printf-compatible formatter. It returns the byte count that would
 // have been written, excluding the terminating '\0'. It writes a terminating
 // '\0' when capacity is positive. buffer may be NULL only when capacity is
 // zero. Negative returns are errno-style failures. Floating precision is
 // bounded by the exact fixed-decimal limit of the argument type; larger
 // explicit precisions return -ERANGE. See cbase/README.md for the exact
-// supported grammar and deliberate differences from libc printf.
+// supported grammar and deliberate differences from libc fmt_printf.
 // The runtime NULL-string representation is process configuration. Call this
 // only during single-threaded initialization, before any formatter use. Passing
 // NULL is a programmer error. The selected string is not copied and must remain
@@ -419,11 +473,17 @@ int32 fmt_vsnprintf(char *, int64, char *, va_list)           ATTR_PRINTF(3, 0);
 int32 fmt_snprintf(char *, int64, char *, ...)                ATTR_PRINTF(3, 4);
 int32 fmt_vsprintf(char *, int64, char *, va_list)            ATTR_PRINTF(3, 0);
 int32 fmt_sprintf(char *, int64, char *, ...)                 ATTR_PRINTF(3, 4);
-void fmt_printf(char *, ...)                                  ATTR_PRINTF(1, 2);
+int32 fmt_printf(char *, ...)                                 ATTR_PRINTF(1, 2);
 int32 fmt_vsnprintf_estimate(char *, va_list)                 ATTR_PRINTF(1, 0);
 int32 fmt_snprintf_estimate(char *, ...)                      ATTR_PRINTF(1, 2);
 int32 fmt_vsnprintf_estimate_plan(FmtPlan *, char *, va_list) ATTR_PRINTF(2, 0);
 int32 fmt_vsnprintf_planned(FmtPlan *, char *, int64, va_list);
+// Async-signal-safe strftime. fmt_strftime() uses fmt_locale_c, while the _l
+// variant uses only the supplied immutable locale data. Locale strings must
+// remain valid and unmodified during the call. On Unix, %z and %Z use only
+// tm_gmtoff/tm_zone already present in struct tm.
+int32 fmt_strftime(char *, int64, char *, struct tm *);
+int32 fmt_strftime_l(char *, int64, char *, struct tm *, const FmtLocale *);
 
 String *string_array_append(StringArray *);
 int32 string_array_append_copy(StringArray *array, String *item);
@@ -676,7 +736,7 @@ _Generic((VAR),                                        \
 
 #define STRLIT_ARRAY(LITERAL, SIZE)                                    \
     ((void)SIZEOF(struct {                                             \
-        _Static_assert(sizeof(LITERAL) <= ((SIZE) + 1),                \
+        _Static_assert(SIZEOF(LITERAL) <= ((SIZE) + 1),                \
                        "string literal does not fit in STRLIT_ARRAY"); \
         char dummy;                                                    \
     }),                                                                \
@@ -905,11 +965,11 @@ int32 cmd_status_from_wait(int status, CommandResult *result);
 char *cmd_str(Command *command, int32 *len);
 int32 cmd_wait(Command *);
 
-#define CMD_PUSH(CMD, ...)                                 \
-    cmd_push_array(CMD,                                    \
-                       (int32)(sizeof((char *[]){__VA_ARGS__}) \
-                               /sizeof(char *)),               \
-                       (char *[]){__VA_ARGS__})
+#define CMD_PUSH(CMD, ...)                                    \
+    cmd_push_array(CMD,                                       \
+                   (int32)(SIZEOF((char *[]){__VA_ARGS__})      \
+                           /SIZEOF(char *)),                   \
+                   (char *[]){__VA_ARGS__})
 
 #define CMD_ENV_PUSH_2(A, B) cmd_env_push(A, B)
 #define CMD_ENV_PUSH_3(A, B, B_LEN)                        \
@@ -1032,7 +1092,8 @@ void throw_away_function();
 #include "cbase.h"
 #include "meta_common.c"
 #include "meta_tokenize.c"
-#include "meta_parse.c"
+#include "meta_split.c"
+#include "meta_preproc.c"
 #include "meta_generate.c"
 
 #endif

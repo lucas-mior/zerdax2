@@ -76,7 +76,7 @@ arena_create(int64 size, char *name) {
         arena->name = xmalloc(len + 1, false);
         memcpy64(arena->name, name, len + 1);
     }
-    arena->begin = (char *)arena + ALIGN(sizeof(*arena));
+    arena->begin = (char *)arena + ALIGN(SIZEOF(*arena));
     arena->size = size;
     arena->pos = arena->begin;
     arena->next = NULL;
@@ -88,6 +88,10 @@ arena_create(int64 size, char *name) {
 void
 arena_destroy(Arena *arena) {
     Arena *next;
+
+    if (arena == NULL) {
+        return;
+    }
 
     do {
         next = arena->next;
@@ -158,7 +162,7 @@ arena_back(Arena *arena, int64 size) {
     int64 used;
 
     ASSERT(arena != NULL);
-    ASSERT_NON_NEGATIVE(size);
+    ASSERT_GE(size, 0);
 
     used = (char *)arena->pos - arena->begin;
     ASSERT_LE_VAR(size, used);
@@ -206,8 +210,8 @@ xarenas_push(Arena **arenas, int32 narenas, int64 size) {
     void *p;
 
     if ((p = arenas_push(arenas, narenas, size)) == NULL) {
-        error2("Error pushing %lld bytes into arenas %p: %s.\n", size,
-               (void *)arenas, arena_strerror(errno));
+        error2("Error pushing %lld bytes into arenas %p: %s.\n",
+               size, (void *)arenas, arena_strerror(errno));
         exit(EXIT_FAILURE);
     }
     return p;
@@ -364,7 +368,7 @@ main(void) {
         Arena *small_arena;
 
         ASSERT((small_arena = arena_create(1, "small_arena")));
-        ASSERT_GT(small_arena->size, ALIGN(sizeof(*small_arena)));
+        ASSERT_GT(small_arena->size, ALIGN(SIZEOF(*small_arena)));
         arena_destroy(small_arena);
     }
 
@@ -415,7 +419,7 @@ main(void) {
         }
 
         for (Arena *a = arena; a; a = a->next) {
-            ASSERT_POSITIVE(a->npushed);
+            ASSERT_GT(a->npushed, 0);
             total_pushed += a->npushed;
         }
         ASSERT_EQ(total_pushed, LENGTH(objs));

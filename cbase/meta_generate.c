@@ -129,9 +129,9 @@ c_identifier(char *value, int32 value_len) {
 }
 
 void
-emit_string_array_init(String *out, char *field, char **values,
-                              int32 *value_lens, int32 count,
-                              char *fallback_prefix) {
+emit_string_array_init(String *out, char *field,
+                       char **values, int32 *value_lens, int32 count,
+                       char *fallback_prefix) {
     if (count <= 0) {
         return;
     }
@@ -163,8 +163,9 @@ emit_string_array_init(String *out, char *field, char **values,
 }
 
 void
-emit_lens_init(String *out, char *field, char **values,
-                      int32 *value_lens, int32 count, char *fallback_prefix) {
+emit_lens_init(String *out, char *field,
+               char **values, int32 *value_lens, int32 count,
+               char *fallback_prefix) {
     if (count <= 0) {
         return;
     }
@@ -193,8 +194,7 @@ emit_lens_init(String *out, char *field, char **values,
 }
 
 void
-emit_int_array_init(String *out, char *field, int32 *values,
-                           int32 count) {
+emit_int_array_init(String *out, char *field, int32 *values, int32 count) {
     if (count <= 0) {
         return;
     }
@@ -238,7 +238,7 @@ c_emit_wrapped_expr(String *out, char *indent, char *prefix, char *expr,
     for (int32 i = 0; expr[i] != '\0'; i += 1) {
         STR_APPEND(out, expr + i, 1);
         if (expr[i] == '(' || expr[i] == ',') {
-            STR_APPEND(out, "\n");
+            str_append_byte(out, '\n');
             STR_APPEND(out, indent, strlen32(indent));
             for (int32 j = 0; j < prefix_len; j += 1) {
                 STR_APPEND(out, " ");
@@ -246,7 +246,7 @@ c_emit_wrapped_expr(String *out, char *indent, char *prefix, char *expr,
         }
     }
     STR_APPEND(out, suffix, strlen32(suffix));
-    STR_APPEND(out, "\n");
+    str_append_byte(out, '\n');
 }
 
 #if 0 == TESTING_meta_generate
@@ -311,6 +311,10 @@ test_c_identifier(void) {
     ASSERT_EQ(identifier.data, "c_int");
     free2(identifier.data, identifier.cap);
 
+    identifier = c_identifier("IF", strlen32("IF"));
+    ASSERT_EQ(identifier.data, "IF");
+    free2(identifier.data, identifier.cap);
+
     identifier = c_identifier("_private", strlen32("_private"));
     ASSERT_EQ(identifier.data, "c__private");
     free2(identifier.data, identifier.cap);
@@ -329,10 +333,10 @@ test_emit_string_and_lens_inits(void) {
 
     emit_string_array_init(&out, "names", values, lens, 3, "v");
     ASSERT_EQ(out.data, "    .names = {\n"
-                           "        \"alpha\",\n"
-                           "        \"v1\",\n"
-                           "        \"quo\\\"te\",\n"
-                           "    },\n");
+                        "        \"alpha\",\n"
+                        "        \"v1\",\n"
+                        "        \"quo\\\"te\",\n"
+                        "    },\n");
 
     str_free(&out);
     emit_lens_init(&out, "name_lens", values, lens, 3, "v");

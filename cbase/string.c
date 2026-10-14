@@ -528,6 +528,61 @@ str_bytes_pretty(String *str, llong size) {
 }
 
 void
+str_float64(String *string, double value) {
+    int32 len;
+
+    str_reserve(string, RYU_D2S_BUFFER_SIZE - 1);
+    len = d2s_buffered_n(value, string->data + string->len);
+    ASSERT_GE(len, 0);
+    string->len += len;
+    string->data[string->len] = '\0';
+    return;
+}
+
+void
+str_float64_fixed(String *str, double value, int32 precision) {
+    int32 len;
+    int32 reserve;
+
+    if ((precision < 0) || (precision > FMT_DOUBLE_MAX_DECIMAL_PRECISION)) {
+        error("Invalid float precision %d.\n", precision);
+        fatal(EXIT_FAILURE);
+    }
+
+    reserve = FMT_FLOAT_MAX_FIXED_PREFIX + precision;
+    str_reserve(str, reserve);
+    len = d2fixed_buffered_n(value, (uint32)precision, str->data + str->len);
+    ASSERT_GE(len, 0);
+    str->len += len;
+    str->data[str->len] = '\0';
+
+    return;
+}
+
+void
+str_float64_exp(String *str, double value, int32 precision) {
+    int32 len;
+    int32 reserve;
+
+    if ((precision < 0) || (precision > FMT_DOUBLE_MAX_DECIMAL_PRECISION)) {
+        error("Invalid float precision %d.\n", precision);
+        fatal(EXIT_FAILURE);
+    }
+
+    reserve = FMT_FLOAT_MAX_EXP_PREFIX + precision;
+    if (reserve < 10) {
+        reserve = 10;
+    }
+    str_reserve(str, reserve);
+    len = d2exp_buffered_n(value, (uint32)precision, str->data + str->len);
+    ASSERT_GE(len, 0);
+    str->len += len;
+    str->data[str->len] = '\0';
+
+    return;
+}
+
+void
 str_printf(String *str, char *fmt, ...) {
     FmtPlan plan;
     va_list args;
@@ -629,8 +684,8 @@ string_array_copy(StringArray *dest, StringArray *source) {
             return err;
         }
         for (int32 i = 0; i < source->len; i += 1) {
-            if ((err = string_array_append_copy(
-                     &replacement, &source->items[i])) < 0) {
+            if ((err = string_array_append_copy(&replacement,
+                                                &source->items[i])) < 0) {
                 string_array_destroy(&replacement);
                 return err;
             }
@@ -837,8 +892,7 @@ main(void) {
         old_cap = builder.cap;
         str_append(&builder, builder.data + 1, builder.len - 1);
         ASSERT_GT_VAR(builder.cap, old_cap);
-        ASSERT_EQ(builder.data,
-                     "0123456789abcde123456789abcde");
+        ASSERT_EQ(builder.data, "0123456789abcde123456789abcde");
         str_free(&builder);
     }
 
@@ -851,10 +905,42 @@ main(void) {
         str_itoa(&builder, -9223372036854775807LL - 1);
         STR_APPEND(&builder, " ");
         str_itoa(&builder, 9223372036854775807LL);
-        ASSERT_EQ(builder.data,
-                     "x0 -9223372036854775808 9223372036854775807");
+        ASSERT_EQ(builder.data, "x0 -9223372036854775808 9223372036854775807");
         str_free(&builder);
     }
+
+    {
+        String builder = {0};
+
+        STR_APPEND(&builder, "x=");
+        str_float64(&builder, 0.1);
+        STR_APPEND(&builder, " y=");
+        str_float64_fixed(&builder, 1.25, 2);
+        STR_APPEND(&builder, " z=");
+        str_float64_exp(&builder, 1234.0, 2);
+        ASSERT_EQ(builder.data, "x=1E-1 y=1.25 z=1.23e+03");
+        str_free(&builder);
+    }
+
+    {
+        String builder = {0};
+
+        STR_APPEND(&builder, "1234567");
+        str_float64_exp(&builder, -HUGE_VAL, 0);
+        ASSERT_EQ(builder.data, "1234567-Infinity");
+        ASSERT_GT_VAR(builder.cap, builder.len);
+        str_free(&builder);
+    }
+
+    {
+        String builder = {0};
+
+        str_float64_fixed(&builder, -0.0, FMT_DOUBLE_MAX_DECIMAL_PRECISION);
+        ASSERT_EQ(builder.len, FMT_DOUBLE_MAX_DECIMAL_PRECISION + 3);
+        ASSERT_GT_VAR(builder.cap, builder.len);
+        str_free(&builder);
+    }
+
     {
         String builder = {0};
         int32 count = 0;
@@ -872,7 +958,7 @@ main(void) {
         int32 count = 0;
 
         formatted = strflex_list_printf(&list, "%s %.10s %d%n",
-                                        "x", "abc", 7, &count);
+                                               "x", "abc", 7, &count);
         ASSERT_EQ(formatted->data, "x abc 7");
         ASSERT_EQ(formatted->len, 7);
         ASSERT_EQ(count, formatted->len);
@@ -894,10 +980,10 @@ main(void) {
         char b[64];
         char *strs[] = {"one", "two", "three"};
         double dbls[] = {1.1, 2.2};
-        string_from_strings(b, sizeof(b), "|", strs, 3);
+        string_from_strings(b, SIZEOF(b), "|", strs, 3);
         ASSERT_EQ(b, "one|two|three");
-        string_from_doubles(b, sizeof(b), ",", dbls, 2);
-        ASSERT_POSITIVE(strlen32(b));
+        string_from_doubles(b, SIZEOF(b), ",", dbls, 2);
+        ASSERT_GT(strlen32(b), 0);
     }
 
     exit(EXIT_SUCCESS);

@@ -4,7 +4,10 @@
 #if !defined(CBASE_RYU_H)
 #define CBASE_RYU_H
 
+#include "cbase.h"
+
 #include "ryu/ryu.h"
+#include "ryu/ryu_parse.h"
 
 #endif /* CBASE_RYU_H */
 
@@ -20,5 +23,8 @@
 #undef to_chars
 
 #include "ryu/d2fixed.c"
+
+#include "ryu/s2d.c"
+#include "ryu/s2f.c"
 
 #endif /* RYU_IMPLEMENT */

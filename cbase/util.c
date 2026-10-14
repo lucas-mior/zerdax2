@@ -55,7 +55,7 @@ static char *signal_names[] = {
 #endif
 
 char *
-signal_name(int32 signum) {
+signal_get_name(int32 signum) {
 #if OS_UNIX
     if ((signum >= 0)
         && (signum < LENGTH(signal_names))
@@ -479,7 +479,7 @@ rand_shuffle(void *items, int32 item_count, int32 item_size) {
     }
 
     ASSERT(items != NULL);
-    ASSERT_POSITIVE(item_size);
+    ASSERT_GT(item_size, 0);
 
     for (int32 i = item_count - 1; i > 0; i -= 1) {
         int32 j = rand_int_range(i + 1);
@@ -727,7 +727,7 @@ send_signal(char *executable, int32 signal_number) {
         }
 
         errno = 0;
-        if ((r = read64(cmdline, command, sizeof(command))) <= 0) {
+        if ((r = read64(cmdline, command, SIZEOF(command))) <= 0) {
             XCLOSE(&cmdline, buffer.data);
             continue;
         }
@@ -820,7 +820,7 @@ xdup2(int fd1, int fd2) {
 void
 xkill(pid_t pid, int signum) {
     if (kill(pid, signum) < 0) {
-        char *name = signal_name(signum);
+        char *name = signal_get_name(signum);
         if (name != NULL) {
             error("Error sending signal %d=%s to %d: %s.\n",
                   signum, name, pid, strerror(errno));
@@ -954,7 +954,7 @@ test_cmd_exists(char *command) {
             len = SNPRINTF(candidate, "./%s", command);
         } else {
             len = SNPRINTF(candidate, "%.*s/%s",
-                            end - start, path + start, command);
+                                      end - start, path + start, command);
         }
         if ((len > 0) && (len < SIZEOF(candidate))
             && (access(candidate, X_OK) == 0)) {
@@ -1140,14 +1140,14 @@ main(int argc, char **argv) {
     }
 
     for (enum WeekDay day = WEEK_DAY_MONDAY; day < WEEK_DAY_COUNT; day += 1) {
-        printf("enum[%u] = %s\n", day, WEEK_DAY_str(day));
+        fmt_printf("enum[%u] = %s\n", day, WEEK_DAY_str(day));
     }
 
-    printf("\n");
+    fmt_printf("\n");
 
     for (uint x = 0; x < POWER_OF2_LAST; x += 1) {
         char *value_name = POWER_OF2_str((enum PowerOfTwo)x);
-        printf("enum[%u] = %s\n", x, value_name);
+        fmt_printf("enum[%u] = %s\n", x, value_name);
         POWER_OF2_str_free(value_name);
     }
 
@@ -1173,7 +1173,7 @@ main(int argc, char **argv) {
         for (int32 i = 0; i < 100; i += 1) {
             double value = rand_float();
 
-            ASSERT_NON_NEGATIVE(value);
+            ASSERT_GE(value, 0.0);
             ASSERT_LT(value, 1.0);
         }
     }
@@ -1185,15 +1185,12 @@ main(int argc, char **argv) {
         rand_int_seed(1234);
         for (int32 i = 0; i < 100; i += 1) {
             int32 value = rand_int_range(7);
-
-            ASSERT_NON_NEGATIVE(value);
-            ASSERT_LT(value, 7);
+            ASSERT_BETWEEN(value, 0, 6);
         }
 
         rand_shuffle(values, LENGTH(values), SIZEOF(*values));
         for (int32 i = 0; i < LENGTH(values); i += 1) {
-            ASSERT_NON_NEGATIVE(values[i]);
-            ASSERT_LT(values[i], LENGTH(values));
+            ASSERT_BETWEEN(values[i], 0, LENGTH(values) - 1);
             ASSERT(!seen[values[i]]);
             seen[values[i]] = true;
         }
@@ -1202,7 +1199,7 @@ main(int argc, char **argv) {
 
     {
         int32 arr[] = {10, 5, 20, 1};
-        qsort64(arr, 4, sizeof(int32), util_test_qsort_cmp);
+        qsort64(arr, 4, SIZEOF(int32), util_test_qsort_cmp);
         ASSERT_EQ(arr[0], 1);
         ASSERT_EQ(arr[1], 5);
         ASSERT_EQ(arr[2], 10);
@@ -1219,7 +1216,7 @@ main(int argc, char **argv) {
 
     ASSERT_EQ(deg2rad(180.0), 3.141592653589793);
     ASSERT_EQ(rad2deg(3.141592653589793), 180.0);
-    ASSERT_POSITIVE(util_nthreads());
+    ASSERT_GT(util_nthreads(), 0);
 
     ASSERT_EQ(CLAMP(2.0, -2.1, 2.1),   2.0);
     ASSERT_EQ(CLAMP(0.2, -0.1, 0.1),   0.1);
@@ -1241,8 +1238,8 @@ main(int argc, char **argv) {
         StrFlex *flex = SFLIT("a flexible one.");
         str_printf(&out, "this is string is awesome: %d\n", 5);
         str_printf(ptr, "this is string pointer is awesome: %d\n", 5);
-        printf("at the end, both are:\n %.*s == %.*s", SP(out), SP(ptr));
-        printf("str flex also is: %.*s\n", SP(flex));
+        fmt_printf("at the end, both are:\n %.*s == %.*s", SP(out), SP(ptr));
+        fmt_printf("str flex also is: %.*s\n", SP(flex));
     }
 
     (void)malloc_debug;

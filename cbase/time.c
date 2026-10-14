@@ -37,8 +37,8 @@ print_timings(char *file, int32 line, char *func,
     double total_seconds = (double)seconds + (double)nanos / 1.0e9;
     double micros_per = 1e6*(total_seconds / (double)nitems);
 
-    printf("\ntime elapsed %s:%d:%s\n", file, line, func);
-    printf("%gs = %gus per item.\n", total_seconds, micros_per);
+    fmt_printf("\ntime elapsed %s:%d:%s\n", file, line, func);
+    fmt_printf("%gs = %gus per item.\n", total_seconds, micros_per);
     return;
 }
 
@@ -361,7 +361,7 @@ main(void) {
 
     time_monotonic_precise(&t0);
     time_monotonic_coarse(&t1);
-    ASSERT_NON_NEGATIVE(time_monotonic_now());
+    ASSERT_GE(time_monotonic_now(), 0);
     ASSERT_EQ(time_elapsed_ns(100, 250), 150);
     ASSERT_EQ(time_elapsed_ms(1000000, 4000000), 3);
 #if OS_UNIX
@@ -374,7 +374,7 @@ main(void) {
     }
 #endif
     time_monotonic_precise(&t1);
-    ASSERT_NON_NEGATIVE(timediff(t0, t1));
+    ASSERT_GE(timediff(t0, t1), 0.0);
     PRINT_TIMINGS(1, t0, t1);
 
     exit(EXIT_SUCCESS);

@@ -191,15 +191,15 @@ cbase_make_temp_file(
         len = fmt_sprintf(buffer + prefix_len, capacity - prefix_len,
                         "%s_XXXXXX%s", prefix, suffix);
     } else {
-        len = fmt_sprintf(buffer, capacity, "%s/%s_XXXXXX%s",
-                        tmpdir, prefix, suffix);
+        len = fmt_sprintf(buffer, capacity,
+                          "%s/%s_XXXXXX%s", tmpdir, prefix, suffix);
     }
 #else
     if (tmpdir == NULL) {
         tmpdir = "/tmp";
     }
-    len = fmt_sprintf(buffer, capacity, "%s/%s_XXXXXX%s",
-                    tmpdir, prefix, suffix);
+    len = fmt_sprintf(buffer, capacity,
+                      "%s/%s_XXXXXX%s", tmpdir, prefix, suffix);
 #endif
     if ((len <= 0) || (len >= (capacity - prefix_len))) {
         errno = ENAMETOOLONG;
@@ -437,7 +437,7 @@ xclose(char *file, int line, int *fd, char *fd_var_name, char *filename) {
 
 #if DEBUGGING
     if (filename == NULL) {
-        if (util_filename_from(buffer, sizeof(buffer), *fd) >= 0) {
+        if (util_filename_from(buffer, SIZEOF(buffer), *fd) >= 0) {
             filename = buffer;
         } else {
             filename = fd_var_name;
@@ -459,7 +459,7 @@ xclose(char *file, int line, int *fd, char *fd_var_name, char *filename) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
 #endif
-        strerror_r(errno, error_buffer, sizeof(error_buffer));
+        strerror_r(errno, error_buffer, SIZEOF(error_buffer));
 #if CC_GCC || CC_CLANG
 #pragma GCC diagnostic pop
 #endif
@@ -694,7 +694,7 @@ util_copy_file_async_parsed(UtilCopyFilesAsync *copy_files) {
                 continue;
             }
             n -= 1;
-            while ((r = read64(pipes[i].fd, buffer, sizeof(buffer))) > 0) {
+            while ((r = read64(pipes[i].fd, buffer, SIZEOF(buffer))) > 0) {
                 if ((w = write64(dests[i], buffer, r)) != r) {
                     if (w < 0) {
                         error("Error writing: %s.\n", strerror(errno));
@@ -712,7 +712,7 @@ util_copy_file_async_parsed(UtilCopyFilesAsync *copy_files) {
             pipes[i].revents = 0;
         }
     }
-    free2(copy_files, sizeof(*copy_files));
+    free2(copy_files, SIZEOF(*copy_files));
     return;
 }
 #endif
@@ -836,9 +836,9 @@ util_equal_files(char *filename_a, char *filename_b) {
         }
     } while (0);
 #endif
-    while ((ra = read64(fd_a, buffer_a, sizeof(buffer_a))) > 0) {
+    while ((ra = read64(fd_a, buffer_a, SIZEOF(buffer_a))) > 0) {
         int64 rb;
-        if ((rb = read64(fd_b, buffer_b, sizeof(buffer_b))) != ra) {
+        if ((rb = read64(fd_b, buffer_b, SIZEOF(buffer_b))) != ra) {
             if (rb < 0) {
                 error("Error reading from %s: %s", filename_b, strerror(errno));
             }
@@ -914,7 +914,7 @@ basename2(char *path, int32 *full_length, int32 *base_len) {
     normalize(path, full_length);
 
     left = *full_length;
-    ASSERT_POSITIVE(*full_length);
+    ASSERT_GT(*full_length, 0);
     end = path + left - 1;
 
     if (left == 1) {
@@ -1025,7 +1025,7 @@ catfile(int where, char *file) {
         fatal(EXIT_FAILURE);
     }
 
-    printf("\n");
+    fmt_printf("\n");
     while ((r = read64(fd, buffer, SIZEOF(buffer))) > 0) {
         write_all(where, buffer, r);
     }
@@ -1068,22 +1068,21 @@ read_entire_file(char *path, char **file_bytes) {
 
     if ((file = fopen(path, "rb")) == NULL) {
         err = errno;
-        error("Error opening "RED("%s")" for reading: %s",
-              path, strerror(err));
-        ASSERT_POSITIVE(err);
+        error("Error opening "RED("%s")" for reading: %s", path, strerror(err));
+        ASSERT_GT(err, 0);
         return -err;
     }
     if (fseek(file, 0, SEEK_END) < 0) {
         err = errno;
         error("Error seeking end of %s: %s.\n", path, strerror(err));
-        ASSERT_POSITIVE(err);
+        ASSERT_GT(err, 0);
         XFCLOSE(file, path);
         return -err;
     }
     if ((len = ftell(file)) < 0) {
         err = errno;
         error("Error in ftell(%s): %s.\n", path, strerror(err));
-        ASSERT_POSITIVE(err);
+        ASSERT_GT(err, 0);
         XFCLOSE(file, path);
         return -err;
     }
@@ -1096,7 +1095,7 @@ read_entire_file(char *path, char **file_bytes) {
         err = errno;
         error("Error rewinding %s: %s.\n", path, strerror(err));
         XFCLOSE(file, path);
-        ASSERT_POSITIVE(err);
+        ASSERT_GT(err, 0);
         return -err;
     }
 
@@ -1113,7 +1112,7 @@ read_entire_file(char *path, char **file_bytes) {
         error("Error reading "RED("%s")": %s.\n", path, strerror(err));
         free2(bytes, (len + 1)*SIZEOF(*bytes));
         XFCLOSE(file, path);
-        ASSERT_POSITIVE(err);
+        ASSERT_GT(err, 0);
         return -err;
     }
     bytes[read_len] = '\0';
@@ -1222,7 +1221,7 @@ test_join_path(char *buffer, int64 buffer_len, char *dir, char *name) {
     int32 len;
 
     len = fmt_sprintf(buffer, buffer_len, "%s/%s", dir, name);
-    ASSERT_POSITIVE(len);
+    ASSERT_GT(len, 0);
     ASSERT_LT_VAR(len, buffer_len);
 
     return;
@@ -1520,7 +1519,7 @@ main(void) {
 
         SNPRINTF(template_path, "%s/stem_XXXXXX%s", temp_dir, suffix);
         fd = cbase_mkstemps(template_path, suffix_len);
-        ASSERT_NON_NEGATIVE(fd);
+        ASSERT_GE(fd, 0);
         ASSERT_EQ(write64(fd, "x", 1), 1);
         XCLOSE(&fd, template_path);
         ASSERT(util_file_exists(template_path));
@@ -1530,7 +1529,7 @@ main(void) {
                                   SIZEOF(temp_file_path),
                                   "fs_file",
                                   ".tmp");
-        ASSERT_NON_NEGATIVE(fd);
+        ASSERT_GE(fd, 0);
         ASSERT_EQ(write64(fd, "y", 1), 1);
         XCLOSE(&fd, temp_file_path);
         ASSERT(util_file_exists(temp_file_path));
@@ -1643,7 +1642,7 @@ main(void) {
 
         ASSERT_EQ(write_entire_file(path, STRLIT("abcdef")), 6);
         ASSERT(util_file_exists(path));
-        ASSERT_NON_NEGATIVE((contents_len = read_entire_file(path, &contents)));
+        ASSERT_GE((contents_len = read_entire_file(path, &contents)), 0);
         ASSERT_EQ(contents_len, 6);
         ASSERT_EQ(contents, "abcdef");
         free2(contents, contents_len + 1);
@@ -1668,7 +1667,7 @@ main(void) {
             fatal(EXIT_FAILURE);
         }
 
-        ASSERT_POSITIVE(util_filename_from(buffer2, sizeof(buffer2), fd));
+        ASSERT_GT(util_filename_from(buffer2, SIZEOF(buffer2), fd), 0);
         ASSERT_EQ(realpath(name, buffer3), buffer2);
         XCLOSE(&fd);
         xunlink(name);
@@ -1676,10 +1675,10 @@ main(void) {
         name2_len = SIZEOF(name2) - 1;
 #if OS_WINDOWS
         name2_len = MIN(name2_len, MAX_PATH - strlen32(temp_dir) - 2);
-        ASSERT_POSITIVE(name2_len);
+        ASSERT_GT(name2_len, 0);
 #endif
         for (int32 i = 0; i < name2_len; i += 1) {
-            uint32 c = (uint32)rand_int() % (sizeof(characters) - 1);
+            uint32 c = (uint32)rand_int() % (SIZEOF(characters) - 1);
             name2[i] = characters[c];
         }
         name2[name2_len] = '\0';
@@ -1692,7 +1691,7 @@ main(void) {
             fatal(EXIT_FAILURE);
         }
 
-        ASSERT_POSITIVE(util_filename_from(buffer4, sizeof(buffer4), fd));
+        ASSERT_GT(util_filename_from(buffer4, SIZEOF(buffer4), fd), 0);
         ASSERT_EQ(realpath(buffer2, buffer3), buffer4);
         XCLOSE(&fd);
         xunlink(buffer2);

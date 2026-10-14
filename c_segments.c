@@ -1,4 +1,4 @@
-#ifndef C_SEGMENTS_C
+#if !defined(C_SEGMENTS_C)
 #define C_SEGMENTS_C
 
 #define CBASE_IMPLEMENT
@@ -145,7 +145,7 @@ int main(void) {
         double total_seconds = (double) seconds + (double) nanos/1.0e9;
         double per_calc = (total_seconds / ncalcs);
         printf("time elapsed for %d: %fs [%es / calculation]\n",
-                ncalcs, total_seconds, per_calc);
+               ncalcs, total_seconds, per_calc);
     }
     exit(0);
 }

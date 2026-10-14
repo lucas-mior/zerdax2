@@ -1,4 +1,4 @@
-#ifndef C_LINES_BUNDLE_C
+#if !defined(C_LINES_BUNDLE_C)
 #define C_LINES_BUNDLE_C
 
 #define CBASE_IMPLEMENT
@@ -37,7 +37,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
              int32 bundled[][LINE_FIELDS],
              int32 nlines, int32 min_distance0) {
     int m;
-    Group *group = xmalloc(sizeof(*group), 0);
+    Group *group = xmalloc(SIZEOF(*group), 0);
     min_distance = min_distance0;
     first = last = group;
     first->next = NULL;
@@ -102,7 +102,7 @@ compare(const void *a, const void *b) {
 
 int32
 median(int32 *array, int32 length) {
-    qsort(array, (size_t)length, sizeof(*array), compare);
+    qsort(array, (size_t)length, SIZEOF(*array), compare);
     if ((length % 2) == 0) {
         int32 left = array[length/2 - 1];
         int32 right = array[length/2];
@@ -130,7 +130,7 @@ void
 groups_append(int32 line[LINE_FIELDS]) {
     Group *group = last;
 
-    group->next = xmalloc(sizeof(*group), 0);
+    group->next = xmalloc(SIZEOF(*group), 0);
     group = group->next;
     group->next = NULL;
     group->length = 0;

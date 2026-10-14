@@ -1,4 +1,4 @@
-#ifndef C_FILTER_C
+#if !defined(C_FILTER_C)
 #define C_FILTER_C
 
 /* Filter proposed by Bing Wang and ShaoSheng Fan
@@ -52,8 +52,7 @@ xcond_init(pthread_cond_t *cond) {
     int err;
 
     if ((err = pthread_cond_init(cond, NULL))) {
-        error("Error initializing cond %p: %s.\n", (void *)cond,
-              strerror(err));
+        error("Error initializing cond %p: %s.\n", (void *)cond, strerror(err));
         fatal(EXIT_FAILURE);
     }
     return;
@@ -75,8 +74,7 @@ xcond_broadcast(pthread_cond_t *cond) {
     int err;
 
     if ((err = pthread_cond_broadcast(cond))) {
-        error("Error broadcasting cond %p: %s.\n", (void *)cond,
-              strerror(err));
+        error("Error broadcasting cond %p: %s.\n", (void *)cond, strerror(err));
         fatal(EXIT_FAILURE);
     }
     return;
@@ -298,7 +296,7 @@ typedef struct SaveHash {
     uint64 hash_output;
 } SaveHash;
 
-#define LENGHT(X) (int32)(sizeof(X) / sizeof(*X))
+#define LENGHT(X) (int32)(SIZEOF(X) / SIZEOF(*X))
 static SaveHash hash_remember[] = {
     {512, 512, 1, 0, 154476712296453381ull, 9060896705864926636ull},
 };
@@ -310,9 +308,9 @@ int32 main(int32 argc, char **argv) {
     uint64 hash_input;
     uint64 hash_output;
 
-    floaty *input0 = malloc2(IMAGE_SIZE*sizeof(*input0));
-    floaty *output0 = malloc2(IMAGE_SIZE*sizeof(*output0));
-    floaty *weights0 = malloc2(IMAGE_SIZE*sizeof(*weights0));
+    floaty *input0 = malloc2(IMAGE_SIZE*SIZEOF(*input0));
+    floaty *output0 = malloc2(IMAGE_SIZE*SIZEOF(*output0));
+    floaty *weights0 = malloc2(IMAGE_SIZE*SIZEOF(*weights0));
 
     struct timespec t0, t1;
     (void) argc;
@@ -389,12 +387,12 @@ int32 main(int32 argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        written = fwrite64(input0, sizeof(*input0), IMAGE_SIZE, image1);
+        written = fwrite64(input0, SIZEOF(*input0), IMAGE_SIZE, image1);
         if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", input_file, strerror(errno));
         }
 
-        written = fwrite64(output0, sizeof(*output0), IMAGE_SIZE, image2);
+        written = fwrite64(output0, SIZEOF(*output0), IMAGE_SIZE, image2);
         if (written < IMAGE_SIZE) {
             error("Error writing to %s: %s.\n", output_file, strerror(errno));
         }
@@ -406,9 +404,9 @@ int32 main(int32 argc, char **argv) {
             error("Error closing %s: %s.\n", output_file, strerror(errno));
         }
     }
-    free2(input0, IMAGE_SIZE*sizeof(*input0));
-    free2(output0, IMAGE_SIZE*sizeof(*output0));
-    free2(weights0, IMAGE_SIZE*sizeof(*weights0));
+    free2(input0, IMAGE_SIZE*SIZEOF(*input0));
+    free2(output0, IMAGE_SIZE*SIZEOF(*output0));
+    free2(weights0, IMAGE_SIZE*SIZEOF(*weights0));
 
     return 0;
 }

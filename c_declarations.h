@@ -1,4 +1,4 @@
-#ifndef C_DECLARATIONS_H
+#if !defined(C_DECLARATIONS_H)
 #define C_DECLARATIONS_H
 
 #include "cbase.h"

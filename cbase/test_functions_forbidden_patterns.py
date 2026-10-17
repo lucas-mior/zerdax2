@@ -114,6 +114,149 @@ class ForbiddenPatternsTests(unittest.TestCase):
         ):
             self.assertIn(rule, output)
 
+    def test_project_source_whitespace_violations(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "\tint32 value;  \n" +
+            "x" * 80 + "\n" +
+            "x" * 81 + "\n",
+        )
+        for rule in (
+            "tab character is forbidden",
+            "trailing whitespace",
+            "line exceeds 80 columns",
+        ):
+            self.assertIn(rule, output)
+        self.assertEqual(output.count("line exceeds 80 columns"), 1)
+        self.assertIn("sample.c:3:line exceeds 80 columns", output)
+
+    def test_multiplication_rejects_spaces_on_either_side(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "int32 product = first * second;\n"
+            "product = first* second;\n"
+            "product = first *second;\n"
+            "product = one * (two + three);\n"
+            "product = values[0] * -second;\n"
+            "product = (left + right) * function(x);\n"
+            "product = 2.0 * 5;\n"
+            "#define SQUARE(x) ((x) * (x))\n"
+            "product = left*right;\n"
+            "product *= amount;\n",
+        )
+        self.assertEqual(output.count("space around multiplication"), 8)
+        for line in range(1, 9):
+            self.assertIn(
+                f"sample.c:{line}:space around multiplication", output,
+            )
+        self.assertNotIn("sample.c:9:space around multiplication", output)
+        self.assertNotIn("sample.c:10:space around multiplication", output)
+
+    def test_multiplication_ignores_pointers_comments_and_strings(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "char *pointer;\n"
+            "int32 * value;\n"
+            "CySystemRuntime *sys;\n"
+            "CustomType * object;\n"
+            "struct CustomType *member;\n"
+            "double * restrict data;\n"
+            "char **argv;\n"
+            "void (*callback)(void);\n"
+            "typedef uint32 *Counter;\n"
+            "int32 n = SIZEOF(*pointer);\n"
+            "int32 result = * pointer;\n"
+            "int32 cast = (int32 *)pointer != NULL;\n"
+            "#define PTR(T) T *value\n"
+            "// x * y\n"
+            'char *message = "x * y";\n'
+            "/* x * y */\n"
+            "int32 product = left*right;\n"
+            "product *= result;\n",
+        )
+        self.assertNotIn("space around multiplication", output)
+
+    def test_multiplication_checks_expression_even_with_type_like_name(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "value = CustomType * other;\n"
+            "value = ptr->CustomType * other;\n"
+            "value = table[0] * other;\n"
+            "value = SIZEOF(value) * other;\n"
+            "value = left /* explanation */ * other;\n",
+        )
+        self.assertEqual(output.count("space around multiplication"), 5)
+
+    def test_multiplication_accepts_declarator_macros_and_unary_star(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "HASH_KEY_TYPE *key;\n"
+            "CONDITION_VARIABLE *condition;\n"
+            "FILETIME *filetime;\n"
+            "const char *const *names;\n"
+            "CAT(SYS_NAME, _Data) *pid = data;\n"
+            "#define TRAP(...) *(int *)0 = 0\n"
+            "*pointer = value;\n"
+            "return *pointer;\n",
+        )
+        self.assertNotIn("space around multiplication", output)
+
+    def test_multiplication_not_confused_by_constant_names(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "value = compute(N * x);\n"
+            "value = N * x;\n",
+        )
+        self.assertEqual(output.count("space around multiplication"), 2)
+
+    def test_shell_checker_reports_multiplication_spacing(self):
+        self.prepare_shell_checker()
+        self.write("src/sample.c", "int32 product = a * b;\n")
+        result = self.run_shell(TEST_FILTER="sample")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("space around multiplication", result.stderr)
+
+    def test_multiplication_ryu_is_exempt(self):
+        output = self.run_perl(
+            "cbase/ryu/sample.c",
+            "int64 result = first * second;\n",
+        )
+        self.assertNotIn("space around multiplication", output)
+
+    def test_multiplication_checker_cache_invalidates(self):
+        path = "src/sample.c"
+        self.assertEqual(self.run_perl(path, "int32 n = a*b;\n"), "")
+        output = self.run_perl(path, "int32 n = a * b;\n")
+        self.assertIn("sample.c:1:space around multiplication", output)
+        self.assertEqual(self.run_perl(path, "int32 n = a*b;\n"), "")
+
+    def test_project_source_unicode_column_limit(self):
+        output = self.run_perl(
+            "src/sample.c",
+            "я" * 80 + "\n" +
+            "я" * 81 + "\n",
+        )
+        self.assertEqual(output.count("line exceeds 80 columns"), 1)
+        self.assertIn("sample.c:2:line exceeds 80 columns", output)
+
+    def test_generated_meta_headers_are_ignored(self):
+        contents = "#ifdef FEATURE\n\tint value = sizeof(int);  \n#endif\n"
+        self.assertEqual(
+            self.run_perl("src/sample.meta.h", contents), "",
+        )
+        self.assertEqual(
+            self.run_perl("src/sample.meta.h", contents, file_list=True), "",
+        )
+
+    def test_cecup_source_accepts_up_to_100_columns(self):
+        output = self.run_perl(
+            "cecup/src/sample.c",
+            "x" * 100 + "\n" +
+            "x" * 101 + "\n",
+        )
+        self.assertEqual(output.count("line exceeds 100 columns"), 1)
+        self.assertIn("sample.c:2:line exceeds 100 columns", output)
+
     def test_ifdef_ifndef_are_rejected_in_project_sources(self):
         output = self.run_perl(
             "src/sample.c",
@@ -556,6 +699,23 @@ class ForbiddenPatternsTests(unittest.TestCase):
         result = self.run_shell(TEST_FILTER="ryu", TEST_MAXDEPTH="1")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("extra.c:1:line exceeds 80 columns", result.stderr)
+
+    def test_shell_ignores_generated_meta_headers(self):
+        self.prepare_shell_checker()
+        self.write("cbase/functions_never_use.txt", "malloc\n")
+        self.write("src/generated.meta.h", "void *value = malloc(1);\n")
+        result = self.run_shell()
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_shell_disables_column_limit_for_piscou_config(self):
+        self.prepare_shell_checker()
+        self.write("piscou.1", "")
+        self.write("config.h", "x" * 81 + "\n")
+        self.write("src/extra.h", "x" * 81 + "\n")
+        result = self.run_shell()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertNotIn("config.h:1:line exceeds", result.stderr)
+        self.assertIn("extra.h:1:line exceeds 80 columns", result.stderr)
 
     def test_explicit_exclusion_still_applies(self):
         self.prepare_shell_checker()

@@ -136,8 +136,9 @@ int main(void) {
 
     clock_gettime(CLOCK_REALTIME, &t0);
 
-    for (int i = 0; i < ncalcs; i += 1)
+    for (int i = 0; i < ncalcs; i += 1) {
         distance += segments_distance(line0, line1);
+    }
 
     clock_gettime(CLOCK_REALTIME, &t1);
 

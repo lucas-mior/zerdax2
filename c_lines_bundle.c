@@ -45,8 +45,9 @@ lines_bundle(int32 lines[][LINE_FIELDS],
     append(group, lines[0]);
 
     for (int32 i = 1; i < nlines; i += 1) {
-        if (check_line_diff(lines[i], group))
+        if (check_line_diff(lines[i], group)) {
             groups_append(lines[i]);
+        }
         group = first;
     }
 

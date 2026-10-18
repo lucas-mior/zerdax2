@@ -154,7 +154,8 @@ check_line_diff(int32 line1[LINE_FIELDS], Group *group) {
                     append(group, line1);
                     return false;
                 }
-            } else if (dtheta <= min_angle2 || abs(dtheta - 180*100) < min_angle) {
+            } else if ((dtheta <= min_angle2)
+                       || abs(dtheta - 180*100) < min_angle) {
                 if (segments_distance(line0, line1) <= 1) {
                     append(group, line1);
                     return false;

@@ -115,8 +115,10 @@ work(void *arg) {
 
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int32 x = 1; x < (WW - 1); x += 1) {
-            floaty Gx, Gy;
-            floaty d, w;
+            floaty Gx;
+            float Gy;
+            float d;
+            float w;
             floaty xx;
 
             Gx = input[WW*y + x+1] - input[WW*y + x-1];
@@ -330,10 +332,11 @@ int32 main(int32 argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int32) sysconf(_SC_NPROCESSORS_ONLN);
-    if (nthreads < 1)
+    if (nthreads < 1) {
         nthreads = 1;
-    else if (nthreads > MAX_THREADS)
+    } else if (nthreads > MAX_THREADS) {
         nthreads = MAX_THREADS;
+    }
     
     for (int32 i = 0; i < nfilters; i += 1) {
         filter(input0, output0, weights0, hh0, nthreads);

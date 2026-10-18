@@ -118,8 +118,9 @@ median(int32 *array, int32 length) {
 void
 append(Group *group, int32 line[LINE_FIELDS]) {
     int32 j = group->length;
-    if (j >= MAX_LINES_IN_GROUP)
+    if (j >= MAX_LINES_IN_GROUP) {
         return;
+    }
 
     group->angles[j] = line[I_ANGLE];
     memcpy64(group->lines[j], line, line_size);

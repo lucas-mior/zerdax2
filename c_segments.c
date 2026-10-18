@@ -13,8 +13,9 @@ int32
 segments_distance(int32 *restrict line0, int32 *restrict line1){
     int32 distances[4];
 
-    if (segments_intersect(line0, line1))
+    if (segments_intersect(line0, line1)) {
         return 0;
+    }
 
     distances[0] = distance_point_segment(line0[0], line0[1], line1);
     distances[1] = distance_point_segment(line0[2], line0[3], line1);
@@ -27,8 +28,9 @@ int32
 minimum(int32 const distances[4]) {
     int32 min = distances[0];
     for (int32 i = 1; i < 4; i += 1) {
-        if (distances[i] < min)
+        if (distances[i] < min) {
             min = distances[i];
+        }
     }
     return min;
 }
@@ -53,8 +55,9 @@ segments_intersect(int32 *restrict line0, int32 *restrict line1) {
     dyy = yy1 - yy0;
 
     delta = dxx*dy - dyy*dx;
-    if (delta == 0)
+    if (delta == 0) {
         return false;
+    }
 
     s = (double) (dx*yy0 - y0 + dy*x0 - xx0) / (double) delta;
     t = (double) (dxx*y0 - yy0 + dyy*xx0 - x0) / (double) (-delta);
@@ -108,8 +111,9 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
 static void
 print_line(char *name, int *line) {
     printf("%s = [", name);
-    for (int i = 0; i < (LINESIZE - 1); i += 1)
+    for (int i = 0; i < (LINESIZE - 1); i += 1) {
         printf("%d, ", line[i]);
+    }
     printf("%d]\n", line[LINESIZE - 1]);
 
     return;

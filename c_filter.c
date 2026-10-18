@@ -309,12 +309,13 @@ int32 main(int32 argc, char **argv) {
     bool save_results = false;
     uint64 hash_input;
     uint64 hash_output;
+    struct timespec t0;
+    struct timespec t1;
 
     floaty *input0 = malloc2(IMAGE_SIZE*SIZEOF(*input0));
     floaty *output0 = malloc2(IMAGE_SIZE*SIZEOF(*output0));
     floaty *weights0 = malloc2(IMAGE_SIZE*SIZEOF(*weights0));
 
-    struct timespec t0, t1;
     (void) argc;
     (void) argv;
 

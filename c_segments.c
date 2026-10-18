@@ -37,18 +37,29 @@ minimum(int32 const distances[4]) {
 
 bool
 segments_intersect(int32 *restrict line0, int32 *restrict line1) {
-    int32 x0, y0, x1, y1;
-    int32 xx0, yy0, xx1, yy1;
-    int32 dx, dy, dxx, dyy;
+    int32 x0;
+    int32 y0;
+    int32 x1;
+    int32 y1;
+    int32 xx0;
+    int32 yy0;
+    int32 xx1;
+    int32 yy1;
+    int32 dx;
+    int32 dy;
+    int32 dxx;
+    int32 dyy;
     int32 delta;
-    double s, t;
-    bool ss, tt;
+    double s;
+    double t;
+    bool ss;
+    bool tt;
 
     x0 = line0[0]; y0 = line0[1];
     x1 = line0[2]; y1 = line0[3];
     xx0 = line1[0]; yy0 = line1[1];
     xx1 = line1[2]; yy1 = line1[3];
-    
+
     dx = x1 - x0;
     dy = y1 - y0;
     dxx = xx1 - xx0;
@@ -69,8 +80,12 @@ segments_intersect(int32 *restrict line0, int32 *restrict line1) {
 
 int32
 distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
-    int32 x0, y0, x1, y1;
-    int32 dx, dy;
+    int32 x0;
+    int32 y0;
+    int32 x1;
+    int32 y1;
+    int32 dx;
+    int32 dy;
     double distance;
 
     x0 = line[0]; y0 = line[1];
@@ -120,7 +135,8 @@ print_line(char *name, int *line) {
 }
 
 int main(void) {
-    struct timespec t0, t1;
+    struct timespec t0;
+    struct timespec t1;
     int ncalcs = 1000000;
     int distance = 0;
     int line0[LINESIZE];

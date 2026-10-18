@@ -338,7 +338,7 @@ int32 main(int32 argc, char **argv) {
     } else if (nthreads > MAX_THREADS) {
         nthreads = MAX_THREADS;
     }
-    
+
     for (int32 i = 0; i < nfilters; i += 1) {
         filter(input0, output0, weights0, hh0, nthreads);
     }
@@ -350,7 +350,7 @@ int32 main(int32 argc, char **argv) {
 
     for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
-        if ((save_hash.w == WW0) 
+        if ((save_hash.w == WW0)
             && (save_hash.h == HH0)
             && (save_hash.use_double == USE_DOUBLE)) {
              ASSERT_EQ(hash_output, save_hash.hash_output);

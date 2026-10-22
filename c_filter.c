@@ -121,8 +121,8 @@ work(void *arg) {
             floaty w;
             floaty xx;
 
-            Gx = input[WW*y + x+1] - input[WW*y + x-1];
-            Gy = input[WW*(y+1) + x] - input[WW*(y-1) + x];
+            Gx = input[WW*y + x + 1] - input[WW*y + x - 1];
+            Gy = input[WW*(y + 1) + x] - input[WW*(y - 1) + x];
 
             /* xx = fma(Gx, Gx, Gy*Gy); */
             xx = Gx*Gx + Gy*Gy;

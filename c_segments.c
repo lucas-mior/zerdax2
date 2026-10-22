@@ -7,7 +7,7 @@
 
 static inline int32 minimum(int32 [4]);
 static bool segments_intersect(int32 *restrict, int32 *restrict);
-static int32 distance_point_segment(int32 const, int32 const, int32 *restrict);
+static int32 distance_point_segment(int32, int32, int32 *restrict);
 
 int32
 segments_distance(int32 *restrict line0, int32 *restrict line1){
@@ -25,7 +25,7 @@ segments_distance(int32 *restrict line0, int32 *restrict line1){
 }
 
 int32
-minimum(int32 const distances[4]) {
+minimum(int32 distances[4]) {
     int32 min = distances[0];
     for (int32 i = 1; i < 4; i += 1) {
         if (distances[i] < min) {

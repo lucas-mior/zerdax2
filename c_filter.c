@@ -116,9 +116,9 @@ work(void *arg) {
     for (int32 y = y0 + 1; y < (y1 + 1); y += 1) {
         for (int32 x = 1; x < (WW - 1); x += 1) {
             floaty Gx;
-            float Gy;
-            float d;
-            float w;
+            floaty Gy;
+            floaty d;
+            floaty w;
             floaty xx;
 
             Gx = input[WW*y + x+1] - input[WW*y + x-1];

@@ -316,16 +316,16 @@ int32 main(int32 argc, char **argv) {
     floaty *output0 = malloc2(IMAGE_SIZE*SIZEOF(*output0));
     floaty *weights0 = malloc2(IMAGE_SIZE*SIZEOF(*weights0));
 
-    (void) argc;
-    (void) argv;
+    (void)argc;
+    (void)argv;
 
     save_results = argc > 1;
 
     for (int32 i = 0; i < IMAGE_SIZE; i += 4) {
-        input0[i+0] = randd();
-        input0[i+1] = randd();
-        input0[i+2] = randd();
-        input0[i+3] = randd();
+        input0[i + 0] = randd();
+        input0[i + 1] = randd();
+        input0[i + 2] = randd();
+        input0[i + 3] = randd();
     }
 
     hash_input = hash_array(input0);

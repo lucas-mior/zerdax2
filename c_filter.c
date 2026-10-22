@@ -177,7 +177,7 @@ filter(floaty *restrict input0, floaty *restrict output0,
     weights = weights0;
     output = output0;
     hh = hh0;
-    matrix_size = WW * hh;
+    matrix_size = WW*hh;
 
     if (nthreads0 < 1) {
         nthreads = 1;
@@ -224,16 +224,16 @@ filter(floaty *restrict input0, floaty *restrict output0,
     xpthread_mutex_destroy(&done_mutex);
 
     for (int32 x = 0; x < (matrix_size - 1); x += WW) {
-        output[x] = output[x+1];
+        output[x] = output[x + 1];
     }
     for (int32 y = 0; y < (WW - 1); y += 1) {
-        output[y] = output[y+WW];
+        output[y] = output[y + WW];
     }
     for (int32 x = WW - 1; x < (matrix_size - 1); x += WW) {
-        output[x] = output[x-1];
+        output[x] = output[x - 1];
     }
     for (int32 y = (hh - 1)*WW; y < (matrix_size - 1); y += 1) {
-        output[y] = output[y-WW];
+        output[y] = output[y - WW];
     }
 
     return;

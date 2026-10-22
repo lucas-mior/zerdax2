@@ -80,7 +80,7 @@ lines_bundle(int32 lines[][LINE_FIELDS],
         }
         for (int j = 0; j < LINE_FIELDS; j += 2) {
             best_line[j] /= number_bests;
-            best_line[j+1] /= number_bests;
+            best_line[j + 1] /= number_bests;
         }
 
         memcpy64(bundled[m], best_line, line_size);
@@ -109,7 +109,7 @@ median(int32 *array, int32 length) {
         int32 right = array[length/2];
         double average = (double)(left + right) / 2.0;
         double result = round(average);
-        return (int32) result;
+        return (int32)result;
     } else {
         return array[length/2];
     }

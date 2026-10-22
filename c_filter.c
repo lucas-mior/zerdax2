@@ -332,7 +332,7 @@ int32 main(int32 argc, char **argv) {
     printf("input hash: %lluull\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
-    nthreads = (int32) sysconf(_SC_NPROCESSORS_ONLN);
+    nthreads = (int32)sysconf(_SC_NPROCESSORS_ONLN);
     if (nthreads < 1) {
         nthreads = 1;
     } else if (nthreads > MAX_THREADS) {

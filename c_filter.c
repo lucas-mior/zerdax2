@@ -151,9 +151,9 @@ work(void *arg) {
             floaty norm = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
-                    floaty w = weights[WW*(y+i) + x+j];
+                    floaty w = weights[WW*(y + i) + x + j];
                     norm += w;
-                    output[WW*y + x] += w*input[WW*(y+i) + x+j];
+                    output[WW*y + x] += w*input[WW*(y + i) + x + j];
                 }
             }
             output[WW*y + x] /= norm;

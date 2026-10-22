@@ -26,7 +26,7 @@ static Group *first = NULL;
 static Group *last = NULL;
 
 int32 lines_bundle(int32 [][LINE_FIELDS], int32 [][LINE_FIELDS], int32, int32 );
-static int32 compare(const void *, const void *);
+static int32 compare(void *, void *);
 static int32 median(int32 *, int32);
 static void append(Group *, int32 [LINE_FIELDS]);
 static void groups_append(int32 [LINE_FIELDS]);
@@ -95,15 +95,15 @@ lines_bundle(int32 lines[][LINE_FIELDS],
 }
 
 int32
-compare(const void *a, const void *b) {
-    const int32 *c = a;
-    const int32 *d = b;
+compare(void *a, void *b) {
+    int32 *c = a;
+    int32 *d = b;
     return *c - *d;
 }
 
 int32
 median(int32 *array, int32 length) {
-    qsort(array, (size_t)length, SIZEOF(*array), compare);
+    qsort64(array, length, SIZEOF(*array), compare);
     if ((length % 2) == 0) {
         int32 left = array[length/2 - 1];
         int32 right = array[length/2];

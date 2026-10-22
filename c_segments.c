@@ -79,7 +79,7 @@ segments_intersect(int32 *restrict line0, int32 *restrict line1) {
 }
 
 int32
-distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
+distance_point_segment(int32 px, int32 py, int32 *restrict line) {
     int32 x0;
     int32 y0;
     int32 x1;
@@ -107,14 +107,14 @@ distance_point_segment(int32 const px, int32 const py, int32 *restrict line) {
             dx = px - x1;
             dy = py - y1;
         } else {
-            double near_x = (double) x0 + t*dx;
-            double near_y = (double) y0 + t*dy;
-            dx = px - (int32) (round(near_x));
-            dy = py - (int32) (round(near_y));
+            double near_x = (double)x0 + t*dx;
+            double near_y = (double)y0 + t*dy;
+            dx = px - (int32)(round(near_x));
+            dy = py - (int32)(round(near_y));
         }
     }
     distance = round(sqrt(dx*dx + dy*dy));
-    return (int32) distance;
+    return (int32)distance;
 }
 
 #if __INCLUDE_LEVEL__ == 0
@@ -163,7 +163,7 @@ int main(void) {
     {
         long seconds = t1.tv_sec - t0.tv_sec;
         long nanos = t1.tv_nsec - t0.tv_nsec;
-        double total_seconds = (double) seconds + (double) nanos/1.0e9;
+        double total_seconds = (double)seconds + (double)nanos/1.0e9;
         double per_calc = (total_seconds / ncalcs);
         printf("time elapsed for %d: %fs [%es / calculation]\n",
                ncalcs, total_seconds, per_calc);

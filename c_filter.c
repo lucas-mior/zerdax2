@@ -329,7 +329,7 @@ int32 main(int32 argc, char **argv) {
     }
 
     hash_input = hash_array(input0);
-    printf("input hash: %lluull\n", hash_input);
+    fmt_printf("input hash: %lluull\n", hash_input);
     clock_gettime(CLOCK_REALTIME, &t0);
 
     nthreads = (int32)sysconf(_SC_NPROCESSORS_ONLN);
@@ -346,7 +346,7 @@ int32 main(int32 argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t1);
 
     hash_output = hash_image_array(output0);
-    printf("output hash: %lluull\n", hash_output);
+    fmt_printf("output hash: %lluull\n", hash_output);
 
     for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
@@ -368,9 +368,10 @@ int32 main(int32 argc, char **argv) {
         double nanos_per_pixel = 1e3*(micros_per_filter/((double)IMAGE_SIZE));
         double fps = (double)nfilters/total_seconds;
 
-        printf("%s:\n", __FILE__);
-        printf("%gs = %gus per filter = %gns per pixel = %uHz\n",
-               total_seconds, micros_per_filter, nanos_per_pixel, (uint)fps);
+        fmt_printf("%s:\n", __FILE__);
+        fmt_printf("%gs = %gus per filter = %gns per pixel = %uHz\n",
+                   total_seconds, micros_per_filter, nanos_per_pixel,
+                   (uint)fps);
     }
 
     if (save_results) {

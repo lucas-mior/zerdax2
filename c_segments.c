@@ -125,11 +125,11 @@ distance_point_segment(int32 px, int32 py, int32 *restrict line) {
 
 static void
 print_line(char *name, int *line) {
-    printf("%s = [", name);
+    fmt_printf("%s = [", name);
     for (int i = 0; i < (LINESIZE - 1); i += 1) {
-        printf("%d, ", line[i]);
+        fmt_printf("%d, ", line[i]);
     }
-    printf("%d]\n", line[LINESIZE - 1]);
+    fmt_printf("%d]\n", line[LINESIZE - 1]);
 
     return;
 }
@@ -158,15 +158,15 @@ int main(void) {
 
     clock_gettime(CLOCK_REALTIME, &t1);
 
-    printf("total distance: %d\n", distance);
+    fmt_printf("total distance: %d\n", distance);
 
     {
         long seconds = t1.tv_sec - t0.tv_sec;
         long nanos = t1.tv_nsec - t0.tv_nsec;
         double total_seconds = (double)seconds + (double)nanos/1.0e9;
         double per_calc = (total_seconds / ncalcs);
-        printf("time elapsed for %d: %fs [%es / calculation]\n",
-               ncalcs, total_seconds, per_calc);
+        fmt_printf("time elapsed for %d: %fs [%es / calculation]\n",
+                   ncalcs, total_seconds, per_calc);
     }
     exit(0);
 }

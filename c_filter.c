@@ -298,7 +298,6 @@ typedef struct SaveHash {
     uint64 hash_output;
 } SaveHash;
 
-#define LENGHT(X) (int32)(SIZEOF(X) / SIZEOF(*X))
 static SaveHash hash_remember[] = {
     {512, 512, 1, 0, 154476712296453381ull, 9060896705864926636ull},
 };
@@ -348,7 +347,7 @@ int32 main(int32 argc, char **argv) {
     hash_output = hash_image_array(output0);
     fmt_printf("output hash: %lluull\n", hash_output);
 
-    for (int32 i = 0; i < LENGHT(hash_remember); i += 1) {
+    for (int32 i = 0; i < LENGTH(hash_remember); i += 1) {
         SaveHash save_hash = hash_remember[i];
         if ((save_hash.w == WW0)
             && (save_hash.h == HH0)

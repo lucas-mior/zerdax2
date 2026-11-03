@@ -610,6 +610,26 @@ str_printf("%.*s = %d\n", name_len, name, number);
 Note: `cbase/fmt.c` auto handles the case of passing `NULL` as the `char *`
 argument for `"%s"` family formatters, no need to check it.
 
+When using `"%.*s"` with parallel arrays, use `SP(array, index)` instead
+of repeating both the array name and index for the `array_lens[index]`,
+`array[index]` pair. This applies to standalone array variables as well as
+arrays accessed through structs. The array name must end in `s`, and `SP`
+expands to the byte length and pointer in that order:
+```c
+// bad: struct members
+fmt_printf("value: %.*s", s->strings_lens[i], s->strings[i]);
+
+// good: struct members
+fmt_printf("value: %.*s", SP(s->strings, i));
+
+// bad: standalone arrays
+fmt_printf("value: %.*s", strings_lens[i], strings[i]);
+
+// good: standalone arrays
+fmt_printf("value: %.*s", SP(strings, i));
+```
+This also applies when other conversions precede `"%.*s"` in the format.
+
 Do not use a format string that only formats a single argument without any
 literal content:
 ```c
@@ -835,6 +855,7 @@ result encodes an error number.
 
 ### Control flow and error handling
 - Avoid `goto`. Use it only for common cleanup logic.
+- Never use `goto` to jump to a previous line in the function.
 - Sometimes a useful pattern to avoid using goto:
   ```c
   do {
@@ -1037,7 +1058,6 @@ if (enum & ENUM_BITFLAG) {
 - Use the assertions defined in `cbase/assertions.c`.
   - `ASSERT(expression)`
   - `ASSERT_NULL(pointer)`
-  - `ASSERT_ZERO(integer expression)`
   - `ASSERT_EQ(value1, value2)`
   - `ASSERT_NE(value1, value2)`
   - `ASSERT_EQ(string, string_len, other_string)`
@@ -1060,8 +1080,9 @@ if (enum & ENUM_BITFLAG) {
 - Do not use `ASSERT_EQ` for enums.
   * Use `ASSERT(enumvalue1 == enumvalue2)` instead, so that the compiler does
     not complain.
-- Use `ASSERT_EQ(a, b)` instead of `ASSERT_CLOSE(a, b, 0.0)`. A zero
+- For floats, Use `ASSERT_EQ(a, b)` instead of `ASSERT_CLOSE(a, b, 0.0)`. A zero
   tolerance requires exact equality, not a closeness assertion.
+  * For tolerance equality, use
 - For asserting that a function did or didn't fail/return NULL:
   ```c
   // bad

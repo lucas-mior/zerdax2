@@ -98,7 +98,7 @@ distance_point_segment(int32 px, int32 py, int32 *restrict line) {
         dy = py - y0;
     } else {
         double t = (double)((px - x0)*dx + (py - y0)*dy)
-                            / (double)(dx*dx + dy*dy);
+                   / (double)(dx*dx + dy*dy);
 
         if (t < 0) {
             dx = px - x0;

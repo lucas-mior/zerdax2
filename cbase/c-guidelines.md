@@ -55,6 +55,20 @@ preconditions; assert those instead.
   that is only used inside a short loop.
 - Use `i`, `j`, and `k` for `for` loop counters.
   * Exception: enum iterating, you can use other names in that case.
+  * Note: never use `i`, `j`, and `k` as function argument names:
+  ```c
+  // bad
+  static void
+  function(double *array, int32 i) {
+      return;
+  }
+
+  // good
+  static void
+  function(double *array, int32 idx) {
+      return;
+  }
+  ```
 - Don't use `error` for names of variables, it is already used to print error
   messages. Use something like `${some_prefix}_error`.
 
@@ -200,6 +214,20 @@ Avoid using `SIZEOF(TypePointedTo)`. Prefer to use `SIZEOF(*pointer)`.
   * `realloc2` does overflow check internally.
   * `free2` already checks if the passed pointer is NULL. Never guard a call to
     free2 solely with a NULL check.
+  * When freeing a null-terminated string whose length is not tracked, use
+    `free2(pointer, opt_strlen32(pointer) + 1)`, not
+    `free2(pointer, strlen32(pointer) + 1)`. `strlen32` requires a non-NULL
+    argument, whereas `opt_strlen32(NULL)` returns 0. A NULL check around
+    `free2` is not a substitute for the NULL-safe length function.
+    ```c
+    // bad
+    if (name) {
+        free2(name, strlen32(name) + 1);
+    }
+
+    // good
+    free2(name, opt_strlen32(name) + 1);
+    ```
 - Choose what is best in each situation:
   * Use the `arena.c` bump allocator for groups of allocations with the same
     lifetime, either of equal or different sizes.

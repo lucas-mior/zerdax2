@@ -4827,7 +4827,7 @@ fmt_strftime_l(char *buffer, int64 capacity, char *format,
     ASSERT(locale != NULL);
 
     if ((format == NULL) || (time_info == NULL) || (locale == NULL)) {
-        if ((buffer != NULL) && (capacity > 0)) {
+        if ((buffer) && (capacity > 0)) {
             buffer[0] = '\0';
         }
         return 0;
@@ -5044,7 +5044,7 @@ test_fmt_parser_valid_specs(void) {
 
     spec = fmt_test_parse_one("%%");
     ASSERT_EQ(spec.conversion, '%');
-    ASSERT_EQ(spec.flags, 0);
+    ASSERT(spec.flags == 0);
     ASSERT(spec.length == FMT_LENGTH_NONE);
 
     spec = fmt_test_parse_one("%08.3d");

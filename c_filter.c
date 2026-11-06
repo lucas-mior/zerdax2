@@ -34,8 +34,7 @@ static int32 hh;
 static int32 nthreads;
 static int32 matrix_size;
 
-void filter(floaty *restrict, floaty *restrict,
-            floaty *restrict, int32, int32);
+void filter(floaty *restrict, floaty *restrict, floaty *restrict, int32, int32);
 
 typedef struct Slice {
     pthread_mutex_t *done_mutex;

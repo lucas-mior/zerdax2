@@ -47,17 +47,6 @@ typedef struct Slice {
 } Slice;
 
 static void
-xcond_broadcast(pthread_cond_t *cond) {
-    int err;
-
-    if ((err = pthread_cond_broadcast(cond))) {
-        error("Error broadcasting cond %p: %s.\n", (void *)cond, strerror(err));
-        fatal(EXIT_FAILURE);
-    }
-    return;
-}
-
-static void
 wait_for_slice_weights(pthread_mutex_t *done_mutex, pthread_cond_t *done_cond,
                        int32 *slice_weights_done, int32 id) {
     while (!slice_weights_done[id]) {
@@ -116,7 +105,15 @@ work(void *arg) {
 
     xpthread_mutex_lock(done_mutex);
     slice_weights_done[id] = 1;
-    xcond_broadcast(done_cond);
+    {
+        int err;
+
+        if ((err = pthread_cond_broadcast(done_cond))) {
+            error("Error broadcasting cond: %s.\n", strerror(err));
+            fatal(EXIT_FAILURE);
+        }
+    }
+
 
     if (id > 0) {
         wait_for_slice_weights(done_mutex, done_cond, slice_weights_done,

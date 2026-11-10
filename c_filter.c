@@ -47,17 +47,6 @@ typedef struct Slice {
 } Slice;
 
 static void
-xcond_init(pthread_cond_t *cond) {
-    int err;
-
-    if ((err = pthread_cond_init(cond, NULL))) {
-        error("Error initializing cond %p: %s.\n", (void *)cond, strerror(err));
-        fatal(EXIT_FAILURE);
-    }
-    return;
-}
-
-static void
 xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
     int err;
 
@@ -189,7 +178,15 @@ filter(floaty *restrict input0, floaty *restrict output0,
     range = hh / nthreads;
 
     xpthread_mutex_init(&done_mutex, NULL);
-    xcond_init(&done_cond);
+
+    {
+        int err;
+
+        if ((err = pthread_cond_init(&done_cond, NULL))) {
+            error("Error initializing cond: %s.\n", strerror(err));
+            fatal(EXIT_FAILURE);
+        }
+    }
 
     for (int32 i = 0; i < nthreads; i += 1) {
         slice_weights_done[i] = 0;

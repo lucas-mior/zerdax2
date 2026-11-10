@@ -47,17 +47,6 @@ typedef struct Slice {
 } Slice;
 
 static void
-xcond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
-    int err;
-
-    if ((err = pthread_cond_wait(cond, mutex))) {
-        error("Error waiting on cond %p: %s.\n", (void *)cond, strerror(err));
-        fatal(EXIT_FAILURE);
-    }
-    return;
-}
-
-static void
 xcond_broadcast(pthread_cond_t *cond) {
     int err;
 
@@ -72,7 +61,12 @@ static void
 wait_for_slice_weights(pthread_mutex_t *done_mutex, pthread_cond_t *done_cond,
                        int32 *slice_weights_done, int32 id) {
     while (!slice_weights_done[id]) {
-        xcond_wait(done_cond, done_mutex);
+        int err;
+
+        if ((err = pthread_cond_wait(done_cond, done_mutex))) {
+            error("Error waiting on cond: %s.\n", strerror(err));
+            fatal(EXIT_FAILURE);
+        }
     }
     return;
 }

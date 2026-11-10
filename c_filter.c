@@ -16,6 +16,7 @@
 
 #define WW0 1920
 #define MAX_THREADS 8
+#define FILTER_AT(ARRAY, ROW, COLUMN) ARRAY[(ROW)*WW + (COLUMN)]
 
 #define USE_DOUBLE 1
 
@@ -92,14 +93,14 @@ work(void *arg) {
             floaty w;
             floaty xx;
 
-            Gx = input[WW*y + x + 1] - input[WW*y + x - 1];
-            Gy = input[WW*(y + 1) + x] - input[WW*(y - 1) + x];
+            Gx = FILTER_AT(input, y, x + 1) - FILTER_AT(input, y, x - 1);
+            Gy = FILTER_AT(input, y + 1, x) - FILTER_AT(input, y - 1, x);
 
             /* xx = fma(Gx, Gx, Gy*Gy); */
             xx = Gx*Gx + Gy*Gy;
             d = sqrt(xx);
             w = exp(-sqrt(d));
-            weights[WW*y + x] = w;
+            FILTER_AT(weights, y, x) = w;
         }
     }
 
@@ -113,8 +114,6 @@ work(void *arg) {
             fatal(EXIT_FAILURE);
         }
     }
-
-
     if (id > 0) {
         wait_for_slice_weights(done_mutex, done_cond, slice_weights_done,
                                id - 1);
@@ -130,12 +129,13 @@ work(void *arg) {
             floaty norm = 0;
             for (int32 i = -1; i <= +1; i += 1) {
                 for (int32 j = -1; j <= +1; j += 1) {
-                    floaty w = weights[WW*(y + i) + x + j];
+                    floaty w = FILTER_AT(weights, y + i, x + j);
                     norm += w;
-                    output[WW*y + x] += w*input[WW*(y + i) + x + j];
+                    FILTER_AT(output, y, x) +=
+                        w*FILTER_AT(input, y + i, x + j);
                 }
             }
-            output[WW*y + x] /= norm;
+            FILTER_AT(output, y, x) /= norm;
         }
     }
 

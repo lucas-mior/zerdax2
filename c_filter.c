@@ -131,8 +131,7 @@ work(void *arg) {
                 for (int32 j = -1; j <= +1; j += 1) {
                     floaty w = FILTER_AT(weights, y + i, x + j);
                     norm += w;
-                    FILTER_AT(output, y, x) +=
-                        w*FILTER_AT(input, y + i, x + j);
+                    FILTER_AT(output, y, x) += w*FILTER_AT(input, y + i, x + j);
                 }
             }
             FILTER_AT(output, y, x) /= norm;

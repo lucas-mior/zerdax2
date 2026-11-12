@@ -536,7 +536,7 @@ assert_equal_4(char *file, int32 line, char *func,
     if ((var1 == NULL) && (var2 == NULL)) {
         return true;
     }
-    if (memcmp64(var1, var2, var1_len) != 0) {
+    if (memcmp64(var1, var2, var1_len)) {
         if (DEBUGGING) {
             assert_error(file, line, func,
                          "%s = %.*s == %.*s = %s\n",
@@ -902,7 +902,7 @@ assert_double_is_negative(double x) {
     uint64 sign_mask = 0x8000000000000000ull;
 
     bits.as_double = x;
-    return (bits.as_uint & sign_mask) != 0;
+    return bits.as_uint & sign_mask;
 }
 
 static bool
